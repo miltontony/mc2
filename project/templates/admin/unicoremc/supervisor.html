@@ -4,13 +4,13 @@
 {% block breadcrumbs %}
 <ul>
 <li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
-<li>Apps</li>
+<li>Supervisor Configs</li>
 </ul>
 {% endblock %}
 
 {% block content %}
 <div id="content-main">
-    <h1>Apps</h1>
+    <h1>Supervisor Configs</h1>
     <div>
     <form>
     {% for config in supervisor_configs %}

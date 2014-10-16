@@ -19,7 +19,7 @@ def read_config(f):
     ]
 
 
-@admin.site.register_view('apps/', 'Apps')
+@admin.site.register_view('supervisor/', 'Supervisor Configs')
 def apps_view(request, *args, **kwargs):
     supervisor_path = settings.SUPERVISOR_CONFIGS_PATH
     supervisor_configs = []
@@ -36,4 +36,4 @@ def apps_view(request, *args, **kwargs):
     context = {
         'supervisor_configs': supervisor_configs,
     }
-    return render(request, 'admin/unicoremc/apps.html', context)
+    return render(request, 'admin/unicoremc/supervisor.html', context)
