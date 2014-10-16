@@ -217,6 +217,11 @@ RAVEN_CONFIG = {
     # 'dsn': 'http://public:secret@example.com/1',
 }
 
+# path to supervisor conf files
+# Default: /etc/supervisor/conf.d/
+
+SUPERVISOR_CONFIGS_PATH = '/etc/supervisor/conf.d/'
+
 try:
     from project.local_settings import *
 except ImportError:
