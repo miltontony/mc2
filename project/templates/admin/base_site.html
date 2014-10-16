@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+{% load i18n grp_tags %}
+
+{% block messages %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+    (function($) {
+        $(document).ready(function() {
+            //javascript goes here
+        });
+    })(grp.jQuery);
+    </script>
+{% endblock %}
