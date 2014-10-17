@@ -18,9 +18,9 @@
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>App type</label></div>
                 <div class="c-2">
-                    <select>
+                    <select id="unicore_app">
                         <option value="">---------</option>
-                        <option value="ffl">Facts for life</option>
+                        <option value="ffl">Facts for Life</option>
                         <option value="gem">GEM</option>
                         <option value="mama">MAMA</option>
                         <option value="ebola">Ebola Information</option>
@@ -33,7 +33,7 @@
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Base content repo</label></div>
                 <div class="c-2">
-                    <select>
+                    <select id="base_repo" name="base_repo" disabled="disabled">
                         <option value="">---------</option>
                     </select>
                     <p class="grp-help">This is the Content Repo that the site will be based on.</p>
@@ -44,8 +44,11 @@
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Country</label></div>
                 <div class="c-2">
-                    <select>
+                    <select id="country" disabled="disabled">
                         <option value="">---------</option>
+                        {% for c in countries %}
+                            <option value="{{c.code}}">{{c.name}}</option>
+                        {% endfor %}
                     </select>
                     <p class="grp-help">The country this is intended for. This will inform the url</p>
                 </div>
@@ -145,4 +148,39 @@
     </form>
     </div>
 </div>
+
+<script type="text/javascript">
+if (typeof String.prototype.startsWith != 'function') {
+  String.prototype.startsWith = function (str){
+    return this.slice(0, str.length) == str;
+  };
+}
+
+(function($) {
+    function load_content_repos(app_name){
+        //javascript goes here
+        $.get('https://api.github.com/orgs/universalcore/repos?type=public')
+            .done(function(data){
+                var options = new Array();
+                options.push($('<option>').text('---------'));
+                $.each(data, function(){
+                    if(this.name.startsWith('unicore-cms-content-' + app_name)){
+                        options.push(
+                            $('<option>').val(this.clone_url).text(this.name));
+                    }
+                });
+                $('#base_repo').html(options).removeAttr('disabled');
+            });
+    }
+
+    $(document).ready(function() {
+        $('#unicore_app').change(function(){
+            load_content_repos($(this).val());
+        });
+        $('#base_repo').change(function(){
+            $("#country").removeAttr('disabled');
+        });
+    });
+})(grp.jQuery);
+</script>
 {% endblock%}

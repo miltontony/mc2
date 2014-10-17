@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.shortcuts import render
 from django.http import Http404
+from django.conf import settings
 
 from unicoremc.utils import NodeManager
 
@@ -50,5 +51,6 @@ def nginx_config_view(request, *args, **kwargs):
 @admin.site.register_view('new/', 'New Project')
 def new_project_view(request, *args, **kwargs):
     context = {
+        'countries': settings.COUNTRIES
     }
     return render(request, 'admin/unicoremc/new_project.html', context)
