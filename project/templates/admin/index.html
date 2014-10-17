@@ -41,11 +41,9 @@
             {% if custom_list %}
                 <div class="grp-module" id="custom_views">
                     <h2>{% trans 'Custom Views' %}</h2>
-                        {% for path, name in custom_list %}
                         <div class="grp-row">
-                            <a href="{{ path }}"><strong>{{ name }}</strong></a>
+                            <a href="{% url 'admin:index' %}supervisor/"><strong>Supervisor Configs</strong></a>
                         </div>
-                        {% endfor %}
                 </div>
             {% endif %}
         {% endblock %}

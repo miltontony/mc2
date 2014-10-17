@@ -13,26 +13,26 @@
     <h1>Supervisor Configs</h1>
     <div>
     <form>
-    {% for config in supervisor_configs %}
-    <fieldset class="grp-module grp-collapse">
-        <h2 class="grp-collapse-handler">{{config.name}}</h2>
-        {% for section in config.sections %}
-            <div class="grp-row grp-cells-1">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label><strong>{{section.name}}</strong></label></div>
-            </div>
-            {% for key, value in section.items %}
-            <div class="grp-row grp-cells-1">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>{{key}}</label></div>
-                <div class="c-2">
-                    <input class="vTextField" maxlength="30" type="text" value="{{value}}"/></div>
-                </div>
-            </div>
+<div class="grp-module grp-changelist-results">
+    <table id="result_list" cellspacing="0" class="grp-sortable">
+        <thead>
+            <tr>
+                <th scope="col" class="sortable column-username sorted ascending">
+                    <div class="grp-text"><a href="?o=-1">Filename</a></div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for config in supervisor_configs %}
+            <tr class="grp-row grp-row-{% cycle 'odd' 'even' %}">
+                <th>
+                    <a href="{% url 'admin:index' %}supervisor/config/?filename={{config.filename}}">{{config.filename}}</a>
+                </th>
+            </tr>
             {% endfor %}
-        {% endfor %}
-    </fieldset>
-    {% endfor %}
+        </tbody>
+    </table>
+</div>
     </form>
     </div>
 </div>
