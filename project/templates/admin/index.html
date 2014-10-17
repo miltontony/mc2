@@ -53,9 +53,12 @@
             {% if custom_list %}
                 <div class="grp-module" id="custom_views">
                     <h2>{% trans 'Mission Control' %}</h2>
-                        <div class="grp-row">
-                            <a href="{% url 'admin:index' %}supervisor/"><strong>Supervisor Configs</strong></a>
-                        </div>
+                    <div class="grp-row">
+                        <a href="{% url 'admin:index' %}supervisor/"><strong>Supervisor Configs</strong></a>
+                    </div>
+                    <div class="grp-row">
+                        <a href="{% url 'admin:index' %}nginx/"><strong>Nginx Configs</strong></a>
+                    </div>
                 </div>
             {% endif %}
         {% endblock %}
