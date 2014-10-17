@@ -3,6 +3,18 @@
 <!-- LOADING -->
 {% load i18n grp_tags log %}
 
+<!-- BREADCRUMBS -->
+{% block breadcrumbs %}
+    <ul class="grp-horizontal-list">
+        <li>{% trans "Home" %}</li>
+    </ul>
+{% endblock %}
+{% block content_title %}
+    {% if title %}
+        <header><h1>Universal Core Mission Control</h1></header>
+    {% endif %}
+{% endblock %}
+
 <!-- CONTENT -->
 {% block content %}
     <div class="g-d-c">
@@ -40,12 +52,13 @@
         {% block custom_views %}
             {% if custom_list %}
                 <div class="grp-module" id="custom_views">
-                    <h2>{% trans 'Custom Views' %}</h2>
-                        {% for path, name in custom_list %}
-                        <div class="grp-row">
-                            <a href="{{ path }}"><strong>{{ name }}</strong></a>
-                        </div>
-                        {% endfor %}
+                    <h2>{% trans 'Mission Control' %}</h2>
+                    <div class="grp-row">
+                        <a href="{% url 'admin:index' %}supervisor/"><strong>Supervisor Configs</strong></a>
+                    </div>
+                    <div class="grp-row">
+                        <a href="{% url 'admin:index' %}nginx/"><strong>Nginx Configs</strong></a>
+                    </div>
                 </div>
             {% endif %}
         {% endblock %}
