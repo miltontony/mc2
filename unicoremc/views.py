@@ -54,3 +54,12 @@ def new_project_view(request, *args, **kwargs):
         'countries': settings.COUNTRIES
     }
     return render(request, 'admin/unicoremc/new_project.html', context)
+
+
+@admin.site.register_view('new/sleep/', 'Test function')
+def test_ajax_function(request, *args, **kwargs):
+    from time import sleep
+    sleep(2)
+    context = {
+    }
+    return render(request, 'admin/unicoremc/new_project.html', context)
