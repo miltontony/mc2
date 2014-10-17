@@ -1,0 +1,148 @@
+{% extends "admin/base_site.html" %}
+ {% load i18n admin_urls admin_static %}
+
+{% block breadcrumbs %}
+<ul>
+<li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+<li>New Project</li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" class="new-project">
+    <h1>New Project</h1>
+    <div>
+    <form>
+    <fieldset class="grp-module grp-collapse">
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>App type</label></div>
+                <div class="c-2">
+                    <select>
+                        <option value="">---------</option>
+                        <option value="ffl">Facts for life</option>
+                        <option value="gem">GEM</option>
+                        <option value="mama">MAMA</option>
+                        <option value="ebola">Ebola Information</option>
+                    </select>
+                    <p class="grp-help">This is the Content Repo that the site will be based on.</p>
+                </div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Base content repo</label></div>
+                <div class="c-2">
+                    <select>
+                        <option value="">---------</option>
+                    </select>
+                    <p class="grp-help">This is the Content Repo that the site will be based on.</p>
+                </div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Country</label></div>
+                <div class="c-2">
+                    <select>
+                        <option value="">---------</option>
+                    </select>
+                    <p class="grp-help">The country this is intended for. This will inform the url</p>
+                </div>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="grp-module grp-collapse new-project-progress">
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Creating new repo..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Cloning repo..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Seting up remote with base site as source..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Merging content..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Creating supervisor config from template..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Creating nging config from template..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Creating settings file for pyramid from template..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Creating settings file for cms from template..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Creating database..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Initializing database..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Initializing CMS with content..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Reloading supervisor..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Reloading nginx..</label></div>
+                <div class="c-2">&nbsp;</div>
+            </div>
+        </div>
+
+    </fieldset>
+
+    <footer class="grp-module grp-submit-row grp-fixed-footer">
+        <header style="display:none"><h1>Submit Options</h1></header>
+        <ul>
+            <li><input type="submit" value="Launch" class="grp-button grp-default" name="_save"></li>
+        </ul>
+    </footer>
+
+    </form>
+    </div>
+</div>
+{% endblock%}

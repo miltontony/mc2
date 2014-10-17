@@ -1,12 +1,6 @@
 {% extends "admin/base_site.html" %}
  {% load i18n admin_urls admin_static %}
 
-{% block extrastyle %}
-{{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static "unicoremc/css/custom.css" %}" />
-{% endblock %}
-
-
 {% block breadcrumbs %}
 <ul>
 <li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
