@@ -5,3 +5,7 @@
 .mc-add-project .grp-object-tools{
     top: 0;
 }
+
+.new-project-progress .l-2c-fluid:not(.grp-cell).l-d-4 .c-1 {
+    width: 300px;
+}
