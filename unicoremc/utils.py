@@ -23,9 +23,9 @@ class NodeManager(object):
         self.supervisor_path = settings.SUPERVISOR_CONFIGS_PATH
         self.nginx_path = settings.NGINX_CONFIGS_PATH
         self.supervisor_configs = []
-        self.load_configs()
+        self.load_supervisor_configs()
 
-    def load_configs(self):
+    def load_supervisor_configs(self):
         if os.path.exists(self.supervisor_path):
             self.supervisor_configs = [
                 Supervisor(f, os.path.join(self.supervisor_path, f))
