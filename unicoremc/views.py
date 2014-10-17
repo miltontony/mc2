@@ -45,3 +45,10 @@ def nginx_config_view(request, *args, **kwargs):
         raise Http404
 
     return render(request, 'admin/unicoremc/nginx_detail.html', context)
+
+
+@admin.site.register_view('new/', 'New Project')
+def new_project_view(request, *args, **kwargs):
+    context = {
+    }
+    return render(request, 'admin/unicoremc/new_project.html', context)

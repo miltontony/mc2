@@ -1,3 +1,7 @@
 .nginx-textarea{
     height: 500px;
 }
+
+.mc-add-project .grp-object-tools{
+    top: 0;
+}
