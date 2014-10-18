@@ -281,3 +281,29 @@ class PostTestCase(TestCase):
         pw.take_action('finish')
 
         self.assertEquals(p.state, 'done')
+
+    def test_next(self):
+        p = Project(
+            app_type='ffl',
+            base_repo_url='http://some-git-repo.com',
+            country='ZA',
+            owner=self.user)
+        p.save()
+        self.assertEquals(p.state, 'initial')
+
+        pw = ProjectWorkflow(instance=p)
+        pw.next()
+        self.assertEquals(p.state, 'repo_created')
+
+    def test_automation_using_next(self):
+        p = Project(
+            app_type='ffl',
+            base_repo_url='http://some-git-repo.com',
+            country='ZA',
+            owner=self.user)
+        p.save()
+        self.assertEquals(p.state, 'initial')
+
+        pw = ProjectWorkflow(instance=p)
+        pw.run_all()
+        self.assertEquals(p.state, 'done')

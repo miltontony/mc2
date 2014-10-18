@@ -3,7 +3,7 @@ from ostinato.statemachine import State, StateMachine
 
 class Initial(State):
     verbose_name = 'Initial'
-    transitions = {'destroy': 'destroyed', 'create_repo': 'repo_created'}
+    transitions = {'create_repo': 'repo_created'}
 
     def create_repo(self, **kwargs):
         if self.instance:
@@ -19,75 +19,67 @@ class Initial(State):
 
 class RepoCreated(State):
     verbose_name = 'Public'
-    transitions = {'destroy': 'destroyed', 'clone_repo': 'repo_cloned'}
+    transitions = {'clone_repo': 'repo_cloned'}
 
 
 class RepoCloned(State):
     verbose_name = 'Repo Cloned'
-    transitions = {'destroy': 'destroyed', 'create_remote': 'remote_created'}
+    transitions = {'create_remote': 'remote_created'}
 
 
 class RemoteCreated(State):
     verbose_name = 'Remote Created'
-    transitions = {'destroy': 'destroyed', 'merge_remote': 'remote_merged'}
+    transitions = {'merge_remote': 'remote_merged'}
 
 
 class RemoteMerged(State):
     verbose_name = 'Remote Merged'
-    transitions = {
-        'destroy': 'destroyed',
-        'create_supervisor': 'supervisor_created'}
+    transitions = {'create_supervisor': 'supervisor_created'}
 
 
 class SupervisorCreated(State):
     verbose_name = 'Supervisor Created'
-    transitions = {'destroy': 'destroyed', 'create_nginx': 'nginx_created'}
+    transitions = {'create_nginx': 'nginx_created'}
 
 
 class NginxCreated(State):
     verbose_name = 'Nginx Created'
-    transitions = {
-        'destroy': 'destroyed',
-        'create_pyramid_settings': 'pyramid_settings_created'}
+    transitions = {'create_pyramid_settings': 'pyramid_settings_created'}
 
 
 class PyramidSettingsCreated(State):
     verbose_name = 'Pyarmid Settings Created'
-    transitions = {
-        'destroy': 'destroyed',
-        'create_cms_settings': 'cms_settings_created'}
+    transitions = {'create_cms_settings': 'cms_settings_created'}
 
 
 class CmsSettingsCreated(State):
     verbose_name = 'Cms Settings Created'
-    transitions = {'destroy': 'destroyed', 'create_db': 'db_created'}
+    transitions = {'create_db': 'db_created'}
 
 
 class DbCreated(State):
     verbose_name = 'Database Created'
-    transitions = {'destroy': 'destroyed', 'init_db': 'db_initialized'}
+    transitions = {'init_db': 'db_initialized'}
 
 
 class DbInitialized(State):
     verbose_name = 'Database Initialized'
-    transitions = {'destroy': 'destroyed', 'init_cms': 'cms_initialized'}
+    transitions = {'init_cms': 'cms_initialized'}
 
 
 class CmsInitialized(State):
     verbose_name = 'CMS Initialized'
-    transitions = {
-        'destroy': 'destroyed',
-        'reload_supervisor': 'supervisor_reloaded'}
+    transitions = {'reload_supervisor': 'supervisor_reloaded'}
 
 
 class SupervisorReloaded(State):
     verbose_name = 'Supervisor Reloaded'
-    transitions = {'destroy': 'destroyed', 'reload_nginx': 'nginx_reloaded'}
+    transitions = {'reload_nginx': 'nginx_reloaded'}
 
 
 class NginxReloaded(State):
     verbose_name = 'Database Initialized'
-    transitions = {'destroy': 'destroyed', 'finish': 'done'}
+    transitions = {'finish': 'done'}
 
 
 class Done(State):
@@ -120,3 +112,17 @@ class ProjectWorkflow(StateMachine):
         'done': Done,
     }
     initial_state = 'initial'
+
+    def next(self):
+        if self.instance:
+            for action in self.actions:
+                if self.has_next():
+                    self.take_action(action)
+
+    def has_next(self):
+        return self.instance and 'done' not in self.instance.state and \
+            'destroyed' not in self.instance.state
+
+    def run_all(self):
+        while self.has_next():
+            self.next()
