@@ -48,7 +48,7 @@ class NginxCreated(State):
     verbose_name = 'Nginx Created'
     transitions = {
         'destroy': 'destroyed',
-        'create_pyramid_settings': 'pyarmid_settings_created'}
+        'create_pyramid_settings': 'pyramid_settings_created'}
 
 
 class PyramidSettingsCreated(State):
@@ -110,7 +110,7 @@ class ProjectWorkflow(StateMachine):
         'remote_merged': RemoteMerged,
         'supervisor_created': SupervisorCreated,
         'nginx_created': NginxCreated,
-        'pyarmid_settings_created': PyramidSettingsCreated,
+        'pyramid_settings_created': PyramidSettingsCreated,
         'cms_settings_created': CmsSettingsCreated,
         'db_created': DbCreated,
         'db_initialized': DbInitialized,
