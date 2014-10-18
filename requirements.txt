@@ -12,8 +12,5 @@ django-debug-toolbar
 pep8
 pyflakes
 django-grappelli<2.6.1
-pytest
-pytest-django
-pytest-cov
-pytest-xdist
 python-social-auth
+Django-ostinato
