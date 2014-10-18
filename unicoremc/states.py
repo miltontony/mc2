@@ -19,21 +19,21 @@ class Initial(State):
 
 class RepoCreated(State):
     verbose_name = 'Public'
-    transitions = {'destroy': 'destroyed', 'clone': 'cloned'}
+    transitions = {'destroy': 'destroyed', 'clone_repo': 'repo_cloned'}
 
 
-class Cloned(State):
-    verbose_name = 'Cloned'
+class RepoCloned(State):
+    verbose_name = 'Repo Cloned'
     transitions = {'destroy': 'destroyed', 'create_remote': 'remote_created'}
 
 
 class RemoteCreated(State):
     verbose_name = 'Remote Created'
-    transitions = {'destroy': 'destroyed', 'merge': 'merged'}
+    transitions = {'destroy': 'destroyed', 'merge_remote': 'remote_merged'}
 
 
-class Merged(State):
-    verbose_name = 'Merged'
+class RemoteMerged(State):
+    verbose_name = 'Remote Merged'
     transitions = {
         'destroy': 'destroyed',
         'create_supervisor': 'supervisor_created'}
@@ -105,9 +105,9 @@ class ProjectWorkflow(StateMachine):
         'initial': Initial,
         'destroyed': Destroyed,
         'repo_created': RepoCreated,
-        'cloned': Cloned,
+        'repo_cloned': RepoCloned,
         'remote_created': RemoteCreated,
-        'merged': Merged,
+        'remote_merged': RemoteMerged,
         'supervisor_created': SupervisorCreated,
         'nginx_created': NginxCreated,
         'pyarmid_settings_created': PyramidSettingsCreated,
