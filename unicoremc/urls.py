@@ -38,4 +38,9 @@ urlpatterns = patterns(
         'unicoremc.views.test_ajax_function',
         name='new_project_sleep'
     ),
+    url(
+        r'^logout/$',
+        'django.contrib.auth.views.logout_then_login',
+        name='logout'
+    ),
 )
