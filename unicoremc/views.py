@@ -10,7 +10,7 @@ def home(request):
     return render(request, 'unicoremc/home.html', {})
 
 
-@login_required(login_url='/')
+@login_required
 def list_supervisor_configs_view(request, *args, **kwargs):
     context = {
         'supervisor_configs': NodeManager().supervisor_configs,
@@ -18,7 +18,7 @@ def list_supervisor_configs_view(request, *args, **kwargs):
     return render(request, 'unicoremc/supervisor.html', context)
 
 
-@login_required(login_url='/')
+@login_required
 def list_nginx_configs_view(request, *args, **kwargs):
     context = {
         'nginx_configs': NodeManager().nginx_configs,
@@ -26,7 +26,7 @@ def list_nginx_configs_view(request, *args, **kwargs):
     return render(request, 'unicoremc/nginx.html', context)
 
 
-@login_required(login_url='/')
+@login_required
 def supervisor_config_view(request, *args, **kwargs):
     filename = request.GET.get('filename')
     if filename:
@@ -39,7 +39,7 @@ def supervisor_config_view(request, *args, **kwargs):
     return render(request, 'unicoremc/supervisor_detail.html', context)
 
 
-@login_required(login_url='/')
+@login_required
 def nginx_config_view(request, *args, **kwargs):
     filename = request.GET.get('filename')
     if filename:
@@ -52,7 +52,7 @@ def nginx_config_view(request, *args, **kwargs):
     return render(request, 'unicoremc/nginx_detail.html', context)
 
 
-@login_required(login_url='/')
+@login_required
 def new_project_view(request, *args, **kwargs):
     context = {
         'countries': constants.COUNTRIES
@@ -60,7 +60,7 @@ def new_project_view(request, *args, **kwargs):
     return render(request, 'unicoremc/new_project.html', context)
 
 
-@login_required(login_url='/')
+@login_required
 def test_ajax_function(request, *args, **kwargs):
     from time import sleep
     sleep(2)
