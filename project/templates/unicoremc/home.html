@@ -1,0 +1,24 @@
+{% extends "unicoremc/base.html" %}
+
+<!-- LOADING -->
+{% load i18n grp_tags log %}
+
+<!-- BREADCRUMBS -->
+{% block breadcrumbs %}
+    <ul class="grp-horizontal-list">
+        <li>{% trans "Home" %}</li>
+    </ul>
+{% endblock %}
+{% block content_title %}
+    {% if title %}
+        <header><h1>Universal Core Mission Control</h1></header>
+    {% endif %}
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+<h1>Welcome to your new home!</h1>
+<a href="{% url 'supervisor_list' %}">Supervisor</a><br/>
+<a href="{% url 'nginx_list' %}">Nginx</a><br/><br/>
+<a href="{% url 'new_project' %}" class="addlink">Start new project</a>
+{% endblock %}

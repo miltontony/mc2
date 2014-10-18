@@ -1,10 +1,10 @@
-{% extends "admin/base_site.html" %}
+{% extends "unicoremc/base.html" %}
  {% load i18n admin_urls %}
 
 {% block breadcrumbs %}
 <ul>
-<li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
-<li><a href="{% url 'admin:index' %}supervisor/">{% trans 'Supervisor Configs' %}</a></li>
+<li><a href="{% url 'home' %}">{% trans 'Home' %}</a></li>
+<li><a href="{% url 'supervisor_list' %}">{% trans 'Supervisor Configs' %}</a></li>
 <li>Supervisor Configs</li>
 </ul>
 {% endblock %}

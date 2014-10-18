@@ -1,16 +1,16 @@
-{% extends "admin/base_site.html" %}
+{% extends "unicoremc/base.html" %}
  {% load i18n admin_urls %}
 
 {% block breadcrumbs %}
 <ul>
-<li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
-<li>Supervisor Configs</li>
+<li><a href="{% url 'home' %}">{% trans 'Home' %}</a></li>
+<li>Nginx Configs</li>
 </ul>
 {% endblock %}
 
 {% block content %}
 <div id="content-main">
-    <h1>Supervisor Configs</h1>
+    <h1>Nginx Configs</h1>
     <div>
     <form>
 <div class="grp-module grp-changelist-results">
@@ -23,10 +23,10 @@
             </tr>
         </thead>
         <tbody>
-            {% for config in supervisor_configs %}
+            {% for config in nginx_configs %}
             <tr class="grp-row grp-row-{% cycle 'odd' 'even' %}">
                 <th>
-                    <a href="{% url 'admin:index' %}supervisor/config/?filename={{config.filename}}">{{config.filename}}</a>
+                    <a href="{% url 'nginx_detail' %}?filename={{config.filename}}">{{config.filename}}</a>
                 </th>
             </tr>
             {% endfor %}
