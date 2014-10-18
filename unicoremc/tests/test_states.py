@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
 
 from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
@@ -6,11 +7,17 @@ from unicoremc.states import ProjectWorkflow
 
 class PostTestCase(TestCase):
 
+    def setUp(self):
+        self.user = User.objects.create(
+            username='testuser',
+            email="test@email.com")
+
     def test_initial_state(self):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
         self.assertEquals(p.state, 'initial')
 
@@ -18,7 +25,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
         self.assertEquals(p.state, 'initial')
 
@@ -34,7 +42,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -47,7 +56,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -61,7 +71,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -73,12 +84,12 @@ class PostTestCase(TestCase):
 
         self.assertEquals(p.state, 'supervisor_created')
 
-
     def test_nginx_create_state(self):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -95,7 +106,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -113,7 +125,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -132,7 +145,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -152,7 +166,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -173,7 +188,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -195,7 +211,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -218,7 +235,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
@@ -242,7 +260,8 @@ class PostTestCase(TestCase):
         p = Project(
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
-            country='ZA')
+            country='ZA',
+            owner=self.user)
         p.save()
 
         pw = ProjectWorkflow(instance=p)
