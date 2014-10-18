@@ -135,6 +135,8 @@ AUTHENTICATION_BACKENDS = (
 SOCIAL_AUTH_USER_MODEL = 'auth.User'
 LOGIN_URL = '/social/login/github/'
 LOGIN_REDIRECT_URL = '/'
+FIELDS_STORED_IN_SESSION = ['access_token', ]
+
 
 ROOT_URLCONF = 'project.urls'
 
