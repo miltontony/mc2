@@ -16,3 +16,4 @@ pytest
 pytest-django
 pytest-cov
 pytest-xdist
+python-social-auth

@@ -21,4 +21,7 @@
 <a href="{% url 'supervisor_list' %}">Supervisor</a><br/>
 <a href="{% url 'nginx_list' %}">Nginx</a><br/><br/>
 <a href="{% url 'new_project' %}" class="addlink">Start new project</a>
+<p>
+<a href="{% url 'social:begin' 'github' %}">Login using Github</a>
+</p>
 {% endblock %}
