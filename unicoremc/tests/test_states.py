@@ -31,7 +31,7 @@ class PostTestCase(TestCase):
         self.assertEquals(p.state, 'initial')
 
         pw = ProjectWorkflow(instance=p)
-        pw.take_action('create_repo')
+        pw.take_action('create_repo', access_token='sample-token')
 
         self.assertEquals(
             p.repo_url,
@@ -305,5 +305,9 @@ class PostTestCase(TestCase):
         self.assertEquals(p.state, 'initial')
 
         pw = ProjectWorkflow(instance=p)
-        pw.run_all()
+        pw.run_all(access_token='sample-token')
+
         self.assertEquals(p.state, 'done')
+        self.assertEquals(
+            p.repo_url,
+            'http://new-git-repo/user/unicore-cms-content-ffl-za.git')

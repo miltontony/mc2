@@ -8,13 +8,15 @@ class Initial(State):
     def create_repo(self, **kwargs):
         if self.instance:
             # TODO: call requests and create a repo
-            self.instance.repo_url = (
-                'http://new-git-repo/user/'
-                'unicore-cms-content-%(app_type)s-%(country)s.git' %
-            {
-                'app_type': self.instance.app_type,
-                'country': self.instance.country.lower(),
-            })
+            access_token = kwargs.get('access_token')
+            if access_token:
+                self.instance.repo_url = (
+                    'http://new-git-repo/user/'
+                    'unicore-cms-content-%(app_type)s-%(country)s.git' %
+                {
+                    'app_type': self.instance.app_type,
+                    'country': self.instance.country.lower(),
+                })
 
 
 class RepoCreated(State):
@@ -113,16 +115,16 @@ class ProjectWorkflow(StateMachine):
     }
     initial_state = 'initial'
 
-    def next(self):
+    def next(self, **kwargs):
         if self.instance:
             for action in self.actions:
                 if self.has_next():
-                    self.take_action(action)
+                    self.take_action(action, **kwargs)
 
     def has_next(self):
         return self.instance and 'done' not in self.instance.state and \
             'destroyed' not in self.instance.state
 
-    def run_all(self):
+    def run_all(self, **kwargs):
         while self.has_next():
-            self.next()
+            self.next(**kwargs)
