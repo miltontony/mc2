@@ -181,12 +181,25 @@ if (typeof String.prototype.startsWith != 'function') {
         });
     }
 
+    function create_repo(){
+        var app_name = $("#unicore_app").val();
+        var country = $("#country").val().toLowerCase();
+        var data = {
+            "name": "unicore-cms-content-" + app_name + "-" + country + "-test",
+            "description": "A Unicore CMS content repo for "+ app_name + " " + country,
+            "homepage": "https://github.com",
+            "private": false,
+            "has_issues": true
+        }
+        return $.post("https://api.github.com/miltontony/repos", data)
+    }
+
     function launch(){
         $("#step-create-repo .c-2").html("...");
-        $.get('/new/sleep/')
-            .done(function(){
+        create_repo()
+            .done(function(data){
                 $("#step-create-repo").addClass("text-success");
-                $("#step-create-repo .c-2").html("https://github.com/universalcore/unicore-cms-content-ffl-zm-prod");
+                $("#step-create-repo .c-2").html(data.clone_url);
             })
             .done(function(){
                 next_step("/new/sleep/", "#step-clone-repo", "Done")
