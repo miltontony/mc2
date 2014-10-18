@@ -20,3 +20,4 @@ class Project(models.Model):
     country = models.CharField(choices=COUNTRIES, max_length=2)
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
+    owner = models.ForeignKey('auth.User')
