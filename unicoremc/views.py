@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.http import Http404
 
 from unicoremc.utils import NodeManager
+from unicoremc import constants
 
 
 @admin.site.register_view('supervisor/', 'Supervisor Configs')
@@ -49,6 +50,16 @@ def nginx_config_view(request, *args, **kwargs):
 
 @admin.site.register_view('new/', 'New Project')
 def new_project_view(request, *args, **kwargs):
+    context = {
+        'countries': constants.COUNTRIES
+    }
+    return render(request, 'admin/unicoremc/new_project.html', context)
+
+
+@admin.site.register_view('new/sleep/', 'Test function')
+def test_ajax_function(request, *args, **kwargs):
+    from time import sleep
+    sleep(2)
     context = {
     }
     return render(request, 'admin/unicoremc/new_project.html', context)

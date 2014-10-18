@@ -18,9 +18,9 @@
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>App type</label></div>
                 <div class="c-2">
-                    <select>
+                    <select id="unicore_app">
                         <option value="">---------</option>
-                        <option value="ffl">Facts for life</option>
+                        <option value="ffl">Facts for Life</option>
                         <option value="gem">GEM</option>
                         <option value="mama">MAMA</option>
                         <option value="ebola">Ebola Information</option>
@@ -33,7 +33,7 @@
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Base content repo</label></div>
                 <div class="c-2">
-                    <select>
+                    <select id="base_repo" name="base_repo" disabled="disabled">
                         <option value="">---------</option>
                     </select>
                     <p class="grp-help">This is the Content Repo that the site will be based on.</p>
@@ -44,8 +44,11 @@
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Country</label></div>
                 <div class="c-2">
-                    <select>
+                    <select id="country" disabled="disabled">
                         <option value="">---------</option>
+                        {% for c in countries %}
+                            <option value="{{c.code}}">{{c.name}}</option>
+                        {% endfor %}
                     </select>
                     <p class="grp-help">The country this is intended for. This will inform the url</p>
                 </div>
@@ -55,78 +58,78 @@
 
     <fieldset class="grp-module grp-collapse new-project-progress">
         <div class="grp-row grp-cells-1">
-            <div class="l-2c-fluid l-d-4">
+            <div class="l-2c-fluid l-d-4" id="step-create-repo">
                 <div class="c-1"><label>Creating new repo..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-clone-repo">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Cloning repo..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-setup-remote">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Seting up remote with base site as source..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-merge-remote">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Merging content..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-create-supervisor">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Creating supervisor config from template..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-create-nginx">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Creating nging config from template..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-create-settings-pyramid">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Creating settings file for pyramid from template..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-create-settings-cms">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Creating settings file for cms from template..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-create-db">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Creating database..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-init-db">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Initializing database..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-init-cms">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Initializing CMS with content..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-reload-supervisor">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Reloading supervisor..</label></div>
                 <div class="c-2">&nbsp;</div>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
+        <div class="grp-row grp-cells-1" id="step-reload-nginx">
             <div class="l-2c-fluid l-d-4">
                 <div class="c-1"><label>Reloading nginx..</label></div>
                 <div class="c-2">&nbsp;</div>
@@ -138,11 +141,121 @@
     <footer class="grp-module grp-submit-row grp-fixed-footer">
         <header style="display:none"><h1>Submit Options</h1></header>
         <ul>
-            <li><input type="submit" value="Launch" class="grp-button grp-default" name="_save"></li>
+            <li><input id="btn_launch" type="submit" value="Launch" class="grp-button grp-default" name="_launch" disabled="disabled"></li>
         </ul>
     </footer>
 
     </form>
     </div>
 </div>
+
+<script type="text/javascript">
+if (typeof String.prototype.startsWith != 'function') {
+  String.prototype.startsWith = function (str){
+    return this.slice(0, str.length) == str;
+  };
+}
+
+(function($) {
+    function load_content_repos(app_name){
+        //javascript goes here
+        $.get('https://api.github.com/orgs/universalcore/repos?type=public')
+            .done(function(data){
+                var options = new Array();
+                options.push($('<option>').val('').text('---------'));
+                $.each(data, function(){
+                    if(this.name.startsWith('unicore-cms-content-' + app_name)){
+                        options.push(
+                            $('<option>').val(this.clone_url).text(this.name));
+                    }
+                });
+                $('#base_repo').html(options).removeAttr('disabled').change();
+            });
+    }
+
+    function next_step(url, target, message){
+        $(target + " .c-2").html("...");
+        return $.get('/new/sleep/').done(function(){
+            $(target).addClass("text-success");
+            $(target + " .c-2").html("Done");
+        });
+    }
+
+    function launch(){
+        $("#step-create-repo .c-2").html("...");
+        $.get('/new/sleep/')
+            .done(function(){
+                $("#step-create-repo").addClass("text-success");
+                $("#step-create-repo .c-2").html("https://github.com/universalcore/unicore-cms-content-ffl-zm-prod");
+            })
+            .done(function(){
+                next_step("/new/sleep/", "#step-clone-repo", "Done")
+                .done(function(){
+                    next_step("/new/sleep/", "#step-setup-remote", "Done")
+                    .done(function(){
+                        next_step("/new/sleep/", "#step-merge-remote", "Done")
+                        .done(function(){
+                            next_step("/new/sleep/", "#step-create-supervisor", "Done")
+                            .done(function(){
+                                next_step("/new/sleep/", "#step-create-nginx", "Done")
+                                .done(function(){
+                                    next_step("/new/sleep/", "#step-create-settings-pyramid", "Done")
+                                    .done(function(){
+                                        next_step("/new/sleep/", "#step-create-settings-cms", "Done")
+                                        .done(function(){
+                                            next_step("/new/sleep/", "#step-create-db", "Done")
+                                            .done(function(){
+                                                next_step("/new/sleep/", "#step-init-db", "Done")
+                                                .done(function(){
+                                                    next_step("/new/sleep/", "#step-init-cms", "Done")
+                                                    .done(function(){
+                                                        next_step("/new/sleep/", "#step-reload-supervisor", "Done")
+                                                        .done(function(){
+                                                            next_step("/new/sleep/", "#step-reload-nginx", "Done");
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
+            });
+        });
+    }
+
+    $(document).ready(function() {
+        $('#unicore_app').change(function(){
+            if($(this).val() != '')
+                load_content_repos($(this).val());
+            else{
+                $("#base_repo").attr('disabled', 'disabled').val('').change();
+            }
+        });
+        $('#base_repo').change(function(){
+            if($(this).val() != '')
+                $("#country").removeAttr('disabled');
+            else{
+                $("#country").attr('disabled', 'disabled').val('').change();
+            }
+        });
+
+        $('#country').change(function(){
+            if($(this).val() != '')
+                $("#btn_launch").removeAttr('disabled');
+            else
+                $("#btn_launch").attr('disabled', 'disabled');
+
+        });
+
+        $("#btn_launch").click(function(event){
+            event.preventDefault();
+            $(this).attr('disabled', 'disabled');
+            launch();
+        });
+    });
+})(grp.jQuery);
+</script>
 {% endblock%}

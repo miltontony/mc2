@@ -9,3 +9,7 @@
 .new-project-progress .l-2c-fluid:not(.grp-cell).l-d-4 .c-1 {
     width: 300px;
 }
+
+.text-success div label{
+    color: #5CB85C !important;
+}
