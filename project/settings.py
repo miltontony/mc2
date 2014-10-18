@@ -133,7 +133,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_USER_MODEL = 'auth.User'
-LOGIN_URL = '/'
+LOGIN_URL = '/social/begin/github/'
 LOGIN_REDIRECT_URL = '/'
 
 ROOT_URLCONF = 'project.urls'
