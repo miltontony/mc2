@@ -141,7 +141,7 @@
     <footer class="grp-module grp-submit-row grp-fixed-footer">
         <header style="display:none"><h1>Submit Options</h1></header>
         <ul>
-            <li><input id="btn_launch" type="submit" value="Launch" class="grp-button grp-default" name="_save"></li>
+            <li><input id="btn_launch" type="submit" value="Launch" class="grp-button grp-default" name="_launch" disabled="disabled"></li>
         </ul>
     </footer>
 
@@ -162,95 +162,92 @@ if (typeof String.prototype.startsWith != 'function') {
         $.get('https://api.github.com/orgs/universalcore/repos?type=public')
             .done(function(data){
                 var options = new Array();
-                options.push($('<option>').text('---------'));
+                options.push($('<option>').val('').text('---------'));
                 $.each(data, function(){
                     if(this.name.startsWith('unicore-cms-content-' + app_name)){
                         options.push(
                             $('<option>').val(this.clone_url).text(this.name));
                     }
                 });
-                $('#base_repo').html(options).removeAttr('disabled');
+                $('#base_repo').html(options).removeAttr('disabled').change();
             });
     }
 
+    function next_step(url, target, message){
+        $(target + " .c-2").html("...");
+        return $.get('/new/sleep/').done(function(){
+            $(target).addClass("text-success");
+            $(target + " .c-2").html("Done");
+        });
+    }
+
     function launch(){
+        $("#step-create-repo .c-2").html("...");
         $.get('/new/sleep/')
             .done(function(){
                 $("#step-create-repo").addClass("text-success");
+                $("#step-create-repo .c-2").html("https://github.com/universalcore/unicore-cms-content-ffl-zm-prod");
             })
             .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-clone-repo").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-clone-repo").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-setup-remote").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-merge-remote").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-create-supervisor").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-create-nginx").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-create-settings-pyramid").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-create-settings-cms").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-create-db").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-init-db").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-init-cms").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-reload-supervisor").addClass("text-success");
-                });
-            })
-            .done(function(){
-                $.get('/new/sleep/').done(function(){
-                    $("#step-reload-nginx").addClass("text-success");
-                });
+                next_step("/new/sleep/", "#step-clone-repo", "Done")
+                .done(function(){
+                    next_step("/new/sleep/", "#step-setup-remote", "Done")
+                    .done(function(){
+                        next_step("/new/sleep/", "#step-merge-remote", "Done")
+                        .done(function(){
+                            next_step("/new/sleep/", "#step-create-supervisor", "Done")
+                            .done(function(){
+                                next_step("/new/sleep/", "#step-create-nginx", "Done")
+                                .done(function(){
+                                    next_step("/new/sleep/", "#step-create-settings-pyramid", "Done")
+                                    .done(function(){
+                                        next_step("/new/sleep/", "#step-create-settings-cms", "Done")
+                                        .done(function(){
+                                            next_step("/new/sleep/", "#step-create-db", "Done")
+                                            .done(function(){
+                                                next_step("/new/sleep/", "#step-init-db", "Done")
+                                                .done(function(){
+                                                    next_step("/new/sleep/", "#step-init-cms", "Done")
+                                                    .done(function(){
+                                                        next_step("/new/sleep/", "#step-reload-supervisor", "Done")
+                                                        .done(function(){
+                                                            next_step("/new/sleep/", "#step-reload-nginx", "Done");
+                                                        });
+                                                    });
+                                                });
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    });
             });
+        });
     }
 
     $(document).ready(function() {
         $('#unicore_app').change(function(){
-            load_content_repos($(this).val());
+            if($(this).val() != '')
+                load_content_repos($(this).val());
+            else{
+                $("#base_repo").attr('disabled', 'disabled').val('').change();
+            }
         });
         $('#base_repo').change(function(){
-            $("#country").removeAttr('disabled');
+            if($(this).val() != '')
+                $("#country").removeAttr('disabled');
+            else{
+                $("#country").attr('disabled', 'disabled').val('').change();
+            }
+        });
+
+        $('#country').change(function(){
+            if($(this).val() != '')
+                $("#btn_launch").removeAttr('disabled');
+            else
+                $("#btn_launch").attr('disabled', 'disabled');
+
         });
 
         $("#btn_launch").click(function(event){
