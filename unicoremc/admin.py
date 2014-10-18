@@ -6,7 +6,6 @@ from djcelery.models import (
 
 from django.contrib import admin
 from django.contrib.sites.models import Site
-from unicoremc.views import *
 
 # remove celery from admin
 admin.site.unregister(Site)

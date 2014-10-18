@@ -147,7 +147,6 @@ INSTALLED_APPS = (
 
     # sample apps to explain usage
     'unicoremc',
-    'adminplus',
 )
 
 # A sample logging configuration. The only tangible logging

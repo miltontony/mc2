@@ -12,7 +12,6 @@ django-debug-toolbar
 pep8
 pyflakes
 django-grappelli<2.6.1
-django-adminplus
 pytest
 pytest-django
 pytest-cov
