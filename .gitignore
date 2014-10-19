@@ -39,3 +39,4 @@ logs/*.log
 *.db
 project/local_settings.py
 project/static/
+project/.test_repo_dir/

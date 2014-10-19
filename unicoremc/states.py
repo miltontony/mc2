@@ -1,6 +1,6 @@
 from ostinato.statemachine import State, StateMachine
 
-from unicoremc import constants, exceptions
+from unicoremc import exceptions
 
 
 class Initial(State):
@@ -20,6 +20,10 @@ class Initial(State):
 class RepoCreated(State):
     verbose_name = 'Public'
     transitions = {'clone_repo': 'repo_cloned'}
+
+    def clone_repo(self, **kwargs):
+        if self.instance:
+            self.instance.clone_repo()
 
 
 class RepoCloned(State):

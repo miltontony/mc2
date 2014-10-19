@@ -14,3 +14,4 @@ pyflakes
 django-grappelli<2.6.1
 python-social-auth
 Django-ostinato
+gitpython

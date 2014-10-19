@@ -1,9 +1,11 @@
+import os
 import requests
 
 from django.db import models
 from django.conf import settings
 
 from unicoremc import constants, exceptions
+from git import Repo
 
 
 class Project(models.Model):
@@ -25,6 +27,13 @@ class Project(models.Model):
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
+
+    def repo_path(self):
+        repo_folder_name = '%(app_type)s-%(country)s' % {
+            'app_type': self.app_type,
+            'country': self.country.lower()
+        }
+        return os.path.join(settings.CMS_REPO_PATH, repo_folder_name)
 
     def create_repo(self, access_token):
         new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
@@ -57,3 +66,6 @@ class Project(models.Model):
         else:
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
+
+    def clone_repo(self):
+        Repo.clone_from(self.repo_url, self.repo_path())

@@ -13,3 +13,5 @@ DATABASES = {
 
 DEBUG = True
 CELERY_ALWAYS_EAGER = DEBUG
+
+CMS_REPO_PATH = abspath('.test_repo_dir')

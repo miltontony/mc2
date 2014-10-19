@@ -1,5 +1,9 @@
 import json
 import httpretty
+import os
+import shutil
+
+from git import Repo
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -17,20 +21,37 @@ class StatesTestCase(TestCase):
             username='testuser',
             email="test@email.com")
 
+        try:
+            shutil.rmtree(
+                os.path.join(settings.CMS_REPO_PATH, 'test-source-repo'))
+        except:
+            pass
+
+        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
+        os.makedirs(workdir)
+        self.source_repo = Repo.init(workdir)
+
+    def tearDown(self):
+        httpretty.disable()
+        httpretty.reset()
+        try:
+            shutil.rmtree(self.source_repo.working_dir)
+        except:
+            pass
+        try:
+            shutil.rmtree(os.path.join(settings.CMS_REPO_PATH, 'ffl-za'))
+        except:
+            pass
+
     def mock_create_repo(self):
         httpretty.register_uri(
             httpretty.POST,
             settings.GITHUB_API + 'repos',
             body=json.dumps({
-                'clone_url': ('http://new-git-repo/user/'
-                              'unicore-cms-content-ffl-za.git'),
+                'clone_url': self.source_repo.git_dir,
             }),
             status=201,
             content_type="application/json")
-
-    def tearDown(self):
-        httpretty.disable()
-        httpretty.reset()
 
     def test_initial_state(self):
         p = Project(
@@ -57,7 +78,7 @@ class StatesTestCase(TestCase):
 
         self.assertEquals(
             p.repo_url,
-            'http://new-git-repo/user/unicore-cms-content-ffl-za.git')
+            self.source_repo.git_dir)
         self.assertEquals(p.state, 'repo_created')
 
     def test_clone_repo_state(self):
@@ -331,15 +352,6 @@ class StatesTestCase(TestCase):
         self.assertEquals(p.state, 'repo_created')
 
     def test_automation_using_next(self):
-        httpretty.register_uri(
-            httpretty.POST,
-            settings.GITHUB_API + 'repos',
-            body=json.dumps({
-                'clone_url': ('http://new-git-repo/user/'
-                              'unicore-cms-content-ffl-za.git'),
-            }),
-            content_type="application/json")
-
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
@@ -355,4 +367,4 @@ class StatesTestCase(TestCase):
         self.assertEquals(p.state, 'done')
         self.assertEquals(
             p.repo_url,
-            'http://new-git-repo/user/unicore-cms-content-ffl-za.git')
+            self.source_repo.git_dir)
