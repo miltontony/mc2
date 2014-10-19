@@ -6,8 +6,8 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 from unicoremc.models import Project
-from unicoremc.states import (
-    ProjectWorkflow, GithubApiException, AccessTokenRequiredException)
+from unicoremc.states import ProjectWorkflow
+from unicoremc import exceptions
 
 
 @httpretty.activate
@@ -58,7 +58,7 @@ class ProjectTestCase(TestCase):
             owner=self.user)
         p.save()
 
-        with self.assertRaises(AccessTokenRequiredException):
+        with self.assertRaises(exceptions.AccessTokenRequiredException):
             pw = ProjectWorkflow(instance=p)
             pw.take_action('create_repo')
 
@@ -74,7 +74,7 @@ class ProjectTestCase(TestCase):
             owner=self.user)
         p.save()
 
-        with self.assertRaises(GithubApiException):
+        with self.assertRaises(exceptions.GithubApiException):
             pw = ProjectWorkflow(instance=p)
             pw.take_action('create_repo', access_token='sample-token')
 

@@ -1,16 +1,6 @@
-import requests
 from ostinato.statemachine import State, StateMachine
 
-from django.conf import settings
-from unicoremc import constants
-
-
-class GithubApiException(Exception):
-    pass
-
-
-class AccessTokenRequiredException(Exception):
-    pass
+from unicoremc import constants, exceptions
 
 
 class Initial(State):
@@ -18,37 +8,13 @@ class Initial(State):
     transitions = {'create_repo': 'repo_created'}
 
     def create_repo(self, **kwargs):
+        access_token = kwargs.get('access_token')
         if self.instance:
-            new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
-                'app_type': self.instance.app_type,
-                'country': self.instance.country.lower(),
-                'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
-
-            access_token = kwargs.get('access_token')
-            post_data = {
-                "name": new_repo_name,
-                "description": "A Unicore CMS content repo for %s %s" % (
-                    self.instance.app_type, self.instance.country),
-                "homepage": "https://github.com",
-                "private": False,
-                "has_issues": True
-            }
-
             if access_token:
-                headers = {'Authorization': 'token %s' % access_token}
-                resp = requests.post(
-                    settings.GITHUB_API + 'repos',
-                    json=post_data,
-                    headers=headers)
-
-                if resp.status_code != 201:
-                    raise GithubApiException(
-                        'Create repo failed with response: %s - %s' %
-                        (resp.status_code, resp.json().get('message')))
-
-                self.instance.repo_url = resp.json().get('clone_url')
+                self.instance.create_repo(access_token)
             else:
-                raise AccessTokenRequiredException('access_token is required')
+                raise exceptions.AccessTokenRequiredException(
+                    'access_token is required')
 
 
 class RepoCreated(State):
