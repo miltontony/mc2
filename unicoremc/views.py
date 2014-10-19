@@ -1,5 +1,7 @@
+import json
+
 from django.shortcuts import render
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.contrib.auth.decorators import login_required
 
 from unicoremc.utils import NodeManager
@@ -64,6 +66,5 @@ def new_project_view(request, *args, **kwargs):
 def test_ajax_function(request, *args, **kwargs):
     from time import sleep
     sleep(2)
-    context = {
-    }
-    return render(request, 'unicoremc/new_project.html', context)
+    return HttpResponse(json.dumps({'some': 'json'}),
+                        mimetype='application/json')

@@ -249,6 +249,8 @@ SUPERVISOR_CONFIGS_PATH = '/etc/supervisor/conf.d/'
 # Default: /etc/ngix/sites-enabled/
 NGINX_CONFIGS_PATH = '/etc/ngix/sites-enabled/'
 
+GITHUB_API = 'https://api.github.com/orgs/universalcore/'
+
 try:
     from project.local_settings import *
 except ImportError:

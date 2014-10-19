@@ -1,4 +1,7 @@
+import requests
 from ostinato.statemachine import State, StateMachine
+
+from django.conf import settings
 
 
 class Initial(State):
@@ -10,13 +13,12 @@ class Initial(State):
             # TODO: call requests and create a repo
             access_token = kwargs.get('access_token')
             if access_token:
-                self.instance.repo_url = (
-                    'http://new-git-repo/user/'
-                    'unicore-cms-content-%(app_type)s-%(country)s.git' %
-                {
-                    'app_type': self.instance.app_type,
-                    'country': self.instance.country.lower(),
-                })
+                resp = requests.post(
+                    settings.GITHUB_API + 'repos',
+                    json={'access_token': access_token})
+
+                print resp.json()
+                self.instance.repo_url = resp.json().get('clone_url')
 
 
 class RepoCreated(State):
