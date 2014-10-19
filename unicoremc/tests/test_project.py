@@ -9,6 +9,7 @@ from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
 
 
+@httpretty.activate
 class ProjectTestCase(TestCase):
 
     def setUp(self):
@@ -16,8 +17,7 @@ class ProjectTestCase(TestCase):
             username='testuser',
             email="test@email.com")
 
-    @httpretty.activate
-    def test_create_repo_state(self):
+    def mock_create_repo(self):
         httpretty.register_uri(
             httpretty.POST,
             settings.GITHUB_API + 'repos',
@@ -25,7 +25,11 @@ class ProjectTestCase(TestCase):
                 'clone_url': ('http://new-git-repo/user/'
                               'unicore-cms-content-ffl-za.git'),
             }),
+            status=201,
             content_type="application/json")
+
+    def test_create_repo_state(self):
+        self.mock_create_repo()
 
         p = Project(
             app_type='ffl',
