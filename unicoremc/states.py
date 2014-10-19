@@ -5,6 +5,14 @@ from django.conf import settings
 from unicoremc import constants
 
 
+class GithubApiException(Exception):
+    pass
+
+
+class AccessTokenRequiredException(Exception):
+    pass
+
+
 class Initial(State):
     verbose_name = 'Initial'
     transitions = {'create_repo': 'repo_created'}
@@ -34,13 +42,13 @@ class Initial(State):
                     headers=headers)
 
                 if resp.status_code != 201:
-                    raise Exception(
+                    raise GithubApiException(
                         'Create repo failed with response: %s - %s' %
                         (resp.status_code, resp.json().get('message')))
 
                 self.instance.repo_url = resp.json().get('clone_url')
             else:
-                raise Exception('access_token is required')
+                raise AccessTokenRequiredException('access_token is required')
 
 
 class RepoCreated(State):
