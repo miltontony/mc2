@@ -249,6 +249,8 @@ SUPERVISOR_CONFIGS_PATH = '/etc/supervisor/conf.d/'
 # Default: /etc/ngix/sites-enabled/
 NGINX_CONFIGS_PATH = '/etc/ngix/sites-enabled/'
 
+SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
+
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
 GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
 try:
