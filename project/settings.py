@@ -250,7 +250,7 @@ SUPERVISOR_CONFIGS_PATH = '/etc/supervisor/conf.d/'
 NGINX_CONFIGS_PATH = '/etc/ngix/sites-enabled/'
 
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
-
+GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
 try:
     from project.local_settings import *
 except ImportError:

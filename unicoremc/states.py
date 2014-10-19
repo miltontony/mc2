@@ -2,6 +2,7 @@ import requests
 from ostinato.statemachine import State, StateMachine
 
 from django.conf import settings
+from unicoremc import constants
 
 
 class Initial(State):
@@ -10,15 +11,36 @@ class Initial(State):
 
     def create_repo(self, **kwargs):
         if self.instance:
-            # TODO: call requests and create a repo
+            new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
+                'app_type': self.instance.app_type,
+                'country': self.instance.country,
+                'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+
             access_token = kwargs.get('access_token')
+            post_data = {
+                "name": new_repo_name,
+                "description": "A Unicore CMS content repo for %s %s" % (
+                    self.instance.app_type, self.instance.country),
+                "homepage": "https://github.com",
+                "private": False,
+                "has_issues": True
+            }
+
             if access_token:
+                headers = {'Authorization': 'token %s' % access_token}
                 resp = requests.post(
                     settings.GITHUB_API + 'repos',
-                    json={'access_token': access_token})
+                    json=post_data,
+                    headers=headers)
 
-                print resp.json()
+                if resp.status_code != 200:
+                    raise Exception(
+                        'Create repo failed with response: %s - %s' %
+                        (resp.status_code, resp.json().get('message')))
+
                 self.instance.repo_url = resp.json().get('clone_url')
+            else:
+                raise Exception('access_token is required')
 
 
 class RepoCreated(State):

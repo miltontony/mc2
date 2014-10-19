@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+NEW_REPO_NAME_FORMAT = (
+    'unicore-cms-content-'
+    '%(app_type)s-%(country)s%(suffix)s')
+
 COUNTRIES = [
     {"name": "Afghanistan", "code": "AF"},
     {"name": "Åland Islands", "code": "AX"},
