@@ -13,7 +13,7 @@ class Initial(State):
         if self.instance:
             new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
                 'app_type': self.instance.app_type,
-                'country': self.instance.country,
+                'country': self.instance.country.lower(),
                 'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
 
             access_token = kwargs.get('access_token')
@@ -33,7 +33,7 @@ class Initial(State):
                     json=post_data,
                     headers=headers)
 
-                if resp.status_code != 200:
+                if resp.status_code != 201:
                     raise Exception(
                         'Create repo failed with response: %s - %s' %
                         (resp.status_code, resp.json().get('message')))
