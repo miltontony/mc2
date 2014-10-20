@@ -38,7 +38,9 @@ class StatesTestCase(TestCase):
             shutil.rmtree(self.source_repo.working_dir)
         except:
             pass
+
         try:
+            # TODO: Use `pw.take_action('destory')` to cleanup
             shutil.rmtree(os.path.join(settings.CMS_REPO_PATH, 'ffl-za'))
         except:
             pass
