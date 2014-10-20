@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns, url
 
 
 urlpatterns = patterns(
@@ -7,26 +7,6 @@ urlpatterns = patterns(
         r'^$',
         'unicoremc.views.home',
         name='home'
-    ),
-    url(
-        r'^supervisor/$',
-        'unicoremc.views.list_supervisor_configs_view',
-        name='supervisor_list'
-    ),
-    url(
-        r'^supervisor/detail/$',
-        'unicoremc.views.supervisor_config_view',
-        name='supervisor_detail'
-    ),
-    url(
-        r'^nginx/$',
-        'unicoremc.views.list_nginx_configs_view',
-        name='nginx_list'
-    ),
-    url(
-        r'^nginx/detail/$',
-        'unicoremc.views.nginx_config_view',
-        name='nginx_detail'
     ),
     url(
         r'^new/$',
