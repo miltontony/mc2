@@ -1,9 +1,9 @@
-{% extends "admin/base_site.html" %}
+{% extends "unicoremc/base.html" %}
  {% load i18n admin_urls admin_static %}
 
 {% block breadcrumbs %}
 <ul>
-<li><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+<li><a href="{% url 'home' %}">{% trans 'Home' %}</a></li>
 <li>New Project</li>
 </ul>
 {% endblock %}
@@ -173,57 +173,8 @@ if (typeof String.prototype.startsWith != 'function') {
             });
     }
 
-    function next_step(url, target, message){
-        $(target + " .c-2").html("...");
-        return $.get('/new/sleep/').done(function(){
-            $(target).addClass("text-success");
-            $(target + " .c-2").html("Done");
-        });
-    }
-
     function launch(){
-        $("#step-create-repo .c-2").html("...");
-        $.get('/new/sleep/')
-            .done(function(){
-                $("#step-create-repo").addClass("text-success");
-                $("#step-create-repo .c-2").html("https://github.com/universalcore/unicore-cms-content-ffl-zm-prod");
-            })
-            .done(function(){
-                next_step("/new/sleep/", "#step-clone-repo", "Done")
-                .done(function(){
-                    next_step("/new/sleep/", "#step-setup-remote", "Done")
-                    .done(function(){
-                        next_step("/new/sleep/", "#step-merge-remote", "Done")
-                        .done(function(){
-                            next_step("/new/sleep/", "#step-create-supervisor", "Done")
-                            .done(function(){
-                                next_step("/new/sleep/", "#step-create-nginx", "Done")
-                                .done(function(){
-                                    next_step("/new/sleep/", "#step-create-settings-pyramid", "Done")
-                                    .done(function(){
-                                        next_step("/new/sleep/", "#step-create-settings-cms", "Done")
-                                        .done(function(){
-                                            next_step("/new/sleep/", "#step-create-db", "Done")
-                                            .done(function(){
-                                                next_step("/new/sleep/", "#step-init-db", "Done")
-                                                .done(function(){
-                                                    next_step("/new/sleep/", "#step-init-cms", "Done")
-                                                    .done(function(){
-                                                        next_step("/new/sleep/", "#step-reload-supervisor", "Done")
-                                                        .done(function(){
-                                                            next_step("/new/sleep/", "#step-reload-nginx", "Done");
-                                                        });
-                                                    });
-                                                });
-                                            });
-                                        });
-                                    });
-                                });
-                            });
-                        });
-                    });
-            });
-        });
+        // Trigger start new project via ajax
     }
 
     $(document).ready(function() {
