@@ -39,6 +39,10 @@ class RemoteCreated(State):
     verbose_name = 'Remote Created'
     transitions = {'merge_remote': 'remote_merged'}
 
+    def merge_remote(self, **kwargs):
+        if self.instance:
+            self.instance.merge_remote()
+
 
 class RemoteMerged(State):
     verbose_name = 'Remote Merged'

@@ -4,6 +4,7 @@ import os
 import shutil
 
 from git import Repo
+from elasticgit.manager import StorageManager
 
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -21,23 +22,34 @@ class StatesTestCase(TestCase):
             username='testuser',
             email="test@email.com")
 
+        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
+
+        # NOTE: StorageManager.create_storage() should take a repo path
+        # and should be a class method
+        if not os.path.exists(workdir):
+            os.makedirs(workdir)
+
+        self.source_repo_sm = StorageManager(Repo.init(workdir))
+        self.source_repo_sm.create_storage()
+
+        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-base-repo')
+        if not os.path.exists(workdir):
+            os.makedirs(workdir)
+
+        self.base_repo_sm = StorageManager(Repo.init(workdir))
+        self.base_repo_sm.create_storage()
+
         try:
-            shutil.rmtree(
-                os.path.join(settings.CMS_REPO_PATH, 'test-source-repo'))
+            # TODO: Use `pw.take_action('destory')` to cleanup
+            shutil.rmtree(os.path.join(settings.CMS_REPO_PATH, 'ffl-za'))
         except:
             pass
-
-        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
-        os.makedirs(workdir)
-        self.source_repo = Repo.init(workdir)
 
     def tearDown(self):
         httpretty.disable()
         httpretty.reset()
-        try:
-            shutil.rmtree(self.source_repo.working_dir)
-        except:
-            pass
+        self.source_repo_sm.destroy_storage()
+        self.base_repo_sm.destroy_storage()
 
         try:
             # TODO: Use `pw.take_action('destory')` to cleanup
@@ -50,7 +62,7 @@ class StatesTestCase(TestCase):
             httpretty.POST,
             settings.GITHUB_API + 'repos',
             body=json.dumps({
-                'clone_url': self.source_repo.git_dir,
+                'clone_url': self.source_repo_sm.repo.git_dir,
             }),
             status=201,
             content_type="application/json")
@@ -58,7 +70,7 @@ class StatesTestCase(TestCase):
     def test_initial_state(self):
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -69,7 +81,7 @@ class StatesTestCase(TestCase):
 
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -80,14 +92,14 @@ class StatesTestCase(TestCase):
 
         self.assertEquals(
             p.repo_url,
-            self.source_repo.git_dir)
+            self.source_repo_sm.repo.git_dir)
         self.assertEquals(p.state, 'repo_created')
 
     def test_clone_repo_state(self):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -102,7 +114,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -118,7 +130,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -136,7 +148,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -155,7 +167,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -175,7 +187,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -196,7 +208,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -218,7 +230,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -241,7 +253,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -265,7 +277,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -290,7 +302,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -316,7 +328,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -343,7 +355,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -357,7 +369,7 @@ class StatesTestCase(TestCase):
         self.mock_create_repo()
         p = Project(
             app_type='ffl',
-            base_repo_url='http://some-git-repo.com',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p.save()
@@ -369,4 +381,4 @@ class StatesTestCase(TestCase):
         self.assertEquals(p.state, 'done')
         self.assertEquals(
             p.repo_url,
-            self.source_repo.git_dir)
+            self.source_repo_sm.repo.git_dir)
