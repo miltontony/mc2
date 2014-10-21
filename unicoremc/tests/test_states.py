@@ -31,6 +31,10 @@ class StatesTestCase(TestCase):
 
         self.source_repo_sm = StorageManager(Repo.init(workdir))
         self.source_repo_sm.create_storage()
+        self.source_repo_sm.write_config('user', {
+            'name': 'testuser',
+            'email': 'test@email.com',
+        })
 
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-base-repo')
         if not os.path.exists(workdir):
@@ -38,6 +42,10 @@ class StatesTestCase(TestCase):
 
         self.base_repo_sm = StorageManager(Repo.init(workdir))
         self.base_repo_sm.create_storage()
+        self.base_repo_sm.write_config('user', {
+            'name': 'testuser',
+            'email': 'test@email.com',
+        })
 
         try:
             # TODO: Use `pw.take_action('destory')` to cleanup
