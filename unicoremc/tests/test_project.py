@@ -26,10 +26,19 @@ class ProjectTestCase(TestCase):
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
         self.source_repo_sm = StorageManager(Repo.init(workdir))
         self.source_repo_sm.create_storage()
+        self.source_repo_sm.write_config('user', {
+            'name': 'testuser',
+            'email': 'test@email.com',
+        })
 
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-base-repo')
         self.base_repo_sm = StorageManager(Repo.init(workdir))
         self.base_repo_sm.create_storage()
+        self.base_repo_sm.write_config('user', {
+            'name': 'testuser',
+            'email': 'test@email.com',
+        })
+
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')
 
