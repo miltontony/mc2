@@ -69,3 +69,7 @@ class Project(models.Model):
 
     def clone_repo(self):
         Repo.clone_from(self.repo_url, self.repo_path())
+
+    def create_remote(self):
+        repo = Repo(self.repo_path())
+        remote = repo.create_remote('upstream', self.base_repo_url)
