@@ -69,6 +69,10 @@ class PyramidSettingsCreated(State):
     verbose_name = 'Pyarmid Settings Created'
     transitions = {'create_cms_settings': 'cms_settings_created'}
 
+    def create_cms_settings(self, **kwargs):
+        if self.instance:
+            self.instance.create_cms_settings()
+
 
 class CmsSettingsCreated(State):
     verbose_name = 'Cms Settings Created'

@@ -150,3 +150,10 @@ class Project(models.Model):
             self.repo_url,
             self.available_languages.all()
         )
+
+    def create_cms_settings(self):
+        self.settings_manager.write_cms_settings(
+            self.app_type,
+            self.country,
+            self.repo_url
+        )

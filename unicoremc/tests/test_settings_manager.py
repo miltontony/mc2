@@ -38,3 +38,23 @@ class SettingsManagerTestCase(TestCase):
             ", ('swh_TZ', 'Swahili (Tanzania)')]" in data)
         self.assertTrue('/ffl_za/' in data)
         self.assertTrue('http://some.repo.com/.git' in data)
+
+    def test_write_cms_settings(self):
+        cm = SettingsManager()
+        cm.write_cms_settings(
+            'ffl', 'za', 'http://some.repo.com/.git')
+
+        cms_settings_path = os.path.join(
+            settings.SETTINGS_OUTPUT_PATH,
+            'ffl_za_settings.py')
+
+        self.assertTrue(os.path.exists(cms_settings_path))
+
+        with open(cms_settings_path, "r") as config_file:
+            data = config_file.read()
+
+        print data
+        self.assertTrue('django_cms_ffl_za' in data)
+        self.assertTrue(
+            "/var/praekelt/unicore-cms-django/project/ffl_za" in data)
+        self.assertTrue('http://some.repo.com/.git' in data)
