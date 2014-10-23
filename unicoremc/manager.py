@@ -116,8 +116,8 @@ class SettingsManager(object):
                 'prd-sentry.za.prk-host.net/71')
 
         languages = []
-        for l in available_languages:
-            languages.append("('%s', '%s')" % (l.get_code(), str(l)))
+        for lang in available_languages:
+            languages.append("('%s', '%s')" % (lang.get_code(), str(lang)))
 
         frontend_settings_content = render_to_string(
             'configs/pyramid.ini', {
