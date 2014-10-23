@@ -1,7 +1,5 @@
 from ostinato.statemachine import State, StateMachine
 
-from unicoremc import exceptions
-
 
 class Initial(State):
     verbose_name = 'Initial'
@@ -10,11 +8,7 @@ class Initial(State):
     def create_repo(self, **kwargs):
         access_token = kwargs.get('access_token')
         if self.instance:
-            if access_token:
-                self.instance.create_repo(access_token)
-            else:
-                raise exceptions.AccessTokenRequiredException(
-                    'access_token is required')
+            self.instance.create_repo(access_token)
 
 
 class RepoCreated(State):
