@@ -242,12 +242,13 @@ RAVEN_CONFIG = {
     # 'dsn': 'http://public:secret@example.com/1',
 }
 
+# Used to distinguish between QA and PROD in naming
+DEPLOY_ENVIRONMENT = 'qa'
+
 # path to supervisor conf files
-# Default: /etc/supervisor/conf.d/
-SUPERVISOR_CONFIGS_PATH = '/etc/supervisor/conf.d/'
+SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
 # path to ngix conf files
-# Default: /etc/ngix/sites-enabled/
-NGINX_CONFIGS_PATH = '/etc/ngix/sites-enabled/'
+NGINX_CONFIGS_PATH = abspath('configs', 'nginx')
 
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 

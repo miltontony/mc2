@@ -5,8 +5,10 @@ from django.db import models
 from django.conf import settings
 
 from unicoremc import constants, exceptions
+from unicoremc.manager import ConfigManager
+
 from git import Repo
-from elasticgit.manager import Workspace
+from elasticgit.manager import Workspace, StorageManager
 
 
 class Project(models.Model):
@@ -28,6 +30,11 @@ class Project(models.Model):
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
+
+    def __init__(self, *args, **kwargs):
+        super(Project, self).__init__(*args, **kwargs)
+
+        self.config_manager = ConfigManager()
 
     def repo_path(self):
         repo_folder_name = '%(app_type)s-%(country)s' % {
@@ -69,7 +76,13 @@ class Project(models.Model):
                 'access_token is required')
 
     def clone_repo(self):
-        Repo.clone_from(self.repo_url, self.repo_path())
+        repo = Repo.clone_from(self.repo_url, self.repo_path())
+        sm = StorageManager(repo)
+        sm.create_storage()
+        sm.write_config('user', {
+            'name': self.owner.username,
+            'email': self.owner.email,
+        })
 
     def create_remote(self):
         repo = Repo(self.repo_path())
@@ -79,3 +92,14 @@ class Project(models.Model):
         repo = Repo(self.repo_path())
         ws = Workspace(repo, None, None)
         ws.fast_forward(remote_name='upstream')
+
+    def create_supervisor(self):
+        self.config_manager.write_frontend_supervisor(
+            self.app_type, self.country)
+
+        self.config_manager.write_cms_supervisor(
+            self.app_type, self.country)
+
+    def create_nginx(self):
+        self.config_manager.write_frontend_nginx(self.app_type, self.country)
+        self.config_manager.write_cms_nginx(self.app_type, self.country)

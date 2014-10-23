@@ -1,7 +1,5 @@
 from ostinato.statemachine import State, StateMachine
 
-from unicoremc import exceptions
-
 
 class Initial(State):
     verbose_name = 'Initial'
@@ -10,11 +8,7 @@ class Initial(State):
     def create_repo(self, **kwargs):
         access_token = kwargs.get('access_token')
         if self.instance:
-            if access_token:
-                self.instance.create_repo(access_token)
-            else:
-                raise exceptions.AccessTokenRequiredException(
-                    'access_token is required')
+            self.instance.create_repo(access_token)
 
 
 class RepoCreated(State):
@@ -48,10 +42,18 @@ class RemoteMerged(State):
     verbose_name = 'Remote Merged'
     transitions = {'create_supervisor': 'supervisor_created'}
 
+    def create_supervisor(self, **kwargs):
+        if self.instance:
+            self.instance.create_supervisor()
+
 
 class SupervisorCreated(State):
     verbose_name = 'Supervisor Created'
     transitions = {'create_nginx': 'nginx_created'}
+
+    def create_nginx(self, **kwargs):
+        if self.instance:
+            self.instance.create_nginx()
 
 
 class NginxCreated(State):

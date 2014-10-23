@@ -185,3 +185,92 @@ class ProjectTestCase(TestCase):
             self.base_repo_sm.repo.git_dir)
 
         shutil.rmtree(p.repo_path())
+
+    def test_create_supervisor_config(self):
+        self.mock_create_repo()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+        pw.take_action('create_supervisor')
+
+        frontend_supervisor_config_path = os.path.join(
+            settings.SUPERVISOR_CONFIGS_PATH,
+            'frontend_ffl_za.conf')
+        cms_supervisor_config_path = os.path.join(
+            settings.SUPERVISOR_CONFIGS_PATH,
+            'cms_ffl_za.conf')
+
+        self.assertTrue(os.path.exists(frontend_supervisor_config_path))
+        self.assertTrue(os.path.exists(cms_supervisor_config_path))
+
+        with open(frontend_supervisor_config_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue('program:unicore_frontend_ffl_za' in data)
+        self.assertTrue('ffl.production.za.ini' in data)
+        self.assertTrue('/var/praekelt/unicore-cms-ffl' in data)
+
+        with open(cms_supervisor_config_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue('program:unicore_cms_ffl_za' in data)
+        self.assertTrue('project.ffl_za_settings' in data)
+        self.assertTrue('/var/praekelt/unicore-cms-django' in data)
+
+        shutil.rmtree(p.repo_path())
+
+    def test_create_nginx_config(self):
+        self.mock_create_repo()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+        pw.take_action('create_supervisor')
+        pw.take_action('create_nginx')
+
+        frontend_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'frontend_ffl_za.conf')
+        cms_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'cms_ffl_za.conf')
+
+        self.assertTrue(os.path.exists(frontend_nginx_config_path))
+        self.assertTrue(os.path.exists(cms_nginx_config_path))
+
+        with open(frontend_nginx_config_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue('za.qa.ffl.unicore.io' in data)
+        self.assertTrue('unicore_frontend_ffl_za-access.log' in data)
+        self.assertTrue('unicore_frontend_ffl_za-error.log' in data)
+        self.assertTrue(
+            '/var/praekelt/unicore-cms-ffl/unicorecmsffl/static/' in data)
+
+        with open(cms_nginx_config_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue('cms.za.qa.ffl.unicore.io' in data)
+        self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
+        self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
+
+        shutil.rmtree(p.repo_path())
