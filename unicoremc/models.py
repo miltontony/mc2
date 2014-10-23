@@ -6,6 +6,7 @@ from django.conf import settings
 
 from unicoremc import constants, exceptions
 from git import Repo
+from elasticgit.manager import Workspace
 
 
 class Project(models.Model):
@@ -69,3 +70,12 @@ class Project(models.Model):
 
     def clone_repo(self):
         Repo.clone_from(self.repo_url, self.repo_path())
+
+    def create_remote(self):
+        repo = Repo(self.repo_path())
+        repo.create_remote('upstream', self.base_repo_url)
+
+    def merge_remote(self):
+        repo = Repo(self.repo_path())
+        ws = Workspace(repo, None, None)
+        ws.fast_forward(remote_name='upstream')

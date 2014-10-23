@@ -30,10 +30,18 @@ class RepoCloned(State):
     verbose_name = 'Repo Cloned'
     transitions = {'create_remote': 'remote_created'}
 
+    def create_remote(self, **kwargs):
+        if self.instance:
+            self.instance.create_remote()
+
 
 class RemoteCreated(State):
     verbose_name = 'Remote Created'
     transitions = {'merge_remote': 'remote_merged'}
+
+    def merge_remote(self, **kwargs):
+        if self.instance:
+            self.instance.merge_remote()
 
 
 class RemoteMerged(State):
