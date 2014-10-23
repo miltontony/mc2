@@ -249,6 +249,8 @@ DEPLOY_ENVIRONMENT = 'qa'
 SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
 # path to ngix conf files
 NGINX_CONFIGS_PATH = abspath('configs', 'nginx')
+# path to settings files
+SETTINGS_OUTPUT_PATH = abspath('configs', 'settings')
 
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 

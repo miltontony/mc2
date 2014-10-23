@@ -9,7 +9,7 @@ from unicoremc.manager import ConfigManager
 
 
 @httpretty.activate
-class ProjectTestCase(TestCase):
+class ConfigManagerTestCase(TestCase):
 
     def tearDown(self):
         if os.path.exists(settings.SUPERVISOR_CONFIGS_PATH):

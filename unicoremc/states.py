@@ -60,10 +60,18 @@ class NginxCreated(State):
     verbose_name = 'Nginx Created'
     transitions = {'create_pyramid_settings': 'pyramid_settings_created'}
 
+    def create_pyramid_settings(self, **kwargs):
+        if self.instance:
+            self.instance.create_pyramid_settings()
+
 
 class PyramidSettingsCreated(State):
     verbose_name = 'Pyarmid Settings Created'
     transitions = {'create_cms_settings': 'cms_settings_created'}
+
+    def create_cms_settings(self, **kwargs):
+        if self.instance:
+            self.instance.create_cms_settings()
 
 
 class CmsSettingsCreated(State):
