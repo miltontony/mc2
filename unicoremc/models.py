@@ -6,7 +6,7 @@ from django.conf import settings
 
 from unicoremc import constants, exceptions
 from git import Repo
-from elasticgit.manager import StorageManager
+from elasticgit.manager import Workspace
 
 
 class Project(models.Model):
@@ -76,11 +76,6 @@ class Project(models.Model):
         repo.create_remote('upstream', self.base_repo_url)
 
     def merge_remote(self):
-        # TODO: Use elasticgit.StorageManager.fast_forward('upstream')
         repo = Repo(self.repo_path())
-        remote = repo.remote(name='upstream')
-        remote.fetch()
-
-        [fetch_info] = remote.fetch()
-        git = repo.git
-        git.merge(fetch_info.commit)
+        ws = Workspace(repo, None, None)
+        ws.fast_forward(remote_name='upstream')
