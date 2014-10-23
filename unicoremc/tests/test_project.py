@@ -10,7 +10,7 @@ from django.conf import settings
 from git import Repo
 from elasticgit.manager import StorageManager
 
-from unicoremc.models import Project
+from unicoremc.models import Project, Localisation
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 
@@ -274,3 +274,39 @@ class ProjectTestCase(TestCase):
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
 
         shutil.rmtree(p.repo_path())
+
+    def test_create_pyramid_settings(self):
+        self.mock_create_repo()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+        p.available_languages.add(*[Localisation._for('eng_UK')])
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+        pw.take_action('create_supervisor')
+        pw.take_action('create_nginx')
+        pw.take_action('create_pyramid_settings')
+
+        frontend_settings_path = os.path.join(
+            settings.SETTINGS_OUTPUT_PATH,
+            'ffl.production.za.ini')
+
+        self.assertTrue(os.path.exists(frontend_settings_path))
+
+        with open(frontend_settings_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue('egg:unicore-cms-ffl' in data)
+        self.assertTrue(
+            "[('eng_UK', 'English (United Kingdom)')]" in data)
+        self.assertTrue('/ffl_za/' in data)
+        self.assertTrue(self.source_repo_sm.repo.git_dir in data)

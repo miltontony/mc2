@@ -3,12 +3,48 @@ import requests
 
 from django.db import models
 from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
 
 from unicoremc import constants, exceptions
-from unicoremc.manager import ConfigManager
+from unicoremc.manager import ConfigManager, SettingsManager
 
 from git import Repo
 from elasticgit.manager import Workspace, StorageManager
+
+
+class Localisation(models.Model):
+    """
+    Stolen from praekelt/unicore-cms-django.git :: models.Localisation
+    """
+
+    country_code = models.CharField(
+        _('2 letter country code'), max_length=2,
+        help_text=(
+            'See http://www.worldatlas.com/aatlas/ctycodes.htm '
+            'for reference.'))
+    language_code = models.CharField(
+        _('3 letter language code'), max_length=3,
+        help_text=(
+            'See http://www.loc.gov/standards/iso639-2/php/code_list.php '
+            'for reference.'))
+
+    @classmethod
+    def _for(cls, language):
+        language_code, _, country_code = language.partition('_')
+        localisation, _ = cls.objects.get_or_create(
+            language_code=language_code, country_code=country_code)
+        return localisation
+
+    def get_code(self):
+        return u'%s_%s' % (self.language_code, self.country_code)
+
+    def __unicode__(self):
+        """
+        FIXME: this is probably a bad idea
+        """
+        language = self.get_code()
+        return unicode(
+            dict(constants.LANGUAGE_CHOICES).get(language, language))
 
 
 class Project(models.Model):
@@ -30,11 +66,14 @@ class Project(models.Model):
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
+    available_languages = models.ManyToManyField(
+        Localisation, blank=True, null=True)
 
     def __init__(self, *args, **kwargs):
         super(Project, self).__init__(*args, **kwargs)
 
         self.config_manager = ConfigManager()
+        self.settings_manager = SettingsManager()
 
     def repo_path(self):
         repo_folder_name = '%(app_type)s-%(country)s' % {
@@ -103,3 +142,11 @@ class Project(models.Model):
     def create_nginx(self):
         self.config_manager.write_frontend_nginx(self.app_type, self.country)
         self.config_manager.write_cms_nginx(self.app_type, self.country)
+
+    def create_pyramid_settings(self):
+        self.settings_manager.write_frontend_settings(
+            self.app_type,
+            self.country,
+            self.repo_url,
+            self.available_languages.all()
+        )
