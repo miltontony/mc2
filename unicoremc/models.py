@@ -3,10 +3,10 @@ import requests
 
 from django.db import models
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from unicoremc import constants, exceptions
 from git import Repo
-from elasticgit.manager import StorageManager
 
 
 class Project(models.Model):
@@ -35,6 +35,13 @@ class Project(models.Model):
             'country': self.country.lower()
         }
         return os.path.join(settings.CMS_REPO_PATH, repo_folder_name)
+
+    def supervisor_config_path(self):
+        filename = '%(app_type)s_%(country)s.conf' % {
+            'app_type': self.app_type,
+            'country': self.country.lower()
+        }
+        return os.path.join(settings.SUPERVISOR_CONFIGS_PATH, filename)
 
     def create_repo(self, access_token):
         new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
@@ -84,3 +91,26 @@ class Project(models.Model):
         [fetch_info] = remote.fetch()
         git = repo.git
         git.merge(fetch_info.commit)
+
+    def create_supervisor(self):
+        supervisor_content = render_to_string('configs/supervisor.conf', {
+            'service': constants.SUPERVISOR_SERVICE_NAME_FORMAT % {
+                'app_type': self.app_type,
+                'country': self.country.lower(),
+            },
+            'command': (
+                '/var/praekelt/python/bin/gunicorn -w 4 --paste '
+                '%(app_type)s.production.%(country)s.ini --preload' % {
+                    'app_type': self.app_type,
+                    'country': self.country.lower(),
+                }),
+            'directory': '/var/praekelt/unicore-cms-%s/' % self.app_type,
+            'user': 'ubuntu',
+            'numprocs': 1,
+        })
+
+        if not os.path.exists(settings.SUPERVISOR_CONFIGS_PATH):
+            os.makedirs(settings.SUPERVISOR_CONFIGS_PATH)
+
+        with open(self.supervisor_config_path(), 'w') as config_file:
+            config_file.write(supervisor_content)

@@ -48,6 +48,10 @@ class RemoteMerged(State):
     verbose_name = 'Remote Merged'
     transitions = {'create_supervisor': 'supervisor_created'}
 
+    def create_supervisor(self, **kwargs):
+        if self.instance:
+            self.instance.create_supervisor()
+
 
 class SupervisorCreated(State):
     verbose_name = 'Supervisor Created'

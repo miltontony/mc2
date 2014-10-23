@@ -185,3 +185,35 @@ class ProjectTestCase(TestCase):
             self.base_repo_sm.repo.git_dir)
 
         shutil.rmtree(p.repo_path())
+
+    def test_create_supervisor_config(self):
+        self.mock_create_repo()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+        pw.take_action('create_supervisor')
+
+        supervisor_config_path = os.path.join(
+            settings.SUPERVISOR_CONFIGS_PATH,
+            'ffl_za.conf')
+
+        self.assertTrue(os.path.exists(supervisor_config_path))
+
+        with open(supervisor_config_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue('program:unicore_cms_ffl_za' in data)
+        self.assertTrue('ffl.production.za.ini' in data)
+        self.assertTrue('/var/praekelt/unicore-cms-ffl/' in data)
+
+        shutil.rmtree(p.repo_path())

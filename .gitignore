@@ -40,3 +40,4 @@ logs/*.log
 project/local_settings.py
 project/static/
 project/.test_repo_dir/
+project/.test_config_dir/
