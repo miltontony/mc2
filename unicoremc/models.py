@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 
 from unicoremc import constants, exceptions
 from git import Repo
-from elasticgit.manager import Workspace
+from elasticgit.manager import Workspace, StorageManager
 
 
 class Project(models.Model):
@@ -64,6 +64,7 @@ class Project(models.Model):
             'country': self.country.lower()
         }
         return os.path.join(settings.NGINX_CONFIGS_PATH, filename)
+
     def create_repo(self, access_token):
         new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
             'app_type': self.app_type,
@@ -97,7 +98,13 @@ class Project(models.Model):
                 'access_token is required')
 
     def clone_repo(self):
-        Repo.clone_from(self.repo_url, self.repo_path())
+        repo = Repo.clone_from(self.repo_url, self.repo_path())
+        sm = StorageManager(repo)
+        sm.create_storage()
+        sm.write_config('user', {
+            'name': self.owner.username,
+            'email': self.owner.email,
+        })
 
     def create_remote(self):
         repo = Repo(self.repo_path())
