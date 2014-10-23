@@ -7,6 +7,7 @@ from django.template.loader import render_to_string
 
 from unicoremc import constants, exceptions
 from git import Repo
+from elasticgit.manager import Workspace
 
 
 class Project(models.Model):
@@ -63,7 +64,6 @@ class Project(models.Model):
             'country': self.country.lower()
         }
         return os.path.join(settings.NGINX_CONFIGS_PATH, filename)
-
     def create_repo(self, access_token):
         new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
             'app_type': self.app_type,
@@ -104,14 +104,9 @@ class Project(models.Model):
         repo.create_remote('upstream', self.base_repo_url)
 
     def merge_remote(self):
-        # TODO: Use elasticgit.StorageManager.fast_forward('upstream')
         repo = Repo(self.repo_path())
-        remote = repo.remote(name='upstream')
-        remote.fetch()
-
-        [fetch_info] = remote.fetch()
-        git = repo.git
-        git.merge(fetch_info.commit)
+        ws = Workspace(repo, None, None)
+        ws.fast_forward(remote_name='upstream')
 
     def _write_frontend_supervisor(self):
         frontend_supervisor_content = render_to_string(
