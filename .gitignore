@@ -39,5 +39,6 @@ logs/*.log
 *.db
 project/local_settings.py
 project/static/
+project/configs/
 project/.test_repo_dir/
 project/.test_config_dir/

@@ -57,6 +57,10 @@ class SupervisorCreated(State):
     verbose_name = 'Supervisor Created'
     transitions = {'create_nginx': 'nginx_created'}
 
+    def create_nginx(self, **kwargs):
+        if self.instance:
+            self.instance.create_nginx()
+
 
 class NginxCreated(State):
     verbose_name = 'Nginx Created'

@@ -4,9 +4,6 @@ NEW_REPO_NAME_FORMAT = (
     'unicore-cms-content-'
     '%(app_type)s-%(country)s%(suffix)s')
 
-SUPERVISOR_SERVICE_NAME_FORMAT = (
-    'unicore_cms_%(app_type)s_%(country)s')
-
 COUNTRIES = [
     {"name": "Afghanistan", "code": "AF"},
     {"name": "Åland Islands", "code": "AX"},
