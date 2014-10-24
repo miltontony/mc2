@@ -11,6 +11,9 @@ class ConfigManager(object):
         self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
         self.sockets_dir = settings.SOCKETS_PATH
 
+        if not os.path.exists(self.sockets_dir):
+            os.makedirs(self.sockets_dir)
+
         if not os.path.exists(self.frontend_settings_dir):
             os.makedirs(self.frontend_settings_dir)
 
@@ -119,6 +122,10 @@ class SettingsManager(object):
         self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
         self.cms_settings_dir = settings.CMS_SETTINGS_OUTPUT_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
+        self.sockets_dir = settings.SOCKETS_PATH
+
+        if not os.path.exists(self.sockets_dir):
+            os.makedirs(self.sockets_dir)
 
         if not os.path.exists(self.frontend_settings_dir):
             os.makedirs(self.frontend_settings_dir)
@@ -143,7 +150,10 @@ class SettingsManager(object):
                 'country': country.lower(),
                 'available_languages': '[%s]' % ', '.join(languages),
                 'git_repo_uri': clone_url,
-                'raven_dsn_uri': raven_dsn
+                'raven_dsn_uri': raven_dsn,
+                'socket_path': os.path.join(
+                    self.sockets_dir,
+                    '%s.%s.socket' % (app_type, country.lower()))
             }
         )
 
