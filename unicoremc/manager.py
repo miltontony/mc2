@@ -116,9 +116,9 @@ class SettingsManager(object):
     def write_frontend_settings(
             self, app_type, country, clone_url, available_languages):
         if self.deploy_environment == 'qa':
-            raven_dsn = settings.RAVEN_DSN_QA
+            raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
-            raven_dsn = settings.RAVEN_DSN_PROD
+            raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
 
         languages = []
         for lang in available_languages:
@@ -147,9 +147,9 @@ class SettingsManager(object):
 
     def write_cms_settings(self, app_type, country, clone_url):
         if self.deploy_environment == 'qa':
-            raven_dsn = settings.RAVEN_DSN_QA
+            raven_dsn = settings.RAVEN_DSN_CMS_QA
         else:
-            raven_dsn = settings.RAVEN_DSN_PROD
+            raven_dsn = settings.RAVEN_DSN_CMS_PROD
 
         cms_settings_content = render_to_string(
             'configs/cms.settings.py', {
