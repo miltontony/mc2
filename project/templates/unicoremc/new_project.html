@@ -166,7 +166,7 @@ if (typeof String.prototype.startsWith != 'function') {
                 $.each(data, function(){
                     if(this.name.startsWith('unicore-cms-content-' + app_name)){
                         options.push(
-                            $('<option>').val(this.clone_url).text(this.name));
+                            $('<option>').val(this.git_url).text(this.name));
                     }
                 });
                 $('#base_repo').html(options).removeAttr('disabled').change();
