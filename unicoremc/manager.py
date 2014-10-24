@@ -9,6 +9,7 @@ class ConfigManager(object):
         self.nginx_dir = settings.NGINX_CONFIGS_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
         self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
+        self.sockets_dir = settings.SOCKETS_PATH
 
         if not os.path.exists(self.frontend_settings_dir):
             os.makedirs(self.frontend_settings_dir)
@@ -26,7 +27,10 @@ class ConfigManager(object):
                 'country': country.lower(),
                 'settings_path': os.path.join(
                     self.frontend_settings_dir,
-                    '%s.production.%s.ini' % (app_type, country.lower()))
+                    '%s.production.%s.ini' % (app_type, country.lower())),
+                'socket_path': os.path.join(
+                    self.sockets_dir,
+                    '%s.%s.socket' % (app_type, country.lower()))
             }
         )
 
@@ -46,6 +50,9 @@ class ConfigManager(object):
             'configs/cms.supervisor.conf', {
                 'app_type': app_type,
                 'country': country.lower(),
+                'socket_path': os.path.join(
+                    self.sockets_dir,
+                    'cms.%s.%s.socket' % (app_type, country.lower()))
             }
         )
 
@@ -66,6 +73,9 @@ class ConfigManager(object):
                 'deploy_environment': settings.DEPLOY_ENVIRONMENT,
                 'app_type': app_type,
                 'country': country.lower(),
+                'socket_path': os.path.join(
+                    self.sockets_dir,
+                    '%s.%s.socket' % (app_type, country.lower()))
             }
         )
 
@@ -86,6 +96,9 @@ class ConfigManager(object):
                 'deploy_environment': self.deploy_environment,
                 'app_type': app_type,
                 'country': country.lower(),
+                'socket_path': os.path.join(
+                    self.sockets_dir,
+                    'cms.%s.%s.socket' % (app_type, country.lower()))
             }
         )
 

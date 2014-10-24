@@ -30,6 +30,10 @@ class ConfigManagerTestCase(TestCase):
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
             'ffl.production.za.ini')
 
+        socket_path = os.path.join(
+            settings.SOCKETS_PATH,
+            'ffl.za.socket')
+
         self.assertTrue(os.path.exists(frontend_supervisor_config_path))
 
         with open(frontend_supervisor_config_path, "r") as config_file:
@@ -37,6 +41,7 @@ class ConfigManagerTestCase(TestCase):
 
         self.assertTrue('program:unicore_frontend_ffl_za' in data)
         self.assertTrue(frontend_settings_path in data)
+        self.assertTrue(socket_path in data)
         self.assertTrue('/var/praekelt/unicore-cms-ffl' in data)
 
     def test_write_cms_supervisor_configs(self):
@@ -47,6 +52,10 @@ class ConfigManagerTestCase(TestCase):
             settings.SUPERVISOR_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
+        socket_path = os.path.join(
+            settings.SOCKETS_PATH,
+            'cms.ffl.za.socket')
+
         self.assertTrue(os.path.exists(cms_supervisor_config_path))
 
         with open(cms_supervisor_config_path, "r") as config_file:
@@ -55,6 +64,7 @@ class ConfigManagerTestCase(TestCase):
         self.assertTrue('program:unicore_cms_ffl_za' in data)
         self.assertTrue('project.ffl_za_settings' in data)
         self.assertTrue('/var/praekelt/unicore-cms-django' in data)
+        self.assertTrue(socket_path in data)
 
     def test_write_frontend_nginx_configs(self):
         cm = ConfigManager()
@@ -63,6 +73,10 @@ class ConfigManagerTestCase(TestCase):
         frontend_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
             'frontend_ffl_za.conf')
+
+        socket_path = os.path.join(
+            settings.SOCKETS_PATH,
+            'ffl.za.socket')
 
         self.assertTrue(os.path.exists(frontend_nginx_config_path))
 
@@ -74,6 +88,7 @@ class ConfigManagerTestCase(TestCase):
         self.assertTrue('unicore_frontend_ffl_za-error.log' in data)
         self.assertTrue(
             '/var/praekelt/unicore-cms-ffl/unicorecmsffl/static/' in data)
+        self.assertTrue(socket_path in data)
 
     def test_write_cms_nginx_configs(self):
         cm = ConfigManager()
@@ -83,6 +98,10 @@ class ConfigManagerTestCase(TestCase):
             settings.NGINX_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
+        socket_path = os.path.join(
+            settings.SOCKETS_PATH,
+            'cms.ffl.za.socket')
+
         self.assertTrue(os.path.exists(cms_nginx_config_path))
 
         with open(cms_nginx_config_path, "r") as config_file:
@@ -91,3 +110,6 @@ class ConfigManagerTestCase(TestCase):
         self.assertTrue('cms.za.qa.ffl.unicore.io' in data)
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
+        print data
+        print socket_path
+        self.assertTrue(socket_path in data)
