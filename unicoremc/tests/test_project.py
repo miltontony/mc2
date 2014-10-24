@@ -260,7 +260,7 @@ class ProjectTestCase(TestCase):
         with open(frontend_nginx_config_path, "r") as config_file:
             data = config_file.read()
 
-        self.assertTrue('za.qa.ffl.unicore.io' in data)
+        self.assertTrue('za.ffl.qa-hub.unicore.io' in data)
         self.assertTrue('unicore_frontend_ffl_za-access.log' in data)
         self.assertTrue('unicore_frontend_ffl_za-error.log' in data)
         self.assertTrue(
@@ -269,7 +269,7 @@ class ProjectTestCase(TestCase):
         with open(cms_nginx_config_path, "r") as config_file:
             data = config_file.read()
 
-        self.assertTrue('cms.za.qa.ffl.unicore.io' in data)
+        self.assertTrue('cms.za.ffl.qa-hub.unicore.io' in data)
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
 
