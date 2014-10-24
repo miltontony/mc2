@@ -17,9 +17,78 @@
 
 <!-- CONTENT -->
 {% block content %}
-<h1>Welcome to your new home!</h1>
-<a href="{% url 'new_project' %}" class="addlink">Start new project</a>
+
+{% if not request.user.is_authenticated %}
 <p>
 <a href="{% url 'social:begin' 'github' %}">Login using Github</a>
 </p>
+{% else %}
+
+
+<header id="grp-content-title">
+<h1>Mission Control</h1>
+<ul class="grp-object-tools">
+    <li><a href="{% url 'new_project' %}" class="addlink">Start new project</a></li>
+</ul>
+</header>
+
+<div id="projects_progress">
+    <section id="grp-changelist">
+    <div class="grp-module grp-changelist-results">
+        <table id="result_list" cellspacing="0" class="grp-sortable">
+            <thead>
+                <tr>
+                    <th scope="col" class="sortable">
+                        <div class="grp-text"><a href="#">App Type</a></div>
+                    </th>
+                    <th scope="col" class="sortable">
+                        <div class="grp-text"><a href="#">Country</a></div>
+                    </th>
+                    <th scope="col" class="sortable">
+                        <div class="grp-text"><a href="#">State</a></div>
+                    </th>
+                    <th scope="col" class="sortable">
+                        <div class="grp-text"><a href="#">Source Repo</a></div>
+                    </th>
+                    <th scope="col" class="sortable">
+                        <div class="grp-text"><a href="#">Git Content Repo</a></div>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+    </section>
+</div>
+
+<script type="text/javascript">
+function reload_projects(){
+    grp.jQuery.getJSON('/progress/')
+        .done(function(data){
+            var projects = new Array();
+            grp.jQuery.each(data, function(){
+                var row = '<th>' + this.app_type +'</th>' +
+                          '<td>' + this.country + '</td>' +
+                          '<td>' + this.state + '</td>' +
+                          '<td>'+ this.base_repo +'</td>' +
+                          '<td>'+ this.repo_url +'</td>';
+                projects.push(
+                    grp.jQuery('<tr>').html(row).addClass('grp-row').addClass('grp-row-even'));
+            });
+            grp.jQuery('#projects_progress tbody').html(projects)
+    });
+}
+
+var timeout = null;
+function refresh(){
+    clearTimeout(timeout);
+    timeout = setTimeout("refresh()", 3000);
+    reload_projects();
+}
+grp.jQuery(document).ready(function() {
+    refresh();
+});
+</script>
+{% endif %}
 {% endblock %}

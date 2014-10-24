@@ -49,3 +49,16 @@ def start_new_project(request, *args, **kwargs):
 
     return HttpResponse(json.dumps({'success': True}),
                         mimetype='application/json')
+
+
+def projects_progress(request, *args, **kwargs):
+    projects = Project.objects.all()
+    return HttpResponse(json.dumps(
+        [{
+            'app_type': p.app_type,
+            'base_repo': p.base_repo_url,
+            'state': p.state,
+            'country': p.country,
+            'repo_url': p.repo_url,
+        } for p in projects]
+    ))

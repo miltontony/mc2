@@ -19,6 +19,11 @@ urlpatterns = patterns(
         name='start_new_project'
     ),
     url(
+        r'^progress/$',
+        'unicoremc.views.projects_progress',
+        name='projects_progress'
+    ),
+    url(
         r'^logout/$',
         'django.contrib.auth.views.logout_then_login',
         name='logout'
