@@ -250,7 +250,8 @@ SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
 # path to ngix conf files
 NGINX_CONFIGS_PATH = abspath('configs', 'nginx')
 # path to settings files
-SETTINGS_OUTPUT_PATH = abspath('configs', 'settings')
+FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
+CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
 
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 

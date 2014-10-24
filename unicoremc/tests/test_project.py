@@ -297,7 +297,7 @@ class ProjectTestCase(TestCase):
         pw.take_action('create_pyramid_settings')
 
         frontend_settings_path = os.path.join(
-            settings.SETTINGS_OUTPUT_PATH,
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
             'ffl.production.za.ini')
 
         self.assertTrue(os.path.exists(frontend_settings_path))

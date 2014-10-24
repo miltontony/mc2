@@ -96,11 +96,15 @@ class ConfigManager(object):
 
 class SettingsManager(object):
     def __init__(self):
-        self.settings_dir = settings.SETTINGS_OUTPUT_PATH
+        self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
+        self.cms_settings_dir = settings.CMS_SETTINGS_OUTPUT_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
 
-        if not os.path.exists(settings.SETTINGS_OUTPUT_PATH):
-            os.makedirs(self.settings_dir)
+        if not os.path.exists(self.frontend_settings_dir):
+            os.makedirs(self.frontend_settings_dir)
+
+        if not os.path.exists(self.cms_settings_dir):
+            os.makedirs(self.cms_settings_dir)
 
     def write_frontend_settings(
             self, app_type, country, clone_url, available_languages):
@@ -130,7 +134,7 @@ class SettingsManager(object):
         )
 
         filepath = os.path.join(
-            self.settings_dir,
+            self.frontend_settings_dir,
             '%(app_type)s.production.%(country)s.ini' % {
                 'app_type': app_type,
                 'country': country.lower(),
@@ -162,7 +166,7 @@ class SettingsManager(object):
         )
 
         filepath = os.path.join(
-            self.settings_dir,
+            self.cms_settings_dir,
             '%(app_type)s_%(country)s_settings.py' % {
                 'app_type': app_type,
                 'country': country.lower(),

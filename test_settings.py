@@ -17,4 +17,5 @@ CELERY_ALWAYS_EAGER = DEBUG
 CMS_REPO_PATH = abspath('.test_repo_dir')
 SUPERVISOR_CONFIGS_PATH = abspath('.test_config_dir', 'supervisor')
 NGINX_CONFIGS_PATH = abspath('.test_config_dir', 'nginx')
-SETTINGS_OUTPUT_PATH = abspath('.test_config_dir', 'settings')
+FRONTEND_SETTINGS_OUTPUT_PATH = abspath('.test_config_dir', 'frontend_settings')
+CMS_SETTINGS_OUTPUT_PATH = abspath('.test_config_dir', 'cms_settings')
