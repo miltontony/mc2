@@ -110,6 +110,4 @@ class ConfigManagerTestCase(TestCase):
         self.assertTrue('cms.za.qa.ffl.unicore.io' in data)
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
-        print data
-        print socket_path
         self.assertTrue(socket_path in data)
