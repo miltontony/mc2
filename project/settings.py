@@ -253,6 +253,8 @@ NGINX_CONFIGS_PATH = abspath('configs', 'nginx')
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
 CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
 
+SOCKETS_PATH = abspath('configs', 'sockets')
+
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
