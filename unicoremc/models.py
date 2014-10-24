@@ -1,4 +1,8 @@
 import os
+import pwd
+
+os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]
+
 import requests
 
 from django.db import models
