@@ -257,6 +257,9 @@ SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
 GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
+
+RAVEN_DSN_QA = ''
+RAVEN_DSN_PROD = ''
 try:
     from project.local_settings import *
 except ImportError:
