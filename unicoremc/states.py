@@ -157,6 +157,7 @@ class ProjectWorkflow(StateMachine):
             for action in self.actions:
                 if self.has_next():
                     self.take_action(action, **kwargs)
+                    self.instance.save()
 
     def has_next(self):
         return self.instance and 'done' not in self.instance.state and \
