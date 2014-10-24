@@ -41,11 +41,10 @@ def start_new_project(request, *args, **kwargs):
         project, created = Project.objects.get_or_create(
             app_type=app_type,
             base_repo_url=base_repo,
-            country=country)
-        if created:
-            project.owner = user
-            project.save()
+            country=country,
+            owner=user)
 
+        if created:
             tasks.start_new_project.delay(project.id, access_token)
 
     return HttpResponse(json.dumps({'success': True}),
