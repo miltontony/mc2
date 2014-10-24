@@ -78,15 +78,32 @@ class CmsSettingsCreated(State):
     verbose_name = 'Cms Settings Created'
     transitions = {'create_db': 'db_created'}
 
+    """
+    The aim of this step is to ensure the database is created.
+    The Database is only needed by the Django CMS app
+    """
+
 
 class DbCreated(State):
     verbose_name = 'Database Created'
     transitions = {'init_db': 'db_initialized'}
 
+    """
+    The aim of this step is to ensure the database is initialized (syncdb)
+    This can be facilitated by Sideloader (Hook url)
+    The Database is only needed by the Django CMS app
+    """
+
 
 class DbInitialized(State):
     verbose_name = 'Database Initialized'
     transitions = {'init_cms': 'cms_initialized'}
+
+    """
+    The aim of this step is to ensure the CMS is initialized by content from
+    the Git Repo.
+    The Database is only needed by the Django CMS app
+    """
 
 
 class CmsInitialized(State):
