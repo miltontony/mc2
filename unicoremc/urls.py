@@ -14,9 +14,9 @@ urlpatterns = patterns(
         name='new_project'
     ),
     url(
-        r'^new/sleep/$',
-        'unicoremc.views.test_ajax_function',
-        name='new_project_sleep'
+        r'^new/create/$',
+        'unicoremc.views.start_new_project',
+        name='start_new_project'
     ),
     url(
         r'^logout/$',

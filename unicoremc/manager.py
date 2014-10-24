@@ -8,6 +8,10 @@ class ConfigManager(object):
         self.supervisor_dir = settings.SUPERVISOR_CONFIGS_PATH
         self.nginx_dir = settings.NGINX_CONFIGS_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
+        self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
+
+        if not os.path.exists(self.frontend_settings_dir):
+            os.makedirs(self.frontend_settings_dir)
 
         if not os.path.exists(self.supervisor_dir):
             os.makedirs(self.supervisor_dir)
@@ -20,6 +24,9 @@ class ConfigManager(object):
             'configs/frontend.supervisor.conf', {
                 'app_type': app_type,
                 'country': country.lower(),
+                'settings_path': os.path.join(
+                    self.frontend_settings_dir,
+                    '%s.production.%s.ini' % (app_type, country.lower()))
             }
         )
 
@@ -96,24 +103,22 @@ class ConfigManager(object):
 
 class SettingsManager(object):
     def __init__(self):
-        self.settings_dir = settings.SETTINGS_OUTPUT_PATH
+        self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
+        self.cms_settings_dir = settings.CMS_SETTINGS_OUTPUT_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
 
-        if not os.path.exists(settings.SETTINGS_OUTPUT_PATH):
-            os.makedirs(self.settings_dir)
+        if not os.path.exists(self.frontend_settings_dir):
+            os.makedirs(self.frontend_settings_dir)
+
+        if not os.path.exists(self.cms_settings_dir):
+            os.makedirs(self.cms_settings_dir)
 
     def write_frontend_settings(
             self, app_type, country, clone_url, available_languages):
         if self.deploy_environment == 'qa':
-            raven_dsn = (
-                'http://3403146e923c400e9dbdc25f0ca2bf89:'
-                '4a9a59b5a75142028f81381e97fb173e@'
-                'prd-sentry.za.prk-host.net/70')
+            raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
-            raven_dsn = (
-                'http://ae24b1ca62c14e3187409be94bde6828:'
-                'abf0b78210874deba6e58ccac08188b0@'
-                'prd-sentry.za.prk-host.net/71')
+            raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
 
         languages = []
         for lang in available_languages:
@@ -130,7 +135,7 @@ class SettingsManager(object):
         )
 
         filepath = os.path.join(
-            self.settings_dir,
+            self.frontend_settings_dir,
             '%(app_type)s.production.%(country)s.ini' % {
                 'app_type': app_type,
                 'country': country.lower(),
@@ -142,15 +147,9 @@ class SettingsManager(object):
 
     def write_cms_settings(self, app_type, country, clone_url):
         if self.deploy_environment == 'qa':
-            raven_dsn = (
-                'http://3403146e923c400e9dbdc25f0ca2bf89:'
-                '4a9a59b5a75142028f81381e97fb173e@'
-                'prd-sentry.za.prk-host.net/70')
+            raven_dsn = settings.RAVEN_DSN_CMS_QA
         else:
-            raven_dsn = (
-                'http://ae24b1ca62c14e3187409be94bde6828:'
-                'abf0b78210874deba6e58ccac08188b0@'
-                'prd-sentry.za.prk-host.net/71')
+            raven_dsn = settings.RAVEN_DSN_CMS_PROD
 
         cms_settings_content = render_to_string(
             'configs/cms.settings.py', {
@@ -162,7 +161,7 @@ class SettingsManager(object):
         )
 
         filepath = os.path.join(
-            self.settings_dir,
+            self.cms_settings_dir,
             '%(app_type)s_%(country)s_settings.py' % {
                 'app_type': app_type,
                 'country': country.lower(),

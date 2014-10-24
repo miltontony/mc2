@@ -213,7 +213,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ALWAYS_EAGER = DEBUG
 
 # Tell Celery where to find the tasks
-# CELERY_IMPORTS = ('unicoremc.tasks',)
+CELERY_IMPORTS = ('unicoremc.tasks', )
 
 # Defer email sending to Celery, except if we're in debug mode,
 # then just print the emails to stdout for debugging.
@@ -250,12 +250,20 @@ SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
 # path to ngix conf files
 NGINX_CONFIGS_PATH = abspath('configs', 'nginx')
 # path to settings files
-SETTINGS_OUTPUT_PATH = abspath('configs', 'settings')
+FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
+CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
 
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
 GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
+
+RAVEN_DSN_FRONTEND_QA = ''
+RAVEN_DSN_FRONTEND_PROD = ''
+
+RAVEN_DSN_CMS_QA = ''
+RAVEN_DSN_CMS_PROD = ''
+
 try:
     from project.local_settings import *
 except ImportError:

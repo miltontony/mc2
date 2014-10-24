@@ -175,6 +175,17 @@ if (typeof String.prototype.startsWith != 'function') {
 
     function launch(){
         // Trigger start new project via ajax
+        data = {
+            'app_type': $('#unicore_app').val(),
+            'base_repo': $('#base_repo').val(),
+            'country': $('#country').val(),
+            'user_id': '{{request.user.id}}',
+            'access_token': '{{access_token}}'
+        }
+        $.post('/new/create/', data)
+            .done(function(){
+                window.location = '/';
+            });
     }
 
     $(document).ready(function() {

@@ -13,8 +13,11 @@ from unicoremc.models import Localisation
 class SettingsManagerTestCase(TestCase):
 
     def tearDown(self):
-        if os.path.exists(settings.SETTINGS_OUTPUT_PATH):
-            shutil.rmtree(settings.SETTINGS_OUTPUT_PATH)
+        if os.path.exists(settings.FRONTEND_SETTINGS_OUTPUT_PATH):
+            shutil.rmtree(settings.FRONTEND_SETTINGS_OUTPUT_PATH)
+
+        if os.path.exists(settings.CMS_SETTINGS_OUTPUT_PATH):
+            shutil.rmtree(settings.CMS_SETTINGS_OUTPUT_PATH)
 
     def test_write_frontend_settings(self):
         english = Localisation._for('eng_UK')
@@ -24,7 +27,7 @@ class SettingsManagerTestCase(TestCase):
             'ffl', 'za', 'http://some.repo.com/.git', [english, afrikaans])
 
         frontend_settings_path = os.path.join(
-            settings.SETTINGS_OUTPUT_PATH,
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
             'ffl.production.za.ini')
 
         self.assertTrue(os.path.exists(frontend_settings_path))
@@ -45,7 +48,7 @@ class SettingsManagerTestCase(TestCase):
             'ffl', 'za', 'http://some.repo.com/.git')
 
         cms_settings_path = os.path.join(
-            settings.SETTINGS_OUTPUT_PATH,
+            settings.CMS_SETTINGS_OUTPUT_PATH,
             'ffl_za_settings.py')
 
         self.assertTrue(os.path.exists(cms_settings_path))
