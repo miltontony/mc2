@@ -245,6 +245,9 @@ RAVEN_CONFIG = {
 # Used to distinguish between QA and PROD in naming
 DEPLOY_ENVIRONMENT = 'qa'
 
+# path to where repos will be located
+CMS_REPO_PATH = abspath('repos')
+
 # path to supervisor conf files
 SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
 # path to ngix conf files
