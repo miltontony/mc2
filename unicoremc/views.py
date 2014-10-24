@@ -38,14 +38,15 @@ def start_new_project(request, *args, **kwargs):
         user_id = request.POST.get('user_id')
 
         user = User.objects.get(pk=user_id)
-        project = Project(
+        project, created = Project.objects.get_or_create(
             app_type=app_type,
             base_repo_url=base_repo,
-            country=country,
-            owner=user)
-        project.save()
+            country=country)
+        if created:
+            project.owner = user
+            project.save()
 
-        tasks.start_new_project.delay(project.id, access_token)
+            tasks.start_new_project.delay(project.id, access_token)
 
     return HttpResponse(json.dumps({'success': True}),
                         mimetype='application/json')
