@@ -157,6 +157,35 @@ class ProjectTestCase(TestCase):
 
         shutil.rmtree(p.repo_path())
 
+    def test_create_remotes_repo_from_github(self):
+        self.mock_create_repo()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url='https://github.com/universalcore/unicore-cms-content-gem-tanzania.git',
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+
+        self.assertEquals(p.state, 'remote_merged')
+        self.assertTrue(os.path.isdir(os.path.join(p.repo_path(), '.git')))
+        self.assertTrue(
+            os.path.exists(os.path.join(p.repo_path(), 'sample.txt')))
+
+        repo = Repo(p.repo_path())
+        self.assertEquals(len(repo.remotes), 2)
+        self.assertEquals(
+            repo.remote(name='upstream').url,
+            'https://github.com/universalcore/unicore-cms-content-gem-tanzania.git')
+
+        shutil.rmtree(p.repo_path())
+
     def test_merge_remoate_repo(self):
         self.mock_create_repo()
 
