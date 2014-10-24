@@ -8,6 +8,10 @@ class ConfigManager(object):
         self.supervisor_dir = settings.SUPERVISOR_CONFIGS_PATH
         self.nginx_dir = settings.NGINX_CONFIGS_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
+        self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
+
+        if not os.path.exists(self.frontend_settings_dir):
+            os.makedirs(self.frontend_settings_dir)
 
         if not os.path.exists(self.supervisor_dir):
             os.makedirs(self.supervisor_dir)
@@ -20,6 +24,9 @@ class ConfigManager(object):
             'configs/frontend.supervisor.conf', {
                 'app_type': app_type,
                 'country': country.lower(),
+                'settings_path': os.path.join(
+                    self.frontend_settings_dir,
+                    '%s.production.%s.ini' % (app_type, country.lower()))
             }
         )
 

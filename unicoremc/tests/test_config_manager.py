@@ -26,13 +26,17 @@ class ConfigManagerTestCase(TestCase):
             settings.SUPERVISOR_CONFIGS_PATH,
             'frontend_ffl_za.conf')
 
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
+            'ffl.production.za.ini')
+
         self.assertTrue(os.path.exists(frontend_supervisor_config_path))
 
         with open(frontend_supervisor_config_path, "r") as config_file:
             data = config_file.read()
 
         self.assertTrue('program:unicore_frontend_ffl_za' in data)
-        self.assertTrue('ffl.production.za.ini' in data)
+        self.assertTrue(frontend_settings_path in data)
         self.assertTrue('/var/praekelt/unicore-cms-ffl' in data)
 
     def test_write_cms_supervisor_configs(self):
