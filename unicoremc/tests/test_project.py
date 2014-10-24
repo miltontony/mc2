@@ -162,7 +162,7 @@ class ProjectTestCase(TestCase):
 
         p = Project(
             app_type='ffl',
-            base_repo_url='https://github.com/universalcore/unicore-cms-content-gem-tanzania.git',
+            base_repo_url='git://github.com/universalcore/unicore-cms-content-gem-tanzania.git',
             country='ZA',
             owner=self.user)
         p.save()
@@ -176,13 +176,13 @@ class ProjectTestCase(TestCase):
         self.assertEquals(p.state, 'remote_merged')
         self.assertTrue(os.path.isdir(os.path.join(p.repo_path(), '.git')))
         self.assertTrue(
-            os.path.exists(os.path.join(p.repo_path(), 'sample.txt')))
+            os.path.exists(os.path.join(p.repo_path(), 'README.md')))
 
         repo = Repo(p.repo_path())
         self.assertEquals(len(repo.remotes), 2)
         self.assertEquals(
             repo.remote(name='upstream').url,
-            'https://github.com/universalcore/unicore-cms-content-gem-tanzania.git')
+            'git://github.com/universalcore/unicore-cms-content-gem-tanzania.git')
 
         shutil.rmtree(p.repo_path())
 
