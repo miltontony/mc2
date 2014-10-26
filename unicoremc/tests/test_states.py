@@ -355,6 +355,7 @@ class StatesTestCase(TestCase):
         pw.take_action('init_cms')
         pw.take_action('reload_supervisor')
         pw.take_action('reload_nginx')
+        pw.take_action('init_frontend_repo')
         pw.take_action('finish')
 
         self.assertEquals(p.state, 'done')

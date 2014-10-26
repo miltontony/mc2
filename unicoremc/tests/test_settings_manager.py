@@ -24,7 +24,8 @@ class SettingsManagerTestCase(TestCase):
         afrikaans = Localisation._for('swh_TZ')
         cm = SettingsManager()
         cm.write_frontend_settings(
-            'ffl', 'za', 'http://some.repo.com/.git', [english, afrikaans])
+            'ffl', 'za', 'http://some.repo.com/.git', [english, afrikaans],
+            '/path/to/repo/ffl_za/')
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,

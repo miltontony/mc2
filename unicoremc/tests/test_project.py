@@ -337,5 +337,5 @@ class ProjectTestCase(TestCase):
         self.assertTrue('egg:unicore-cms-ffl' in data)
         self.assertTrue(
             "[('eng_UK', 'English (United Kingdom)')]" in data)
-        self.assertTrue('/ffl_za/' in data)
+        self.assertTrue(self.source_repo_sm.repo.working_dir in data)
         self.assertTrue(self.source_repo_sm.repo.git_dir in data)
