@@ -32,6 +32,10 @@ class ProjectTestCase(TestCase):
             'name': 'testuser',
             'email': 'test@email.com',
         })
+        self.source_repo_sm.store_data(
+            'README.md', 'This is a sample readme', 'Create readme file')
+        self.source_repo_sm.store_data(
+            'text.txt', 'This is a sample textfile', 'Create sample file')
 
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-base-repo')
         self.base_repo_sm = StorageManager(Repo.init(workdir))
@@ -43,8 +47,6 @@ class ProjectTestCase(TestCase):
 
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')
-        self.base_repo_sm.store_data(
-            'README', 'This is a sample readme', 'Create readme file')
 
     def tearDown(self):
         self.source_repo_sm.destroy_storage()
@@ -133,9 +135,11 @@ class ProjectTestCase(TestCase):
 
         self.assertEquals(p.state, 'repo_cloned')
         self.assertTrue(os.path.isdir(os.path.join(p.repo_path(), '.git')))
-        self.assertFalse(os.path.exists(os.path.join(p.repo_path(), 'README')))
+
         self.assertFalse(
-            os.path.exists(os.path.join(p.repo_path(), 'sample.txt')))
+            os.path.exists(os.path.join(p.repo_path(), 'README.md')))
+        self.assertTrue(
+            os.path.exists(os.path.join(p.repo_path(), 'text.txt')))
 
         shutil.rmtree(p.repo_path())
 
