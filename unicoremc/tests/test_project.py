@@ -3,6 +3,8 @@ import httpretty
 import os
 import shutil
 
+from unittest import skip
+
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -157,12 +159,15 @@ class ProjectTestCase(TestCase):
 
         shutil.rmtree(p.repo_path())
 
+    @skip("slow test that connects to github")
     def test_create_remotes_repo_from_github(self):
         self.mock_create_repo()
 
         p = Project(
             app_type='ffl',
-            base_repo_url='git://github.com/universalcore/unicore-cms-content-gem-tanzania.git',
+            base_repo_url=(
+                'git://github.com/universalcore/'
+                'unicore-cms-content-gem-tanzania.git'),
             country='ZA',
             owner=self.user)
         p.save()

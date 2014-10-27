@@ -31,6 +31,10 @@ class SettingsManagerTestCase(TestCase):
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
             'ffl.production.za.ini')
 
+        socket_path = os.path.join(
+            settings.SOCKETS_PATH,
+            'ffl.za.socket')
+
         self.assertTrue(os.path.exists(frontend_settings_path))
 
         with open(frontend_settings_path, "r") as config_file:
@@ -42,6 +46,7 @@ class SettingsManagerTestCase(TestCase):
             ", ('swh_TZ', 'Swahili (Tanzania)')]" in data)
         self.assertTrue('/ffl_za/' in data)
         self.assertTrue('http://some.repo.com/.git' in data)
+        self.assertTrue(socket_path in data)
 
     def test_write_cms_settings(self):
         cm = SettingsManager()
