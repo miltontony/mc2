@@ -43,6 +43,8 @@ class ProjectTestCase(TestCase):
 
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')
+        self.base_repo_sm.store_data(
+            'README', 'This is a sample readme', 'Create readme file')
 
     def tearDown(self):
         self.source_repo_sm.destroy_storage()
@@ -131,7 +133,11 @@ class ProjectTestCase(TestCase):
 
         self.assertEquals(p.state, 'repo_cloned')
         self.assertTrue(os.path.isdir(os.path.join(p.repo_path(), '.git')))
-        shutil.rmtree(p.repo_path())
+        self.assertFalse(os.path.exists(os.path.join(p.repo_path(), 'README')))
+        self.assertFalse(
+            os.path.exists(os.path.join(p.repo_path(), 'sample.txt')))
+
+        #shutil.rmtree(p.repo_path())
 
     def test_create_remotes_repo(self):
         self.mock_create_repo()
@@ -187,7 +193,8 @@ class ProjectTestCase(TestCase):
         self.assertEquals(len(repo.remotes), 2)
         self.assertEquals(
             repo.remote(name='upstream').url,
-            'git://github.com/universalcore/unicore-cms-content-gem-tanzania.git')
+            ('git://github.com/universalcore/'
+             'unicore-cms-content-gem-tanzania.git'))
 
         shutil.rmtree(p.repo_path())
 
