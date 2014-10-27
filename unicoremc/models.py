@@ -99,7 +99,8 @@ class Project(models.Model):
                 self.app_type, self.country),
             "homepage": "https://github.com",
             "private": False,
-            "has_issues": True
+            "has_issues": True,
+            "auto_init": True,
         }
 
         if access_token:
@@ -127,6 +128,14 @@ class Project(models.Model):
             'name': self.owner.username,
             'email': self.owner.email,
         })
+
+        # Github creates a README.md when initializing a repo
+        # We need to remove this to avoid conflicts
+        readme_path = os.path.join(self.repo_path(), 'README.md')
+        if os.path.exists(readme_path):
+            repo.index.remove([readme_path])
+            repo.index.commit('remove initial readme')
+            os.remove(readme_path)
 
     def create_remote(self):
         repo = Repo(self.repo_path())
