@@ -263,3 +263,4 @@ COUNTRIES = [
     {"name": "Zambia", "code": "ZM"},
     {"name": "Zimbabwe", "code": "ZW"}
 ]
+COUNTRY_CHOICES = [(c['code'], c['name']) for c in COUNTRIES]

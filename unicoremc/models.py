@@ -67,7 +67,7 @@ class Project(models.Model):
 
     app_type = models.CharField(choices=APP_TYPES, max_length=10)
     base_repo_url = models.URLField()
-    country = models.CharField(choices=constants.COUNTRIES, max_length=2)
+    country = models.CharField(choices=constants.COUNTRY_CHOICES, max_length=2)
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
