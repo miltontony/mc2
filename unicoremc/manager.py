@@ -127,7 +127,8 @@ class SettingsManager(object):
             os.makedirs(self.cms_settings_dir)
 
     def write_frontend_settings(
-            self, app_type, country, clone_url, available_languages):
+            self, app_type, country, clone_url, available_languages,
+            repo_path):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
@@ -143,7 +144,8 @@ class SettingsManager(object):
                 'country': country.lower(),
                 'available_languages': '[%s]' % ', '.join(languages),
                 'git_repo_uri': clone_url,
-                'raven_dsn_uri': raven_dsn
+                'raven_dsn_uri': raven_dsn,
+                'repo_path': repo_path
             }
         )
 

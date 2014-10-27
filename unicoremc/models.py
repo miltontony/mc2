@@ -13,6 +13,7 @@ from unicoremc import constants, exceptions
 from unicoremc.manager import ConfigManager, SettingsManager
 
 from git import Repo
+
 from elasticgit.manager import Workspace, StorageManager
 
 
@@ -152,7 +153,8 @@ class Project(models.Model):
             self.app_type,
             self.country,
             self.repo_url,
-            self.available_languages.all()
+            self.available_languages.all(),
+            self.repo_path()
         )
 
     def create_cms_settings(self):

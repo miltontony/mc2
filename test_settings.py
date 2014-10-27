@@ -3,7 +3,7 @@ from project.settings import *
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'cms_django.db',
+        'NAME': 'unicore_mc.db',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
