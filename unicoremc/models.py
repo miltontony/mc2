@@ -15,8 +15,6 @@ from unicoremc.manager import ConfigManager, SettingsManager
 from git import Repo
 
 from elasticgit.manager import Workspace, StorageManager
-from elasticgit import EG
-from elasticgit.utils import load_class
 
 
 class Localisation(models.Model):
@@ -165,15 +163,3 @@ class Project(models.Model):
             self.country,
             self.repo_url
         )
-
-    def init_frontend_repo(self):
-        working_dir = self.repo_path()
-        index_prefix = 'unicore_frontend_%(app_type)s_%(country)s' % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-        }
-        workspace = EG.workspace(working_dir, index_prefix=index_prefix)
-        category_model = load_class('unicore.content.models.Category')
-        page_model = load_class('unicore.content.models.Page')
-        workspace.sync(category_model)
-        workspace.sync(page_model)

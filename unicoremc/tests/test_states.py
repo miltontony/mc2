@@ -2,24 +2,20 @@ import json
 import httpretty
 import os
 import shutil
-import pytest
 
 from git import Repo
 from elasticgit.manager import StorageManager
-from elasticgit.tests.base import ModelBaseTest
 
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 
 from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
 
-from unicore.content.models import Page, Category
 
-
-@pytest.mark.django_db
 @httpretty.activate
-class StatesTestCase(ModelBaseTest):
+class StatesTestCase(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(
@@ -50,11 +46,6 @@ class StatesTestCase(ModelBaseTest):
             'name': 'testuser',
             'email': 'test@email.com',
         })
-
-        self.workspace = self.mk_workspace()
-        self.workspace.setup('Test Kees', 'kees@example.org')
-        self.workspace.setup_mapping(Category)
-        self.workspace.setup_mapping(Page)
 
         try:
             # TODO: Use `pw.take_action('destory')` to cleanup
@@ -341,33 +332,6 @@ class StatesTestCase(ModelBaseTest):
 
         self.assertEquals(p.state, 'nginx_reloaded')
 
-    def test_frontend_repo_init_state(self):
-        self.mock_create_repo()
-        p = Project(
-            app_type='ffl',
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
-
-        pw = ProjectWorkflow(instance=p)
-        pw.take_action('create_repo', access_token='sample-token')
-        pw.take_action('clone_repo')
-        pw.take_action('create_remote')
-        pw.take_action('merge_remote')
-        pw.take_action('create_supervisor')
-        pw.take_action('create_nginx')
-        pw.take_action('create_pyramid_settings')
-        pw.take_action('create_cms_settings')
-        pw.take_action('create_db')
-        pw.take_action('init_db')
-        pw.take_action('init_cms')
-        pw.take_action('reload_supervisor')
-        pw.take_action('reload_nginx')
-        pw.take_action('frontend_repo_init')
-
-        self.assertEquals(p.state, 'frontend_repo_initialized')
-
     def test_finish_state(self):
         self.mock_create_repo()
         p = Project(
@@ -391,7 +355,6 @@ class StatesTestCase(ModelBaseTest):
         pw.take_action('init_cms')
         pw.take_action('reload_supervisor')
         pw.take_action('reload_nginx')
-        pw.take_action('init_frontend_repo')
         pw.take_action('finish')
 
         self.assertEquals(p.state, 'done')
@@ -420,7 +383,6 @@ class StatesTestCase(ModelBaseTest):
         p.save()
         self.assertEquals(p.state, 'initial')
 
-        return
         pw = ProjectWorkflow(instance=p)
         pw.run_all(access_token='sample-token')
 

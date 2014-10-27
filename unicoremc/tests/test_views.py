@@ -2,25 +2,21 @@ import json
 import httpretty
 import os
 import shutil
-import pytest
 
+from django.test import TestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.test.client import RequestFactory
 
 from git import Repo
 from elasticgit.manager import StorageManager
-from elasticgit.tests.base import ModelBaseTest
 
 from unicoremc.models import Project
 from unicoremc.views import start_new_project
 
-from unicore.content.models import Page, Category
 
-
-@pytest.mark.django_db
 @httpretty.activate
-class ViewsTestCase(ModelBaseTest):
+class ViewsTestCase(TestCase):
 
     def setUp(self):
         self.user = User.objects.create(
@@ -45,11 +41,6 @@ class ViewsTestCase(ModelBaseTest):
 
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')
-
-        self.workspace = self.mk_workspace()
-        self.workspace.setup('Test Kees', 'kees@example.org')
-        self.workspace.setup_mapping(Category)
-        self.workspace.setup_mapping(Page)
 
     def tearDown(self):
         self.source_repo_sm.destroy_storage()

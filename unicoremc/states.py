@@ -118,15 +118,6 @@ class SupervisorReloaded(State):
 
 class NginxReloaded(State):
     verbose_name = 'Database Initialized'
-    transitions = {'init_frontend_repo': 'frontend_repo_initialized'}
-
-    def init_frontend_repo(self, **kwargs):
-        if self.instance:
-            self.instance.init_frontend_repo()
-
-
-class FrontendRepoInitialized(State):
-    verbose_name = 'Frontend Repo Initialized'
     transitions = {'finish': 'done'}
 
 
@@ -157,7 +148,6 @@ class ProjectWorkflow(StateMachine):
         'cms_initialized': CmsInitialized,
         'supervisor_reloaded': SupervisorReloaded,
         'nginx_reloaded': NginxReloaded,
-        'frontend_repo_initialized': FrontendRepoInitialized,
         'done': Done,
     }
     initial_state = 'initial'
