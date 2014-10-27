@@ -13,7 +13,6 @@ class ConfigManager(object):
 
         if not os.path.exists(self.sockets_dir):
             os.makedirs(self.sockets_dir)
-
         if not os.path.exists(self.frontend_settings_dir):
             os.makedirs(self.frontend_settings_dir)
 
@@ -134,7 +133,8 @@ class SettingsManager(object):
             os.makedirs(self.cms_settings_dir)
 
     def write_frontend_settings(
-            self, app_type, country, clone_url, available_languages):
+            self, app_type, country, clone_url, available_languages,
+            repo_path):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
@@ -153,7 +153,8 @@ class SettingsManager(object):
                 'raven_dsn_uri': raven_dsn,
                 'socket_path': os.path.join(
                     self.sockets_dir,
-                    '%s.%s.socket' % (app_type, country.lower()))
+                    '%s.%s.socket' % (app_type, country.lower())),
+                'repo_path': repo_path
             }
         )
 
