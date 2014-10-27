@@ -137,7 +137,7 @@ class ProjectTestCase(TestCase):
         self.assertFalse(
             os.path.exists(os.path.join(p.repo_path(), 'sample.txt')))
 
-        #shutil.rmtree(p.repo_path())
+        shutil.rmtree(p.repo_path())
 
     def test_create_remotes_repo(self):
         self.mock_create_repo()
