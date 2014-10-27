@@ -146,6 +146,11 @@ class Project(models.Model):
         ws = Workspace(repo, None, None)
         ws.fast_forward(remote_name='upstream')
 
+    def push_repo(self):
+        repo = Repo(self.repo_path())
+        origin = repo.remote(name='origin')
+        origin.push()
+
     def create_supervisor(self):
         self.config_manager.write_frontend_supervisor(
             self.app_type, self.country)

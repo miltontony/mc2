@@ -40,6 +40,15 @@ class RemoteCreated(State):
 
 class RemoteMerged(State):
     verbose_name = 'Remote Merged'
+    transitions = {'push_repo': 'repo_pushed'}
+
+    def push_repo(self, **kwargs):
+        if self.instance:
+            self.instance.push_repo()
+
+
+class RepoPushed(State):
+    verbose_name = 'Repo Pushed'
     transitions = {'create_supervisor': 'supervisor_created'}
 
     def create_supervisor(self, **kwargs):
@@ -139,6 +148,7 @@ class ProjectWorkflow(StateMachine):
         'repo_cloned': RepoCloned,
         'remote_created': RemoteCreated,
         'remote_merged': RemoteMerged,
+        'repo_pushed': RepoPushed,
         'supervisor_created': SupervisorCreated,
         'nginx_created': NginxCreated,
         'pyramid_settings_created': PyramidSettingsCreated,
