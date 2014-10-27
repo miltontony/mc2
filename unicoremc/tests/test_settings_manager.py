@@ -1,6 +1,5 @@
 import httpretty
 import os
-import shutil
 
 from django.test import TestCase
 from django.conf import settings
@@ -11,13 +10,6 @@ from unicoremc.models import Localisation
 
 @httpretty.activate
 class SettingsManagerTestCase(TestCase):
-
-    def tearDown(self):
-        if os.path.exists(settings.FRONTEND_SETTINGS_OUTPUT_PATH):
-            shutil.rmtree(settings.FRONTEND_SETTINGS_OUTPUT_PATH)
-
-        if os.path.exists(settings.CMS_SETTINGS_OUTPUT_PATH):
-            shutil.rmtree(settings.CMS_SETTINGS_OUTPUT_PATH)
 
     def test_write_frontend_settings(self):
         english = Localisation._for('eng_UK')
@@ -39,6 +31,8 @@ class SettingsManagerTestCase(TestCase):
 
         with open(frontend_settings_path, "r") as config_file:
             data = config_file.read()
+
+        self.addCleanup(lambda: os.remove(frontend_settings_path))
 
         self.assertTrue('egg:unicore-cms-ffl' in data)
         self.assertTrue(
@@ -62,7 +56,8 @@ class SettingsManagerTestCase(TestCase):
         with open(cms_settings_path, "r") as config_file:
             data = config_file.read()
 
-        print data
+        self.addCleanup(lambda: os.remove(cms_settings_path))
+
         self.assertTrue('django_cms_ffl_za' in data)
         self.assertTrue(
             "/var/praekelt/unicore-cms-django/project/ffl_za" in data)

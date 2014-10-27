@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 from git import Repo
-from elasticgit.manager import StorageManager, Workspace
+from elasticgit.manager import StorageManager
 
 from unicoremc.models import Project, Localisation
 from unicoremc.states import ProjectWorkflow
@@ -48,9 +48,11 @@ class ProjectTestCase(TestCase):
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')
 
-    def tearDown(self):
-        self.source_repo_sm.destroy_storage()
-        self.base_repo_sm.destroy_storage()
+        self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
+        self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
+
+        self.addCleanup(lambda: httpretty.disable())
+        self.addCleanup(lambda: httpretty.reset())
 
     def mock_create_repo(self, status=201, data={}):
         default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
