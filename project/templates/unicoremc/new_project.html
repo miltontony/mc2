@@ -54,6 +54,17 @@
                 </div>
             </div>
         </div>
+        <div class="grp-row grp-cells-1">
+            <div class="l-2c-fluid l-d-4">
+                <div class="c-1"><label>Team Permissions</label></div>
+                <div class="c-2">
+                    <select id="repo_team" name="repo_team" disabled="disabled">
+                        <option value="">---------</option>
+                    </select>
+                    <p class="grp-help">This is the team that will have push access to the repo.</p>
+                </div>
+            </div>
+        </div>
     </fieldset>
 
     <fieldset class="grp-module grp-collapse new-project-progress">
@@ -171,6 +182,16 @@ if (typeof String.prototype.startsWith != 'function') {
                 });
                 $('#base_repo').html(options).removeAttr('disabled').change();
             });
+
+        $.get('https://api.github.com/orgs/universalcore/teams?access_token={{access_token}}')
+            .done(function(data){
+                var options = new Array();
+                options.push($('<option>').val('').text('---------'));
+                $.each(data, function(){
+                    options.push($('<option>').val(this.id).text(this.name));
+                });
+                $('#repo_team').html(options);
+            });
     }
 
     function launch(){
@@ -179,6 +200,7 @@ if (typeof String.prototype.startsWith != 'function') {
             'app_type': $('#unicore_app').val(),
             'base_repo': $('#base_repo').val(),
             'country': $('#country').val(),
+            'team_id': $('#repo_team').val(),
             'user_id': '{{request.user.id}}',
             'access_token': '{{access_token}}'
         }
@@ -206,10 +228,16 @@ if (typeof String.prototype.startsWith != 'function') {
 
         $('#country').change(function(){
             if($(this).val() != '')
+                $("#repo_team").removeAttr('disabled');
+            else
+                $("#repo_team").attr('disabled', 'disabled');
+        });
+
+        $('#repo_team').change(function(){
+            if($(this).val() != '')
                 $("#btn_launch").removeAttr('disabled');
             else
                 $("#btn_launch").attr('disabled', 'disabled');
-
         });
 
         $("#btn_launch").click(function(event){
