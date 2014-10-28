@@ -48,15 +48,11 @@ class ProjectTestCase(TestCase):
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')
 
-    def tearDown(self):
-        self.source_repo_sm.destroy_storage()
-        self.base_repo_sm.destroy_storage()
+        self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
+        self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
 
-        try:
-            # TODO: Use `pw.take_action('destory')` to cleanup
-            shutil.rmtree(os.path.join(settings.CMS_REPO_PATH, 'ffl-za'))
-        except:
-            pass
+        self.addCleanup(lambda: httpretty.disable())
+        self.addCleanup(lambda: httpretty.reset())
 
     def mock_create_repo(self, status=201, data={}):
         default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
@@ -135,13 +131,11 @@ class ProjectTestCase(TestCase):
 
         self.assertEquals(p.state, 'repo_cloned')
         self.assertTrue(os.path.isdir(os.path.join(p.repo_path(), '.git')))
-
         self.assertFalse(
             os.path.exists(os.path.join(p.repo_path(), 'README.md')))
         self.assertTrue(
             os.path.exists(os.path.join(p.repo_path(), 'text.txt')))
-
-        shutil.rmtree(p.repo_path())
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     def test_create_remotes_repo(self):
         self.mock_create_repo()
@@ -167,7 +161,7 @@ class ProjectTestCase(TestCase):
             repo.remote(name='upstream').url,
             self.base_repo_sm.repo.git_dir)
 
-        shutil.rmtree(p.repo_path())
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     @skip("slow test that connects to github")
     def test_create_remotes_repo_from_github(self):
@@ -200,7 +194,7 @@ class ProjectTestCase(TestCase):
             ('git://github.com/universalcore/'
              'unicore-cms-content-gem-tanzania.git'))
 
-        shutil.rmtree(p.repo_path())
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     def test_merge_remoate_repo(self):
         self.mock_create_repo()
@@ -229,7 +223,34 @@ class ProjectTestCase(TestCase):
             repo.remote(name='upstream').url,
             self.base_repo_sm.repo.git_dir)
 
-        shutil.rmtree(p.repo_path())
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+
+    def test_push_repo(self):
+        self.mock_create_repo()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+
+        self.assertFalse(os.path.exists(os.path.join(
+            self.base_repo_sm.repo.working_dir, 'text.txt')))
+
+        pw.take_action('push_repo')
+        self.assertEquals(p.state, 'repo_pushed')
+
+        self.assertTrue(os.path.exists(os.path.join(
+            self.source_repo_sm.repo.working_dir, 'text.txt')))
+
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     def test_create_supervisor_config(self):
         self.mock_create_repo()
@@ -246,6 +267,7 @@ class ProjectTestCase(TestCase):
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
+        pw.take_action('push_repo')
         pw.take_action('create_supervisor')
 
         frontend_supervisor_config_path = os.path.join(
@@ -272,7 +294,7 @@ class ProjectTestCase(TestCase):
         self.assertTrue('project.ffl_za_settings' in data)
         self.assertTrue('/var/praekelt/unicore-cms-django' in data)
 
-        shutil.rmtree(p.repo_path())
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     def test_create_nginx_config(self):
         self.mock_create_repo()
@@ -289,6 +311,7 @@ class ProjectTestCase(TestCase):
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
+        pw.take_action('push_repo')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
 
@@ -318,7 +341,7 @@ class ProjectTestCase(TestCase):
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
 
-        shutil.rmtree(p.repo_path())
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     def test_create_pyramid_settings(self):
         self.mock_create_repo()
@@ -337,6 +360,7 @@ class ProjectTestCase(TestCase):
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
+        pw.take_action('push_repo')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
         pw.take_action('create_pyramid_settings')
@@ -355,3 +379,4 @@ class ProjectTestCase(TestCase):
             "[('eng_UK', 'English (United Kingdom)')]" in data)
         self.assertTrue(self.source_repo_sm.repo.working_dir in data)
         self.assertTrue(self.source_repo_sm.repo.git_dir in data)
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))

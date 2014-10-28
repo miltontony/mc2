@@ -1,6 +1,5 @@
 import httpretty
 import os
-import shutil
 
 from django.test import TestCase
 from django.conf import settings
@@ -10,13 +9,6 @@ from unicoremc.manager import ConfigManager
 
 @httpretty.activate
 class ConfigManagerTestCase(TestCase):
-
-    def tearDown(self):
-        if os.path.exists(settings.SUPERVISOR_CONFIGS_PATH):
-            shutil.rmtree(settings.SUPERVISOR_CONFIGS_PATH)
-
-        if os.path.exists(settings.NGINX_CONFIGS_PATH):
-            shutil.rmtree(settings.NGINX_CONFIGS_PATH)
 
     def test_write_frontend_supervisor_configs(self):
         cm = ConfigManager()
@@ -34,6 +26,8 @@ class ConfigManagerTestCase(TestCase):
 
         with open(frontend_supervisor_config_path, "r") as config_file:
             data = config_file.read()
+
+        self.addCleanup(lambda: os.remove(frontend_supervisor_config_path))
 
         self.assertTrue('program:unicore_frontend_ffl_za' in data)
         self.assertTrue(frontend_settings_path in data)
@@ -56,6 +50,8 @@ class ConfigManagerTestCase(TestCase):
         with open(cms_supervisor_config_path, "r") as config_file:
             data = config_file.read()
 
+        self.addCleanup(lambda: os.remove(cms_supervisor_config_path))
+
         self.assertTrue('program:unicore_cms_ffl_za' in data)
         self.assertTrue('project.ffl_za_settings' in data)
         self.assertTrue('/var/praekelt/unicore-cms-django' in data)
@@ -77,6 +73,8 @@ class ConfigManagerTestCase(TestCase):
 
         with open(frontend_nginx_config_path, "r") as config_file:
             data = config_file.read()
+
+        self.addCleanup(lambda: os.remove(frontend_nginx_config_path))
 
         self.assertTrue('za.ffl.qa-hub.unicore.io' in data)
         self.assertTrue('unicore_frontend_ffl_za-access.log' in data)
@@ -101,6 +99,8 @@ class ConfigManagerTestCase(TestCase):
 
         with open(cms_nginx_config_path, "r") as config_file:
             data = config_file.read()
+
+        self.addCleanup(lambda: os.remove(cms_nginx_config_path))
 
         self.assertTrue('cms.za.ffl.qa-hub.unicore.io' in data)
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
