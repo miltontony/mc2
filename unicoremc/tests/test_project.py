@@ -16,6 +16,8 @@ from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
 
+from unicore.content.models import Category, Page
+
 
 @pytest.mark.django_db
 class ProjectTestCase(UnicoremcTestCase):
@@ -244,6 +246,54 @@ class ProjectTestCase(UnicoremcTestCase):
             self.source_repo_sm.repo.working_dir, 'text.txt')))
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+
+    @responses.activate
+    def test_init_workspace(self):
+        self.mock_create_repo()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+        pw.take_action('push_repo')
+        pw.take_action('init_workspace')
+
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+
+        self.assertEquals(p.state, 'workspace_initialized')
+
+        workspace = self.mk_workspace()
+        workspace.setup('Test Kees', 'kees@example.org')
+        workspace.setup_mapping(Category)
+        workspace.setup_mapping(Page)
+
+        cat = Category({
+            'title': 'Some title',
+            'slug': 'some-slug'
+        })
+        workspace.save(cat, 'Saving a Category')
+
+        page = Page({
+            'title': 'Some page title',
+            'slug': 'some-page-slug'
+        })
+        workspace.save(page, 'Saving a Page')
+
+        workspace.refresh_index()
+
+        self.assertEqual(
+            workspace.S(Category).count(), 1)
+        self.assertEqual(
+            workspace.S(Page).count(), 1)
+
 
     @responses.activate
     def test_create_supervisor_config(self):

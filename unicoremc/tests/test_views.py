@@ -52,24 +52,6 @@ class ViewsTestCase(UnicoremcTestCase):
     def test_create_new_project(self):
         self.mock_create_repo()
 
-        self.workspace = self.mk_workspace()
-        self.workspace.setup('Test Kees', 'kees@example.org')
-        self.workspace.setup_mapping(Category)
-        self.workspace.setup_mapping(Page)
-
-        cat = Category({
-            'title': 'Some title',
-            'slug': 'some-slug'
-        })
-        self.workspace.save(cat, 'Saving a Category')
-
-        page = Page({
-            'title': 'Some page title',
-            'slug': 'some-page-slug'
-        })
-        self.workspace.save(page, 'Saving a Page')
-
-        self.workspace.refresh_index()
         data = {
             'app_type': 'ffl',
             'base_repo': self.base_repo_sm.repo.git_dir,
@@ -86,6 +68,30 @@ class ViewsTestCase(UnicoremcTestCase):
 
         project = Project.objects.all()[0]
         self.assertEqual(project.state, 'done')
+
+        workspace = self.mk_workspace()
+        workspace.setup('Test Kees', 'kees@example.org')
+        workspace.setup_mapping(Category)
+        workspace.setup_mapping(Page)
+
+        cat = Category({
+            'title': 'Some title',
+            'slug': 'some-slug'
+        })
+        workspace.save(cat, 'Saving a Category')
+
+        page = Page({
+            'title': 'Some page title',
+            'slug': 'some-page-slug'
+        })
+        workspace.save(page, 'Saving a Page')
+
+        workspace.refresh_index()
+
+        self.assertEqual(
+            workspace.S(Category).count(), 1)
+        self.assertEqual(
+            workspace.S(Page).count(), 1)
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
