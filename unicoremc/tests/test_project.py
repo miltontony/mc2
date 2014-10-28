@@ -5,11 +5,9 @@ import shutil
 
 from unittest import skip
 
-from django.contrib.auth.models import User
 from django.conf import settings
 
 from git import Repo
-from elasticgit.manager import StorageManager
 
 from unicoremc.models import Project, Localisation
 from unicoremc.states import ProjectWorkflow
@@ -23,35 +21,7 @@ from unicore.content.models import Category, Page
 class ProjectTestCase(UnicoremcTestCase):
 
     def setUp(self):
-        self.user = User.objects.create(
-            username='testuser',
-            email="test@email.com")
-
-        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
-        self.source_repo_sm = StorageManager(Repo.init(workdir))
-        self.source_repo_sm.create_storage()
-        self.source_repo_sm.write_config('user', {
-            'name': 'testuser',
-            'email': 'test@email.com',
-        })
-        self.source_repo_sm.store_data(
-            'README.md', 'This is a sample readme', 'Create readme file')
-        self.source_repo_sm.store_data(
-            'text.txt', 'This is a sample textfile', 'Create sample file')
-
-        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-base-repo')
-        self.base_repo_sm = StorageManager(Repo.init(workdir))
-        self.base_repo_sm.create_storage()
-        self.base_repo_sm.write_config('user', {
-            'name': 'testuser',
-            'email': 'test@email.com',
-        })
-
-        self.base_repo_sm.store_data(
-            'sample.txt', 'This is a sample file!', 'Create sample file')
-
-        self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
-        self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
+        self.mk_test_repos()
 
     @responses.activate
     def test_create_repo_state(self):
@@ -127,6 +97,7 @@ class ProjectTestCase(UnicoremcTestCase):
             os.path.exists(os.path.join(p.repo_path(), 'README.md')))
         self.assertTrue(
             os.path.exists(os.path.join(p.repo_path(), 'text.txt')))
+
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     @responses.activate
@@ -267,6 +238,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('init_workspace')
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
         self.assertEquals(p.state, 'workspace_initialized')
 
@@ -293,7 +265,6 @@ class ProjectTestCase(UnicoremcTestCase):
             workspace.S(Category).count(), 1)
         self.assertEqual(
             workspace.S(Page).count(), 1)
-
 
     @responses.activate
     def test_create_supervisor_config(self):
@@ -340,6 +311,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('/var/praekelt/unicore-cms-django' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_nginx_config(self):
@@ -389,6 +361,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_pyramid_settings(self):
@@ -428,4 +401,6 @@ class ProjectTestCase(UnicoremcTestCase):
             "[('eng_UK', 'English (United Kingdom)')]" in data)
         self.assertTrue(self.source_repo_sm.repo.working_dir in data)
         self.assertTrue(self.source_repo_sm.repo.git_dir in data)
+
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))

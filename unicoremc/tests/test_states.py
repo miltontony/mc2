@@ -1,4 +1,3 @@
-import json
 import os
 import pytest
 import responses
@@ -19,47 +18,7 @@ from unicoremc.tests.base import UnicoremcTestCase
 class StatesTestCase(UnicoremcTestCase):
 
     def setUp(self):
-        self.user = User.objects.create(
-            username='testuser',
-            email="test@email.com")
-
-        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
-
-        # NOTE: StorageManager.create_storage() should take a repo path
-        # and should be a class method
-        if not os.path.exists(workdir):
-            os.makedirs(workdir)
-
-        self.source_repo_sm = StorageManager(Repo.init(workdir))
-        self.source_repo_sm.create_storage()
-        self.source_repo_sm.write_config('user', {
-            'name': 'testuser',
-            'email': 'test@email.com',
-        })
-
-        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-base-repo')
-        if not os.path.exists(workdir):
-            os.makedirs(workdir)
-
-        self.base_repo_sm = StorageManager(Repo.init(workdir))
-        self.base_repo_sm.create_storage()
-        self.base_repo_sm.write_config('user', {
-            'name': 'testuser',
-            'email': 'test@email.com',
-        })
-
-        self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
-        self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
-
-    def mock_create_repo(self, status=201, data={}):
-        default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
-        default_response.update(data)
-
-        responses.add(
-            responses.POST, settings.GITHUB_API + 'repos',
-            body=json.dumps(default_response),
-            content_type="application/json",
-            status=status)
+        self.mk_test_repos()
 
     def test_initial_state(self):
         p = Project(
@@ -81,6 +40,7 @@ class StatesTestCase(UnicoremcTestCase):
         p.save()
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -129,6 +89,7 @@ class StatesTestCase(UnicoremcTestCase):
         p.save()
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
         self.assertEquals(p.state, 'initial')
 
