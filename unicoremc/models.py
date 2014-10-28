@@ -18,6 +18,8 @@ from elasticgit.manager import Workspace, StorageManager
 from elasticgit import EG
 from elasticgit.utils import load_class
 
+from unicore.content.models import Category, Page
+
 
 class Localisation(models.Model):
     """
@@ -165,35 +167,34 @@ class Project(models.Model):
         origin.push()
 
     def init_workspace(self):
-        working_dir = self.repo_path()
         index_prefix = 'unicore_cms_django_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
             'country': self.country.lower(),
         }
-        workspace = EG.workspace(working_dir, index_prefix=index_prefix)
-        category_model = load_class('unicore.content.models.Category')
-        page_model = load_class('unicore.content.models.Page')
-        workspace.sync(category_model)
-        workspace.sync(page_model)
+
+        workspace = EG.workspace(self.repo_path(), index_prefix=index_prefix)
+        workspace.setup(self.owner.username, self.owner.email)
+
+        while not workspace.index_ready():
+            pass
+
+        workspace.sync(Category)
+        workspace.sync(Page)
 
         # We also need to clone the repo for the frontend and initialize it
-        frontend_repo = Repo.clone_from(
-            self.repo_git_url, self.frontend_repo_path())
-        sm = StorageManager(frontend_repo)
-        sm.create_storage()
-        sm.write_config('user', {
-            'name': self.owner.username,
-            'email': self.owner.email,
-        })
-
-        working_dir = self.frontend_repo_path()
+        Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
         index_prefix = 'unicore_frontend_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
             'country': self.country.lower(),
         }
-        workspace = EG.workspace(working_dir, index_prefix=index_prefix)
-        workspace.sync(category_model)
-        workspace.sync(page_model)
+        workspace = EG.workspace(
+            self.frontend_repo_path(), index_prefix=index_prefix)
+        workspace.setup(self.owner.username, self.owner.email)
+        while not workspace.index_ready():
+            pass
+
+        workspace.sync(Category)
+        workspace.sync(Page)
 
     def create_supervisor(self):
         self.config_manager.write_frontend_supervisor(
