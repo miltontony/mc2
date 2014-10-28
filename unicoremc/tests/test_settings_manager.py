@@ -37,6 +37,7 @@ class SettingsManagerTestCase(TestCase):
             "[('eng_UK', 'English (United Kingdom)')"
             ", ('swh_TZ', 'Swahili (Tanzania)')]" in data)
         self.assertTrue('/ffl_za/' in data)
+        self.assertTrue('es.index_prefix = unicore_frontend_ffl_za' in data)
         self.assertTrue('git://some.repo.com/.git' in data)
         self.assertTrue(socket_path in data)
 
@@ -58,5 +59,7 @@ class SettingsManagerTestCase(TestCase):
         self.addCleanup(lambda: os.remove(cms_settings_path))
 
         self.assertTrue('django_cms_ffl_za' in data)
+        self.assertTrue(
+            "ELASTIC_GIT_INDEX_PREFIX = 'unicore_cms_ffl_za'" in data)
         self.assertTrue("/path/to/repo/ffl_za" in data)
         self.assertTrue('http://some.repo.com/.git' in data)
