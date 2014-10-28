@@ -1,9 +1,9 @@
 import json
-import httpretty
 import os
 import shutil
+import pytest
+import responses
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.test.client import RequestFactory
@@ -14,9 +14,12 @@ from elasticgit.manager import StorageManager
 from unicoremc.models import Project
 from unicoremc.views import start_new_project
 
+from unicore.content.models import Category, Page
+from unicoremc.tests.base import UnicoremcTestCase
 
-@httpretty.activate
-class ViewsTestCase(TestCase):
+
+@pytest.mark.django_db
+class ViewsTestCase(UnicoremcTestCase):
 
     def setUp(self):
         self.user = User.objects.create(
@@ -42,25 +45,13 @@ class ViewsTestCase(TestCase):
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')
 
-        self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
-        self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
+        self.addCleanup(self.source_repo_sm.destroy_storage)
+        self.addCleanup(self.base_repo_sm.destroy_storage)
 
-        self.addCleanup(lambda: httpretty.disable())
-        self.addCleanup(lambda: httpretty.reset())
-
-    def mock_create_repo(self, status=201, data={}):
-        default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
-        default_response.update(data)
-
-        httpretty.register_uri(
-            httpretty.POST,
-            settings.GITHUB_API + 'repos',
-            body=json.dumps(default_response),
-            status=status,
-            content_type="application/json")
-
+    @responses.activate
     def test_create_new_project(self):
         self.mock_create_repo()
+
         data = {
             'app_type': 'ffl',
             'base_repo': self.base_repo_sm.repo.git_dir,
@@ -78,6 +69,30 @@ class ViewsTestCase(TestCase):
 
         project = Project.objects.all()[0]
         self.assertEqual(project.state, 'done')
+
+        workspace = self.mk_workspace()
+        workspace.setup('Test Kees', 'kees@example.org')
+        workspace.setup_mapping(Category)
+        workspace.setup_mapping(Page)
+
+        cat = Category({
+            'title': 'Some title',
+            'slug': 'some-slug'
+        })
+        workspace.save(cat, 'Saving a Category')
+
+        page = Page({
+            'title': 'Some page title',
+            'slug': 'some-page-slug'
+        })
+        workspace.save(page, 'Saving a Page')
+
+        workspace.refresh_index()
+
+        self.assertEqual(
+            workspace.S(Category).count(), 1)
+        self.assertEqual(
+            workspace.S(Page).count(), 1)
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))

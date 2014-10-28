@@ -1,21 +1,22 @@
 import json
-import httpretty
 import os
+import pytest
+import responses
 import shutil
 
 from git import Repo
 from elasticgit.manager import StorageManager
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 
 from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
+from unicoremc.tests.base import UnicoremcTestCase
 
 
-@httpretty.activate
-class StatesTestCase(TestCase):
+@pytest.mark.django_db
+class StatesTestCase(UnicoremcTestCase):
 
     def setUp(self):
         self.user = User.objects.create(
@@ -50,18 +51,15 @@ class StatesTestCase(TestCase):
         self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
         self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
 
-        self.addCleanup(lambda: httpretty.disable())
-        self.addCleanup(lambda: httpretty.reset())
+    def mock_create_repo(self, status=201, data={}):
+        default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
+        default_response.update(data)
 
-    def mock_create_repo(self):
-        httpretty.register_uri(
-            httpretty.POST,
-            settings.GITHUB_API + 'repos',
-            body=json.dumps({
-                'clone_url': self.source_repo_sm.repo.git_dir,
-            }),
-            status=201,
-            content_type="application/json")
+        responses.add(
+            responses.POST, settings.GITHUB_API + 'repos',
+            body=json.dumps(default_response),
+            content_type="application/json",
+            status=status)
 
     def test_initial_state(self):
         p = Project(
@@ -72,6 +70,7 @@ class StatesTestCase(TestCase):
         p.save()
         self.assertEquals(p.state, 'initial')
 
+    @responses.activate
     def test_finish_state(self):
         self.mock_create_repo()
         p = Project(
@@ -89,6 +88,7 @@ class StatesTestCase(TestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
         pw.take_action('create_pyramid_settings')
@@ -102,6 +102,7 @@ class StatesTestCase(TestCase):
 
         self.assertEquals(p.state, 'done')
 
+    @responses.activate
     def test_next(self):
         self.mock_create_repo()
         p = Project(
@@ -117,6 +118,7 @@ class StatesTestCase(TestCase):
         pw.next(access_token='sample-token')
         self.assertEquals(p.state, 'repo_created')
 
+    @responses.activate
     def test_automation_using_next(self):
         self.mock_create_repo()
         p = Project(

@@ -1,11 +1,10 @@
-import json
-import httpretty
+import responses
+import pytest
 import os
 import shutil
 
 from unittest import skip
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -15,10 +14,13 @@ from elasticgit.manager import StorageManager
 from unicoremc.models import Project, Localisation
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
+from unicoremc.tests.base import UnicoremcTestCase
+
+from unicore.content.models import Category, Page
 
 
-@httpretty.activate
-class ProjectTestCase(TestCase):
+@pytest.mark.django_db
+class ProjectTestCase(UnicoremcTestCase):
 
     def setUp(self):
         self.user = User.objects.create(
@@ -51,20 +53,7 @@ class ProjectTestCase(TestCase):
         self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
         self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
 
-        self.addCleanup(lambda: httpretty.disable())
-        self.addCleanup(lambda: httpretty.reset())
-
-    def mock_create_repo(self, status=201, data={}):
-        default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
-        default_response.update(data)
-
-        httpretty.register_uri(
-            httpretty.POST,
-            settings.GITHUB_API + 'repos',
-            body=json.dumps(default_response),
-            status=status,
-            content_type="application/json")
-
+    @responses.activate
     def test_create_repo_state(self):
         self.mock_create_repo()
 
@@ -83,6 +72,7 @@ class ProjectTestCase(TestCase):
             self.source_repo_sm.repo.git_dir)
         self.assertEquals(p.state, 'repo_created')
 
+    @responses.activate
     def test_create_repo_missing_access_token(self):
         self.mock_create_repo()
 
@@ -99,6 +89,7 @@ class ProjectTestCase(TestCase):
 
         self.assertEquals(p.state, 'initial')
 
+    @responses.activate
     def test_create_repo_bad_response(self):
         self.mock_create_repo(status=404, data={'message': 'Not authorized'})
 
@@ -115,6 +106,7 @@ class ProjectTestCase(TestCase):
 
         self.assertEquals(p.state, 'initial')
 
+    @responses.activate
     def test_clone_repo(self):
         self.mock_create_repo()
 
@@ -137,6 +129,7 @@ class ProjectTestCase(TestCase):
             os.path.exists(os.path.join(p.repo_path(), 'text.txt')))
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
     def test_create_remotes_repo(self):
         self.mock_create_repo()
 
@@ -196,6 +189,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
     def test_merge_remoate_repo(self):
         self.mock_create_repo()
 
@@ -225,6 +219,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
     def test_push_repo(self):
         self.mock_create_repo()
 
@@ -252,6 +247,55 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
+    def test_init_workspace(self):
+        self.mock_create_repo()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+        pw.take_action('push_repo')
+        pw.take_action('init_workspace')
+
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+
+        self.assertEquals(p.state, 'workspace_initialized')
+
+        workspace = self.mk_workspace()
+        workspace.setup('Test Kees', 'kees@example.org')
+        workspace.setup_mapping(Category)
+        workspace.setup_mapping(Page)
+
+        cat = Category({
+            'title': 'Some title',
+            'slug': 'some-slug'
+        })
+        workspace.save(cat, 'Saving a Category')
+
+        page = Page({
+            'title': 'Some page title',
+            'slug': 'some-page-slug'
+        })
+        workspace.save(page, 'Saving a Page')
+
+        workspace.refresh_index()
+
+        self.assertEqual(
+            workspace.S(Category).count(), 1)
+        self.assertEqual(
+            workspace.S(Page).count(), 1)
+
+
+    @responses.activate
     def test_create_supervisor_config(self):
         self.mock_create_repo()
 
@@ -268,6 +312,7 @@ class ProjectTestCase(TestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
 
         frontend_supervisor_config_path = os.path.join(
@@ -296,6 +341,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
     def test_create_nginx_config(self):
         self.mock_create_repo()
 
@@ -312,6 +358,7 @@ class ProjectTestCase(TestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
 
@@ -343,6 +390,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
     def test_create_pyramid_settings(self):
         self.mock_create_repo()
 
@@ -361,6 +409,7 @@ class ProjectTestCase(TestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
         pw.take_action('create_pyramid_settings')
