@@ -49,6 +49,15 @@ class RemoteMerged(State):
 
 class RepoPushed(State):
     verbose_name = 'Repo Pushed'
+    transitions = {'init_workspace': 'workspace_initialized'}
+
+    def init_workspace(self, **kwargs):
+        if self.instance:
+            self.instance.init_workspace()
+
+
+class WorkspaceInitialized(State):
+    verbose_name = 'Repo Pushed'
     transitions = {'create_supervisor': 'supervisor_created'}
 
     def create_supervisor(self, **kwargs):
@@ -149,6 +158,7 @@ class ProjectWorkflow(StateMachine):
         'remote_created': RemoteCreated,
         'remote_merged': RemoteMerged,
         'repo_pushed': RepoPushed,
+        'workspace_initialized': WorkspaceInitialized,
         'supervisor_created': SupervisorCreated,
         'nginx_created': NginxCreated,
         'pyramid_settings_created': PyramidSettingsCreated,
