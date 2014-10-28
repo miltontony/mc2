@@ -51,6 +51,7 @@ class ViewsTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_new_project(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         data = {
             'app_type': 'ffl',

@@ -16,7 +16,6 @@ from git import Repo
 
 from elasticgit.manager import Workspace, StorageManager
 from elasticgit import EG
-from elasticgit.utils import load_class
 
 from unicore.content.models import Category, Page
 
@@ -237,3 +236,34 @@ class Project(models.Model):
             self.repo_url,
             self.repo_path()
         )
+
+    def create_webhook(self, access_token):
+        repo_name = constants.NEW_REPO_NAME_FORMAT % {
+            'app_type': self.app_type,
+            'country': self.country.lower(),
+            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+
+        post_data = {
+            "name": "web",
+            "active": True,
+            "events": ["push"],
+            "config": {
+                "url": "http://%s/api/notify/" % self.frontend_url(),
+                "content_type": "json"
+            }
+        }
+
+        if access_token:
+            headers = {'Authorization': 'token %s' % access_token}
+            resp = requests.post(
+                settings.GITHUB_HOOKS_API % {'repo': repo_name},
+                json=post_data,
+                headers=headers)
+
+            if resp.status_code != 201:
+                raise exceptions.GithubApiException(
+                    'Create hooks failed with response: %s - %s' %
+                    (resp.status_code, resp.json().get('message')))
+        else:
+            raise exceptions.AccessTokenRequiredException(
+                'access_token is required')

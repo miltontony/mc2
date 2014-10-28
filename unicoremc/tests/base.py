@@ -56,3 +56,11 @@ class UnicoremcTestCase(ModelBaseTest):
             body=json.dumps(default_response),
             content_type="application/json",
             status=status)
+
+    def mock_create_webhook(
+            self, status=201, repo='unicore-cms-content-ffl-za'):
+        responses.add(
+            responses.POST, settings.GITHUB_HOOKS_API % {'repo': repo},
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)

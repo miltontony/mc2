@@ -1,13 +1,6 @@
-import os
 import pytest
 import responses
 import shutil
-
-from git import Repo
-from elasticgit.manager import StorageManager
-
-from django.contrib.auth.models import User
-from django.conf import settings
 
 from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
@@ -32,6 +25,8 @@ class StatesTestCase(UnicoremcTestCase):
     @responses.activate
     def test_finish_state(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
+
         p = Project(
             app_type='ffl',
             base_repo_url=self.base_repo_sm.repo.git_dir,
@@ -58,6 +53,7 @@ class StatesTestCase(UnicoremcTestCase):
         pw.take_action('init_cms')
         pw.take_action('reload_supervisor')
         pw.take_action('reload_nginx')
+        pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('finish')
 
         self.assertEquals(p.state, 'done')
@@ -81,6 +77,8 @@ class StatesTestCase(UnicoremcTestCase):
     @responses.activate
     def test_automation_using_next(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
+
         p = Project(
             app_type='ffl',
             base_repo_url=self.base_repo_sm.repo.git_dir,
