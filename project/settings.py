@@ -262,6 +262,7 @@ SOCKETS_PATH = abspath('configs', 'sockets')
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
+GITHUB_HOOKS_API = 'https://api.github.com/repos/universalcore/%(repo)s/hooks'
 GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
 
 RAVEN_DSN_FRONTEND_QA = ''

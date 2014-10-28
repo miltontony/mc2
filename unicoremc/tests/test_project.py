@@ -26,6 +26,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_repo_state(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -45,6 +46,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_repo_missing_access_token(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -79,6 +81,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_clone_repo(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -103,6 +106,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_remotes_repo(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -130,6 +134,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @skip("slow test that connects to github")
     def test_create_remotes_repo_from_github(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -163,6 +168,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_merge_remoate_repo(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -193,6 +199,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_push_repo(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -221,6 +228,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_init_workspace(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -269,6 +277,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_supervisor_config(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -316,6 +325,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_nginx_config(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',
@@ -366,6 +376,7 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_pyramid_settings(self):
         self.mock_create_repo()
+        self.mock_create_webhook()
 
         p = Project(
             app_type='ffl',

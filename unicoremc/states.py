@@ -135,7 +135,17 @@ class SupervisorReloaded(State):
 
 
 class NginxReloaded(State):
-    verbose_name = 'Database Initialized'
+    verbose_name = 'Nginx reload'
+    transitions = {'create_webhook': 'webhook_created'}
+
+    def create_webhook(self, **kwargs):
+        access_token = kwargs.get('access_token')
+        if self.instance:
+            self.instance.create_webhook(access_token)
+
+
+class WebhookCreated(State):
+    verbose_name = 'Webhook Created'
     transitions = {'finish': 'done'}
 
 
@@ -168,6 +178,7 @@ class ProjectWorkflow(StateMachine):
         'cms_initialized': CmsInitialized,
         'supervisor_reloaded': SupervisorReloaded,
         'nginx_reloaded': NginxReloaded,
+        'webhook_created': WebhookCreated,
         'done': Done,
     }
     initial_state = 'initial'
