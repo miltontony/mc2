@@ -53,6 +53,12 @@
                     <th scope="col" class="sortable">
                         <div class="grp-text"><a href="#">Git Content Repo</a></div>
                     </th>
+                    <th scope="col" class="sortable">
+                        <div class="grp-text"><a href="#">Frontend URL</a></div>
+                    </th>
+                    <th scope="col" class="sortable">
+                        <div class="grp-text"><a href="#">CMS URL</a></div>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -72,7 +78,9 @@ function reload_projects(){
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
                           '<td>'+ this.base_repo +'</td>' +
-                          '<td>'+ this.repo_url +'</td>';
+                          '<td><a href="'+ this.repo_url +'">'+ this.repo_url +'</a></td>' +
+                          '<td><a href="'+ this.frontend_url +'">'+ this.frontend_url +'</a></td>' +
+                          '<td><a href="'+ this.cms_url +'">'+ this.cms_url +'</a></td>';
                 projects.push(
                     grp.jQuery('<tr>').html(row).addClass('grp-row').addClass('grp-row-even'));
             });

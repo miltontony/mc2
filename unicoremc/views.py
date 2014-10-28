@@ -57,10 +57,12 @@ def projects_progress(request, *args, **kwargs):
     projects = Project.objects.all()
     return HttpResponse(json.dumps(
         [{
-            'app_type': p.app_type,
+            'app_type': p.get_app_type_display(),
             'base_repo': p.base_repo_url,
             'state': p.state,
-            'country': p.country,
+            'country': p.get_country_display(),
             'repo_url': p.repo_url,
+            'frontend_url': p.frontend_url(),
+            'cms_url': p.cms_url(),
         } for p in projects]
     ))
