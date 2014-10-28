@@ -36,12 +36,14 @@ def start_new_project(request, *args, **kwargs):
         country = request.POST.get('country')
         access_token = request.POST.get('access_token')
         user_id = request.POST.get('user_id')
+        team_id = request.POST.get('team_id')
 
         user = User.objects.get(pk=user_id)
         project, created = Project.objects.get_or_create(
             app_type=app_type,
             base_repo_url=base_repo,
             country=country,
+            team_id=int(team_id),
             owner=user)
 
         if created:

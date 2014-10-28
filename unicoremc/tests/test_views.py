@@ -57,7 +57,8 @@ class ViewsTestCase(UnicoremcTestCase):
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
-            'user_id': self.user.id
+            'user_id': self.user.id,
+            'team_id': 1
         }
         request = RequestFactory().post('/new/create/', data)
         response = start_new_project(request)
