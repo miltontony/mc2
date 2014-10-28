@@ -192,8 +192,6 @@ class Project(models.Model):
             'country': self.country.lower(),
         }
         workspace = EG.workspace(working_dir, index_prefix=index_prefix)
-        category_model = load_class('unicore.content.models.Category')
-        page_model = load_class('unicore.content.models.Page')
         workspace.sync(category_model)
         workspace.sync(page_model)
 
