@@ -14,7 +14,9 @@ DATABASES = {
 DEBUG = True
 CELERY_ALWAYS_EAGER = True
 
-CMS_REPO_PATH = abspath('.test_repo_dir')
+FRONTEND_REPO_PATH = abspath('.test_repo_dir', 'frontend')
+CMS_REPO_PATH = abspath('.test_repo_dir', 'cms')
+
 SUPERVISOR_CONFIGS_PATH = abspath('.test_config_dir', 'supervisor')
 NGINX_CONFIGS_PATH = abspath('.test_config_dir', 'nginx')
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath('.test_config_dir', 'frontend_settings')

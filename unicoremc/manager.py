@@ -169,7 +169,7 @@ class SettingsManager(object):
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_settings_content)
 
-    def write_cms_settings(self, app_type, country, clone_url):
+    def write_cms_settings(self, app_type, country, clone_url, repo_path):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_CMS_QA
         else:
@@ -180,7 +180,8 @@ class SettingsManager(object):
                 'app_type': app_type,
                 'country': country.lower(),
                 'git_repo_uri': clone_url,
-                'raven_dsn_uri': raven_dsn
+                'raven_dsn_uri': raven_dsn,
+                'repo_path': repo_path
             }
         )
 

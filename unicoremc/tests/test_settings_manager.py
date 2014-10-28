@@ -14,7 +14,7 @@ class SettingsManagerTestCase(TestCase):
         afrikaans = Localisation._for('swh_TZ')
         cm = SettingsManager()
         cm.write_frontend_settings(
-            'ffl', 'za', 'http://some.repo.com/.git', [english, afrikaans],
+            'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
             '/path/to/repo/ffl_za/')
 
         frontend_settings_path = os.path.join(
@@ -37,13 +37,15 @@ class SettingsManagerTestCase(TestCase):
             "[('eng_UK', 'English (United Kingdom)')"
             ", ('swh_TZ', 'Swahili (Tanzania)')]" in data)
         self.assertTrue('/ffl_za/' in data)
-        self.assertTrue('http://some.repo.com/.git' in data)
+        self.assertTrue('es.index_prefix = unicore_frontend_ffl_za' in data)
+        self.assertTrue('git://some.repo.com/.git' in data)
         self.assertTrue(socket_path in data)
 
     def test_write_cms_settings(self):
         cm = SettingsManager()
         cm.write_cms_settings(
-            'ffl', 'za', 'http://some.repo.com/.git')
+            'ffl', 'za', 'http://some.repo.com/.git',
+            '/path/to/repo/ffl_za/')
 
         cms_settings_path = os.path.join(
             settings.CMS_SETTINGS_OUTPUT_PATH,
@@ -58,5 +60,6 @@ class SettingsManagerTestCase(TestCase):
 
         self.assertTrue('django_cms_ffl_za' in data)
         self.assertTrue(
-            "/var/praekelt/unicore-cms-django/project/ffl_za" in data)
+            "ELASTIC_GIT_INDEX_PREFIX = 'unicore_cms_ffl_za'" in data)
+        self.assertTrue("/path/to/repo/ffl_za" in data)
         self.assertTrue('http://some.repo.com/.git' in data)

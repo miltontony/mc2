@@ -96,3 +96,5 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
+        self.addCleanup(lambda: shutil.rmtree(
+            os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))

@@ -18,6 +18,8 @@ from elasticgit.manager import Workspace, StorageManager
 from elasticgit import EG
 from elasticgit.utils import load_class
 
+from unicore.content.models import Category, Page
+
 
 class Localisation(models.Model):
     """
@@ -72,6 +74,7 @@ class Project(models.Model):
     country = models.CharField(choices=constants.COUNTRY_CHOICES, max_length=2)
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
+    repo_git_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
     team_id = models.IntegerField(blank=True, null=True)
     available_languages = models.ManyToManyField(
@@ -89,6 +92,13 @@ class Project(models.Model):
             'country': self.country.lower()
         }
         return os.path.join(settings.CMS_REPO_PATH, repo_folder_name)
+
+    def frontend_repo_path(self):
+        repo_folder_name = '%(app_type)s-%(country)s' % {
+            'app_type': self.app_type,
+            'country': self.country.lower()
+        }
+        return os.path.join(settings.FRONTEND_REPO_PATH, repo_folder_name)
 
     def create_repo(self, access_token):
         new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
@@ -120,6 +130,7 @@ class Project(models.Model):
                     (resp.status_code, resp.json().get('message')))
 
             self.repo_url = resp.json().get('clone_url')
+            self.repo_git_url = resp.json().get('git_url')
         else:
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
@@ -156,16 +167,34 @@ class Project(models.Model):
         origin.push()
 
     def init_workspace(self):
-        working_dir = self.repo_path()
+        index_prefix = 'unicore_cms_django_%(app_type)s_%(country)s' % {
+            'app_type': self.app_type,
+            'country': self.country.lower(),
+        }
+
+        workspace = EG.workspace(self.repo_path(), index_prefix=index_prefix)
+        workspace.setup(self.owner.username, self.owner.email)
+
+        while not workspace.index_ready():
+            pass
+
+        workspace.sync(Category)
+        workspace.sync(Page)
+
+        # We also need to clone the repo for the frontend and initialize it
+        Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
         index_prefix = 'unicore_frontend_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
             'country': self.country.lower(),
         }
-        workspace = EG.workspace(working_dir, index_prefix=index_prefix)
-        category_model = load_class('unicore.content.models.Category')
-        page_model = load_class('unicore.content.models.Page')
-        workspace.sync(category_model)
-        workspace.sync(page_model)
+        workspace = EG.workspace(
+            self.frontend_repo_path(), index_prefix=index_prefix)
+        workspace.setup(self.owner.username, self.owner.email)
+        while not workspace.index_ready():
+            pass
+
+        workspace.sync(Category)
+        workspace.sync(Page)
 
     def create_supervisor(self):
         self.config_manager.write_frontend_supervisor(
@@ -182,14 +211,15 @@ class Project(models.Model):
         self.settings_manager.write_frontend_settings(
             self.app_type,
             self.country,
-            self.repo_url,
+            self.repo_git_url,
             self.available_languages.all(),
-            self.repo_path()
+            self.frontend_repo_path()
         )
 
     def create_cms_settings(self):
         self.settings_manager.write_cms_settings(
             self.app_type,
             self.country,
-            self.repo_url
+            self.repo_url,
+            self.repo_path()
         )

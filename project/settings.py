@@ -246,7 +246,8 @@ RAVEN_CONFIG = {
 DEPLOY_ENVIRONMENT = 'qa'
 
 # path to where repos will be located
-CMS_REPO_PATH = abspath('repos')
+FRONTEND_REPO_PATH = abspath('repos', 'frontend')
+CMS_REPO_PATH = abspath('repos', 'cms')
 
 # path to supervisor conf files
 SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
