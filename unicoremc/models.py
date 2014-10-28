@@ -181,7 +181,7 @@ class Project(models.Model):
         origin.push()
 
     def init_workspace(self):
-        index_prefix = 'unicore_cms_django_%(app_type)s_%(country)s' % {
+        index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
             'country': self.country.lower(),
         }
