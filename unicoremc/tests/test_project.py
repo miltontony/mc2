@@ -1,11 +1,10 @@
-import json
-import httpretty
+import responses
+import pytest
 import os
 import shutil
 
 from unittest import skip
 
-from django.test import TestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -15,10 +14,11 @@ from elasticgit.manager import StorageManager
 from unicoremc.models import Project, Localisation
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
+from unicoremc.tests.base import UnicoremcTestCase
 
 
-@httpretty.activate
-class ProjectTestCase(TestCase):
+@pytest.mark.django_db
+class ProjectTestCase(UnicoremcTestCase):
 
     def setUp(self):
         self.user = User.objects.create(
@@ -51,20 +51,7 @@ class ProjectTestCase(TestCase):
         self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
         self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
 
-        self.addCleanup(lambda: httpretty.disable())
-        self.addCleanup(lambda: httpretty.reset())
-
-    def mock_create_repo(self, status=201, data={}):
-        default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
-        default_response.update(data)
-
-        httpretty.register_uri(
-            httpretty.POST,
-            settings.GITHUB_API + 'repos',
-            body=json.dumps(default_response),
-            status=status,
-            content_type="application/json")
-
+    @responses.activate
     def test_create_repo_state(self):
         self.mock_create_repo()
 
@@ -83,6 +70,7 @@ class ProjectTestCase(TestCase):
             self.source_repo_sm.repo.git_dir)
         self.assertEquals(p.state, 'repo_created')
 
+    @responses.activate
     def test_create_repo_missing_access_token(self):
         self.mock_create_repo()
 
@@ -99,6 +87,7 @@ class ProjectTestCase(TestCase):
 
         self.assertEquals(p.state, 'initial')
 
+    @responses.activate
     def test_create_repo_bad_response(self):
         self.mock_create_repo(status=404, data={'message': 'Not authorized'})
 
@@ -115,6 +104,7 @@ class ProjectTestCase(TestCase):
 
         self.assertEquals(p.state, 'initial')
 
+    @responses.activate
     def test_clone_repo(self):
         self.mock_create_repo()
 
@@ -137,6 +127,7 @@ class ProjectTestCase(TestCase):
             os.path.exists(os.path.join(p.repo_path(), 'text.txt')))
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
     def test_create_remotes_repo(self):
         self.mock_create_repo()
 
@@ -196,6 +187,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
     def test_merge_remoate_repo(self):
         self.mock_create_repo()
 
@@ -225,6 +217,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
+    @responses.activate
     def test_push_repo(self):
         self.mock_create_repo()
 
@@ -252,7 +245,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
-    @skip("currently failing")
+    @responses.activate
     def test_create_supervisor_config(self):
         self.mock_create_repo()
 
@@ -298,7 +291,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
-    @skip("currently failing")
+    @responses.activate
     def test_create_nginx_config(self):
         self.mock_create_repo()
 
@@ -347,7 +340,7 @@ class ProjectTestCase(TestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
-    @skip("currently failing")
+    @responses.activate
     def test_create_pyramid_settings(self):
         self.mock_create_repo()
 

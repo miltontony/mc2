@@ -1,10 +1,8 @@
 import json
-import httpretty
 import os
 import shutil
 import pytest
-
-from unittest import skip
+import responses
 
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -12,17 +10,16 @@ from django.test.client import RequestFactory
 
 from git import Repo
 from elasticgit.manager import StorageManager
-from elasticgit.tests.base import ModelBaseTest
 
 from unicoremc.models import Project
 from unicoremc.views import start_new_project
 
 from unicore.content.models import Category, Page
+from unicoremc.tests.base import UnicoremcTestCase
 
 
 @pytest.mark.django_db
-@httpretty.activate
-class ViewsTestCase(ModelBaseTest):
+class ViewsTestCase(UnicoremcTestCase):
 
     def setUp(self):
         self.user = User.objects.create(
@@ -51,22 +48,10 @@ class ViewsTestCase(ModelBaseTest):
         self.addCleanup(self.source_repo_sm.destroy_storage)
         self.addCleanup(self.base_repo_sm.destroy_storage)
 
-        self.addCleanup(httpretty.disable)
-        self.addCleanup(httpretty.reset)
-
-    def mock_create_repo(self, status=201, data={}):
-        default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
-        default_response.update(data)
-
-        httpretty.register_uri(
-            httpretty.POST,
-            settings.GITHUB_API + 'repos',
-            body=json.dumps(default_response),
-            status=status,
-            content_type="application/json")
-
-    @skip("currently failing")
+    @responses.activate
     def test_create_new_project(self):
+        self.mock_create_repo()
+
         self.workspace = self.mk_workspace()
         self.workspace.setup('Test Kees', 'kees@example.org')
         self.workspace.setup_mapping(Category)
@@ -76,17 +61,15 @@ class ViewsTestCase(ModelBaseTest):
             'title': 'Some title',
             'slug': 'some-slug'
         })
-        workspace.save(cat, 'Saving a Category')
+        self.workspace.save(cat, 'Saving a Category')
 
         page = Page({
             'title': 'Some page title',
             'slug': 'some-page-slug'
         })
-        workspace.save(page, 'Saving a Page')
+        self.workspace.save(page, 'Saving a Page')
 
-        workspace.refresh_index()
-
-        self.mock_create_repo()
+        self.workspace.refresh_index()
         data = {
             'app_type': 'ffl',
             'base_repo': self.base_repo_sm.repo.git_dir,

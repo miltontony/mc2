@@ -1,4 +1,3 @@
-import httpretty
 import os
 
 from django.test import TestCase
@@ -7,7 +6,6 @@ from django.conf import settings
 from unicoremc.manager import ConfigManager
 
 
-@httpretty.activate
 class ConfigManagerTestCase(TestCase):
 
     def test_write_frontend_supervisor_configs(self):

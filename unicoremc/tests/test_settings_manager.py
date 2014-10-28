@@ -1,4 +1,3 @@
-import httpretty
 import os
 
 from django.test import TestCase
@@ -8,7 +7,6 @@ from unicoremc.manager import SettingsManager
 from unicoremc.models import Localisation
 
 
-@httpretty.activate
 class SettingsManagerTestCase(TestCase):
 
     def test_write_frontend_settings(self):
