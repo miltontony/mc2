@@ -8,7 +8,10 @@ from elasticgit.tests.base import ModelBaseTest
 class UnicoremcTestCase(ModelBaseTest):
 
     def mock_create_repo(self, status=201, data={}):
-        default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
+        default_response = {
+            'clone_url': self.source_repo_sm.repo.git_dir,
+            'git_url': self.source_repo_sm.repo.git_dir,
+        }
         default_response.update(data)
 
         responses.add(
