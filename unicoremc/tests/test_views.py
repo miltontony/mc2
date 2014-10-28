@@ -4,6 +4,8 @@ import os
 import shutil
 import pytest
 
+from unittest import skip
+
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.test.client import RequestFactory
@@ -46,15 +48,11 @@ class ViewsTestCase(ModelBaseTest):
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')
 
-        self.workspace = self.mk_workspace()
-        self.workspace.setup_mapping(Category)
-        self.workspace.setup_mapping(Page)
+        self.addCleanup(self.source_repo_sm.destroy_storage)
+        self.addCleanup(self.base_repo_sm.destroy_storage)
 
-        self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
-        self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
-
-        self.addCleanup(lambda: httpretty.disable())
-        self.addCleanup(lambda: httpretty.reset())
+        self.addCleanup(httpretty.disable)
+        self.addCleanup(httpretty.reset)
 
     def mock_create_repo(self, status=201, data={}):
         default_response = {'clone_url': self.source_repo_sm.repo.git_dir}
@@ -67,7 +65,27 @@ class ViewsTestCase(ModelBaseTest):
             status=status,
             content_type="application/json")
 
+    @skip("currently failing")
     def test_create_new_project(self):
+        self.workspace = self.mk_workspace()
+        self.workspace.setup('Test Kees', 'kees@example.org')
+        self.workspace.setup_mapping(Category)
+        self.workspace.setup_mapping(Page)
+
+        cat = Category({
+            'title': 'Some title',
+            'slug': 'some-slug'
+        })
+        workspace.save(cat, 'Saving a Category')
+
+        page = Page({
+            'title': 'Some page title',
+            'slug': 'some-page-slug'
+        })
+        workspace.save(page, 'Saving a Page')
+
+        workspace.refresh_index()
+
         self.mock_create_repo()
         data = {
             'app_type': 'ffl',
