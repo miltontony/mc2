@@ -71,6 +71,7 @@ class Project(models.Model):
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
+    team_id = models.IntegerField(blank=True, null=True)
     available_languages = models.ManyToManyField(
         Localisation, blank=True, null=True)
 
@@ -101,6 +102,7 @@ class Project(models.Model):
             "private": False,
             "has_issues": True,
             "auto_init": True,
+            "team_id": self.team_id,
         }
 
         if access_token:
