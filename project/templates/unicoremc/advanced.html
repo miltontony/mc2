@@ -1,0 +1,24 @@
+{% extends "unicoremc/base.html" %}
+ {% load i18n admin_urls admin_static %}
+
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="#">Advanced</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" class="new-project">
+    <div>
+    <form class="form-horizontal" role="form" method="POST">
+        <legend>Advanced</legend>
+        <h4>{{project.get_app_type_display}} - {{project.get_country_display}}</h4>
+        {{form}}
+        {% csrf_token %}
+
+        <p><input type="submit" value="Save" class="btn btn-primary"/></p>
+    </form>
+    </div>
+</div>
+{% endblock %}

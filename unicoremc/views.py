@@ -1,12 +1,15 @@
 import json
 
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.edit import UpdateView
+from django.core.urlresolvers import reverse
 
 from unicoremc.models import Project, Localisation
+from unicoremc.forms import ProjectForm
 from unicoremc.states import ProjectWorkflow
 from unicoremc import constants
 from unicoremc import tasks
@@ -26,6 +29,24 @@ def new_project_view(request, *args, **kwargs):
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)
+
+
+class ProjectEditView(UpdateView):
+    model = Project
+    form_class = ProjectForm
+    template_name = 'unicoremc/advanced.html'
+
+    def get_success_url(self):
+        return reverse("home")
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Project, pk=self.kwargs['project_id'])
+
+    def form_valid(self, form):
+        response = super(ProjectEditView, self).form_valid(form)
+        project = self.get_object()
+        project.create_pyramid_settings()
+        return response
 
 
 @csrf_exempt
@@ -65,5 +86,6 @@ def projects_progress(request, *args, **kwargs):
             'repo_url': p.repo_url,
             'frontend_url': p.frontend_url(),
             'cms_url': p.cms_url(),
+            'id': p.pk
         } for p in projects]
     ))
