@@ -1,160 +1,64 @@
 {% extends "unicoremc/base.html" %}
  {% load i18n admin_urls admin_static %}
 
-{% block breadcrumbs %}
-<ul>
-<li><a href="{% url 'home' %}">{% trans 'Home' %}</a></li>
-<li>New Project</li>
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="#">New Project</a></li>
 </ul>
 {% endblock %}
 
 {% block content %}
 <div id="content-main" class="new-project">
-    <h1>New Project</h1>
     <div>
-    <form>
-    <fieldset class="grp-module grp-collapse">
-        <div class="grp-row grp-cells-1">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>App type</label></div>
-                <div class="c-2">
-                    <select id="unicore_app">
-                        <option value="">---------</option>
-                        <option value="ffl">Facts for Life</option>
-                        <option value="gem">GEM</option>
-                        <option value="mama">MAMA</option>
-                        <option value="ebola">Ebola Information</option>
-                    </select>
-                    <p class="grp-help">This is the Content Repo that the site will be based on.</p>
-                </div>
+    <form class="form-horizontal" role="form">
+        <legend>New Project</legend>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" style="text-align:left">App type</label>
+            <div class="col-sm-10">
+            <select class="form-control" id="unicore_app">
+                <option value="">---------</option>
+                <option value="ffl">Facts for Life</option>
+                <option value="gem">GEM</option>
+                <option value="mama">MAMA</option>
+                <option value="ebola">Ebola Information</option>
+            </select>
+            <span class="help-block">Type of app to create.</span>
             </div>
         </div>
-        <div class="grp-row grp-cells-1">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Base content repo</label></div>
-                <div class="c-2">
-                    <select id="base_repo" name="base_repo" disabled="disabled">
+        <div class="form-group">
+                <label class="col-sm-2 control-label" style="text-align:left">Base content repo</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="base_repo" name="base_repo" disabled="disabled">
                         <option value="">---------</option>
                     </select>
-                    <p class="grp-help">This is the Content Repo that the site will be based on.</p>
+                    <span class="help-block">This is the Content Repo that the site will be based on.</span>
                 </div>
-            </div>
         </div>
-        <div class="grp-row grp-cells-1">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Country</label></div>
-                <div class="c-2">
+        <div class="form-group">
+                <label class="col-sm-2 control-label" style="text-align:left">Country</label>
+                <div class="col-sm-10">
                     <select id="country" disabled="disabled">
                         <option value="">---------</option>
                         {% for c in countries %}
                             <option value="{{c.code}}">{{c.name}}</option>
                         {% endfor %}
                     </select>
-                    <p class="grp-help">The country this is intended for. This will inform the url</p>
+                    <span class="help-block">The country this is intended for. This will inform the url</span>
                 </div>
-            </div>
         </div>
-        <div class="grp-row grp-cells-1">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Team Permissions</label></div>
-                <div class="c-2">
-                    <select id="repo_team" name="repo_team" disabled="disabled">
-                        <option value="">---------</option>
-                    </select>
-                    <p class="grp-help">This is the team that will have push access to the repo.</p>
-                </div>
-            </div>
-        </div>
-    </fieldset>
-
-    <fieldset class="grp-module grp-collapse new-project-progress">
-        <div class="grp-row grp-cells-1">
-            <div class="l-2c-fluid l-d-4" id="step-create-repo">
-                <div class="c-1"><label>Creating new repo..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-clone-repo">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Cloning repo..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-setup-remote">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Seting up remote with base site as source..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-merge-remote">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Merging content..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-create-supervisor">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Creating supervisor config from template..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-create-nginx">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Creating nging config from template..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-create-settings-pyramid">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Creating settings file for pyramid from template..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-create-settings-cms">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Creating settings file for cms from template..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-create-db">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Creating database..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-init-db">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Initializing database..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-init-cms">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Initializing CMS with content..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-reload-supervisor">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Reloading supervisor..</label></div>
-                <div class="c-2">&nbsp;</div>
-            </div>
-        </div>
-        <div class="grp-row grp-cells-1" id="step-reload-nginx">
-            <div class="l-2c-fluid l-d-4">
-                <div class="c-1"><label>Reloading nginx..</label></div>
-                <div class="c-2">&nbsp;</div>
+        <div class="form-group">
+            <label class="col-sm-2 control-label" style="text-align:left">Team Permissions</label>
+            <div class="col-sm-10">
+                <select id="repo_team" name="repo_team" disabled="disabled">
+                    <option value="">---------</option>
+                </select>
+                <span class="help-block">This is the team that will have push access to the repo.</span>
             </div>
         </div>
 
-    </fieldset>
-
-    <footer class="grp-module grp-submit-row grp-fixed-footer">
-        <header style="display:none"><h1>Submit Options</h1></header>
-        <ul>
-            <li><input id="btn_launch" type="submit" value="Launch" class="grp-button grp-default" name="_launch" disabled="disabled"></li>
-        </ul>
-    </footer>
+    <br/>
+    <p><input id="btn_launch" type="submit" value="Launch" class="btn btn-primary" name="_launch" disabled="disabled"></p>
 
     </form>
     </div>
@@ -246,6 +150,6 @@ if (typeof String.prototype.startsWith != 'function') {
             launch();
         });
     });
-})(grp.jQuery);
+})($);
 </script>
 {% endblock%}

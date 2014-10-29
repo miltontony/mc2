@@ -167,7 +167,7 @@ INSTALLED_APPS = (
     'django_nose',
     'raven.contrib.django.raven_compat',
     'djcelery',
-    'debug_toolbar',
+    #'debug_toolbar',
 
     'social.apps.django_app.default',
 
@@ -203,6 +203,8 @@ LOGGING = {
         },
     }
 }
+
+GRAPPELLI_ADMIN_TITLE = 'UC Mission Control'
 
 # Celery configuration options
 BROKER_URL = 'redis://localhost:6379/0'

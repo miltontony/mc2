@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 
 from unicoremc.models import Project, Localisation
+from unicoremc.states import ProjectWorkflow
 from unicoremc import constants
 from unicoremc import tasks
 
@@ -17,12 +18,12 @@ def home(request):
 
 @login_required
 def new_project_view(request, *args, **kwargs):
-    social = request.user.social_auth.get(provider='github')
-    access_token = social.extra_data['access_token']
+    #social = request.user.social_auth.get(provider='github')
+    #access_token = social.extra_data['access_token']
     context = {
         'countries': constants.COUNTRIES,
         'languages': Localisation.objects.all(),
-        'access_token': access_token,
+        'access_token': 'access_token',
     }
     return render(request, 'unicoremc/new_project.html', context)
 
@@ -59,7 +60,7 @@ def projects_progress(request, *args, **kwargs):
         [{
             'app_type': p.get_app_type_display(),
             'base_repo': p.base_repo_url,
-            'state': p.state,
+            'state': ProjectWorkflow(instance=p).get_state(),
             'country': p.get_country_display(),
             'repo_url': p.repo_url,
             'frontend_url': p.frontend_url(),
