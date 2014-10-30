@@ -167,7 +167,7 @@ INSTALLED_APPS = (
     'django_nose',
     'raven.contrib.django.raven_compat',
     'djcelery',
-    #'debug_toolbar',
+    'debug_toolbar',
 
     'social.apps.django_app.default',
 
