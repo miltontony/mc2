@@ -1,63 +1,41 @@
 {% extends "unicoremc/base.html" %}
 
 <!-- LOADING -->
-{% load i18n grp_tags log %}
-
-<!-- BREADCRUMBS -->
-{% block breadcrumbs %}
-    <ul class="grp-horizontal-list">
-        <li>{% trans "Home" %}</li>
-    </ul>
-{% endblock %}
-{% block content_title %}
-    {% if title %}
-        <header><h1>Universal Core Mission Control</h1></header>
-    {% endif %}
-{% endblock %}
+{% load i18n %}
 
 <!-- CONTENT -->
 {% block content %}
 
-{% if not request.user.is_authenticated %}
-<p>
-<a href="{% url 'social:begin' 'github' %}">Login using Github</a>
+{% if not user.is_authenticated %}
+<p>Welcome to Universal Core Mission Control.</p>
+<p><a href="{% url 'social:begin' 'github' %}" class="btn btn-success">Login using Github</a>
 </p>
 {% else %}
 
-
-<header id="grp-content-title">
-<h1>Mission Control</h1>
-<ul class="grp-object-tools">
-    <li><a href="{% url 'new_project' %}" class="addlink">Start new project</a></li>
-</ul>
-</header>
-
+<a href="{% url 'new_project' %}" class="btn btn-primary">Start new project</a>
 <div id="projects_progress">
     <section id="grp-changelist">
     <div class="grp-module grp-changelist-results">
-        <table id="result_list" cellspacing="0" class="grp-sortable">
+        <table id="result_list" cellspacing="0" class="table table-striped table-hover table-condensed">
             <thead>
                 <tr>
-                    <th scope="col" class="sortable">
-                        <div class="grp-text"><a href="#">App Type</a></div>
+                    <th scope="col">
+                        <div class="grp-text">&nbsp;</div>
                     </th>
-                    <th scope="col" class="sortable">
-                        <div class="grp-text"><a href="#">Country</a></div>
+                    <th scope="col">
+                        <div class="grp-text">&nbsp;</div>
                     </th>
-                    <th scope="col" class="sortable">
-                        <div class="grp-text"><a href="#">State</a></div>
+                    <th scope="col">
+                        <div class="grp-text">&nbsp;</div>
                     </th>
-                    <th scope="col" class="sortable">
-                        <div class="grp-text"><a href="#">Source Repo</a></div>
+                    <th scope="col">
+                        <div class="grp-text">&nbsp;</div>
                     </th>
-                    <th scope="col" class="sortable">
-                        <div class="grp-text"><a href="#">Git Content Repo</a></div>
+                    <th scope="col">
+                        <div class="grp-text">Frontend URL</div>
                     </th>
-                    <th scope="col" class="sortable">
-                        <div class="grp-text"><a href="#">Frontend URL</a></div>
-                    </th>
-                    <th scope="col" class="sortable">
-                        <div class="grp-text"><a href="#">CMS URL</a></div>
+                    <th scope="col">
+                        <div class="grp-text">CMS URL</div>
                     </th>
                 </tr>
             </thead>
@@ -67,24 +45,30 @@
     </div>
     </section>
 </div>
+{% endif %}
+{% endblock %}
 
+{% block script %}
+<script src="{{STATIC_URL}}js/jquery.min.js"></script>
 <script type="text/javascript">
 function reload_projects(){
-    grp.jQuery.getJSON('/progress/')
+    $.getJSON('/progress/')
         .done(function(data){
             var projects = new Array();
-            grp.jQuery.each(data, function(){
+            $.each(data, function(){
                 var row = '<th>' + this.app_type +'</th>' +
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
-                          '<td>'+ this.base_repo +'</td>' +
                           '<td><a href="'+ this.repo_url +'">'+ this.repo_url +'</a></td>' +
                           '<td><a href="'+ this.frontend_url +'">'+ this.frontend_url +'</a></td>' +
                           '<td><a href="'+ this.cms_url +'">'+ this.cms_url +'</a></td>';
+
+                var state_class = this.state == 'Done' ? 'bg-success' : 'bg-warning';
+                console.log(state_class)
                 projects.push(
-                    grp.jQuery('<tr>').html(row).addClass('grp-row').addClass('grp-row-even'));
+                    $('<tr>').html(row).addClass(state_class));
             });
-            grp.jQuery('#projects_progress tbody').html(projects)
+            $('#projects_progress tbody').html(projects)
     });
 }
 
@@ -94,9 +78,8 @@ function refresh(){
     timeout = setTimeout("refresh()", 3000);
     reload_projects();
 }
-grp.jQuery(document).ready(function() {
+$(document).ready(function() {
     refresh();
 });
 </script>
-{% endif %}
 {% endblock %}

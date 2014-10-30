@@ -12,7 +12,7 @@ class Initial(State):
 
 
 class RepoCreated(State):
-    verbose_name = 'Public'
+    verbose_name = 'Repo created'
     transitions = {'clone_repo': 'repo_cloned'}
 
     def clone_repo(self, **kwargs):
@@ -21,7 +21,7 @@ class RepoCreated(State):
 
 
 class RepoCloned(State):
-    verbose_name = 'Repo Cloned'
+    verbose_name = 'Repo cloned'
     transitions = {'create_remote': 'remote_created'}
 
     def create_remote(self, **kwargs):
@@ -30,7 +30,7 @@ class RepoCloned(State):
 
 
 class RemoteCreated(State):
-    verbose_name = 'Remote Created'
+    verbose_name = 'Remote created'
     transitions = {'merge_remote': 'remote_merged'}
 
     def merge_remote(self, **kwargs):
@@ -39,7 +39,7 @@ class RemoteCreated(State):
 
 
 class RemoteMerged(State):
-    verbose_name = 'Remote Merged'
+    verbose_name = 'Remote merged'
     transitions = {'push_repo': 'repo_pushed'}
 
     def push_repo(self, **kwargs):
@@ -48,7 +48,7 @@ class RemoteMerged(State):
 
 
 class RepoPushed(State):
-    verbose_name = 'Repo Pushed'
+    verbose_name = 'Repo pushed to github'
     transitions = {'init_workspace': 'workspace_initialized'}
 
     def init_workspace(self, **kwargs):
@@ -57,7 +57,7 @@ class RepoPushed(State):
 
 
 class WorkspaceInitialized(State):
-    verbose_name = 'Repo Pushed'
+    verbose_name = 'Workspace initialized'
     transitions = {'create_supervisor': 'supervisor_created'}
 
     def create_supervisor(self, **kwargs):
@@ -66,7 +66,7 @@ class WorkspaceInitialized(State):
 
 
 class SupervisorCreated(State):
-    verbose_name = 'Supervisor Created'
+    verbose_name = 'Supervisor created'
     transitions = {'create_nginx': 'nginx_created'}
 
     def create_nginx(self, **kwargs):
@@ -75,7 +75,7 @@ class SupervisorCreated(State):
 
 
 class NginxCreated(State):
-    verbose_name = 'Nginx Created'
+    verbose_name = 'Nginx created'
     transitions = {'create_pyramid_settings': 'pyramid_settings_created'}
 
     def create_pyramid_settings(self, **kwargs):
@@ -84,7 +84,7 @@ class NginxCreated(State):
 
 
 class PyramidSettingsCreated(State):
-    verbose_name = 'Pyarmid Settings Created'
+    verbose_name = 'Pyarmid settings created'
     transitions = {'create_cms_settings': 'cms_settings_created'}
 
     def create_cms_settings(self, **kwargs):
@@ -93,7 +93,7 @@ class PyramidSettingsCreated(State):
 
 
 class CmsSettingsCreated(State):
-    verbose_name = 'Cms Settings Created'
+    verbose_name = 'CMS settings created'
     transitions = {'create_db': 'db_created'}
 
     """
@@ -103,7 +103,7 @@ class CmsSettingsCreated(State):
 
 
 class DbCreated(State):
-    verbose_name = 'Database Created'
+    verbose_name = 'Database created'
     transitions = {'init_db': 'db_initialized'}
 
     """
@@ -114,7 +114,7 @@ class DbCreated(State):
 
 
 class DbInitialized(State):
-    verbose_name = 'Database Initialized'
+    verbose_name = 'Database initialized'
     transitions = {'init_cms': 'cms_initialized'}
 
     """
@@ -125,12 +125,12 @@ class DbInitialized(State):
 
 
 class CmsInitialized(State):
-    verbose_name = 'CMS Initialized'
+    verbose_name = 'CMS initialized'
     transitions = {'reload_supervisor': 'supervisor_reloaded'}
 
 
 class SupervisorReloaded(State):
-    verbose_name = 'Supervisor Reloaded'
+    verbose_name = 'Supervisor reloaded'
     transitions = {'reload_nginx': 'nginx_reloaded'}
 
 
@@ -145,7 +145,7 @@ class NginxReloaded(State):
 
 
 class WebhookCreated(State):
-    verbose_name = 'Webhook Created'
+    verbose_name = 'Webhook created'
     transitions = {'finish': 'done'}
 
 

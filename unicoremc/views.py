@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 
 from unicoremc.models import Project, Localisation
+from unicoremc.states import ProjectWorkflow
 from unicoremc import constants
 from unicoremc import tasks
 
@@ -59,7 +60,7 @@ def projects_progress(request, *args, **kwargs):
         [{
             'app_type': p.get_app_type_display(),
             'base_repo': p.base_repo_url,
-            'state': p.state,
+            'state': ProjectWorkflow(instance=p).get_state(),
             'country': p.get_country_display(),
             'repo_url': p.repo_url,
             'frontend_url': p.frontend_url(),
