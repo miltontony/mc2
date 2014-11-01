@@ -12,10 +12,6 @@ from unicoremc import constants
 from unicoremc import tasks
 
 
-def home(request):
-    return render(request, 'unicoremc/home.html', {})
-
-
 @login_required
 def new_project_view(request, *args, **kwargs):
     social = request.user.social_auth.get(provider='github')
