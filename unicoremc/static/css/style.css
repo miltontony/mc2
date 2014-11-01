@@ -4,6 +4,7 @@
 
 .new-project{}
   .new-project .help-block{display: inline;}
+  .new-project .available-languages li{list-style: none;}
 
 .form-group{
   padding-bottom: 10px;
