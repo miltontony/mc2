@@ -2,7 +2,7 @@ import os
 import json
 import responses
 
-from django.test import TestCase
+from django.test import TransactionTestCase
 from django.contrib.auth.models import User
 from django.conf import settings
 
@@ -12,7 +12,7 @@ from elasticgit.tests.base import ModelBaseTest
 from elasticgit.manager import StorageManager
 
 
-class UnicoremcTestCase(TestCase, ModelBaseTest):
+class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
 
     def mk_test_repos(self):
         self.user = User.objects.create(
