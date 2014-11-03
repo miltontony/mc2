@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
+from unicoremc import views
 
 
 urlpatterns = patterns(
@@ -31,6 +32,10 @@ urlpatterns = patterns(
         'unicoremc.views.projects_progress',
         name='projects_progress'
     ),
+    url(
+        r'^advanced/(?P<project_id>\d+)/$',
+        views.ProjectEditView.as_view(),
+        name='advanced'),
     url(
         r'^logout/$',
         'django.contrib.auth.views.logout_then_login',

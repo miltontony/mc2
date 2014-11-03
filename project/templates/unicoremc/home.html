@@ -53,7 +53,8 @@ function reload_projects(){
                           '<td>' + this.state + '</td>' +
                           '<td><a href="'+ this.repo_url +'">'+ this.repo_url +'</a></td>' +
                           '<td><a href="'+ this.frontend_url +'">'+ this.frontend_url +'</a></td>' +
-                          '<td><a href="'+ this.cms_url +'">'+ this.cms_url +'</a></td>';
+                          '<td><a href="'+ this.cms_url +'">'+ this.cms_url +'</a></td>' +
+                          '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a></td>';
 
                 var state_class = this.state == 'Done' ? 'bg-success' : 'bg-warning';
                 console.log(state_class)
