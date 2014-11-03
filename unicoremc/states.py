@@ -49,6 +49,16 @@ class RemoteMerged(State):
 
 class RepoPushed(State):
     verbose_name = 'Repo pushed to github'
+    transitions = {'create_webhook': 'webhook_created'}
+
+    def create_webhook(self, **kwargs):
+        access_token = kwargs.get('access_token')
+        if self.instance:
+            self.instance.create_webhook(access_token)
+
+
+class WebhookCreated(State):
+    verbose_name = 'Webhook created'
     transitions = {'init_workspace': 'workspace_initialized'}
 
     def init_workspace(self, **kwargs):
@@ -112,26 +122,6 @@ class DbCreated(State):
 
 class DbInitialized(State):
     verbose_name = 'Database initialized'
-    transitions = {'reload_supervisor': 'supervisor_reloaded'}
-
-
-class SupervisorReloaded(State):
-    verbose_name = 'Supervisor reloaded'
-    transitions = {'reload_nginx': 'nginx_reloaded'}
-
-
-class NginxReloaded(State):
-    verbose_name = 'Nginx reload'
-    transitions = {'create_webhook': 'webhook_created'}
-
-    def create_webhook(self, **kwargs):
-        access_token = kwargs.get('access_token')
-        if self.instance:
-            self.instance.create_webhook(access_token)
-
-
-class WebhookCreated(State):
-    verbose_name = 'Webhook created'
     transitions = {'finish': 'done'}
 
 
@@ -161,8 +151,6 @@ class ProjectWorkflow(StateMachine):
         'cms_settings_created': CmsSettingsCreated,
         'db_created': DbCreated,
         'db_initialized': DbInitialized,
-        'supervisor_reloaded': SupervisorReloaded,
-        'nginx_reloaded': NginxReloaded,
         'webhook_created': WebhookCreated,
         'done': Done,
     }

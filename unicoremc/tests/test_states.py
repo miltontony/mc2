@@ -68,6 +68,7 @@ class StatesTestCase(UnicoremcTestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
@@ -80,9 +81,6 @@ class StatesTestCase(UnicoremcTestCase):
         p.db_manager.call_subprocess = init_db_call_mock
         pw.take_action('init_db')
 
-        pw.take_action('reload_supervisor')
-        pw.take_action('reload_nginx')
-        pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('finish')
 
         self.assertEquals(p.state, 'done')
