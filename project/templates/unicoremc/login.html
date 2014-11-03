@@ -1,0 +1,13 @@
+{% extends "unicoremc/base.html" %}
+ {% load i18n admin_urls admin_static %}
+
+{% block navbar %}
+{% endblock %}
+
+{% block content %}
+<div class="well">
+<p>Welcome to Universal Core Mission Control</p>
+<h3>We use Github</h3>
+<p><a href="{% url 'social:begin' 'github' %}" class="btn btn-success">Login using Github</a>
+</div>
+{% endblock %}

@@ -5,13 +5,6 @@
 
 <!-- CONTENT -->
 {% block content %}
-
-{% if not user.is_authenticated %}
-<p>Welcome to Universal Core Mission Control.</p>
-<p><a href="{% url 'social:begin' 'github' %}" class="btn btn-success">Login using Github</a>
-</p>
-{% else %}
-
 <a href="{% url 'new_project' %}" class="btn btn-primary">Start new project</a>
 <div id="projects_progress">
     <section id="grp-changelist">
@@ -45,7 +38,6 @@
     </div>
     </section>
 </div>
-{% endif %}
 {% endblock %}
 
 {% block script %}

@@ -7,11 +7,13 @@ import responses
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.test.client import RequestFactory
+from django.test.client import Client
+from django.core.urlresolvers import reverse
 
 from git import Repo
 from elasticgit.manager import StorageManager
 
-from unicoremc.models import Project
+from unicoremc.models import Project, Localisation
 from unicoremc.views import start_new_project
 
 from unicore.content.models import Category, Page
@@ -24,7 +26,11 @@ class ViewsTestCase(UnicoremcTestCase):
     def setUp(self):
         self.user = User.objects.create(
             username='testuser',
-            email="test@email.com")
+            email="test@email.com",
+            password='test')
+
+        self.client = Client()
+        self.client.login(username='test@test.com', password='test')
 
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
         self.source_repo_sm = StorageManager(Repo.init(workdir))
@@ -99,3 +105,48 @@ class ViewsTestCase(UnicoremcTestCase):
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))
+
+    def test_language_updates(self):
+        self.mock_create_repo()
+        self.mock_create_webhook()
+
+        Localisation._for('eng_UK')
+        Localisation._for('swh_TZ')
+
+        data = {
+            'app_type': 'ffl',
+            'base_repo': self.base_repo_sm.repo.git_dir,
+            'country': 'ZA',
+            'access_token': 'some-access-token',
+            'user_id': self.user.id,
+            'team_id': 1
+        }
+        request = RequestFactory().post('/new/create/', data)
+        start_new_project(request)
+
+        project = Project.objects.all()[0]
+
+        resp = self.client.get(reverse('advanced', args=[project.id]))
+
+        self.assertContains(resp, 'English (United Kingdom)')
+        self.assertContains(resp, 'Swahili (Tanzania)')
+
+        self.assertEqual(project.available_languages.count(), 0)
+
+        resp = self.client.post(
+            reverse('advanced', args=[project.id]),
+            {'available_languages': [1, 2]})
+
+        project = Project.objects.get(pk=project.id)
+        self.assertEqual(project.available_languages.count(), 2)
+
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
+            'ffl.production.za.ini')
+
+        with open(frontend_settings_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue(
+            "[('eng_UK', 'English (United Kingdom)'), "
+            "('swh_TZ', 'Swahili (Tanzania)')]" in data)

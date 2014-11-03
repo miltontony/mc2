@@ -133,7 +133,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIAL_AUTH_USER_MODEL = 'auth.User'
-LOGIN_URL = '/social/login/github/'
+LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 FIELDS_STORED_IN_SESSION = ['access_token', ]
 
@@ -167,7 +167,7 @@ INSTALLED_APPS = (
     'django_nose',
     'raven.contrib.django.raven_compat',
     'djcelery',
-    #'debug_toolbar',
+    'debug_toolbar',
 
     'social.apps.django_app.default',
 
