@@ -13,9 +13,11 @@ from elasticgit.manager import StorageManager
 
 from unicoremc.models import Project
 from unicoremc.views import start_new_project
-
+from unicoremc.manager import DbManager
 from unicore.content.models import Category, Page
 from unicoremc.tests.base import UnicoremcTestCase
+
+from mock import patch
 
 
 @pytest.mark.django_db
@@ -62,7 +64,11 @@ class ViewsTestCase(UnicoremcTestCase):
             'team_id': 1
         }
         request = RequestFactory().post('/new/create/', data)
-        response = start_new_project(request)
+
+        with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
+            mock_subprocess.return_value = None
+            response = start_new_project(request)
+
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(json.loads(response.content), {
             'success': True
