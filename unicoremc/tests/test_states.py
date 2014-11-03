@@ -30,7 +30,7 @@ class StatesTestCase(UnicoremcTestCase):
             self.assertEqual(cwd, '/var/praekelt/unicore-cms-django')
             self.assertTrue(
                 "DJANGO_SETTINGS_MODULE='project.ffl_za_settings'" in args)
-            self.assertTrue('/var/praekelt/python/bin/python' in args)
+            self.assertTrue('`which python`' in args)
             self.assertTrue(
                 '/var/praekelt/unicore-cms-django/manage.py' in args)
             self.assertTrue('syncdb' in args)
@@ -43,7 +43,7 @@ class StatesTestCase(UnicoremcTestCase):
             self.assertEqual(cwd, '/var/praekelt/unicore-cms-django')
             self.assertTrue(
                 "DJANGO_SETTINGS_MODULE='project.ffl_za_settings'" in args)
-            self.assertTrue('/var/praekelt/python/bin/python' in args)
+            self.assertTrue('`which python`' in args)
             self.assertTrue(
                 '/var/praekelt/unicore-cms-django/manage.py' in args)
             self.assertTrue('import_from_git' in args)
