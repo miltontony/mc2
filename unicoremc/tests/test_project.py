@@ -243,6 +243,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
@@ -292,6 +293,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
 
@@ -340,6 +342,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
@@ -393,6 +396,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')

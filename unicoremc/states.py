@@ -49,6 +49,16 @@ class RemoteMerged(State):
 
 class RepoPushed(State):
     verbose_name = 'Repo pushed to github'
+    transitions = {'create_webhook': 'webhook_created'}
+
+    def create_webhook(self, **kwargs):
+        access_token = kwargs.get('access_token')
+        if self.instance:
+            self.instance.create_webhook(access_token)
+
+
+class WebhookCreated(State):
+    verbose_name = 'Webhook created'
     transitions = {'init_workspace': 'workspace_initialized'}
 
     def init_workspace(self, **kwargs):
@@ -96,56 +106,22 @@ class CmsSettingsCreated(State):
     verbose_name = 'CMS settings created'
     transitions = {'create_db': 'db_created'}
 
-    """
-    The aim of this step is to ensure the database is created.
-    The Database is only needed by the Django CMS app
-    """
+    def create_db(self, **kwargs):
+        if self.instance:
+            self.instance.create_db()
 
 
 class DbCreated(State):
     verbose_name = 'Database created'
     transitions = {'init_db': 'db_initialized'}
 
-    """
-    The aim of this step is to ensure the database is initialized (syncdb)
-    This can be facilitated by Sideloader (Hook url)
-    The Database is only needed by the Django CMS app
-    """
+    def init_db(self, **kwargs):
+        if self.instance:
+            self.instance.init_db()
 
 
 class DbInitialized(State):
     verbose_name = 'Database initialized'
-    transitions = {'init_cms': 'cms_initialized'}
-
-    """
-    The aim of this step is to ensure the CMS is initialized by content from
-    the Git Repo.
-    The Database is only needed by the Django CMS app
-    """
-
-
-class CmsInitialized(State):
-    verbose_name = 'CMS initialized'
-    transitions = {'reload_supervisor': 'supervisor_reloaded'}
-
-
-class SupervisorReloaded(State):
-    verbose_name = 'Supervisor reloaded'
-    transitions = {'reload_nginx': 'nginx_reloaded'}
-
-
-class NginxReloaded(State):
-    verbose_name = 'Nginx reload'
-    transitions = {'create_webhook': 'webhook_created'}
-
-    def create_webhook(self, **kwargs):
-        access_token = kwargs.get('access_token')
-        if self.instance:
-            self.instance.create_webhook(access_token)
-
-
-class WebhookCreated(State):
-    verbose_name = 'Webhook created'
     transitions = {'finish': 'done'}
 
 
@@ -168,6 +144,7 @@ class ProjectWorkflow(StateMachine):
         'remote_created': RemoteCreated,
         'remote_merged': RemoteMerged,
         'repo_pushed': RepoPushed,
+        'webhook_created': WebhookCreated,
         'workspace_initialized': WorkspaceInitialized,
         'supervisor_created': SupervisorCreated,
         'nginx_created': NginxCreated,
@@ -175,10 +152,6 @@ class ProjectWorkflow(StateMachine):
         'cms_settings_created': CmsSettingsCreated,
         'db_created': DbCreated,
         'db_initialized': DbInitialized,
-        'cms_initialized': CmsInitialized,
-        'supervisor_reloaded': SupervisorReloaded,
-        'nginx_reloaded': NginxReloaded,
-        'webhook_created': WebhookCreated,
         'done': Done,
     }
     initial_state = 'initial'

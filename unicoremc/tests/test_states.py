@@ -24,6 +24,31 @@ class StatesTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_finish_state(self):
+        def create_db_call_mock(*call_args, **call_kwargs):
+            cwd = call_kwargs.get('cwd')
+            [args] = call_args
+            self.assertEqual(cwd, '/path/to/unicore-cms-django')
+            self.assertTrue(
+                "DJANGO_SETTINGS_MODULE='project.ffl_za_settings'" in args)
+            self.assertTrue('/path/to/bin/python' in args)
+            self.assertTrue(
+                '/path/to/unicore-cms-django/manage.py' in args)
+            self.assertTrue('syncdb' in args)
+            self.assertTrue('--migrate' in args)
+            self.assertTrue('--noinput' in args)
+
+        def init_db_call_mock(*call_args, **call_kwargs):
+            cwd = call_kwargs.get('cwd')
+            [args] = call_args
+            self.assertEqual(cwd, '/path/to/unicore-cms-django')
+            self.assertTrue(
+                "DJANGO_SETTINGS_MODULE='project.ffl_za_settings'" in args)
+            self.assertTrue('/path/to/bin/python' in args)
+            self.assertTrue(
+                '/path/to/unicore-cms-django/manage.py' in args)
+            self.assertTrue('import_from_git' in args)
+            self.assertTrue('--quiet' in args)
+
         self.mock_create_repo()
         self.mock_create_webhook()
 
@@ -43,17 +68,19 @@ class StatesTestCase(UnicoremcTestCase):
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
+        pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
         pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
         pw.take_action('create_pyramid_settings')
         pw.take_action('create_cms_settings')
+
+        p.db_manager.call_subprocess = create_db_call_mock
         pw.take_action('create_db')
+
+        p.db_manager.call_subprocess = init_db_call_mock
         pw.take_action('init_db')
-        pw.take_action('init_cms')
-        pw.take_action('reload_supervisor')
-        pw.take_action('reload_nginx')
-        pw.take_action('create_webhook', access_token='sample-token')
+
         pw.take_action('finish')
 
         self.assertEquals(p.state, 'done')
@@ -76,6 +103,10 @@ class StatesTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_automation_using_next(self):
+
+        def call_mock(*call_args, **call_kwargs):
+            pass
+
         self.mock_create_repo()
         self.mock_create_webhook()
 
@@ -85,6 +116,8 @@ class StatesTestCase(UnicoremcTestCase):
             country='ZA',
             owner=self.user)
         p.save()
+
+        p.db_manager.call_subprocess = call_mock
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
         self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
