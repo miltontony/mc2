@@ -144,6 +144,7 @@ class ProjectWorkflow(StateMachine):
         'remote_created': RemoteCreated,
         'remote_merged': RemoteMerged,
         'repo_pushed': RepoPushed,
+        'webhook_created': WebhookCreated,
         'workspace_initialized': WorkspaceInitialized,
         'supervisor_created': SupervisorCreated,
         'nginx_created': NginxCreated,
@@ -151,7 +152,6 @@ class ProjectWorkflow(StateMachine):
         'cms_settings_created': CmsSettingsCreated,
         'db_created': DbCreated,
         'db_initialized': DbInitialized,
-        'webhook_created': WebhookCreated,
         'done': Done,
     }
     initial_state = 'initial'
