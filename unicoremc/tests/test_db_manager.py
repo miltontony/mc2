@@ -9,12 +9,12 @@ class DbManagerTestCase(TestCase):
         def call_mock(*call_args, **call_kwargs):
             cwd = call_kwargs.get('cwd')
             [args] = call_args
-            self.assertEqual(cwd, '/var/praekelt/unicore-cms-django')
+            self.assertEqual(cwd, '/path/to/unicore-cms-django')
             self.assertTrue(
                 "DJANGO_SETTINGS_MODULE='project.ffl_za_settings'" in args)
-            self.assertTrue('`which python`' in args)
+            self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
-                '/var/praekelt/unicore-cms-django/manage.py' in args)
+                '/path/to/unicore-cms-django/manage.py' in args)
             self.assertTrue('syncdb' in args)
             self.assertTrue('--migrate' in args)
             self.assertTrue('--noinput' in args)
@@ -28,12 +28,12 @@ class DbManagerTestCase(TestCase):
         def call_mock(*call_args, **call_kwargs):
             cwd = call_kwargs.get('cwd')
             [args] = call_args
-            self.assertEqual(cwd, '/var/praekelt/unicore-cms-django')
+            self.assertEqual(cwd, '/path/to/unicore-cms-django')
             self.assertTrue(
                 "DJANGO_SETTINGS_MODULE='project.ffl_za_settings'" in args)
-            self.assertTrue('`which python`' in args)
+            self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
-                '/var/praekelt/unicore-cms-django/manage.py' in args)
+                '/path/to/unicore-cms-django/manage.py' in args)
             self.assertTrue('import_from_git' in args)
             self.assertTrue('--quiet' in args)
 

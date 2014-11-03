@@ -261,8 +261,8 @@ CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
 
 SOCKETS_PATH = abspath('configs', 'sockets')
 
-UNICORE_CMS_INSTALL_DIR = '/var/praekelt/unicore-cms-django'
-UNICORE_CMS_PYTHON_VENV = '`which python`'
+UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
+UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
 
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 
