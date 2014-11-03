@@ -10,7 +10,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from unicoremc import constants, exceptions
-from unicoremc.manager import ConfigManager, SettingsManager
+from unicoremc.manager import ConfigManager, SettingsManager, DbManager
 
 from git import Repo
 
@@ -84,6 +84,7 @@ class Project(models.Model):
 
         self.config_manager = ConfigManager()
         self.settings_manager = SettingsManager()
+        self.db_manager = DbManager()
 
     def frontend_url(self):
         return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
@@ -267,3 +268,9 @@ class Project(models.Model):
         else:
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
+
+    def create_db(self):
+        self.db_manager.create_db(self.app_type, self.country)
+
+    def init_db(self):
+        self.db_manager.init_db(self.app_type, self.country)

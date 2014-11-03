@@ -1,4 +1,7 @@
 import os
+
+from subprocess import call
+
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -195,3 +198,40 @@ class SettingsManager(object):
 
         with open(filepath, 'w') as config_file:
             config_file.write(cms_settings_content)
+
+
+class DbManager(object):
+    call_subprocess = call
+
+    def __init__(self):
+        self.unicore_cms_install_dir = settings.UNICORE_CMS_INSTALL_DIR
+        self.unicore_cms_python_venv = settings.UNICORE_CMS_PYTHON_VENV
+
+    def create_db(self, app_type, country):
+        env = "DJANGO_SETTINGS_MODULE='project.%s_%s_settings'" % (
+            app_type, country.lower()
+        )
+
+        args = [
+            env,
+            self.unicore_cms_python_venv,
+            '%s/manage.py' % self.unicore_cms_install_dir,
+            'syncdb',
+            '--migrate',
+            '--noinput',
+        ]
+        self.call_subprocess(args, cwd=self.unicore_cms_install_dir)
+
+    def init_db(self, app_type, country):
+        env = "DJANGO_SETTINGS_MODULE='project.%s_%s_settings'" % (
+            app_type, country.lower()
+        )
+
+        args = [
+            env,
+            self.unicore_cms_python_venv,
+            '%s/manage.py' % self.unicore_cms_install_dir,
+            'import_from_git',
+            '--quiet',
+        ]
+        self.call_subprocess(args, cwd=self.unicore_cms_install_dir)
