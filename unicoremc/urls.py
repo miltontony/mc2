@@ -1,12 +1,20 @@
 from django.conf.urls import patterns, url
+from django.views.generic.base import TemplateView
+from django.contrib.auth.decorators import login_required
 
 
 urlpatterns = patterns(
     '',
     url(
         r'^$',
-        'unicoremc.views.home',
+        login_required(
+            TemplateView.as_view(template_name='unicoremc/home.html')),
         name='home'
+    ),
+    url(
+        r'^login/$',
+        TemplateView.as_view(template_name='unicoremc/login.html'),
+        name='login'
     ),
     url(
         r'^new/$',
