@@ -14,5 +14,5 @@ pyflakes
 django-grappelli<2.6.1
 python-social-auth
 Django-ostinato
-elastic-git==0.2.4
-unicore-cms==1.0.4
+elastic-git
+unicore-cms
