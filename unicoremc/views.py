@@ -1,5 +1,6 @@
 import json
 
+from django.db.models import F
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
@@ -41,7 +42,12 @@ class ProjectEditView(UpdateView):
     def form_valid(self, form):
         response = super(ProjectEditView, self).form_valid(form)
         project = self.get_object()
+        Project.objects.filter(
+            pk=project.pk).update(project_version=F('project_version') + 1)
+
+        project = self.get_object()
         project.create_pyramid_settings()
+        project.create_supervisor()
         return response
 
 

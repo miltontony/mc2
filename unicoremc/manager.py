@@ -25,12 +25,12 @@ class ConfigManager(object):
         if not os.path.exists(self.nginx_dir):
             os.makedirs(self.nginx_dir)
 
-    def write_frontend_supervisor(self, app_type, country, version):
+    def write_frontend_supervisor(self, app_type, country, project_version):
         frontend_supervisor_content = render_to_string(
             'configs/frontend.supervisor.conf', {
                 'app_type': app_type,
                 'country': country.lower(),
-                'version': version,
+                'project_version': project_version,
                 'settings_path': os.path.join(
                     self.frontend_settings_dir,
                     '%s.production.%s.ini' % (app_type, country.lower())),
@@ -51,12 +51,12 @@ class ConfigManager(object):
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_supervisor_content)
 
-    def write_cms_supervisor(self, app_type, country, version):
+    def write_cms_supervisor(self, app_type, country, project_version):
         cms_supervisor_content = render_to_string(
             'configs/cms.supervisor.conf', {
                 'app_type': app_type,
                 'country': country.lower(),
-                'version': version,
+                'project_version': project_version,
                 'socket_path': os.path.join(
                     self.sockets_dir,
                     'cms.%s.%s.socket' % (app_type, country.lower()))
