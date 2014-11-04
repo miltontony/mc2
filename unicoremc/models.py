@@ -76,6 +76,7 @@ class Project(models.Model):
     repo_git_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
     team_id = models.IntegerField(blank=True, null=True)
+    project_version = models.PositiveIntegerField(default=0)
     available_languages = models.ManyToManyField(
         Localisation, blank=True, null=True)
 
@@ -212,10 +213,10 @@ class Project(models.Model):
 
     def create_supervisor(self):
         self.config_manager.write_frontend_supervisor(
-            self.app_type, self.country)
+            self.app_type, self.country, self.project_version)
 
         self.config_manager.write_cms_supervisor(
-            self.app_type, self.country)
+            self.app_type, self.country, self.project_version)
 
     def create_nginx(self):
         self.config_manager.write_frontend_nginx(self.app_type, self.country)

@@ -313,6 +313,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('program:unicore_frontend_ffl_za' in data)
         self.assertTrue('ffl.production.za.ini' in data)
         self.assertTrue('/var/praekelt/unicore-cms-ffl' in data)
+        self.assertTrue("UNICORE_PROJECT_VERSION=0" in data)
 
         with open(cms_supervisor_config_path, "r") as config_file:
             data = config_file.read()
@@ -320,6 +321,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('program:unicore_cms_ffl_za' in data)
         self.assertTrue('project.ffl_za_settings' in data)
         self.assertTrue('/var/praekelt/unicore-cms-django' in data)
+        self.assertTrue("UNICORE_PROJECT_VERSION=0" in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
         self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
