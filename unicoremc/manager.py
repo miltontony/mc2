@@ -208,24 +208,27 @@ class DbManager(object):
         self.unicore_cms_python_venv = settings.UNICORE_CMS_PYTHON_VENV
 
     def create_db(self, app_type, country):
-        env = "DJANGO_SETTINGS_MODULE='project.%s_%s_settings'" % (
-            app_type, country.lower()
-        )
+        env = {
+            'DJANGO_SETTINGS_MODULE': 'project.%s_%s_settings' % (
+                app_type, country.lower()
+            )
+        }
 
         args = [
-            env,
             self.unicore_cms_python_venv,
             '%s/manage.py' % self.unicore_cms_install_dir,
             'syncdb',
             '--migrate',
             '--noinput',
         ]
-        self.call_subprocess(args, cwd=self.unicore_cms_install_dir)
+        self.call_subprocess(args, env=env, cwd=self.unicore_cms_install_dir)
 
     def init_db(self, app_type, country):
-        env = "DJANGO_SETTINGS_MODULE='project.%s_%s_settings'" % (
-            app_type, country.lower()
-        )
+        env = {
+            'DJANGO_SETTINGS_MODULE': 'project.%s_%s_settings' % (
+                app_type, country.lower()
+            )
+        }
 
         args = [
             env,
@@ -234,4 +237,4 @@ class DbManager(object):
             'import_from_git',
             '--quiet',
         ]
-        self.call_subprocess(args, cwd=self.unicore_cms_install_dir)
+        self.call_subprocess(args, env=env, cwd=self.unicore_cms_install_dir)

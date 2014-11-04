@@ -8,10 +8,11 @@ class DbManagerTestCase(TestCase):
     def test_create_db(self):
         def call_mock(*call_args, **call_kwargs):
             cwd = call_kwargs.get('cwd')
+            env = call_kwargs.get('env')
             [args] = call_args
             self.assertEqual(cwd, '/path/to/unicore-cms-django')
-            self.assertTrue(
-                "DJANGO_SETTINGS_MODULE='project.ffl_za_settings'" in args)
+            self.assertEqual(
+                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
                 '/path/to/unicore-cms-django/manage.py' in args)
@@ -27,10 +28,11 @@ class DbManagerTestCase(TestCase):
     def test_init_db(self):
         def call_mock(*call_args, **call_kwargs):
             cwd = call_kwargs.get('cwd')
+            env = call_kwargs.get('env')
             [args] = call_args
             self.assertEqual(cwd, '/path/to/unicore-cms-django')
-            self.assertTrue(
-                "DJANGO_SETTINGS_MODULE='project.ffl_za_settings'" in args)
+            self.assertEqual(
+                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
                 '/path/to/unicore-cms-django/manage.py' in args)
