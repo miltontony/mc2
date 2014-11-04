@@ -231,7 +231,6 @@ class DbManager(object):
         }
 
         args = [
-            env,
             self.unicore_cms_python_venv,
             '%s/manage.py' % self.unicore_cms_install_dir,
             'import_from_git',
