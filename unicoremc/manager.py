@@ -201,7 +201,7 @@ class SettingsManager(object):
 
 
 class DbManager(object):
-    call_subprocess = call
+    call_subprocess = lambda self, *args, **kwargs: call(*args, **kwargs)
 
     def __init__(self):
         self.unicore_cms_install_dir = settings.UNICORE_CMS_INSTALL_DIR
