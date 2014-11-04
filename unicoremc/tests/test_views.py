@@ -174,7 +174,6 @@ class ViewsTestCase(UnicoremcTestCase):
 
         with open(frontend_supervisor_config_path, "r") as config_file:
             data = config_file.read()
-        print data
         self.assertTrue("UNICORE_PROJECT_VERSION=1" in data)
 
         with open(cms_supervisor_config_path, "r") as config_file:
