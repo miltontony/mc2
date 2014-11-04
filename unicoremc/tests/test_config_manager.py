@@ -20,6 +20,10 @@ class ConfigManagerTestCase(TestCase):
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
             'ffl.production.za.ini')
 
+        socket_path = os.path.join(
+            settings.SOCKETS_PATH,
+            'ffl.za.socket')
+
         self.assertTrue(os.path.exists(frontend_supervisor_config_path))
 
         with open(frontend_supervisor_config_path, "r") as config_file:
@@ -30,6 +34,7 @@ class ConfigManagerTestCase(TestCase):
         self.assertTrue('program:unicore_frontend_ffl_za' in data)
         self.assertTrue(frontend_settings_path in data)
         self.assertTrue('/var/praekelt/unicore-cms-ffl' in data)
+        self.assertTrue('unix:' + socket_path in data)
 
     def test_write_cms_supervisor_configs(self):
         cm = ConfigManager()
