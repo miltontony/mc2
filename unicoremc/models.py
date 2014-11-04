@@ -249,7 +249,7 @@ class Project(models.Model):
             "active": True,
             "events": ["push"],
             "config": {
-                "url": "http://%s/api/notify/" % self.frontend_url(),
+                "url": "%s/api/notify/" % self.frontend_url(),
                 "content_type": "json"
             }
         }
