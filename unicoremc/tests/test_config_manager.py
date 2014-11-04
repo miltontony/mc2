@@ -10,7 +10,7 @@ class ConfigManagerTestCase(TestCase):
 
     def test_write_frontend_supervisor_configs(self):
         cm = ConfigManager()
-        cm.write_frontend_supervisor('ffl', 'za')
+        cm.write_frontend_supervisor('ffl', 'za', 1)
 
         frontend_supervisor_config_path = os.path.join(
             settings.SUPERVISOR_CONFIGS_PATH,
@@ -30,10 +30,11 @@ class ConfigManagerTestCase(TestCase):
         self.assertTrue('program:unicore_frontend_ffl_za' in data)
         self.assertTrue(frontend_settings_path in data)
         self.assertTrue('/var/praekelt/unicore-cms-ffl' in data)
+        self.assertTrue("UNICORE_PROJECT_VERSION=1" in data)
 
     def test_write_cms_supervisor_configs(self):
         cm = ConfigManager()
-        cm.write_cms_supervisor('ffl', 'za')
+        cm.write_cms_supervisor('ffl', 'za', 1)
 
         cms_supervisor_config_path = os.path.join(
             settings.SUPERVISOR_CONFIGS_PATH,
@@ -54,6 +55,7 @@ class ConfigManagerTestCase(TestCase):
         self.assertTrue('project.ffl_za_settings' in data)
         self.assertTrue('/var/praekelt/unicore-cms-django' in data)
         self.assertTrue(socket_path in data)
+        self.assertTrue("UNICORE_PROJECT_VERSION=1" in data)
 
     def test_write_frontend_nginx_configs(self):
         cm = ConfigManager()
