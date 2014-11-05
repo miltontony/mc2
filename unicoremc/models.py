@@ -80,6 +80,9 @@ class Project(models.Model):
     available_languages = models.ManyToManyField(
         Localisation, blank=True, null=True)
 
+    class Meta:
+        ordering = ('app_type', 'country')
+
     def __init__(self, *args, **kwargs):
         super(Project, self).__init__(*args, **kwargs)
 

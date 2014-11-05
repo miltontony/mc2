@@ -421,3 +421,24 @@ class ProjectTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
         self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
+
+    def test_ordering(self):
+        p1 = Project.objects.create(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p2 = Project.objects.create(
+            app_type='gem',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='KE',
+            owner=self.user)
+        p3 = Project.objects.create(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='KE',
+            owner=self.user)
+
+        self.assertEquals(Project.objects.all()[0], p3)
+        self.assertEquals(Project.objects.all()[1], p1)
+        self.assertEquals(Project.objects.all()[2], p2)
