@@ -3,7 +3,7 @@ import json
 from django.db.models import F
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import UpdateView
@@ -17,6 +17,7 @@ from unicoremc import tasks
 
 
 @login_required
+@permission_required('project.can_change')
 def new_project_view(request, *args, **kwargs):
     social = request.user.social_auth.get(provider='github')
     access_token = social.extra_data['access_token']
@@ -52,6 +53,8 @@ class ProjectEditView(UpdateView):
 
 
 @csrf_exempt
+@login_required
+@permission_required('project.can_change')
 def start_new_project(request, *args, **kwargs):
     if request.method == 'POST':
 
@@ -77,6 +80,7 @@ def start_new_project(request, *args, **kwargs):
                         mimetype='application/json')
 
 
+@login_required
 def projects_progress(request, *args, **kwargs):
     projects = Project.objects.all()
     return HttpResponse(json.dumps(

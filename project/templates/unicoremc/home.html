@@ -5,7 +5,11 @@
 
 <!-- CONTENT -->
 {% block content %}
+
+{% if user.is_superuser %}
 <a href="{% url 'new_project' %}" class="btn btn-primary">Start new project</a>
+{% endif %}
+
 <div id="projects_progress">
     <section id="grp-changelist">
     <div class="grp-module grp-changelist-results">
