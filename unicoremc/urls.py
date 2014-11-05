@@ -34,7 +34,7 @@ urlpatterns = patterns(
     ),
     url(
         r'^advanced/(?P<project_id>\d+)/$',
-        views.ProjectEditView.as_view(),
+        login_required(views.ProjectEditView.as_view()),
         name='advanced'),
     url(
         r'^logout/$',

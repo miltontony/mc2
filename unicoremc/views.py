@@ -52,6 +52,7 @@ class ProjectEditView(UpdateView):
 
 
 @csrf_exempt
+@login_required
 def start_new_project(request, *args, **kwargs):
     if request.method == 'POST':
 
@@ -77,6 +78,7 @@ def start_new_project(request, *args, **kwargs):
                         mimetype='application/json')
 
 
+@login_required
 def projects_progress(request, *args, **kwargs):
     projects = Project.objects.all()
     return HttpResponse(json.dumps(

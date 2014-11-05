@@ -4,9 +4,7 @@ import shutil
 import pytest
 import responses
 
-from django.contrib.auth.models import User
 from django.conf import settings
-from django.test.client import RequestFactory
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 
@@ -14,7 +12,6 @@ from git import Repo
 from elasticgit.manager import StorageManager
 
 from unicoremc.models import Project, Localisation
-from unicoremc.views import start_new_project
 from unicoremc.manager import DbManager
 from unicore.content.models import Category, Page
 from unicoremc.tests.base import UnicoremcTestCase
@@ -24,15 +21,11 @@ from mock import patch
 
 @pytest.mark.django_db
 class ViewsTestCase(UnicoremcTestCase):
+    fixtures = ['test_users.json', 'test_social_auth.json']
 
     def setUp(self):
-        self.user = User.objects.create(
-            username='testuser',
-            email="test@email.com",
-            password='test')
-
         self.client = Client()
-        self.client.login(username='test@test.com', password='test')
+        self.client.login(username='testuser', password='test')
 
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
         self.source_repo_sm = StorageManager(Repo.init(workdir))
@@ -66,14 +59,13 @@ class ViewsTestCase(UnicoremcTestCase):
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
-            'user_id': self.user.id,
+            'user_id': 1,
             'team_id': 1
         }
-        request = RequestFactory().post('/new/create/', data)
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
             mock_subprocess.return_value = None
-            response = start_new_project(request)
+            response = self.client.post('/new/create/', data)
 
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(json.loads(response.content), {
@@ -124,12 +116,11 @@ class ViewsTestCase(UnicoremcTestCase):
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
-            'user_id': self.user.id,
+            'user_id': 1,
             'team_id': 1
         }
-        request = RequestFactory().post('/new/create/', data)
-        start_new_project(request)
 
+        self.client.post('/new/create/', data)
         project = Project.objects.all()[0]
 
         resp = self.client.get(reverse('advanced', args=[project.id]))
@@ -179,3 +170,11 @@ class ViewsTestCase(UnicoremcTestCase):
         with open(cms_supervisor_config_path, "r") as config_file:
             data = config_file.read()
         self.assertTrue("UNICORE_PROJECT_VERSION=1" in data)
+
+    def test_view_only_on_homepage(self):
+        resp = self.client.get(reverse('home'))
+        self.assertNotContains(resp, 'Start new project')
+
+    def test_staff_access_required(self):
+        resp = self.client.get(reverse('new_project'))
+        self.assertEqual(resp.status_code, 302)
