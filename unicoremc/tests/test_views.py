@@ -7,6 +7,7 @@ import responses
 from django.conf import settings
 from django.test.client import Client
 from django.core.urlresolvers import reverse
+from django.contrib.auth.models import User
 
 from git import Repo
 from elasticgit.manager import StorageManager
@@ -179,6 +180,24 @@ class ViewsTestCase(UnicoremcTestCase):
         resp = self.client.get(reverse('home'))
         self.assertNotContains(resp, 'Start new project')
 
+        self.client.login(username='testuser2', password='test')
+
+        resp = self.client.get(reverse('home'))
+        self.assertContains(resp, 'Start new project')
+
     def test_staff_access_required(self):
+        p = Project(
+            app_type='ffl',
+            base_repo_url='http://some-git-repo.com',
+            country='ZA',
+            owner=User.objects.get(pk=2))
+        p.save()
+
         resp = self.client.get(reverse('new_project'))
+        self.assertEqual(resp.status_code, 302)
+
+        resp = self.client.get(reverse('start_new_project'))
+        self.assertEqual(resp.status_code, 302)
+
+        resp = self.client.get(reverse('advanced', args=[1]))
         self.assertEqual(resp.status_code, 302)
