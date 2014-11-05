@@ -179,11 +179,13 @@ class ViewsTestCase(UnicoremcTestCase):
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))
         self.assertNotContains(resp, 'Start new project')
+        self.assertNotContains(resp, 'edit')
 
         self.client.login(username='testuser2', password='test')
 
         resp = self.client.get(reverse('home'))
         self.assertContains(resp, 'Start new project')
+        self.assertContains(resp, 'edit')
 
     def test_staff_access_required(self):
         p = Project(
