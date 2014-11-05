@@ -51,6 +51,8 @@ class ViewsTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_create_new_project(self):
+        self.client.login(username='testuser2', password='test')
+
         self.mock_create_repo()
         self.mock_create_webhook()
 
@@ -105,6 +107,8 @@ class ViewsTestCase(UnicoremcTestCase):
             os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))
 
     def test_language_updates(self):
+        self.client.login(username='testuser2', password='test')
+
         self.mock_create_repo()
         self.mock_create_webhook()
 
