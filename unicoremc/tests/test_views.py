@@ -68,7 +68,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
             mock_subprocess.return_value = None
-            response = self.client.post('/new/create/', data)
+            response = self.client.post(reverse('start_new_project'), data)
 
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(json.loads(response.content), {
@@ -125,7 +125,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'team_id': 1
         }
 
-        self.client.post('/new/create/', data)
+        self.client.post(reverse('start_new_project'), data)
         project = Project.objects.all()[0]
 
         resp = self.client.get(reverse('advanced', args=[project.id]))
