@@ -55,9 +55,9 @@ function reload_projects(){
                 var row = '<th>' + this.app_type +'</th>' +
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
-                          '<td><a href="'+ this.repo_url +'">'+ this.repo_url +'</a></td>' +
-                          '<td><a href="'+ this.frontend_url +'">'+ this.frontend_url +'</a></td>' +
-                          '<td><a href="'+ this.cms_url +'">'+ this.cms_url +'</a></td>' +
+                          '<td><a target="_blank" href="'+ this.repo_url +'">'+ this.repo_url +'</a></td>' +
+                          '<td><a target="_blank" href="'+ this.frontend_url +'">'+ this.frontend_url +'</a></td>' +
+                          '<td><a target="_blank" href="'+ this.cms_url +'">'+ this.cms_url +'</a></td>' +
                           {% if user.is_superuser %}
                           '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a></td>' +
                           {% endif %}
