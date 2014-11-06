@@ -184,7 +184,7 @@ class Project(models.Model):
         origin = repo.remote(name='origin')
         origin.push()
 
-    def init_workspace(self):
+    def sync_cms_index(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
             'country': self.country.lower(),
@@ -199,8 +199,7 @@ class Project(models.Model):
         workspace.sync(Category)
         workspace.sync(Page)
 
-        # We also need to clone the repo for the frontend and initialize it
-        Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
+    def sync_frontend_index(self):
         index_prefix = 'unicore_frontend_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
             'country': self.country.lower(),
@@ -213,6 +212,13 @@ class Project(models.Model):
 
         workspace.sync(Category)
         workspace.sync(Page)
+
+    def init_workspace(self):
+        self.sync_cms_index()
+
+        # We also need to clone the repo for the frontend and initialize it
+        Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
+        self.sync_frontend_index()
 
     def create_supervisor(self):
         self.config_manager.write_frontend_supervisor(
