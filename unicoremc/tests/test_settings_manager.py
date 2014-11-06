@@ -34,8 +34,8 @@ class SettingsManagerTestCase(TestCase):
 
         self.assertTrue('egg:unicore-cms-ffl' in data)
         self.assertTrue(
-            "[('eng_UK', 'English (United Kingdom)')"
-            ", ('swh_TZ', 'Swahili (Tanzania)')]" in data)
+            "[('eng_UK', 'English')"
+            ", ('swh_TZ', 'Swahili')]" in data)
         self.assertTrue('/ffl_za/' in data)
         self.assertTrue('es.index_prefix = unicore_frontend_ffl_za' in data)
         self.assertTrue('git://some.repo.com/.git' in data)

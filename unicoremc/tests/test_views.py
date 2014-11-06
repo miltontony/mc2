@@ -130,8 +130,8 @@ class ViewsTestCase(UnicoremcTestCase):
 
         resp = self.client.get(reverse('advanced', args=[project.id]))
 
-        self.assertContains(resp, 'English (United Kingdom)')
-        self.assertContains(resp, 'Swahili (Tanzania)')
+        self.assertContains(resp, 'English')
+        self.assertContains(resp, 'Swahili')
 
         self.assertEqual(project.available_languages.count(), 0)
 
@@ -165,8 +165,8 @@ class ViewsTestCase(UnicoremcTestCase):
             data = config_file.read()
 
         self.assertTrue(
-            "[('eng_UK', 'English (United Kingdom)'), "
-            "('swh_TZ', 'Swahili (Tanzania)')]" in data)
+            "[('eng_UK', 'English'), "
+            "('swh_TZ', 'Swahili')]" in data)
 
         with open(frontend_supervisor_config_path, "r") as config_file:
             data = config_file.read()
