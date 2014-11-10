@@ -74,7 +74,7 @@ if (typeof String.prototype.startsWith != 'function') {
 (function($) {
     function load_content_repos(app_name){
         //javascript goes here
-        $.get('https://api.github.com/orgs/universalcore/repos?type=public')
+        $.get('https://api.github.com/users/universalcore/repos?type=public')
             .done(function(data){
                 var options = new Array();
                 options.push($('<option>').val('').text('---------'));
