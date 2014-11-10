@@ -26,7 +26,7 @@
                         <div class="grp-text">&nbsp;</div>
                     </th>
                     <th scope="col">
-                        <div class="grp-text">&nbsp;</div>
+                        <div class="grp-text">Content Store</div>
                     </th>
                     <th scope="col">
                         <div class="grp-text">Frontend URL</div>
@@ -47,24 +47,28 @@
 {% block script %}
 <script src="{{STATIC_URL}}js/jquery.min.js"></script>
 <script type="text/javascript">
+
 function reload_projects(){
     $.getJSON('/progress/')
         .done(function(data){
             var projects = new Array();
             $.each(data, function(){
+                var repo_url = this.repo_url.replace(/^(https?):\/\/github.com\//, '');
+                var frontend_url = this.frontend_url.replace(/^(https?):\/\//, '');
+                var cms_url = this.cms_url.replace(/^(https?):\/\//, '');
+
                 var row = '<th>' + this.app_type +'</th>' +
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
-                          '<td><a target="_blank" href="'+ this.repo_url +'">'+ this.repo_url +'</a></td>' +
-                          '<td><a target="_blank" href="'+ this.frontend_url +'">'+ this.frontend_url +'</a></td>' +
-                          '<td><a target="_blank" href="'+ this.cms_url +'">'+ this.cms_url +'</a></td>' +
+                          '<td><a target="_blank" href="'+ this.repo_url +'">'+ repo_url +'</a></td>' +
+                          '<td><a target="_blank" href="'+ this.frontend_url +'">'+ frontend_url +'</a></td>' +
+                          '<td><a target="_blank" href="'+ this.cms_url +'">'+ cms_url +'</a></td>' +
                           {% if user.is_superuser %}
                           '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a></td>' +
                           {% endif %}
                           '';
 
-                var state_class = this.state == 'Done' ? 'bg-success' : 'bg-warning';
-                console.log(state_class)
+                var state_class = this.state == 'Ready for use' ? 'bg-success' : 'bg-warning';
                 projects.push(
                     $('<tr>').html(row).addClass(state_class));
             });

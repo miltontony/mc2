@@ -126,7 +126,7 @@ class DbInitialized(State):
 
 
 class Done(State):
-    verbose_name = 'Done'
+    verbose_name = 'Ready for use'
     transitions = {'destroy': 'destroyed'}
 
 
