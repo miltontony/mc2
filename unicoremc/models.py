@@ -186,14 +186,15 @@ class Project(models.Model):
 
     def sync_repo_index(self, repo_path, index_prefix):
         workspace = EG.workspace(repo_path, index_prefix=index_prefix)
-        workspace.setup(self.owner.username, self.owner.email)
-
-        while not workspace.index_ready():
-            pass
 
         branch = workspace.sm.repo.active_branch
         if workspace.im.index_exists(branch.name):
             workspace.im.destroy_index(branch.name)
+
+        workspace.setup(self.owner.username, self.owner.email)
+
+        while not workspace.index_ready():
+            pass
 
         workspace.setup_custom_mapping(Category, mappings.CategoryMapping)
         workspace.setup_custom_mapping(Page, mappings.PageMapping)
