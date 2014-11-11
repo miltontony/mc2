@@ -14,6 +14,9 @@ DATABASES = {
 DEBUG = True
 CELERY_ALWAYS_EAGER = True
 
+UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
+UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
+
 FRONTEND_REPO_PATH = abspath('.test_repo_dir', 'frontend')
 CMS_REPO_PATH = abspath('.test_repo_dir', 'cms')
 
