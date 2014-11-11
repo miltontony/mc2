@@ -9,7 +9,7 @@ from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
-from unicoremc import constants, exceptions
+from unicoremc import constants, exceptions, mappings
 from unicoremc.manager import ConfigManager, SettingsManager, DbManager
 
 from git import Repo
@@ -184,34 +184,39 @@ class Project(models.Model):
         origin = repo.remote(name='origin')
         origin.push()
 
+    def sync_repo_index(self, repo_path, index_prefix):
+        workspace = EG.workspace(repo_path, index_prefix=index_prefix)
+
+        branch = workspace.sm.repo.active_branch
+        if workspace.im.index_exists(branch.name):
+            workspace.im.destroy_index(branch.name)
+
+        workspace.setup(self.owner.username, self.owner.email)
+
+        while not workspace.index_ready():
+            pass
+
+        workspace.setup_custom_mapping(Category, mappings.CategoryMapping)
+        workspace.setup_custom_mapping(Page, mappings.PageMapping)
+
+        workspace.sync(Category)
+        workspace.sync(Page)
+
     def sync_cms_index(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
             'country': self.country.lower(),
         }
 
-        workspace = EG.workspace(self.repo_path(), index_prefix=index_prefix)
-        workspace.setup(self.owner.username, self.owner.email)
-
-        while not workspace.index_ready():
-            pass
-
-        workspace.sync(Category)
-        workspace.sync(Page)
+        self.sync_repo_index(self.repo_path(), index_prefix)
 
     def sync_frontend_index(self):
         index_prefix = 'unicore_frontend_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
             'country': self.country.lower(),
         }
-        workspace = EG.workspace(
-            self.frontend_repo_path(), index_prefix=index_prefix)
-        workspace.setup(self.owner.username, self.owner.email)
-        while not workspace.index_ready():
-            pass
 
-        workspace.sync(Category)
-        workspace.sync(Page)
+        self.sync_repo_index(self.frontend_repo_path(), index_prefix)
 
     def init_workspace(self):
         self.sync_cms_index()
