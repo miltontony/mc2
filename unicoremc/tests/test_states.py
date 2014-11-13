@@ -1,6 +1,9 @@
+import os
 import pytest
 import responses
 import shutil
+
+from django.conf import settings
 
 from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
@@ -134,3 +137,69 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertEquals(
             p.repo_url,
             self.source_repo_sm.repo.git_dir)
+
+    @responses.activate
+    def test_destroy(self):
+
+        def call_mock(*call_args, **call_kwargs):
+            pass
+
+        self.mock_create_repo()
+        self.mock_create_webhook()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        p.db_manager.call_subprocess = call_mock
+
+        self.assertEquals(p.state, 'initial')
+
+        pw = ProjectWorkflow(instance=p)
+        pw.run_all(access_token='sample-token')
+
+        self.assertEquals(p.state, 'done')
+        pw.take_action('destroy')
+
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
+            'ffl.production.za.ini')
+
+        cms_settings_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za_settings.py')
+
+        frontend_supervisor_config_path = os.path.join(
+            settings.SUPERVISOR_CONFIGS_PATH,
+            'frontend_ffl_za.conf')
+
+        cms_supervisor_config_path = os.path.join(
+            settings.SUPERVISOR_CONFIGS_PATH,
+            'cms_ffl_za.conf')
+
+        frontend_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'frontend_ffl_za.conf')
+
+        cms_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'cms_ffl_za.conf')
+
+        cms_db_path = os.path.join(
+            settings.UNICORE_CMS_INSTALL_DIR,
+            'django_cms_ffl_za.db')
+
+        self.assertFalse(os.path.exists(p.repo_path()))
+        self.assertFalse(os.path.exists(p.frontend_repo_path()))
+
+        self.assertFalse(os.path.exists(frontend_settings_path))
+        self.assertFalse(os.path.exists(cms_settings_path))
+        self.assertFalse(os.path.exists(frontend_supervisor_config_path))
+        self.assertFalse(os.path.exists(cms_supervisor_config_path))
+        self.assertFalse(os.path.exists(frontend_nginx_config_path))
+        self.assertFalse(os.path.exists(cms_nginx_config_path))
+
+        self.assertFalse(os.path.exists(cms_db_path))
