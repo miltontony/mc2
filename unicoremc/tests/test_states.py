@@ -1,6 +1,9 @@
+import os
 import pytest
 import responses
 import shutil
+
+from django.conf import settings
 
 from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
@@ -28,12 +31,13 @@ class StatesTestCase(UnicoremcTestCase):
             cwd = call_kwargs.get('cwd')
             env = call_kwargs.get('env')
             [args] = call_args
-            self.assertEqual(cwd, '/path/to/unicore-cms-django')
+            self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
                 env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
-                '/path/to/unicore-cms-django/manage.py' in args)
+                os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
+                in args)
             self.assertTrue('syncdb' in args)
             self.assertTrue('--migrate' in args)
             self.assertTrue('--noinput' in args)
@@ -43,12 +47,13 @@ class StatesTestCase(UnicoremcTestCase):
             env = call_kwargs.get('env')
             [args] = call_args
 
-            self.assertEqual(cwd, '/path/to/unicore-cms-django')
+            self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
                 env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
-                '/path/to/unicore-cms-django/manage.py' in args)
+                os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
+                in args)
             self.assertTrue('import_from_git' in args)
             self.assertTrue('--quiet' in args)
 
@@ -134,3 +139,73 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertEquals(
             p.repo_url,
             self.source_repo_sm.repo.git_dir)
+
+    @responses.activate
+    def test_destroy(self):
+        cms_db_path = os.path.join(
+            settings.UNICORE_CMS_INSTALL_DIR,
+            'django_cms_ffl_za.db')
+
+        def call_mock(*call_args, **call_kwargs):
+            if not os.path.exists(settings.UNICORE_CMS_INSTALL_DIR):
+                os.makedirs(settings.UNICORE_CMS_INSTALL_DIR)
+
+            with open(cms_db_path, 'a'):
+                os.utime(cms_db_path, None)
+
+        self.mock_create_repo()
+        self.mock_create_webhook()
+
+        p = Project(
+            app_type='ffl',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user)
+        p.save()
+
+        p.db_manager.call_subprocess = call_mock
+
+        self.assertEquals(p.state, 'initial')
+
+        pw = ProjectWorkflow(instance=p)
+        pw.run_all(access_token='sample-token')
+
+        self.assertEquals(p.state, 'done')
+        pw.take_action('destroy')
+
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
+            'ffl.production.za.ini')
+
+        cms_settings_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za_settings.py')
+
+        frontend_supervisor_config_path = os.path.join(
+            settings.SUPERVISOR_CONFIGS_PATH,
+            'frontend_ffl_za.conf')
+
+        cms_supervisor_config_path = os.path.join(
+            settings.SUPERVISOR_CONFIGS_PATH,
+            'cms_ffl_za.conf')
+
+        frontend_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'frontend_ffl_za.conf')
+
+        cms_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'cms_ffl_za.conf')
+
+        self.assertFalse(os.path.exists(frontend_supervisor_config_path))
+        self.assertFalse(os.path.exists(cms_supervisor_config_path))
+        self.assertFalse(os.path.exists(frontend_nginx_config_path))
+        self.assertFalse(os.path.exists(cms_nginx_config_path))
+
+        self.assertFalse(os.path.exists(p.repo_path()))
+        self.assertFalse(os.path.exists(p.frontend_repo_path()))
+
+        self.assertFalse(os.path.exists(frontend_settings_path))
+        self.assertFalse(os.path.exists(cms_settings_path))
+
+        self.assertFalse(os.path.exists(cms_db_path))

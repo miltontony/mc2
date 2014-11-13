@@ -25,6 +25,48 @@ class ConfigManager(object):
         if not os.path.exists(self.nginx_dir):
             os.makedirs(self.nginx_dir)
 
+    def get_frontend_supervisor_path(self, app_type, country):
+        return os.path.join(
+            self.supervisor_dir,
+            'frontend_%(app_type)s_%(country)s.conf' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def get_cms_supervisor_path(self, app_type, country):
+        return os.path.join(
+            self.supervisor_dir,
+            'cms_%(app_type)s_%(country)s.conf' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def get_frontend_nginx_path(self, app_type, country):
+        return os.path.join(
+            self.nginx_dir,
+            'frontend_%(app_type)s_%(country)s.conf' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def get_cms_nginx_path(self, app_type, country):
+        return os.path.join(
+            self.nginx_dir,
+            'cms_%(app_type)s_%(country)s.conf' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def destroy(self, app_type, country):
+        os.remove(self.get_frontend_supervisor_path(app_type, country))
+        os.remove(self.get_cms_supervisor_path(app_type, country))
+        os.remove(self.get_frontend_nginx_path(app_type, country))
+        os.remove(self.get_cms_nginx_path(app_type, country))
+
     def write_frontend_supervisor(self, app_type, country, project_version):
         frontend_supervisor_content = render_to_string(
             'configs/frontend.supervisor.conf', {
@@ -40,13 +82,7 @@ class ConfigManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.supervisor_dir,
-            'frontend_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_frontend_supervisor_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_supervisor_content)
@@ -63,13 +99,7 @@ class ConfigManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.supervisor_dir,
-            'cms_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_cms_supervisor_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(cms_supervisor_content)
@@ -86,13 +116,7 @@ class ConfigManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.nginx_dir,
-            'frontend_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_frontend_nginx_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_nginx_content)
@@ -109,13 +133,7 @@ class ConfigManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.nginx_dir,
-            'cms_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_cms_nginx_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(cms_nginx_content)
@@ -136,6 +154,28 @@ class SettingsManager(object):
 
         if not os.path.exists(self.cms_settings_dir):
             os.makedirs(self.cms_settings_dir)
+
+    def get_frontend_settings_path(self, app_type, country):
+        return os.path.join(
+            self.frontend_settings_dir,
+            '%(app_type)s.production.%(country)s.ini' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def get_cms_settings_path(self, app_type, country):
+        return os.path.join(
+            self.cms_settings_dir,
+            '%(app_type)s_%(country)s_settings.py' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def destroy(self, app_type, country):
+        os.remove(self.get_frontend_settings_path(app_type, country))
+        os.remove(self.get_cms_settings_path(app_type, country))
 
     def write_frontend_settings(
             self, app_type, country, clone_url, available_languages,
@@ -163,13 +203,7 @@ class SettingsManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.frontend_settings_dir,
-            '%(app_type)s.production.%(country)s.ini' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_frontend_settings_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_settings_content)
@@ -190,13 +224,7 @@ class SettingsManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.cms_settings_dir,
-            '%(app_type)s_%(country)s_settings.py' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_cms_settings_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(cms_settings_content)
@@ -208,6 +236,12 @@ class DbManager(object):
     def __init__(self):
         self.unicore_cms_install_dir = settings.UNICORE_CMS_INSTALL_DIR
         self.unicore_cms_python_venv = settings.UNICORE_CMS_PYTHON_VENV
+
+    def destroy(self, app_type, country):
+        os.remove(os.path.join(
+            self.unicore_cms_install_dir,
+            'django_cms_%s_%s.db' % (app_type, country.lower())
+        ))
 
     def create_db(self, app_type, country):
         env = {

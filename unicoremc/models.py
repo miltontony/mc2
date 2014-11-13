@@ -1,3 +1,4 @@
+import shutil
 import os
 import pwd
 
@@ -289,3 +290,10 @@ class Project(models.Model):
 
     def init_db(self):
         self.db_manager.init_db(self.app_type, self.country)
+
+    def destroy(self):
+        shutil.rmtree(self.repo_path())
+        shutil.rmtree(self.frontend_repo_path())
+        self.config_manager.destroy(self.app_type, self.country)
+        self.settings_manager.destroy(self.app_type, self.country)
+        self.db_manager.destroy(self.app_type, self.country)
