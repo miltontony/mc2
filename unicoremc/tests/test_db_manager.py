@@ -1,3 +1,6 @@
+import os
+
+from django.conf import settings
 from django.test import TestCase
 
 from unicoremc.manager import DbManager
@@ -10,12 +13,13 @@ class DbManagerTestCase(TestCase):
             cwd = call_kwargs.get('cwd')
             env = call_kwargs.get('env')
             [args] = call_args
-            self.assertEqual(cwd, '/path/to/unicore-cms-django')
+            self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
                 env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
-                '/path/to/unicore-cms-django/manage.py' in args)
+                os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
+                in args)
             self.assertTrue('syncdb' in args)
             self.assertTrue('--migrate' in args)
             self.assertTrue('--noinput' in args)
@@ -30,12 +34,13 @@ class DbManagerTestCase(TestCase):
             cwd = call_kwargs.get('cwd')
             env = call_kwargs.get('env')
             [args] = call_args
-            self.assertEqual(cwd, '/path/to/unicore-cms-django')
+            self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
                 env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
-                '/path/to/unicore-cms-django/manage.py' in args)
+                os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
+                in args)
             self.assertTrue('import_from_git' in args)
             self.assertTrue('--quiet' in args)
 
