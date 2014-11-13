@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 NEW_REPO_NAME_FORMAT = (
     'unicore-cms-content-'
     '%(app_type)s-%(country)s%(suffix)s')
@@ -26,7 +24,7 @@ LANGUAGE_CHOICES = (
 
 COUNTRIES = {
     "AF": "Afghanistan",
-    "AX": "Åland Islands",
+    "AX": "Aland Islands",
     "AL": "Albania",
     "DZ": "Algeria",
     "AS": "American Samoa",
@@ -268,4 +266,6 @@ COUNTRIES = {
     "YE": "Yemen",
     "ZM": "Zambia",
     "ZW": "Zimbabwe"}
-COUNTRY_CHOICES = [(code, name) for code, name in COUNTRIES.items()]
+COUNTRY_CHOICES = [
+    (code, name) for code, name in sorted(COUNTRIES.items(), key=lambda x:x[1])
+]

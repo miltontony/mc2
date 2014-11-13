@@ -22,7 +22,7 @@ def new_project_view(request, *args, **kwargs):
     social = request.user.social_auth.get(provider='github')
     access_token = social.extra_data['access_token']
     context = {
-        'countries': constants.COUNTRIES,
+        'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
         'access_token': access_token,
     }
