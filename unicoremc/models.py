@@ -295,3 +295,5 @@ class Project(models.Model):
         shutil.rmtree(self.repo_path())
         shutil.rmtree(self.frontend_repo_path())
         self.config_manager.destroy(self.app_type, self.country)
+        self.settings_manager.destroy(self.app_type, self.country)
+        self.db_manager.destroy(self.app_type, self.country)

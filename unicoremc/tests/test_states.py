@@ -31,12 +31,13 @@ class StatesTestCase(UnicoremcTestCase):
             cwd = call_kwargs.get('cwd')
             env = call_kwargs.get('env')
             [args] = call_args
-            self.assertEqual(cwd, '/path/to/unicore-cms-django')
+            self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
                 env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
-                '/path/to/unicore-cms-django/manage.py' in args)
+                os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
+                in args)
             self.assertTrue('syncdb' in args)
             self.assertTrue('--migrate' in args)
             self.assertTrue('--noinput' in args)
@@ -46,12 +47,13 @@ class StatesTestCase(UnicoremcTestCase):
             env = call_kwargs.get('env')
             [args] = call_args
 
-            self.assertEqual(cwd, '/path/to/unicore-cms-django')
+            self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
                 env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
-                '/path/to/unicore-cms-django/manage.py' in args)
+                os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
+                in args)
             self.assertTrue('import_from_git' in args)
             self.assertTrue('--quiet' in args)
 
@@ -140,9 +142,16 @@ class StatesTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_destroy(self):
+        cms_db_path = os.path.join(
+            settings.UNICORE_CMS_INSTALL_DIR,
+            'django_cms_ffl_za.db')
 
         def call_mock(*call_args, **call_kwargs):
-            pass
+            if not os.path.exists(settings.UNICORE_CMS_INSTALL_DIR):
+                os.makedirs(settings.UNICORE_CMS_INSTALL_DIR)
+
+            with open(cms_db_path, 'a'):
+                os.utime(cms_db_path, None)
 
         self.mock_create_repo()
         self.mock_create_webhook()
@@ -187,10 +196,6 @@ class StatesTestCase(UnicoremcTestCase):
         cms_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
             'cms_ffl_za.conf')
-
-        cms_db_path = os.path.join(
-            settings.UNICORE_CMS_INSTALL_DIR,
-            'django_cms_ffl_za.db')
 
         self.assertFalse(os.path.exists(frontend_supervisor_config_path))
         self.assertFalse(os.path.exists(cms_supervisor_config_path))
