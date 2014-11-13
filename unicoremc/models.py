@@ -289,3 +289,6 @@ class Project(models.Model):
 
     def init_db(self):
         self.db_manager.init_db(self.app_type, self.country)
+
+    def destroy(self):
+        self.config_manager.destroy(self.app_type, self.country)

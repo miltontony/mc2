@@ -192,14 +192,15 @@ class StatesTestCase(UnicoremcTestCase):
             settings.UNICORE_CMS_INSTALL_DIR,
             'django_cms_ffl_za.db')
 
+        self.assertFalse(os.path.exists(frontend_supervisor_config_path))
+        self.assertFalse(os.path.exists(cms_supervisor_config_path))
+        self.assertFalse(os.path.exists(frontend_nginx_config_path))
+        self.assertFalse(os.path.exists(cms_nginx_config_path))
+
         self.assertFalse(os.path.exists(p.repo_path()))
         self.assertFalse(os.path.exists(p.frontend_repo_path()))
 
         self.assertFalse(os.path.exists(frontend_settings_path))
         self.assertFalse(os.path.exists(cms_settings_path))
-        self.assertFalse(os.path.exists(frontend_supervisor_config_path))
-        self.assertFalse(os.path.exists(cms_supervisor_config_path))
-        self.assertFalse(os.path.exists(frontend_nginx_config_path))
-        self.assertFalse(os.path.exists(cms_nginx_config_path))
 
         self.assertFalse(os.path.exists(cms_db_path))

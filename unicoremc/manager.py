@@ -25,6 +25,48 @@ class ConfigManager(object):
         if not os.path.exists(self.nginx_dir):
             os.makedirs(self.nginx_dir)
 
+    def get_frontend_supervisor_path(self, app_type, country):
+        return os.path.join(
+            self.supervisor_dir,
+            'frontend_%(app_type)s_%(country)s.conf' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def get_cms_supervisor_path(self, app_type, country):
+        return os.path.join(
+            self.supervisor_dir,
+            'cms_%(app_type)s_%(country)s.conf' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def get_frontend_nginx_path(self, app_type, country):
+        return os.path.join(
+            self.nginx_dir,
+            'frontend_%(app_type)s_%(country)s.conf' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def get_cms_nginx_path(self, app_type, country):
+        return os.path.join(
+            self.nginx_dir,
+            'cms_%(app_type)s_%(country)s.conf' % {
+                'app_type': app_type,
+                'country': country.lower(),
+            }
+        )
+
+    def destroy(self, app_type, country):
+        os.remove(self.get_frontend_supervisor_path(app_type, country))
+        os.remove(self.get_cms_supervisor_path(app_type, country))
+        os.remove(self.get_frontend_nginx_path(app_type, country))
+        os.remove(self.get_cms_nginx_path(app_type, country))
+
     def write_frontend_supervisor(self, app_type, country, project_version):
         frontend_supervisor_content = render_to_string(
             'configs/frontend.supervisor.conf', {
@@ -40,13 +82,7 @@ class ConfigManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.supervisor_dir,
-            'frontend_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_frontend_supervisor_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_supervisor_content)
@@ -63,13 +99,7 @@ class ConfigManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.supervisor_dir,
-            'cms_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_cms_supervisor_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(cms_supervisor_content)
@@ -86,13 +116,7 @@ class ConfigManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.nginx_dir,
-            'frontend_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_frontend_nginx_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_nginx_content)
@@ -109,13 +133,7 @@ class ConfigManager(object):
             }
         )
 
-        filepath = os.path.join(
-            self.nginx_dir,
-            'cms_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+        filepath = self.get_cms_nginx_path(app_type, country)
 
         with open(filepath, 'w') as config_file:
             config_file.write(cms_nginx_content)
