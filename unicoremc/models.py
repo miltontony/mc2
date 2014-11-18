@@ -47,6 +47,9 @@ class Localisation(models.Model):
     def get_code(self):
         return u'%s_%s' % (self.language_code, self.country_code)
 
+    def get_display_name(self):
+        return unicode(constants.LANGUAGES.get(self.language_code))
+
     def __unicode__(self):
         language = constants.LANGUAGES.get(self.language_code)
         country = constants.COUNTRIES.get(self.country_code)
