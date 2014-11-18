@@ -48,12 +48,9 @@ class Localisation(models.Model):
         return u'%s_%s' % (self.language_code, self.country_code)
 
     def __unicode__(self):
-        """
-        FIXME: this is probably a bad idea
-        """
-        language = self.get_code()
-        return unicode(
-            dict(constants.LANGUAGE_CHOICES).get(language, language))
+        language = constants.LANGUAGES.get(self.language_code)
+        country = constants.COUNTRIES.get(self.country_code)
+        return u'%s (%s)' % (language, country)
 
 
 class Project(models.Model):
