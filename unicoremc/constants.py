@@ -196,7 +196,7 @@ LANGUAGES = {
     "ilo": "Iloko",
     "ina": "Interlingua",
     "inc": "Indic",
-    "ind": "Indonesian",
+    "ind": "Indonesian (Bahasa)",
     "ine": "Indo-European",
     "ipk": "Inupiaq (Inupiak)",
     "ira": "Iranian",
