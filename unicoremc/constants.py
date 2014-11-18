@@ -2,26 +2,6 @@ NEW_REPO_NAME_FORMAT = (
     'unicore-cms-content-'
     '%(app_type)s-%(country)s%(suffix)s')
 
-ENG_UK = 'eng_UK'  # English - United Kingdom
-SWH_TZ = 'swh_TZ'  # Swahili - Tanzania
-SWH_KE = 'swh_KE'  # Swahili - Kenya
-THA_TH = 'tha_TH'  # Thai - Thailand
-IND_ID = 'ind_ID'  # Bahasa - Indonesia
-SPA_ES = 'spa_ES'  # Spanish
-FRE_FR = 'fre_FR'  # French
-POR_PT = 'por_PT'  # Portuguese
-
-LANGUAGE_CHOICES = (
-    (ENG_UK, 'English'),
-    (SWH_TZ, 'Swahili'),
-    (SWH_KE, 'Swahili'),
-    (THA_TH, 'Thai'),
-    (IND_ID, 'Bahasa'),
-    (SPA_ES, 'Spanish'),
-    (FRE_FR, 'French'),
-    (POR_PT, 'Portuguese'),
-)
-
 LANGUAGES = {
     "aar": "Afar",
     "abk": "Abkhazian",
