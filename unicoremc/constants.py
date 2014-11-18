@@ -8,7 +8,7 @@ SWH_KE = 'swh_KE'  # Swahili - Kenya
 THA_TH = 'tha_TH'  # Thai - Thailand
 IND_ID = 'ind_ID'  # Bahasa - Indonesia
 SPA_ES = 'spa_ES'  # Spanish
-FRA_FR = 'fra_FR'  # French
+FRE_FR = 'fre_FR'  # French
 POR_PT = 'por_PT'  # Portuguese
 
 LANGUAGE_CHOICES = (
@@ -18,7 +18,7 @@ LANGUAGE_CHOICES = (
     (THA_TH, 'Thai'),
     (IND_ID, 'Bahasa'),
     (SPA_ES, 'Spanish'),
-    (FRA_FR, 'French'),
+    (FRE_FR, 'French'),
     (POR_PT, 'Portuguese'),
 )
 
