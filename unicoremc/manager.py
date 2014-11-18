@@ -187,8 +187,7 @@ class SettingsManager(object):
 
         languages = []
         for lang in available_languages:
-            languages.append(
-                "('%s', '%s')" % (lang.get_code(), lang.get_display_name()))
+            languages.append(repr((lang.get_code(), lang.get_display_name())))
 
         frontend_settings_content = render_to_string(
             'configs/pyramid.ini', {

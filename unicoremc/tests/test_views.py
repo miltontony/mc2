@@ -165,8 +165,8 @@ class ViewsTestCase(UnicoremcTestCase):
             data = config_file.read()
 
         self.assertTrue(
-            "[('eng_UK', 'English'), "
-            "('swh_TZ', 'Swahili')]" in data)
+            "[(u'eng_UK', u'English'), "
+            "(u'swh_TZ', u'Swahili')]" in data)
 
         with open(frontend_supervisor_config_path, "r") as config_file:
             data = config_file.read()
