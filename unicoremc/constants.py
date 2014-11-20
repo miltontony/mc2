@@ -375,7 +375,7 @@ LANGUAGES = {
     "sun": "Sundanese",
     "sus": "Susu",
     "sux": "Sumerian",
-    "swh": "Swahili",  # using iso639-3 for swahili
+    "swa": "Swahili",
     "swe": "Swedish",
     "syr": "Syriac",
     "tah": "Tahitian",
