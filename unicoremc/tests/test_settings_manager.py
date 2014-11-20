@@ -11,7 +11,7 @@ class SettingsManagerTestCase(TestCase):
 
     def test_write_frontend_settings(self):
         english = Localisation._for('eng_UK')
-        afrikaans = Localisation._for('swh_TZ')
+        afrikaans = Localisation._for('swa_TZ')
         cm = SettingsManager()
         cm.write_frontend_settings(
             'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
@@ -35,7 +35,7 @@ class SettingsManagerTestCase(TestCase):
         self.assertTrue('egg:unicore-cms-ffl' in data)
         self.assertTrue(
             "[(u'eng_UK', u'English')"
-            ", (u'swh_TZ', u'Swahili')]" in data)
+            ", (u'swa_TZ', u'Swahili')]" in data)
         self.assertTrue('/ffl_za/' in data)
         self.assertTrue('es.index_prefix = unicore_frontend_ffl_za' in data)
         self.assertTrue('git://some.repo.com/.git' in data)

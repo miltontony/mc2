@@ -114,7 +114,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
 
         Localisation._for('eng_UK')
-        Localisation._for('swh_TZ')
+        Localisation._for('swa_TZ')
 
         data = {
             'app_type': 'ffl',
@@ -166,7 +166,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.assertTrue(
             "[(u'eng_UK', u'English'), "
-            "(u'swh_TZ', u'Swahili')]" in data)
+            "(u'swa_TZ', u'Swahili')]" in data)
 
         with open(frontend_supervisor_config_path, "r") as config_file:
             data = config_file.read()
