@@ -15,7 +15,8 @@ from unicoremc.manager import ConfigManager, SettingsManager, DbManager
 
 from git import Repo
 
-from elasticgit.manager import Workspace, StorageManager
+from elasticgit.workspace import Workspace
+from elasticgit.storage import StorageManager
 from elasticgit import EG
 
 from unicore.content.models import Category, Page
