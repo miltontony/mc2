@@ -9,7 +9,7 @@ from django.conf import settings
 from git import Repo
 
 from elasticgit.tests.base import ModelBaseTest
-from elasticgit.manager import StorageManager
+from elasticgit.storage import StorageManager
 
 
 class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):

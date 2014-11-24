@@ -10,7 +10,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 from git import Repo
-from elasticgit.manager import StorageManager
+from elasticgit.storage import StorageManager
 
 from unicoremc.models import Project, Localisation
 from unicoremc.manager import DbManager
