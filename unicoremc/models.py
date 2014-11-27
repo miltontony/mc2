@@ -151,6 +151,7 @@ class Project(models.Model):
 
             self.repo_url = resp.json().get('clone_url')
             self.repo_git_url = resp.json().get('git_url')
+            self.save()
         else:
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
