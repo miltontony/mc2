@@ -1,1 +1,1 @@
-LIBGIT2=$VIRTUAL_ENV DJANGO_SETTINGS_MODULE=test_settings py.test --verbose --cov ./unicoremc unicoremc$1
+py.test --ds=test_settings --verbose --cov ./unicoremc unicoremc$1
