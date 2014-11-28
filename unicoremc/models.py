@@ -228,13 +228,6 @@ class Project(models.Model):
         Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
         self.sync_frontend_index()
 
-    def create_supervisor(self):
-        self.config_manager.write_frontend_supervisor(
-            self.app_type, self.country, self.project_version)
-
-        self.config_manager.write_cms_supervisor(
-            self.app_type, self.country, self.project_version)
-
     def create_nginx(self):
         self.config_manager.write_frontend_nginx(self.app_type, self.country)
         self.config_manager.write_cms_nginx(self.app_type, self.country)

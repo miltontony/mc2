@@ -142,14 +142,6 @@ class ViewsTestCase(UnicoremcTestCase):
             settings.SUPERVISOR_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
-        with open(frontend_supervisor_config_path, "r") as config_file:
-            data = config_file.read()
-        self.assertTrue("UNICORE_PROJECT_VERSION=0" in data)
-
-        with open(cms_supervisor_config_path, "r") as config_file:
-            data = config_file.read()
-        self.assertTrue("UNICORE_PROJECT_VERSION=0" in data)
-
         resp = self.client.post(
             reverse('advanced', args=[project.id]),
             {'available_languages': [1, 2]})
@@ -167,14 +159,6 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertTrue(
             "[(u'eng_UK', u'English'), "
             "(u'swa_TZ', u'Swahili')]" in data)
-
-        with open(frontend_supervisor_config_path, "r") as config_file:
-            data = config_file.read()
-        self.assertTrue("UNICORE_PROJECT_VERSION=1" in data)
-
-        with open(cms_supervisor_config_path, "r") as config_file:
-            data = config_file.read()
-        self.assertTrue("UNICORE_PROJECT_VERSION=1" in data)
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))

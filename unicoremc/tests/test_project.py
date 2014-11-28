@@ -276,57 +276,6 @@ class ProjectTestCase(UnicoremcTestCase):
             workspace.S(Page).count(), 1)
 
     @responses.activate
-    def test_create_supervisor_config(self):
-        self.mock_create_repo()
-        self.mock_create_webhook()
-
-        p = Project(
-            app_type='ffl',
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
-
-        pw = ProjectWorkflow(instance=p)
-        pw.take_action('create_repo', access_token='sample-token')
-        pw.take_action('clone_repo')
-        pw.take_action('create_remote')
-        pw.take_action('merge_remote')
-        pw.take_action('push_repo')
-        pw.take_action('create_webhook', access_token='sample-token')
-        pw.take_action('init_workspace')
-        pw.take_action('create_supervisor')
-
-        frontend_supervisor_config_path = os.path.join(
-            settings.SUPERVISOR_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
-        cms_supervisor_config_path = os.path.join(
-            settings.SUPERVISOR_CONFIGS_PATH,
-            'cms_ffl_za.conf')
-
-        self.assertTrue(os.path.exists(frontend_supervisor_config_path))
-        self.assertTrue(os.path.exists(cms_supervisor_config_path))
-
-        with open(frontend_supervisor_config_path, "r") as config_file:
-            data = config_file.read()
-
-        self.assertTrue('program:unicore_frontend_ffl_za' in data)
-        self.assertTrue('ffl.production.za.ini' in data)
-        self.assertTrue('/var/praekelt/unicore-cms-ffl' in data)
-        self.assertTrue("UNICORE_PROJECT_VERSION=0" in data)
-
-        with open(cms_supervisor_config_path, "r") as config_file:
-            data = config_file.read()
-
-        self.assertTrue('program:unicore_cms_ffl_za' in data)
-        self.assertTrue('project.ffl_za_settings' in data)
-        self.assertTrue('/var/praekelt/unicore-cms-django' in data)
-        self.assertTrue("UNICORE_PROJECT_VERSION=0" in data)
-
-        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
-
-    @responses.activate
     def test_create_nginx_config(self):
         self.mock_create_repo()
         self.mock_create_webhook()
@@ -346,7 +295,6 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('push_repo')
         pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
-        pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
 
         frontend_nginx_config_path = os.path.join(
@@ -400,7 +348,6 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('push_repo')
         pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
-        pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
         pw.take_action('create_pyramid_settings')
 

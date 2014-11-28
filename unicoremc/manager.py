@@ -62,8 +62,6 @@ class ConfigManager(object):
         )
 
     def destroy(self, app_type, country):
-        os.remove(self.get_frontend_supervisor_path(app_type, country))
-        os.remove(self.get_cms_supervisor_path(app_type, country))
         os.remove(self.get_frontend_nginx_path(app_type, country))
         os.remove(self.get_cms_nginx_path(app_type, country))
 

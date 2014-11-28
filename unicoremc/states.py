@@ -68,15 +68,6 @@ class WebhookCreated(State):
 
 class WorkspaceInitialized(State):
     verbose_name = 'Workspace initialized'
-    transitions = {'create_vassal': 'vassal_created'}
-
-    def create_vassal(self, **kwargs):
-        if self.instance:
-            self.instance.create_vassal()
-
-
-class VassalCreated(State):
-    verbose_name = 'Vassal created'
     transitions = {'create_nginx': 'nginx_created'}
 
     def create_nginx(self, **kwargs):
@@ -150,7 +141,6 @@ class ProjectWorkflow(StateMachine):
         'repo_pushed': RepoPushed,
         'webhook_created': WebhookCreated,
         'workspace_initialized': WorkspaceInitialized,
-        'vassal_created': VassalCreated,
         'nginx_created': NginxCreated,
         'pyramid_settings_created': PyramidSettingsCreated,
         'cms_settings_created': CmsSettingsCreated,
