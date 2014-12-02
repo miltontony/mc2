@@ -14,7 +14,8 @@ from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
 
-from unicore.content.models import Category, Page
+from unicore.content.models import (
+    Category, Page, Localisation as EGLocalisation)
 
 
 @pytest.mark.django_db
@@ -166,7 +167,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     @responses.activate
-    def test_merge_remoate_repo(self):
+    def test_merge_remote_repo(self):
         self.mock_create_repo()
         self.mock_create_webhook()
 
@@ -255,6 +256,7 @@ class ProjectTestCase(UnicoremcTestCase):
         workspace.setup('Test Kees', 'kees@example.org')
         workspace.setup_mapping(Category)
         workspace.setup_mapping(Page)
+        workspace.setup_mapping(EGLocalisation)
 
         cat = Category({
             'title': 'Some title',
@@ -268,12 +270,18 @@ class ProjectTestCase(UnicoremcTestCase):
         })
         workspace.save(page, 'Saving a Page')
 
+        loc = EGLocalisation({
+            'locale': 'spa_ES',
+            'image': 'some-image-uuid',
+            'image_host': 'http://some.site.com',
+        })
+        workspace.save(loc, 'Saving a Localisation')
+
         workspace.refresh_index()
 
-        self.assertEqual(
-            workspace.S(Category).count(), 1)
-        self.assertEqual(
-            workspace.S(Page).count(), 1)
+        self.assertEqual(workspace.S(Category).count(), 1)
+        self.assertEqual(workspace.S(Page).count(), 1)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 1)
 
     @responses.activate
     def test_create_supervisor_config(self):
