@@ -1,4 +1,5 @@
 import os
+from ConfigParser import ConfigParser
 
 from django.test import TestCase
 from django.conf import settings
@@ -63,3 +64,24 @@ class SettingsManagerTestCase(TestCase):
             "ELASTIC_GIT_INDEX_PREFIX = 'unicore_cms_ffl_za'" in data)
         self.assertTrue("/path/to/repo/ffl_za" in data)
         self.assertTrue('http://some.repo.com/.git' in data)
+
+    def test_write_cms_config(self):
+        sm = SettingsManager()
+        sm.write_cms_config(
+            'ffl', 'za', 'http://some.repo.com/.git',
+            '/path/to/repo/ffl_za/')
+
+        cms_config_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za_settings.ini')
+
+        self.assertTrue(os.path.exists(cms_config_path))
+
+        cp = ConfigParser()
+        with open(cms_config_path, "r") as fp:
+            cp.readfp(fp)
+
+        self.assertEqual(
+            cp.get('uwsgi', 'env'),
+            'DJANGO_SETTINGS_MODULE=project.ffl_za_settings')
+        self.assertTrue(cp.get('uwsgi', 'idle'))

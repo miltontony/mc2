@@ -157,6 +157,12 @@ class SettingsManager(object):
             '%s.py' % (self.get_cms_settings_module(app_type, country),)
         )
 
+    def get_cms_config_path(self, app_type, country):
+        return os.path.join(
+            self.cms_settings_dir,
+            '%s.ini' % (self.get_cms_settings_module(app_type, country),)
+        )
+
     def destroy(self, app_type, country):
         os.remove(self.get_frontend_settings_path(app_type, country))
         os.remove(self.get_cms_settings_path(app_type, country))
