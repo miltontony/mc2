@@ -248,6 +248,12 @@ class Project(models.Model):
             self.repo_url,
             self.repo_path()
         )
+        self.settings_manager.write_cms_config(
+            self.app_type,
+            self.country,
+            self.repo_url,
+            self.repo_path()
+        )
 
     def create_webhook(self, access_token):
         repo_name = constants.NEW_REPO_NAME_FORMAT % {
