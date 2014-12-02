@@ -207,6 +207,7 @@ class Project(models.Model):
 
         workspace.sync(Category)
         workspace.sync(Page)
+        workspace.sync(EGLocalisation)
 
     def sync_cms_index(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
