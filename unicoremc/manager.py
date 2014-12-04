@@ -93,7 +93,7 @@ class ConfigManager(object):
                 'country': country.lower(),
                 'socket_path': os.path.join(
                     self.sockets_dir,
-                    '%s.%s.socket' % (app_type, country.lower()))
+                    '%s.production.%s.socket' % (app_type, country.lower()))
             }
         )
 
