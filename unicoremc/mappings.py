@@ -51,3 +51,12 @@ CategoryMapping = {
         }
     }
 }
+
+LocalisationMapping = {
+    'properties': {
+        'locale': {
+            'type': 'string',
+            'index': 'not_analyzed',
+        }
+    }
+}

@@ -14,7 +14,8 @@ from elasticgit.storage import StorageManager
 
 from unicoremc.models import Project, Localisation
 from unicoremc.manager import DbManager
-from unicore.content.models import Category, Page
+from unicore.content.models import (
+    Category, Page, Localisation as EGLocalisation)
 from unicoremc.tests.base import UnicoremcTestCase
 
 from mock import patch
@@ -82,6 +83,7 @@ class ViewsTestCase(UnicoremcTestCase):
         workspace.setup('Test Kees', 'kees@example.org')
         workspace.setup_mapping(Category)
         workspace.setup_mapping(Page)
+        workspace.setup_mapping(EGLocalisation)
 
         cat = Category({
             'title': 'Some title',
@@ -95,12 +97,18 @@ class ViewsTestCase(UnicoremcTestCase):
         })
         workspace.save(page, 'Saving a Page')
 
+        loc = EGLocalisation({
+            'locale': 'spa_ES',
+            'image': 'some-image-uuid',
+            'image_host': 'http://some.site.com',
+        })
+        workspace.save(loc, 'Saving a Localisation')
+
         workspace.refresh_index()
 
-        self.assertEqual(
-            workspace.S(Category).count(), 1)
-        self.assertEqual(
-            workspace.S(Page).count(), 1)
+        self.assertEqual(workspace.S(Category).count(), 1)
+        self.assertEqual(workspace.S(Page).count(), 1)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 1)
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))

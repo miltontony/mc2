@@ -19,7 +19,8 @@ from elasticgit.workspace import Workspace
 from elasticgit.storage import StorageManager
 from elasticgit import EG
 
-from unicore.content.models import Category, Page
+from unicore.content.models import (
+    Category, Page, Localisation as EGLocalisation)
 
 
 class Localisation(models.Model):
@@ -201,9 +202,12 @@ class Project(models.Model):
 
         workspace.setup_custom_mapping(Category, mappings.CategoryMapping)
         workspace.setup_custom_mapping(Page, mappings.PageMapping)
+        workspace.setup_custom_mapping(EGLocalisation,
+                                       mappings.LocalisationMapping)
 
         workspace.sync(Category)
         workspace.sync(Page)
+        workspace.sync(EGLocalisation)
 
     def sync_cms_index(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
