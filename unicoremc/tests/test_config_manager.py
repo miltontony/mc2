@@ -18,7 +18,7 @@ class ConfigManagerTestCase(TestCase):
 
         socket_path = os.path.join(
             settings.SOCKETS_PATH,
-            'ffl.za.socket')
+            'ffl.production.za.socket')
 
         self.assertTrue(os.path.exists(frontend_nginx_config_path))
 
@@ -44,7 +44,7 @@ class ConfigManagerTestCase(TestCase):
 
         socket_path = os.path.join(
             settings.SOCKETS_PATH,
-            'cms.ffl.za.socket')
+            'ffl_za_settings.socket')
 
         self.assertTrue(os.path.exists(cms_nginx_config_path))
 
