@@ -68,15 +68,6 @@ class WebhookCreated(State):
 
 class WorkspaceInitialized(State):
     verbose_name = 'Workspace initialized'
-    transitions = {'create_supervisor': 'supervisor_created'}
-
-    def create_supervisor(self, **kwargs):
-        if self.instance:
-            self.instance.create_supervisor()
-
-
-class SupervisorCreated(State):
-    verbose_name = 'Supervisor created'
     transitions = {'create_nginx': 'nginx_created'}
 
     def create_nginx(self, **kwargs):
@@ -150,7 +141,6 @@ class ProjectWorkflow(StateMachine):
         'repo_pushed': RepoPushed,
         'webhook_created': WebhookCreated,
         'workspace_initialized': WorkspaceInitialized,
-        'supervisor_created': SupervisorCreated,
         'nginx_created': NginxCreated,
         'pyramid_settings_created': PyramidSettingsCreated,
         'cms_settings_created': CmsSettingsCreated,

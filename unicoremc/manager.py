@@ -62,8 +62,6 @@ class ConfigManager(object):
         )
 
     def destroy(self, app_type, country):
-        os.remove(self.get_frontend_supervisor_path(app_type, country))
-        os.remove(self.get_cms_supervisor_path(app_type, country))
         os.remove(self.get_frontend_nginx_path(app_type, country))
         os.remove(self.get_cms_nginx_path(app_type, country))
 
@@ -86,23 +84,6 @@ class ConfigManager(object):
 
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_supervisor_content)
-
-    def write_cms_supervisor(self, app_type, country, project_version):
-        cms_supervisor_content = render_to_string(
-            'configs/cms.supervisor.conf', {
-                'app_type': app_type,
-                'country': country.lower(),
-                'project_version': project_version,
-                'socket_path': os.path.join(
-                    self.sockets_dir,
-                    'cms.%s.%s.socket' % (app_type, country.lower()))
-            }
-        )
-
-        filepath = self.get_cms_supervisor_path(app_type, country)
-
-        with open(filepath, 'w') as config_file:
-            config_file.write(cms_supervisor_content)
 
     def write_frontend_nginx(self, app_type, country):
         frontend_nginx_content = render_to_string(
@@ -164,13 +145,22 @@ class SettingsManager(object):
             }
         )
 
+    def get_cms_settings_module(self, app_type, country):
+        return '%(app_type)s_%(country)s_settings' % {
+            'app_type': app_type,
+            'country': country.lower(),
+        }
+
     def get_cms_settings_path(self, app_type, country):
         return os.path.join(
             self.cms_settings_dir,
-            '%(app_type)s_%(country)s_settings.py' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
+            '%s.py' % (self.get_cms_settings_module(app_type, country),)
+        )
+
+    def get_cms_config_path(self, app_type, country):
+        return os.path.join(
+            self.cms_settings_dir,
+            '%s.ini' % (self.get_cms_settings_module(app_type, country),)
         )
 
     def destroy(self, app_type, country):
@@ -228,6 +218,18 @@ class SettingsManager(object):
 
         with open(filepath, 'w') as config_file:
             config_file.write(cms_settings_content)
+
+    def write_cms_config(self, app_type, country, clone_url, repo_path):
+        cms_config_content = render_to_string(
+            'configs/cms.config.ini', {
+                'cms_settings_dir': self.cms_settings_dir,
+                'settings_module': self.get_cms_settings_module(
+                    app_type, country)
+            })
+
+        filepath = self.get_cms_config_path(app_type, country)
+        with open(filepath, 'w') as config_file:
+            config_file.write(cms_config_content)
 
 
 class DbManager(object):

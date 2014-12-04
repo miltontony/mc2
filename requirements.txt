@@ -16,3 +16,4 @@ python-social-auth
 Django-ostinato
 elastic-git
 unicore-cms
+uwsgi==2.0.8

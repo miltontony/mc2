@@ -78,7 +78,6 @@ class StatesTestCase(UnicoremcTestCase):
         pw.take_action('push_repo')
         pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
-        pw.take_action('create_supervisor')
         pw.take_action('create_nginx')
         pw.take_action('create_pyramid_settings')
         pw.take_action('create_cms_settings')
