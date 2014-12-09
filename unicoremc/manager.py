@@ -108,20 +108,17 @@ class SettingsManager(object):
             '%s.ini' % (self.get_deploy_name(app_type, country),)
         )
 
-    def get_cms_settings_module(self, app_type, country):
-        return '%s_settings' % (self.get_deploy_name(app_type, country),)
-
     def get_cms_settings_path(self, app_type, country):
         return os.path.join(
             self.cms_settings_dir,
-            '%s.py' % (self.get_cms_settings_module(app_type, country),)
+            '%s.py' % (self.get_deploy_name(app_type, country),)
         )
 
     def get_cms_config_path(self, app_type, country):
         # NOTE: this needs to match the socket name
         return os.path.join(
             self.cms_settings_dir,
-            '%s.ini' % (self.get_cms_settings_module(app_type, country),)
+            '%s.ini' % (self.get_deploy_name(app_type, country),)
         )
 
     def destroy(self, app_type, country):
@@ -184,7 +181,7 @@ class SettingsManager(object):
         cms_config_content = render_to_string(
             'configs/cms.config.ini', {
                 'cms_settings_dir': self.cms_settings_dir,
-                'settings_module': self.get_cms_settings_module(
+                'settings_module': self.get_deploy_name(
                     app_type, country)
             })
 

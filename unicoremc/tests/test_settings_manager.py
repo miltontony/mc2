@@ -50,7 +50,7 @@ class SettingsManagerTestCase(TestCase):
 
         cms_settings_path = os.path.join(
             settings.CMS_SETTINGS_OUTPUT_PATH,
-            'ffl_za_settings.py')
+            'ffl_za.py')
 
         self.assertTrue(os.path.exists(cms_settings_path))
 
@@ -73,7 +73,7 @@ class SettingsManagerTestCase(TestCase):
 
         cms_config_path = os.path.join(
             settings.CMS_SETTINGS_OUTPUT_PATH,
-            'ffl_za_settings.ini')
+            'ffl_za.ini')
 
         self.assertTrue(os.path.exists(cms_config_path))
 
@@ -83,5 +83,5 @@ class SettingsManagerTestCase(TestCase):
 
         self.assertEqual(
             cp.get('uwsgi', 'env'),
-            'DJANGO_SETTINGS_MODULE=project.ffl_za_settings')
+            'DJANGO_SETTINGS_MODULE=project.ffl_za')
         self.assertTrue(cp.get('uwsgi', 'idle'))
