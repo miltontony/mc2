@@ -4,7 +4,6 @@ import responses
 import shutil
 
 from django.test import TransactionTestCase
-from django.contrib.auth.models import User
 from django.conf import settings
 
 from git import Repo
@@ -13,6 +12,8 @@ from elasticgit.tests.base import ModelBaseTest
 from elasticgit.storage import StorageManager
 
 from unicoremc.manager import ConfigManager
+from unicore.content.models import (
+    Category, Page, Localisation as EGLocalisation)
 
 
 class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
@@ -23,10 +24,6 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
         return cm
 
     def mk_test_repos(self):
-        self.user = User.objects.create(
-            username='testuser',
-            email="test@email.com")
-
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
         self.source_repo_sm = StorageManager(Repo.init(workdir))
         self.source_repo_sm.create_storage()
@@ -46,6 +43,36 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             'name': 'testuser',
             'email': 'test@email.com',
         })
+
+        remote_workspace = self.mk_workspace(
+            working_dir=settings.CMS_REPO_PATH,
+            name='test-base-repo',
+            index_prefix='%s_remote' % (self.mk_index_prefix(),))
+
+        remote_workspace.setup('Test Kees', 'kees@example.org')
+        remote_workspace.setup_mapping(Category)
+        remote_workspace.setup_mapping(Page)
+        remote_workspace.setup_mapping(EGLocalisation)
+
+        cat = Category({
+            'title': 'Some title',
+            'slug': 'some-slug'
+        })
+        remote_workspace.save(cat, 'Saving a Category')
+
+        page = Page({
+            'title': 'Some page title',
+            'slug': 'some-page-slug'
+        })
+        remote_workspace.save(page, 'Saving a Page')
+
+        loc = EGLocalisation({
+            'locale': 'spa_ES',
+            'image': 'some-image-uuid',
+            'image_host': 'http://some.site.com',
+        })
+        remote_workspace.save(loc, 'Saving a Localisation')
+        remote_workspace.refresh_index()
 
         self.base_repo_sm.store_data(
             'sample.txt', 'This is a sample file!', 'Create sample file')

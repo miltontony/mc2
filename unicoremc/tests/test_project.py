@@ -6,6 +6,7 @@ import shutil
 from unittest import skip
 
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from git import Repo
 
@@ -20,9 +21,11 @@ from unicore.content.models import (
 
 @pytest.mark.django_db
 class ProjectTestCase(UnicoremcTestCase):
+    fixtures = ['test_users.json', 'test_social_auth.json']
 
     def setUp(self):
         self.mk_test_repos()
+        self.user = User.objects.get(username='testuser')
 
     @responses.activate
     def test_create_repo_state(self):
@@ -190,6 +193,16 @@ class ProjectTestCase(UnicoremcTestCase):
             os.path.exists(os.path.join(p.repo_path(), 'sample.txt')))
 
         repo = Repo(p.repo_path())
+
+        workspace = self.mk_workspace(
+            working_dir=settings.CMS_REPO_PATH,
+            name='ffl-za',
+            index_prefix='unicore_cms_ffl_za')
+
+        self.assertEqual(workspace.S(Category).count(), 1)
+        self.assertEqual(workspace.S(Page).count(), 1)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 1)
+
         self.assertEquals(len(repo.remotes), 2)
         self.assertEquals(
             repo.remote(name='upstream').url,
@@ -247,16 +260,16 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
 
-        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
-
         self.assertEquals(p.state, 'workspace_initialized')
 
-        workspace = self.mk_workspace()
-        workspace.setup('Test Kees', 'kees@example.org')
-        workspace.setup_mapping(Category)
-        workspace.setup_mapping(Page)
-        workspace.setup_mapping(EGLocalisation)
+        workspace = self.mk_workspace(
+            working_dir=settings.CMS_REPO_PATH,
+            name='ffl-za',
+            index_prefix='unicore_cms_ffl_za')
+
+        self.assertEqual(workspace.S(Category).count(), 1)
+        self.assertEqual(workspace.S(Page).count(), 1)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 1)
 
         cat = Category({
             'title': 'Some title',
@@ -279,9 +292,12 @@ class ProjectTestCase(UnicoremcTestCase):
 
         workspace.refresh_index()
 
-        self.assertEqual(workspace.S(Category).count(), 1)
-        self.assertEqual(workspace.S(Page).count(), 1)
-        self.assertEqual(workspace.S(EGLocalisation).count(), 1)
+        self.assertEqual(workspace.S(Category).count(), 2)
+        self.assertEqual(workspace.S(Page).count(), 2)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 2)
+
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_nginx_config(self):

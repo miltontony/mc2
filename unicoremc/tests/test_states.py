@@ -4,6 +4,7 @@ import responses
 import shutil
 
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
@@ -12,9 +13,11 @@ from unicoremc.tests.base import UnicoremcTestCase
 
 @pytest.mark.django_db
 class StatesTestCase(UnicoremcTestCase):
+    fixtures = ['test_users.json', 'test_social_auth.json']
 
     def setUp(self):
         self.mk_test_repos()
+        self.user = User.objects.get(username='testuser')
 
     def test_initial_state(self):
         p = Project(
