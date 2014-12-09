@@ -173,23 +173,14 @@ class StatesTestCase(UnicoremcTestCase):
         pw.run_all(access_token='sample-token')
 
         self.assertEquals(p.state, 'done')
-        pw.take_action('destroy')
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
-            'ffl.production.za.ini')
+            'ffl_za.ini')
 
         cms_settings_path = os.path.join(
             settings.CMS_SETTINGS_OUTPUT_PATH,
             'ffl_za.py')
-
-        frontend_supervisor_config_path = os.path.join(
-            settings.SUPERVISOR_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
-
-        cms_supervisor_config_path = os.path.join(
-            settings.SUPERVISOR_CONFIGS_PATH,
-            'cms_ffl_za.conf')
 
         frontend_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
@@ -199,8 +190,19 @@ class StatesTestCase(UnicoremcTestCase):
             settings.NGINX_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
-        self.assertFalse(os.path.exists(frontend_supervisor_config_path))
-        self.assertFalse(os.path.exists(cms_supervisor_config_path))
+        self.assertTrue(os.path.exists(frontend_nginx_config_path))
+        self.assertTrue(os.path.exists(cms_nginx_config_path))
+
+        self.assertTrue(os.path.exists(p.repo_path()))
+        self.assertTrue(os.path.exists(p.frontend_repo_path()))
+
+        self.assertTrue(os.path.exists(frontend_settings_path))
+        self.assertTrue(os.path.exists(cms_settings_path))
+
+        self.assertTrue(os.path.exists(cms_db_path))
+
+        pw.take_action('destroy')
+
         self.assertFalse(os.path.exists(frontend_nginx_config_path))
         self.assertFalse(os.path.exists(cms_nginx_config_path))
 
