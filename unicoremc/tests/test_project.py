@@ -6,6 +6,7 @@ import shutil
 from unittest import skip
 
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from git import Repo
 
@@ -20,9 +21,11 @@ from unicore.content.models import (
 
 @pytest.mark.django_db
 class ProjectTestCase(UnicoremcTestCase):
+    fixtures = ['test_users.json', 'test_social_auth.json']
 
     def setUp(self):
         self.mk_test_repos()
+        self.user = User.objects.get(username='testuser')
 
     @responses.activate
     def test_create_repo_state(self):

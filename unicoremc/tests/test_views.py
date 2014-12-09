@@ -9,9 +9,6 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
-from git import Repo
-from elasticgit.storage import StorageManager
-
 from unicoremc.models import Project, Localisation
 from unicoremc.manager import DbManager
 from unicore.content.models import (
@@ -29,27 +26,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.client = Client()
         self.client.login(username='testuser', password='test')
 
-        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
-        self.source_repo_sm = StorageManager(Repo.init(workdir))
-        self.source_repo_sm.create_storage()
-        self.source_repo_sm.write_config('user', {
-            'name': 'testuser',
-            'email': 'test@email.com',
-        })
-
-        workdir = os.path.join(settings.CMS_REPO_PATH, 'test-base-repo')
-        self.base_repo_sm = StorageManager(Repo.init(workdir))
-        self.base_repo_sm.create_storage()
-        self.base_repo_sm.write_config('user', {
-            'name': 'testuser',
-            'email': 'test@email.com',
-        })
-
-        self.base_repo_sm.store_data(
-            'sample.txt', 'This is a sample file!', 'Create sample file')
-
-        self.addCleanup(self.source_repo_sm.destroy_storage)
-        self.addCleanup(self.base_repo_sm.destroy_storage)
+        self.mk_test_repos()
 
     @responses.activate
     def test_create_new_project(self):
@@ -79,11 +56,14 @@ class ViewsTestCase(UnicoremcTestCase):
         project = Project.objects.all()[0]
         self.assertEqual(project.state, 'done')
 
-        workspace = self.mk_workspace()
-        workspace.setup('Test Kees', 'kees@example.org')
-        workspace.setup_mapping(Category)
-        workspace.setup_mapping(Page)
-        workspace.setup_mapping(EGLocalisation)
+        workspace = self.mk_workspace(
+            working_dir=settings.CMS_REPO_PATH,
+            name='ffl-za',
+            index_prefix='unicore_cms_ffl_za')
+
+        self.assertEqual(workspace.S(Category).count(), 1)
+        self.assertEqual(workspace.S(Page).count(), 1)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 1)
 
         cat = Category({
             'title': 'Some title',
@@ -106,9 +86,9 @@ class ViewsTestCase(UnicoremcTestCase):
 
         workspace.refresh_index()
 
-        self.assertEqual(workspace.S(Category).count(), 1)
-        self.assertEqual(workspace.S(Page).count(), 1)
-        self.assertEqual(workspace.S(EGLocalisation).count(), 1)
+        self.assertEqual(workspace.S(Category).count(), 2)
+        self.assertEqual(workspace.S(Page).count(), 2)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 2)
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))

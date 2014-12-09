@@ -4,7 +4,6 @@ import responses
 import shutil
 
 from django.test import TransactionTestCase
-from django.contrib.auth.models import User
 from django.conf import settings
 
 from git import Repo
@@ -25,10 +24,6 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
         return cm
 
     def mk_test_repos(self):
-        self.user = User.objects.create(
-            username='testuser',
-            email="test@email.com")
-
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')
         self.source_repo_sm = StorageManager(Repo.init(workdir))
         self.source_repo_sm.create_storage()
