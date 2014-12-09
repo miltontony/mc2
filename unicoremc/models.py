@@ -15,7 +15,6 @@ from unicoremc.manager import ConfigManager, SettingsManager, DbManager
 
 from git import Repo
 
-from elasticgit.workspace import Workspace
 from elasticgit.storage import StorageManager
 from elasticgit import EG
 
@@ -63,12 +62,14 @@ class Project(models.Model):
     GEM = 'gem'
     EBOLA = 'ebola'
     MAMA = 'mama'
+    MNM = 'mnm'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),
         (GEM, 'Girl Effect Mobile'),
         (EBOLA, 'Ebola Information'),
-        (MAMA, 'MAMA Baby Center')
+        (MAMA, 'MAMA Baby Center'),
+        (MNM, 'Malaria no More')
     )
 
     app_type = models.CharField(choices=APP_TYPES, max_length=10)
