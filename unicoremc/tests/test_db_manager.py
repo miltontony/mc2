@@ -15,7 +15,7 @@ class DbManagerTestCase(TestCase):
             [args] = call_args
             self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
-                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
+                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
                 os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
@@ -36,7 +36,7 @@ class DbManagerTestCase(TestCase):
             [args] = call_args
             self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
-                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
+                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
                 os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')

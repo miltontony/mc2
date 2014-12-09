@@ -36,7 +36,7 @@ class StatesTestCase(UnicoremcTestCase):
             [args] = call_args
             self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
-                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
+                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
                 os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
@@ -52,7 +52,7 @@ class StatesTestCase(UnicoremcTestCase):
 
             self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
-                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
+                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
                 os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
@@ -173,23 +173,18 @@ class StatesTestCase(UnicoremcTestCase):
         pw.run_all(access_token='sample-token')
 
         self.assertEquals(p.state, 'done')
-        pw.take_action('destroy')
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
-            'ffl.production.za.ini')
+            'ffl_za.ini')
 
         cms_settings_path = os.path.join(
             settings.CMS_SETTINGS_OUTPUT_PATH,
-            'ffl_za_settings.py')
+            'ffl_za.py')
 
-        frontend_supervisor_config_path = os.path.join(
-            settings.SUPERVISOR_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
-
-        cms_supervisor_config_path = os.path.join(
-            settings.SUPERVISOR_CONFIGS_PATH,
-            'cms_ffl_za.conf')
+        cms_uwsgi_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
 
         frontend_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
@@ -199,8 +194,20 @@ class StatesTestCase(UnicoremcTestCase):
             settings.NGINX_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
-        self.assertFalse(os.path.exists(frontend_supervisor_config_path))
-        self.assertFalse(os.path.exists(cms_supervisor_config_path))
+        self.assertTrue(os.path.exists(frontend_nginx_config_path))
+        self.assertTrue(os.path.exists(cms_nginx_config_path))
+
+        self.assertTrue(os.path.exists(p.repo_path()))
+        self.assertTrue(os.path.exists(p.frontend_repo_path()))
+
+        self.assertTrue(os.path.exists(frontend_settings_path))
+        self.assertTrue(os.path.exists(cms_settings_path))
+        self.assertTrue(os.path.exists(cms_uwsgi_path))
+
+        self.assertTrue(os.path.exists(cms_db_path))
+
+        pw.take_action('destroy')
+
         self.assertFalse(os.path.exists(frontend_nginx_config_path))
         self.assertFalse(os.path.exists(cms_nginx_config_path))
 
@@ -209,5 +216,6 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertFalse(os.path.exists(frontend_settings_path))
         self.assertFalse(os.path.exists(cms_settings_path))
+        self.assertFalse(os.path.exists(cms_uwsgi_path))
 
         self.assertFalse(os.path.exists(cms_db_path))

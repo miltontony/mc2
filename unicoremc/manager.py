@@ -124,6 +124,7 @@ class SettingsManager(object):
     def destroy(self, app_type, country):
         os.remove(self.get_frontend_settings_path(app_type, country))
         os.remove(self.get_cms_settings_path(app_type, country))
+        os.remove(self.get_cms_config_path(app_type, country))
 
     def write_frontend_settings(
             self, app_type, country, clone_url, available_languages,
@@ -203,11 +204,13 @@ class DbManager(object):
             'django_cms_%s_%s.db' % (app_type, country.lower())
         ))
 
+    def get_deploy_name(self, app_type, country):
+        return '%s_%s' % (app_type.lower(), country.lower(),)
+
     def create_db(self, app_type, country):
         env = {
-            'DJANGO_SETTINGS_MODULE': 'project.%s_%s_settings' % (
-                app_type, country.lower()
-            )
+            'DJANGO_SETTINGS_MODULE': 'project.%s' % self.get_deploy_name(
+                app_type, country)
         }
 
         args = [
@@ -221,9 +224,8 @@ class DbManager(object):
 
     def init_db(self, app_type, country):
         env = {
-            'DJANGO_SETTINGS_MODULE': 'project.%s_%s_settings' % (
-                app_type, country.lower()
-            )
+            'DJANGO_SETTINGS_MODULE': 'project.%s' % self.get_deploy_name(
+                app_type, country)
         }
 
         args = [
