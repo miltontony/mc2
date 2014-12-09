@@ -179,16 +179,20 @@ class Project(models.Model):
         repo.create_remote('upstream', self.base_repo_url)
 
     def merge_remote(self):
-        repo = Repo(self.repo_path())
-        ws = Workspace(repo, None, None)
-        ws.fast_forward(remote_name='upstream')
+        index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
+            'app_type': self.app_type,
+            'country': self.country.lower(),
+        }
+
+        workspace = self.setup_workspace(self.repo_path(), index_prefix)
+        workspace.fast_forward(remote_name='upstream')
 
     def push_repo(self):
         repo = Repo(self.repo_path())
         origin = repo.remote(name='origin')
         origin.push()
 
-    def sync_repo_index(self, repo_path, index_prefix):
+    def setup_workspace(self, repo_path, index_prefix):
         workspace = EG.workspace(repo_path, index_prefix=index_prefix)
 
         branch = workspace.sm.repo.active_branch
@@ -204,10 +208,7 @@ class Project(models.Model):
         workspace.setup_custom_mapping(Page, mappings.PageMapping)
         workspace.setup_custom_mapping(EGLocalisation,
                                        mappings.LocalisationMapping)
-
-        workspace.sync(Category)
-        workspace.sync(Page)
-        workspace.sync(EGLocalisation)
+        return workspace
 
     def sync_cms_index(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
@@ -215,7 +216,10 @@ class Project(models.Model):
             'country': self.country.lower(),
         }
 
-        self.sync_repo_index(self.repo_path(), index_prefix)
+        workspace = EG.workspace(self.repo_path(), index_prefix=index_prefix)
+        workspace.sync(Category)
+        workspace.sync(Page)
+        workspace.sync(EGLocalisation)
 
     def sync_frontend_index(self):
         index_prefix = 'unicore_frontend_%(app_type)s_%(country)s' % {
@@ -223,7 +227,10 @@ class Project(models.Model):
             'country': self.country.lower(),
         }
 
-        self.sync_repo_index(self.frontend_repo_path(), index_prefix)
+        ws = self.setup_workspace(self.frontend_repo_path(), index_prefix)
+        ws.sync(Category)
+        ws.sync(Page)
+        ws.sync(EGLocalisation)
 
     def init_workspace(self):
         self.sync_cms_index()
