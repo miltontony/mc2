@@ -12,78 +12,38 @@ class ConfigManager(object):
         self.nginx_dir = settings.NGINX_CONFIGS_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
         self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
-        self.sockets_dir = settings.SOCKETS_PATH
+        self.frontend_sockets_dir = settings.FRONTEND_SOCKETS_PATH
+        self.cms_sockets_dir = settings.CMS_SOCKETS_PATH
 
-        if not os.path.exists(self.sockets_dir):
-            os.makedirs(self.sockets_dir)
-        if not os.path.exists(self.frontend_settings_dir):
-            os.makedirs(self.frontend_settings_dir)
-
-        if not os.path.exists(self.supervisor_dir):
-            os.makedirs(self.supervisor_dir)
-
-        if not os.path.exists(self.nginx_dir):
-            os.makedirs(self.nginx_dir)
-
-    def get_frontend_supervisor_path(self, app_type, country):
-        return os.path.join(
+        self.dirs = [
+            self.frontend_sockets_dir,
+            self.cms_sockets_dir,
+            self.frontend_settings_dir,
             self.supervisor_dir,
-            'frontend_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+            self.nginx_dir,
+        ]
+        for dir_ in self.dirs:
+            if not os.path.isdir(dir_):
+                os.makedirs(dir_)
 
-    def get_cms_supervisor_path(self, app_type, country):
-        return os.path.join(
-            self.supervisor_dir,
-            'cms_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
-        )
+    def get_deploy_name(self, app_type, country):
+        return '%s_%s' % (app_type.lower(), country.lower(),)
 
     def get_frontend_nginx_path(self, app_type, country):
         return os.path.join(
             self.nginx_dir,
-            'frontend_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
+            'frontend_%s.conf' % (self.get_deploy_name(app_type, country),)
         )
 
     def get_cms_nginx_path(self, app_type, country):
         return os.path.join(
             self.nginx_dir,
-            'cms_%(app_type)s_%(country)s.conf' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
+            'cms_%s.conf' % (self.get_deploy_name(app_type, country),)
         )
 
     def destroy(self, app_type, country):
         os.remove(self.get_frontend_nginx_path(app_type, country))
         os.remove(self.get_cms_nginx_path(app_type, country))
-
-    def write_frontend_supervisor(self, app_type, country, project_version):
-        frontend_supervisor_content = render_to_string(
-            'configs/frontend.supervisor.conf', {
-                'app_type': app_type,
-                'country': country.lower(),
-                'project_version': project_version,
-                'settings_path': os.path.join(
-                    self.frontend_settings_dir,
-                    '%s.production.%s.ini' % (app_type, country.lower())),
-                'socket_path': os.path.join(
-                    self.sockets_dir,
-                    '%s.%s.socket' % (app_type, country.lower()))
-            }
-        )
-
-        filepath = self.get_frontend_supervisor_path(app_type, country)
-
-        with open(filepath, 'w') as config_file:
-            config_file.write(frontend_supervisor_content)
 
     def write_frontend_nginx(self, app_type, country):
         frontend_nginx_content = render_to_string(
@@ -92,8 +52,8 @@ class ConfigManager(object):
                 'app_type': app_type,
                 'country': country.lower(),
                 'socket_path': os.path.join(
-                    self.sockets_dir,
-                    '%s.production.%s.socket' % (app_type, country.lower()))
+                    self.frontend_sockets_dir,
+                    '%s.socket' % (self.get_deploy_name(app_type, country),))
             }
         )
 
@@ -109,8 +69,8 @@ class ConfigManager(object):
                 'app_type': app_type,
                 'country': country.lower(),
                 'socket_path': os.path.join(
-                    self.sockets_dir,
-                    '%s_%s_settings.socket' % (app_type, country.lower()))
+                    self.cms_sockets_dir,
+                    '%s.socket' % (self.get_deploy_name(app_type, country),))
             }
         )
 
@@ -125,28 +85,31 @@ class SettingsManager(object):
         self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
         self.cms_settings_dir = settings.CMS_SETTINGS_OUTPUT_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
-        self.sockets_dir = settings.SOCKETS_PATH
+        self.cms_sockets_dir = settings.CMS_SOCKETS_PATH
+        self.frontend_sockets_dir = settings.FRONTEND_SOCKETS_PATH
 
-        if not os.path.exists(self.sockets_dir):
-            os.makedirs(self.sockets_dir)
+        self.dirs = [
+            self.frontend_settings_dir,
+            self.cms_settings_dir,
+            self.cms_sockets_dir,
+            self.frontend_sockets_dir,
+        ]
 
-        if not os.path.exists(self.frontend_settings_dir):
-            os.makedirs(self.frontend_settings_dir)
+        for dir_ in self.dirs:
+            if not os.path.isdir(dir_):
+                os.makedirs(dir_)
 
-        if not os.path.exists(self.cms_settings_dir):
-            os.makedirs(self.cms_settings_dir)
+    def get_deploy_name(self, app_type, country):
+        return '%s_%s' % (app_type.lower(), country.lower(),)
 
     def get_frontend_settings_path(self, app_type, country):
         return os.path.join(
             self.frontend_settings_dir,
-            '%(app_type)s.production.%(country)s.ini' % {
-                'app_type': app_type,
-                'country': country.lower(),
-            }
+            '%s.ini' % (self.get_deploy_name(app_type, country),)
         )
 
     def get_cms_settings_module(self, app_type, country):
-        return '%(app_type)s_%(country)s_settings' % {
+        return 'cms_settings_%(app_type)s_%(country)s' % {
             'app_type': app_type,
             'country': country.lower(),
         }
@@ -187,14 +150,14 @@ class SettingsManager(object):
                 'git_repo_uri': clone_url,
                 'raven_dsn_uri': raven_dsn,
                 'socket_path': os.path.join(
-                    self.sockets_dir,
-                    '%s.%s.socket' % (app_type, country.lower())),
+                    self.frontend_sockets_dir,
+                    '%s.socket' % (self.get_deploy_name(
+                        app_type, country.lower()),)),
                 'repo_path': repo_path
             }
         )
 
         filepath = self.get_frontend_settings_path(app_type, country)
-
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_settings_content)
 

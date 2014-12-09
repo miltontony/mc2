@@ -260,7 +260,8 @@ NGINX_CONFIGS_PATH = abspath('configs', 'nginx')
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
 CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
 
-SOCKETS_PATH = abspath('configs', 'sockets')
+FRONTEND_SOCKETS_PATH = abspath('configs', 'frontend_sockets')
+CMS_SOCKETS_PATH = abspath('configs', 'cms_sockets')
 
 UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
 UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'

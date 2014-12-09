@@ -17,11 +17,15 @@ CELERY_ALWAYS_EAGER = True
 UNICORE_CMS_INSTALL_DIR = abspath('.test_config_dir', 'unicore-cms-django')
 UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
 
-FRONTEND_REPO_PATH = abspath('.test_repo_dir', 'frontend')
-CMS_REPO_PATH = abspath('.test_repo_dir', 'cms')
+REPO_WORKSPACE = '.test_repo_dir'
+FRONTEND_REPO_PATH = abspath(REPO_WORKSPACE, 'frontend')
+CMS_REPO_PATH = abspath(REPO_WORKSPACE, 'cms')
 
-SUPERVISOR_CONFIGS_PATH = abspath('.test_config_dir', 'supervisor')
-NGINX_CONFIGS_PATH = abspath('.test_config_dir', 'nginx')
-FRONTEND_SETTINGS_OUTPUT_PATH = abspath('.test_config_dir', 'frontend_settings')
-CMS_SETTINGS_OUTPUT_PATH = abspath('.test_config_dir', 'cms_settings')
-SOCKETS_PATH = abspath('.test_config_dir', 'sockets')
+CONFIG_WORKSPACE = '.test_config_dir'
+SUPERVISOR_CONFIGS_PATH = abspath(CONFIG_WORKSPACE, 'supervisor')
+NGINX_CONFIGS_PATH = abspath(CONFIG_WORKSPACE, 'nginx')
+FRONTEND_SETTINGS_OUTPUT_PATH = abspath(
+    CONFIG_WORKSPACE, 'frontend_settings')
+CMS_SETTINGS_OUTPUT_PATH = abspath(CONFIG_WORKSPACE, 'cms_settings')
+FRONTEND_SOCKETS_PATH = abspath(CONFIG_WORKSPACE, 'frontend_sockets')
+CMS_SOCKETS_PATH = abspath(CONFIG_WORKSPACE, 'cms_sockets')
