@@ -88,7 +88,7 @@ def projects_progress(request, *args, **kwargs):
             'base_repo': p.base_repo_url,
             'state': ProjectWorkflow(instance=p).get_state(),
             'country': p.get_country_display(),
-            'repo_url': p.repo_url,
+            'repo_url': p.repo_url or '',
             'frontend_url': p.frontend_url(),
             'cms_url': p.cms_url(),
             'id': p.pk
