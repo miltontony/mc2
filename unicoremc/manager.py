@@ -191,7 +191,6 @@ class SettingsManager(object):
             })
 
         filepath = self.get_cms_config_path(app_type, country)
-        print filepath
         with open(filepath, 'w') as config_file:
             config_file.write(cms_config_content)
 
