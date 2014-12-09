@@ -182,6 +182,10 @@ class StatesTestCase(UnicoremcTestCase):
             settings.CMS_SETTINGS_OUTPUT_PATH,
             'ffl_za.py')
 
+        cms_uwsgi_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+
         frontend_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
             'frontend_ffl_za.conf')
@@ -198,6 +202,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertTrue(os.path.exists(frontend_settings_path))
         self.assertTrue(os.path.exists(cms_settings_path))
+        self.assertTrue(os.path.exists(cms_uwsgi_path))
 
         self.assertTrue(os.path.exists(cms_db_path))
 
@@ -211,5 +216,6 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertFalse(os.path.exists(frontend_settings_path))
         self.assertFalse(os.path.exists(cms_settings_path))
+        self.assertFalse(os.path.exists(cms_uwsgi_path))
 
         self.assertFalse(os.path.exists(cms_db_path))

@@ -124,6 +124,7 @@ class SettingsManager(object):
     def destroy(self, app_type, country):
         os.remove(self.get_frontend_settings_path(app_type, country))
         os.remove(self.get_cms_settings_path(app_type, country))
+        os.remove(self.get_cms_config_path(app_type, country))
 
     def write_frontend_settings(
             self, app_type, country, clone_url, available_languages,
