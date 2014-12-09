@@ -109,10 +109,7 @@ class SettingsManager(object):
         )
 
     def get_cms_settings_module(self, app_type, country):
-        return 'cms_settings_%(app_type)s_%(country)s' % {
-            'app_type': app_type,
-            'country': country.lower(),
-        }
+        return '%s_settings' % (self.get_deploy_name(app_type, country),)
 
     def get_cms_settings_path(self, app_type, country):
         return os.path.join(
@@ -121,6 +118,7 @@ class SettingsManager(object):
         )
 
     def get_cms_config_path(self, app_type, country):
+        # NOTE: this needs to match the socket name
         return os.path.join(
             self.cms_settings_dir,
             '%s.ini' % (self.get_cms_settings_module(app_type, country),)
