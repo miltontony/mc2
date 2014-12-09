@@ -36,7 +36,7 @@ class StatesTestCase(UnicoremcTestCase):
             [args] = call_args
             self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
-                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
+                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
                 os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
@@ -52,7 +52,7 @@ class StatesTestCase(UnicoremcTestCase):
 
             self.assertEqual(cwd, settings.UNICORE_CMS_INSTALL_DIR)
             self.assertEqual(
-                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za_settings'})
+                env, {'DJANGO_SETTINGS_MODULE': 'project.ffl_za'})
             self.assertTrue('/path/to/bin/python' in args)
             self.assertTrue(
                 os.path.join(settings.UNICORE_CMS_INSTALL_DIR, 'manage.py')
@@ -181,7 +181,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         cms_settings_path = os.path.join(
             settings.CMS_SETTINGS_OUTPUT_PATH,
-            'ffl_za_settings.py')
+            'ffl_za.py')
 
         frontend_supervisor_config_path = os.path.join(
             settings.SUPERVISOR_CONFIGS_PATH,
