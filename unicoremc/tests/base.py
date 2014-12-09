@@ -1,6 +1,7 @@
 import os
 import json
 import responses
+import shutil
 
 from django.test import TransactionTestCase
 from django.contrib.auth.models import User
@@ -11,8 +12,15 @@ from git import Repo
 from elasticgit.tests.base import ModelBaseTest
 from elasticgit.storage import StorageManager
 
+from unicoremc.manager import ConfigManager
+
 
 class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
+
+    def get_config_manager(self):
+        cm = ConfigManager()
+        self.addCleanup(lambda: [shutil.rmtree(dir_) for dir_ in cm.dirs])
+        return cm
 
     def mk_test_repos(self):
         self.user = User.objects.create(

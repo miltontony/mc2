@@ -361,7 +361,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
-            'ffl.production.za.ini')
+            'ffl_za.ini')
 
         self.assertTrue(os.path.exists(frontend_settings_path))
 
