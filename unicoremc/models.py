@@ -63,16 +63,18 @@ class Project(models.Model):
     EBOLA = 'ebola'
     MAMA = 'mama'
     MNM = 'mnm'
+    STRAIGHT_TALK = 'straight-talk'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),
         (GEM, 'Girl Effect Mobile'),
         (EBOLA, 'Ebola Information'),
         (MAMA, 'MAMA Baby Center'),
-        (MNM, 'Malaria no More')
+        (MNM, 'Malaria no More'),
+        (STRAIGHT_TALK, 'Straight Talk')
     )
 
-    app_type = models.CharField(choices=APP_TYPES, max_length=10)
+    app_type = models.CharField(choices=APP_TYPES, max_length=256)
     base_repo_url = models.URLField()
     country = models.CharField(choices=constants.COUNTRY_CHOICES, max_length=2)
     state = models.CharField(max_length=50, default='initial')
