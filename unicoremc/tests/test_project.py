@@ -389,6 +389,7 @@ class ProjectTestCase(UnicoremcTestCase):
             "[(u'eng_UK', u'English')]" in data)
         self.assertTrue(self.source_repo_sm.repo.working_dir in data)
         self.assertTrue(self.source_repo_sm.repo.git_dir in data)
+        self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
         self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
