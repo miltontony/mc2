@@ -64,6 +64,9 @@ class Project(models.Model):
     MAMA = 'mama'
     MNM = 'mnm'
     STRAIGHT_TALK = 'straighttalk'
+    BAREFOOT_LAW = 'barefootlaw'
+    U_REPORT = 'ureport'
+    MARIE_STOPES = 'mariestopes'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),
@@ -71,7 +74,10 @@ class Project(models.Model):
         (EBOLA, 'Ebola Information'),
         (MAMA, 'MAMA Baby Center'),
         (MNM, 'Malaria no More'),
-        (STRAIGHT_TALK, 'Straight Talk')
+        (STRAIGHT_TALK, 'Straight Talk'),
+        (BAREFOOT_LAW, 'Barefoot Law'),
+        (U_REPORT, 'U-Report'),
+        (MARIE_STOPES, 'Marie Stopes'),
     )
 
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
