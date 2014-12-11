@@ -122,13 +122,15 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertContains(resp, 'Swahili')
 
         self.assertEqual(project.available_languages.count(), 0)
+        self.assertIsNone(project.default_language)
 
         resp = self.client.post(
-            reverse('advanced', args=[project.id]),
-            {'available_languages': [1, 2]})
-
+            reverse('advanced', args=[project.id]), {
+                'available_languages': [1, 2],
+                'default_language': [Localisation._for('swa_TZ').pk]})
         project = Project.objects.get(pk=project.id)
         self.assertEqual(project.available_languages.count(), 2)
+        self.assertEqual(project.default_language.get_code(), 'swa_TZ')
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -140,6 +142,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertTrue(
             "[(u'eng_UK', u'English'), "
             "(u'swa_TZ', u'Swahili')]" in data)
+        self.assertTrue('pyramid.default_locale_name = swa_TZ' in data)
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))

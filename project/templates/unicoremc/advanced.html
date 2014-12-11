@@ -15,9 +15,13 @@
         <legend>Advanced</legend>
         <h4>{{project.get_app_type_display}} - {{project.get_country_display}}</h4>
 
-        <div class="available-languages">
+        <div class="no-bullets">
             <strong>Available Languages</strong>
         {{form.available_languages}}
+        </div>
+        <div class="no-bullets">
+            <strong>Default Language</strong>
+        {{form.default_language}}
         </div>
         {% csrf_token %}
 
