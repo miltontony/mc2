@@ -91,6 +91,9 @@ class Project(models.Model):
     project_version = models.PositiveIntegerField(default=0)
     available_languages = models.ManyToManyField(
         Localisation, blank=True, null=True)
+    default_language = models.ForeignKey(
+        Localisation, blank=True, null=True,
+        related_name='default_language')
 
     class Meta:
         ordering = ('app_type', 'country')
