@@ -63,7 +63,7 @@ class Project(models.Model):
     EBOLA = 'ebola'
     MAMA = 'mama'
     MNM = 'mnm'
-    STRAIGHT_TALK = 'straight-talk'
+    STRAIGHT_TALK = 'straighttalk'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),

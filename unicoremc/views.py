@@ -24,6 +24,7 @@ def new_project_view(request, *args, **kwargs):
     context = {
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
+        'app_types': Project.APP_TYPES,
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)

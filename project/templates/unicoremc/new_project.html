@@ -18,12 +18,9 @@
             <div class="col-sm-10">
             <select class="form-control" id="unicore_app">
                 <option value="">---------</option>
-                <option value="ffl">Facts for Life</option>
-                <option value="gem">GEM</option>
-                <option value="mama">MAMA</option>
-                <option value="ebola">Ebola Information</option>
-                <option value="mnm">Malaria No More</option>
-                <option value="straight-talk">Straight Talk</option>
+                {% for app_code,app_name in app_types %}
+                    <option value="{{app_code}}">{{app_name}}</option>
+                {% endfor %}
             </select>
             <span class="help-block">Type of app to create.</span>
             </div>
