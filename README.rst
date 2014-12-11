@@ -10,7 +10,7 @@ To install using a terminal::
     $ virtualenv ve
     $ source ve/bin/activate
     (ve)$ pip install -e .
-    $ ./manage.py syncd --migrate --noinput
+    $ ./manage.py syncdb --migrate --noinput
 
 Running
 -------
