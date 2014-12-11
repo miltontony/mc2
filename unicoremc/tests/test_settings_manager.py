@@ -11,12 +11,12 @@ from unicoremc.models import Localisation
 class SettingsManagerTestCase(TestCase):
 
     def test_write_frontend_settings(self):
-        english = Localisation._for('eng_UK')
+        english = Localisation._for('eng_GB')
         afrikaans = Localisation._for('swa_TZ')
         cm = SettingsManager()
         cm.write_frontend_settings(
             'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-            '/path/to/repo/ffl_za/')
+            '/path/to/repo/ffl_za/', english)
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -35,12 +35,13 @@ class SettingsManagerTestCase(TestCase):
 
         self.assertTrue('egg:unicore-cms-ffl' in data)
         self.assertTrue(
-            "[(u'eng_UK', u'English')"
+            "[(u'eng_GB', u'English')"
             ", (u'swa_TZ', u'Swahili')]" in data)
         self.assertTrue('/ffl_za/' in data)
         self.assertTrue('es.index_prefix = unicore_frontend_ffl_za' in data)
         self.assertTrue('git://some.repo.com/.git' in data)
         self.assertTrue(socket_path in data)
+        self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
 
     def test_write_cms_settings(self):
         cm = SettingsManager()

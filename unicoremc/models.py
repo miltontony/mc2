@@ -91,6 +91,9 @@ class Project(models.Model):
     project_version = models.PositiveIntegerField(default=0)
     available_languages = models.ManyToManyField(
         Localisation, blank=True, null=True)
+    default_language = models.ForeignKey(
+        Localisation, blank=True, null=True,
+        related_name='default_language')
 
     class Meta:
         ordering = ('app_type', 'country')
@@ -258,7 +261,8 @@ class Project(models.Model):
             self.country,
             self.repo_git_url,
             self.available_languages.all(),
-            self.frontend_repo_path()
+            self.frontend_repo_path(),
+            self.default_language or Localisation._for('eng_GB')
         )
 
     def create_cms_settings(self):
