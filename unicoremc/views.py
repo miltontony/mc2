@@ -16,6 +16,21 @@ from unicoremc import constants
 from unicoremc import tasks
 
 
+import requests
+
+
+def get_all_repos():
+    url = ('https://api.github.com/orgs/universalcore/'
+           'repos?type=public&per_page=100&page=%s')
+
+    repos = []
+    while True:
+        response = requests.get(url % 1)
+        data = response.json()
+        repos.append(data)
+        # if data is empty then break
+
+
 @login_required
 @permission_required('project.can_change')
 def new_project_view(request, *args, **kwargs):
@@ -26,6 +41,7 @@ def new_project_view(request, *args, **kwargs):
         'languages': Localisation.objects.all(),
         'app_types': Project.APP_TYPES,
         'access_token': access_token,
+        'git_repos': get_all_repos()
     }
     return render(request, 'unicoremc/new_project.html', context)
 

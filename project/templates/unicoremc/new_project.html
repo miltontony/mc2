@@ -70,21 +70,20 @@ if (typeof String.prototype.startsWith != 'function') {
   };
 }
 
+var repos = {{git_repos}};
+
 (function($) {
     function load_content_repos(app_name){
         //javascript goes here
-        $.get('https://api.github.com/orgs/universalcore/repos?type=public&per_page=200')
-            .done(function(data){
-                var options = new Array();
-                options.push($('<option>').val('').text('---------'));
-                $.each(data, function(){
-                    if(this.name.startsWith('unicore-cms-content-' + app_name) ||
-                       this.name.startsWith('unicore-cms-content-blank')){
-                        options.push($('<option>').val(this.git_url).text(this.name));
-                    }
-                });
-                $('#base_repo').html(options).removeAttr('disabled').change();
-            });
+        var options = new Array();
+        options.push($('<option>').val('').text('---------'));
+        $.each(repos, function(){
+            if(this.name.startsWith('unicore-cms-content-' + app_name) ||
+               this.name.startsWith('unicore-cms-content-blank')){
+                options.push($('<option>').val(this.git_url).text(this.name));
+            }
+        });
+        $('#base_repo').html(options).removeAttr('disabled').change();
 
         $.get('https://api.github.com/orgs/universalcore/teams?access_token={{access_token}}')
             .done(function(data){
