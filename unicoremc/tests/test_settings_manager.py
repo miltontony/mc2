@@ -16,7 +16,7 @@ class SettingsManagerTestCase(TestCase):
         cm = SettingsManager()
         cm.write_frontend_settings(
             'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-            '/path/to/repo/ffl_za/', english)
+            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id')
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -42,6 +42,7 @@ class SettingsManagerTestCase(TestCase):
         self.assertTrue('git://some.repo.com/.git' in data)
         self.assertTrue(socket_path in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
+        self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
 
     def test_write_cms_settings(self):
         cm = SettingsManager()

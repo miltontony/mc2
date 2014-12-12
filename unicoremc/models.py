@@ -94,6 +94,7 @@ class Project(models.Model):
     default_language = models.ForeignKey(
         Localisation, blank=True, null=True,
         related_name='default_language')
+    ga_profile_id = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ('app_type', 'country')
@@ -262,7 +263,8 @@ class Project(models.Model):
             self.repo_git_url,
             self.available_languages.all(),
             self.frontend_repo_path(),
-            self.default_language or Localisation._for('eng_GB')
+            self.default_language or Localisation._for('eng_GB'),
+            self.ga_profile_id
         )
 
     def create_cms_settings(self):

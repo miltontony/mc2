@@ -359,7 +359,8 @@ class ProjectTestCase(UnicoremcTestCase):
             app_type='ffl',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
-            owner=self.user)
+            owner=self.user,
+            ga_profile_id='UA-some-profile-id')
         p.save()
         p.available_languages.add(*[Localisation._for('eng_UK')])
         p.save()
@@ -390,6 +391,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue(self.source_repo_sm.repo.working_dir in data)
         self.assertTrue(self.source_repo_sm.repo.git_dir in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
+        self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
         self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))

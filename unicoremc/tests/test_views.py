@@ -95,7 +95,8 @@ class ViewsTestCase(UnicoremcTestCase):
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))
 
-    def test_language_updates(self):
+    @responses.activate
+    def test_advanced_page(self):
         self.client.login(username='testuser2', password='test')
 
         self.mock_create_repo()
@@ -113,8 +114,23 @@ class ViewsTestCase(UnicoremcTestCase):
             'team_id': 1
         }
 
-        self.client.post(reverse('start_new_project'), data)
+        with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
+            mock_subprocess.return_value = None
+            self.client.post(reverse('start_new_project'), data)
+
         project = Project.objects.all()[0]
+
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+
+        self.assertTrue(os.path.exists(frontend_settings_path))
+        with open(frontend_settings_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue("available_languages = []" in data)
+        self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
+        self.assertFalse('ga.profile_id' in data)
 
         resp = self.client.get(reverse('advanced', args=[project.id]))
 
@@ -127,7 +143,8 @@ class ViewsTestCase(UnicoremcTestCase):
         resp = self.client.post(
             reverse('advanced', args=[project.id]), {
                 'available_languages': [1, 2],
-                'default_language': [Localisation._for('swa_TZ').pk]})
+                'default_language': [Localisation._for('swa_TZ').pk],
+                'ga_profile_id': 'UA-some-profile-id'})
         project = Project.objects.get(pk=project.id)
         self.assertEqual(project.available_languages.count(), 2)
         self.assertEqual(project.default_language.get_code(), 'swa_TZ')
@@ -143,6 +160,12 @@ class ViewsTestCase(UnicoremcTestCase):
             "[(u'eng_UK', u'English'), "
             "(u'swa_TZ', u'Swahili')]" in data)
         self.assertTrue('pyramid.default_locale_name = swa_TZ' in data)
+        self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
+
+        self.addCleanup(lambda: shutil.rmtree(
+            os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
+        self.addCleanup(lambda: shutil.rmtree(
+            os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))
