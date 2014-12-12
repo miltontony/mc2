@@ -263,7 +263,8 @@ class Project(models.Model):
             self.repo_git_url,
             self.available_languages.all(),
             self.frontend_repo_path(),
-            self.default_language or Localisation._for('eng_GB')
+            self.default_language or Localisation._for('eng_GB'),
+            self.ga_profile_id
         )
 
     def create_cms_settings(self):
