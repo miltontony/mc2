@@ -16,6 +16,25 @@ from unicoremc import constants
 from unicoremc import tasks
 
 
+import requests
+
+
+def get_all_repos(request):
+    url = ('https://api.github.com/orgs/universalcore/'
+           'repos?type=public&per_page=100&page=%s')
+    pageNum = 1
+    repos = []
+    while True:
+        response = requests.get(url % pageNum)
+        data = response.json()
+        if not data:
+            break
+        repos.extend(data)
+        pageNum += 1
+
+    return HttpResponse(json.dumps(repos))
+
+
 @login_required
 @permission_required('project.can_change')
 def new_project_view(request, *args, **kwargs):

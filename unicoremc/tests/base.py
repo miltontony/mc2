@@ -93,6 +93,26 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
+    def mock_list_repos(self):
+        default_response = [{
+            'clone_url': '',
+            'git_url': '',
+        }]
+        responses.add(
+            responses.GET, settings.GITHUB_API +
+            'repos?type=public&per_page=100&page=1',
+            body=json.dumps(default_response),
+            content_type="application/json",
+            status=200,
+            match_querystring=True)
+        responses.add(
+            responses.GET, settings.GITHUB_API +
+            'repos?type=public&per_page=100&page=2',
+            body=json.dumps([]),
+            content_type="application/json",
+            status=200,
+            match_querystring=True)
+
     def mock_create_webhook(
             self, status=201, repo='unicore-cms-content-ffl-za'):
         responses.add(
