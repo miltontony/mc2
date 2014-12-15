@@ -42,4 +42,9 @@ urlpatterns = patterns(
         'django.contrib.auth.views.logout_then_login',
         name='logout'
     ),
+    url(
+        r'^repos/$',
+        'unicoremc.views.get_all_repos',
+        name='get_all_repos'
+    ),
 )

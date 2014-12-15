@@ -194,3 +194,10 @@ class ViewsTestCase(UnicoremcTestCase):
 
         resp = self.client.get(reverse('advanced', args=[1]))
         self.assertEqual(resp.status_code, 302)
+
+    @responses.activate
+    def test_no_repos(self):
+        self.client.login(username='testuser2', password='test')
+        self.mock_list_repos()
+
+        resp = self.client.get(reverse('get_all_repos'))
