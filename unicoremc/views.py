@@ -32,7 +32,7 @@ def get_all_repos(request):
         repos.extend(data)
         pageNum += 1
 
-    return HttpResponse(json.dumps(repos), mimetype='application/json')
+    return HttpResponse(json.dumps(repos), content_type='application/json')
 
 
 @login_required
@@ -96,7 +96,7 @@ def start_new_project(request, *args, **kwargs):
             tasks.start_new_project.delay(project.id, access_token)
 
     return HttpResponse(json.dumps({'success': True}),
-                        mimetype='application/json')
+                        content_type='application/json')
 
 
 @login_required
