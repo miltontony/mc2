@@ -32,7 +32,7 @@ def get_all_repos(request):
         repos.extend(data)
         pageNum += 1
 
-    return HttpResponse(json.dumps(repos))
+    return HttpResponse(json.dumps(repos), mimetype='application/json')
 
 
 @login_required
