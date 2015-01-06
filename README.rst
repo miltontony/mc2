@@ -41,19 +41,19 @@ be done using the ``-subdomain`` command line argument::
     $ ngrok -subdomain mytestingtunnel 8000
 
 Next you need to generate a pair of secret keys for OAuth in your GitHub
-account. You can do this at https://github.com/settings/applications/new::
+account. You can do this at https://github.com/settings/applications/new:
 
 .. image:: http://note.io/1s0ZMdb
     :align: center
 
 Once saved, GitHub will have generate the unique keys you will need to
-complete the OAuth setup::
+complete the OAuth setup:
 
 .. image:: http://note.io/1Aq99U8
     :align: center
 
 Next create a ``local_settings.py`` file in the ``project`` directory
-with the following::
+with the following:
 
 .. code-block:: python
 
