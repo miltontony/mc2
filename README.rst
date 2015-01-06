@@ -46,7 +46,7 @@ account. You can do this at https://github.com/settings/applications/new:
 .. image:: http://note.io/1s0ZMdb
     :align: center
 
-Once saved, GitHub will have generate the unique keys you will need to
+Once saved, GitHub will have generated the unique keys you will need to
 complete the OAuth setup:
 
 .. image:: http://note.io/1Aq99U8
