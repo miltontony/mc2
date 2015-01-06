@@ -15,15 +15,18 @@
         <legend>{{project.get_app_type_display}} - {{project.get_country_display}}</legend>
 
         <div class="no-bullets">
+            {{form.available_languages.errors}}
             <strong>Available Languages</strong>
             {{form.available_languages}}
         </div>
         <div class="no-bullets">
+            {{form.default_language.errors}}
             <strong>Default Language</strong>
             {{form.default_language}}
         </div>
         <div>
             <strong>GA Profile ID</strong>
+            {{form.ga_profile_id.errors}}
             <div>{{form.ga_profile_id}}</div>
         </div>
 
