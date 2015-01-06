@@ -4,14 +4,16 @@ from django.forms import widgets
 
 
 class ProjectForm(forms.ModelForm):
-    ga_profile_id = forms.CharField()
+    ga_profile_id = forms.CharField(required=False)
     default_language = forms.ModelChoiceField(
         queryset=Localisation.objects.all(),
-        empty_label=None,
-        widget=widgets.RadioSelect())
+        empty_label="Unspecified",
+        widget=widgets.RadioSelect(),
+        required=False)
     available_languages = forms.ModelMultipleChoiceField(
         queryset=Localisation.objects.all(),
-        widget=widgets.CheckboxSelectMultiple)
+        widget=widgets.CheckboxSelectMultiple,
+        required=False)
 
     class Meta:
         model = Project
