@@ -13,15 +13,40 @@
     <div>
     <form class="form-horizontal" role="form" method="POST">
         <legend>{{project.get_app_type_display}} - {{project.get_country_display}}</legend>
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors|join:", " }}
+            </div>
+        {% endif %}
 
+        {% if form.available_languages.errors %}
+            <div class="alert alert-error">
+                <strong>{{form.available_languages.label}}</strong>
+                {{form.available_languages.errors|join:", " }}
+            </div>
+        {% endif %}
         <div class="no-bullets">
             <strong>Available Languages</strong>
             {{form.available_languages}}
         </div>
+
+        {% if form.default_language.errors %}
+            <div class="alert alert-error">
+                <strong>{{form.default_language.label}}</strong>
+                {{form.default_language.errors|join:", " }}
+            </div>
+        {% endif %}
         <div class="no-bullets">
             <strong>Default Language</strong>
             {{form.default_language}}
         </div>
+
+        {% if form.ga_profile_id.errors %}
+            <div class="alert alert-error">
+                <strong>{{form.ga_profile_id.label}}</strong>
+                {{form.ga_profile_id.errors|join:", " }}
+            </div>
+        {% endif %}
         <div>
             <strong>GA Profile ID</strong>
             <div>{{form.ga_profile_id}}</div>

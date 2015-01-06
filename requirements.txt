@@ -17,3 +17,4 @@ Django-ostinato
 elastic-git
 unicore-cms
 uwsgi==2.0.8
+django-celery-email==1.0.4
