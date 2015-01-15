@@ -111,6 +111,8 @@ def projects_progress(request, *args, **kwargs):
             'repo_url': p.repo_url or '',
             'frontend_url': p.frontend_url(),
             'cms_url': p.cms_url(),
+            'available_languages': [
+                l.get_code() for l in p.available_languages.all()],
             'id': p.pk
         } for p in projects]
     ))

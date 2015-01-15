@@ -17,22 +17,25 @@
             <thead>
                 <tr>
                     <th scope="col">
-                        <div class="grp-text">&nbsp;</div>
+                        <div class="grp-text">App Type</div>
                     </th>
                     <th scope="col">
-                        <div class="grp-text">&nbsp;</div>
+                        <div class="grp-text">Country</div>
                     </th>
                     <th scope="col">
-                        <div class="grp-text">&nbsp;</div>
+                        <div class="grp-text">Status</div>
                     </th>
                     <th scope="col">
                         <div class="grp-text">Content Store</div>
                     </th>
                     <th scope="col">
-                        <div class="grp-text">Frontend URL</div>
+                        <div class="grp-text">Frontend URL <br />*.hub.unicore.io</div>
                     </th>
                     <th scope="col">
-                        <div class="grp-text">CMS URL</div>
+                        <div class="grp-text">Languages</div>
+                    </th>
+                    <th scope="col">
+                        <div class="grp-text">CMS URL <br />*.hub.unicore.io</div>
                     </th>
                 </tr>
             </thead>
@@ -54,14 +57,20 @@ function reload_projects(){
             var projects = new Array();
             $.each(data, function(){
                 var repo_url = this.repo_url.replace(/^(https?):\/\/github.com\//, '');
-                var frontend_url = this.frontend_url.replace(/^(https?):\/\//, '');
-                var cms_url = this.cms_url.replace(/^(https?):\/\//, '');
+                var frontend_url = this.frontend_url.replace(/^(https?):\/\//, '').replace(/\.?(hub\.unicore\.io)/, '');
+                var cms_url = this.cms_url.replace(/^(https?):\/\//, '').replace(/\.?(hub\.unicore\.io)/, '');
+
+                var languages = new Array();
+                for (key in this.available_languages){
+                    languages.push(' <a href="' + this.frontend_url + '/locale/'+ this.available_languages[key] +'/" target="_blank">'+ this.available_languages[key] + '</a>');
+                }
 
                 var row = '<th>' + this.app_type +'</th>' +
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
-                          '<td><a target="_blank" href="'+ this.repo_url +'">'+ repo_url +'</a></td>' +
+                          '<td><a target="_blank" href="'+ this.repo_url +'">Github</a></td>' +
                           '<td><a target="_blank" href="'+ this.frontend_url +'">'+ frontend_url +'</a></td>' +
+                          '<td>'+ languages + '</td>' +
                           '<td><a target="_blank" href="'+ this.cms_url +'">'+ cms_url +'</a></td>' +
                           {% if user.is_superuser %}
                           '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a></td>' +
