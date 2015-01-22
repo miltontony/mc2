@@ -130,6 +130,9 @@ def manage_ga_view(request, *args, **kwargs):
 @csrf_exempt
 @login_required
 @permission_required('project.can_change')
+@user_passes_test(
+    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
+    login_url='/social/login/google-oauth2/')
 def manage_ga_new(request, *args, **kwargs):
     if request.method == 'POST':
 
