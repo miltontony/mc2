@@ -1,9 +1,15 @@
 import json
+import requests
+
+from apiclient import errors
 
 from django.db.models import F
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required, permission_required
+from django.http import (
+    HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
+    HttpResponseForbidden)
+from django.contrib.auth.decorators import (
+    login_required, permission_required, user_passes_test)
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import UpdateView
@@ -13,10 +19,7 @@ from unicoremc.models import Project, Localisation
 from unicoremc.forms import ProjectForm
 from unicoremc.states import ProjectWorkflow
 from unicoremc import constants
-from unicoremc import tasks
-
-
-import requests
+from unicoremc import tasks, utils
 
 
 def get_all_repos(request):
@@ -37,6 +40,9 @@ def get_all_repos(request):
 
 @login_required
 @permission_required('project.can_change')
+@user_passes_test(
+    lambda u: u.social_auth.filter(provider='github').exists(),
+    login_url='/social/login/github/')
 def new_project_view(request, *args, **kwargs):
     social = request.user.social_auth.get(provider='github')
     access_token = social.extra_data['access_token']
@@ -74,6 +80,9 @@ class ProjectEditView(UpdateView):
 @csrf_exempt
 @login_required
 @permission_required('project.can_change')
+@user_passes_test(
+    lambda u: u.social_auth.filter(provider='github').exists(),
+    login_url='/social/login/github/')
 def start_new_project(request, *args, **kwargs):
     if request.method == 'POST':
 
@@ -100,6 +109,61 @@ def start_new_project(request, *args, **kwargs):
 
 
 @login_required
+@permission_required('project.can_change')
+@user_passes_test(
+    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
+    login_url='/social/login/google-oauth2/')
+def manage_ga_view(request, *args, **kwargs):
+    social = request.user.social_auth.get(provider='google-oauth2')
+    access_token = social.extra_data['access_token']
+
+    context = {
+        'projects': Project.objects.filter(state='done'),
+        'access_token': access_token,
+        'accounts': [
+            {'id': a.get('id'), 'name': a.get('name')}
+            for a in utils.get_ga_accounts(access_token)],
+    }
+    return render(request, 'unicoremc/manage_ga.html', context)
+
+
+@csrf_exempt
+@login_required
+@permission_required('project.can_change')
+@user_passes_test(
+    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
+    login_url='/social/login/google-oauth2/')
+def manage_ga_new(request, *args, **kwargs):
+    if request.method == 'POST':
+
+        project_id = request.POST.get('project_id')
+        account_id = request.POST.get('account_id')
+        access_token = request.POST.get('access_token')
+        project = get_object_or_404(Project, pk=project_id)
+
+        if not project.ga_profile_id:
+            try:
+                name = u'%s %s' % (
+                    project.app_type.upper(), project.get_country_display())
+                new_profile_id = utils.create_ga_profile(
+                    access_token, account_id, project.frontend_url(), name)
+
+                project.ga_profile_id = new_profile_id
+                project.ga_account_id = account_id
+                project.save()
+
+                return HttpResponse(
+                    json.dumps({'ga_profile_id': new_profile_id}),
+                    content_type='application/json')
+            except errors.HttpError:
+                return HttpResponseServerError("Unable to create new profile")
+
+        return HttpResponseForbidden("Project already has a profile")
+
+    return HttpResponseBadRequest("You can only call this using a POST")
+
+
+@login_required
 def projects_progress(request, *args, **kwargs):
     projects = Project.objects.all()
     return HttpResponse(json.dumps(
@@ -111,6 +175,7 @@ def projects_progress(request, *args, **kwargs):
             'repo_url': p.repo_url or '',
             'frontend_url': p.frontend_url(),
             'cms_url': p.cms_url(),
+            'ga_profile_id': p.ga_profile_id,
             'available_languages': [
                 l.get_code() for l in p.available_languages.all()],
             'id': p.pk

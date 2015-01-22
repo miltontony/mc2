@@ -95,6 +95,7 @@ class Project(models.Model):
         Localisation, blank=True, null=True,
         related_name='default_language')
     ga_profile_id = models.TextField(blank=True, null=True)
+    ga_account_id = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ('app_type', 'country')

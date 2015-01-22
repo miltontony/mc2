@@ -14,6 +14,7 @@ from unicoremc.manager import DbManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 from unicoremc.tests.base import UnicoremcTestCase
+from unicoremc import utils
 
 from mock import patch
 
@@ -200,4 +201,54 @@ class ViewsTestCase(UnicoremcTestCase):
         self.client.login(username='testuser2', password='test')
         self.mock_list_repos()
 
-        resp = self.client.get(reverse('get_all_repos'))
+        self.client.get(reverse('get_all_repos'))
+
+    @patch('unicoremc.utils.create_ga_profile')
+    @patch('unicoremc.utils.get_ga_accounts')
+    def test_manage_ga(self, mock_get_ga_accounts, mock_create_ga_profile):
+        mock_get_ga_accounts.return_value = [
+            {'id': '1', 'name': 'Account 1'},
+            {'id': '2', 'name': 'GEM Test Account'},
+        ]
+        mock_create_ga_profile.return_value = "UA-some-new-profile-id"
+
+        p = Project.objects.create(
+            app_type='ffl',
+            base_repo_url='http://some-git-repo.com',
+            country='ZA',
+            owner=User.objects.get(pk=2),
+            state='done')
+        Project.objects.create(
+            app_type='gem',
+            base_repo_url='http://some-git-repo.com',
+            country='ZA',
+            owner=User.objects.get(pk=2))
+
+        self.client.login(username='testuser2', password='test')
+        resp = self.client.get(reverse('manage_ga'))
+        self.assertContains(resp, 'ffl')
+        self.assertNotContains(resp, 'gem')
+        self.assertContains(resp, 'Account 1')
+        self.assertContains(resp, 'GEM Test Account')
+
+        data = {
+            'account_id': 'some-account-id',
+            'project_id': p.id,
+            'access_token': 'some-access-token',
+        }
+        resp = self.client.post(reverse('manage_ga_new'), data)
+        self.assertEqual(resp['Content-Type'], 'application/json')
+        self.assertEqual(json.loads(resp.content), {
+            'ga_profile_id': 'UA-some-new-profile-id'
+        })
+        p = Project.objects.get(pk=p.id)
+        self.assertEqual(p.ga_profile_id, 'UA-some-new-profile-id')
+        self.assertEqual(p.ga_account_id, 'some-account-id')
+
+        resp = self.client.get(reverse('manage_ga_new'), data)
+        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.content, "You can only call this using a POST")
+
+        resp = self.client.post(reverse('manage_ga_new'), data)
+        self.assertEqual(resp.status_code, 403)
+        self.assertEqual(resp.content, "Project already has a profile")

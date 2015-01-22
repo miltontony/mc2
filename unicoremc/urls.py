@@ -23,6 +23,16 @@ urlpatterns = patterns(
         name='new_project'
     ),
     url(
+        r'^googleanalytics/$',
+        'unicoremc.views.manage_ga_view',
+        name='manage_ga'
+    ),
+    url(
+        r'^googleanalytics/new/$',
+        'unicoremc.views.manage_ga_new',
+        name='manage_ga_new'
+    ),
+    url(
         r'^new/create/$',
         'unicoremc.views.start_new_project',
         name='start_new_project'

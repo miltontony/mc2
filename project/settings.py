@@ -130,6 +130,7 @@ MIDDLEWARE_CLASSES = (
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'social.backends.github.GithubOAuth2',
+    'social.backends.google.GoogleOAuth2',
 )
 
 SOCIAL_AUTH_USER_MODEL = 'auth.User'
@@ -266,7 +267,29 @@ CMS_SOCKETS_PATH = abspath('configs', 'cms_sockets')
 UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
 UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
 
+SOCIAL_AUTH_SESSION_EXPIRATION = True
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/analytics.edit',
+    'https://www.googleapis.com/auth/analytics.provision']
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'access_type': 'offline',
+    'approval_prompt': 'auto'
+}
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'unicoremc.socialauth_pipelines.redirect_if_no_refresh_token',
+    'social.pipeline.user.get_username',
+    'social.pipeline.social_auth.associate_by_email',
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details'
+)
 
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
 GITHUB_HOOKS_API = 'https://api.github.com/repos/universalcore/%(repo)s/hooks'
