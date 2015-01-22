@@ -14,7 +14,7 @@ def get_ga_accounts(access_token):
     return resp.get('items', [])
 
 
-def create_ga_profile(access_token, account_id):
+def create_ga_profile(access_token, account_id, frontend_url, name):
     credentials = client.AccessTokenCredentials(
         access_token,
         'unicore-hub/1.0')
@@ -24,8 +24,8 @@ def create_ga_profile(access_token, account_id):
     resp = service.management().webproperties().insert(
         accountId='123456',
         body={
-            'websiteUrl': 'http://www.examplepetstore.com',
-            'name': 'Example Store'
+            'websiteUrl': frontend_url,
+            'name': name
         }
     ).execute()
     return resp.get("id")

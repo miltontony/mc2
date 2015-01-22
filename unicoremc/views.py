@@ -140,8 +140,10 @@ def manage_ga_new(request, *args, **kwargs):
 
         if not project.ga_profile_id:
             try:
+                name = u'%s %s' % (
+                    project.app_type.upper(), project.get_country_display())
                 new_profile_id = utils.create_ga_profile(
-                    access_token, account_id)
+                    access_token, account_id, project.frontend_url(), name)
 
                 project.ga_profile_id = new_profile_id
                 project.ga_account_id = account_id
