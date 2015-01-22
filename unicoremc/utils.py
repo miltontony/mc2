@@ -22,7 +22,7 @@ def create_ga_profile(access_token, account_id, frontend_url, name):
     service = discovery.build('analytics', 'v3', http=http)
 
     resp = service.management().webproperties().insert(
-        accountId='123456',
+        accountId=account_id,
         body={
             'websiteUrl': frontend_url,
             'name': name
