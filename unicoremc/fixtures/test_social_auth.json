@@ -18,5 +18,15 @@
             "user": 2,
             "provider": "github"
         }
+    },
+    {
+       "pk": 3,
+       "model": "default.usersocialauth",
+       "fields": {
+          "uid": "test2@test2.com",
+          "extra_data": "{\"access_token\": \"some-google-token\", \"expires\": 3600, \"refresh_token\": \"some-refresh-token\"}",
+          "user": 2,
+          "provider": "google-oauth2"
+       }
     }
 ]

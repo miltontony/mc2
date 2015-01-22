@@ -6,7 +6,8 @@ from apiclient import errors
 from django.db.models import F
 from django.shortcuts import render, get_object_or_404
 from django.http import (
-    HttpResponse, HttpResponseBadRequest, HttpResponseServerError)
+    HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
+    HttpResponseForbidden)
 from django.contrib.auth.decorators import (
     login_required, permission_required, user_passes_test)
 from django.contrib.auth.models import User
@@ -151,6 +152,8 @@ def manage_ga_new(request, *args, **kwargs):
                     content_type='application/json')
             except errors.HttpError:
                 return HttpResponseServerError("Unable to create new profile")
+
+        return HttpResponseForbidden("Project already has a profile")
 
     return HttpResponseBadRequest("You can only call this using a POST")
 
