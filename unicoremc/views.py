@@ -1,9 +1,7 @@
 import json
+import requests
 
-import httplib2
-
-from apiclient import discovery, errors
-from oauth2client import client
+from apiclient import errors
 
 from django.db.models import F
 from django.shortcuts import render, get_object_or_404
@@ -20,10 +18,7 @@ from unicoremc.models import Project, Localisation
 from unicoremc.forms import ProjectForm
 from unicoremc.states import ProjectWorkflow
 from unicoremc import constants
-from unicoremc import tasks
-
-
-import requests
+from unicoremc import tasks, utils
 
 
 def get_all_repos(request):
@@ -42,33 +37,6 @@ def get_all_repos(request):
     return HttpResponse(json.dumps(repos), content_type='application/json')
 
 
-def get_ga_accounts(access_token):
-    credentials = client.AccessTokenCredentials(
-        access_token,
-        'unicore-hub/1.0')
-    http = credentials.authorize(http=httplib2.Http())
-    service = discovery.build('analytics', 'v3', http=http)
-    resp = service.management().accounts().list().execute()
-    return resp.get('items', [])
-
-
-def create_ga_profile(access_token, account_id):
-    credentials = client.AccessTokenCredentials(
-        access_token,
-        'unicore-hub/1.0')
-    http = credentials.authorize(http=httplib2.Http())
-    service = discovery.build('analytics', 'v3', http=http)
-
-    resp = service.management().webproperties().insert(
-        accountId='123456',
-        body={
-            'websiteUrl': 'http://www.examplepetstore.com',
-            'name': 'Example Store'
-        }
-    ).execute()
-    return resp.get("id")
-
-
 @login_required
 @permission_required('project.can_change')
 @user_passes_test(
@@ -84,25 +52,6 @@ def new_project_view(request, *args, **kwargs):
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)
-
-
-@login_required
-@permission_required('project.can_change')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
-    login_url='/social/login/google-oauth2/')
-def manage_ga_view(request, *args, **kwargs):
-    social = request.user.social_auth.get(provider='google-oauth2')
-    access_token = social.extra_data['access_token']
-
-    context = {
-        'projects': Project.objects.filter(state='done'),
-        'access_token': access_token,
-        'accounts': [
-            {'id': a.get('id'), 'name': a.get('name')}
-            for a in get_ga_accounts(access_token)],
-    }
-    return render(request, 'unicoremc/manage_ga.html', context)
 
 
 class ProjectEditView(UpdateView):
@@ -158,6 +107,25 @@ def start_new_project(request, *args, **kwargs):
                         content_type='application/json')
 
 
+@login_required
+@permission_required('project.can_change')
+@user_passes_test(
+    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
+    login_url='/social/login/google-oauth2/')
+def manage_ga_view(request, *args, **kwargs):
+    social = request.user.social_auth.get(provider='google-oauth2')
+    access_token = social.extra_data['access_token']
+
+    context = {
+        'projects': Project.objects.filter(state='done'),
+        'access_token': access_token,
+        'accounts': [
+            {'id': a.get('id'), 'name': a.get('name')}
+            for a in utils.get_ga_accounts(access_token)],
+    }
+    return render(request, 'unicoremc/manage_ga.html', context)
+
+
 @csrf_exempt
 @login_required
 @permission_required('project.can_change')
@@ -171,8 +139,9 @@ def manage_ga_new(request, *args, **kwargs):
 
         if not project.ga_profile_id:
             try:
-                new_profile_id = create_ga_profile(access_token, account_id)
-                new_profile_id = 'new id'
+                new_profile_id = utils.create_ga_profile(
+                    access_token, account_id)
+
                 project.ga_profile_id = new_profile_id
                 project.ga_account_id = account_id
                 project.save()
