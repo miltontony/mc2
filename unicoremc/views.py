@@ -2,9 +2,10 @@ import json
 import requests
 
 from apiclient import errors
+from oauth2client.client import AccessTokenCredentialsError
 
 from django.db.models import F
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
     HttpResponseForbidden)
@@ -117,12 +118,16 @@ def manage_ga_view(request, *args, **kwargs):
     social = request.user.social_auth.get(provider='google-oauth2')
     access_token = social.extra_data['access_token']
 
+    try:
+        accounts = utils.get_ga_accounts(access_token)
+    except AccessTokenCredentialsError:
+        return redirect('/social/login/google-oauth2/')
+
     context = {
         'projects': Project.objects.filter(state='done'),
         'access_token': access_token,
         'accounts': [
-            {'id': a.get('id'), 'name': a.get('name')}
-            for a in utils.get_ga_accounts(access_token)],
+            {'id': a.get('id'), 'name': a.get('name')} for a in accounts],
     }
     return render(request, 'unicoremc/manage_ga.html', context)
 
