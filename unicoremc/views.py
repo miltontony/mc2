@@ -151,6 +151,7 @@ def manage_ga_new(request, *args, **kwargs):
                 project.ga_profile_id = new_profile_id
                 project.ga_account_id = account_id
                 project.save()
+                project.create_pyramid_settings()
 
                 return HttpResponse(
                     json.dumps({'ga_profile_id': new_profile_id}),
