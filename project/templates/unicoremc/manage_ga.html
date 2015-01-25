@@ -31,8 +31,8 @@
             <tbody>
             {% for p in projects %}
             <tr id="{{p.id}}">
-                <td>{{p.app_type}}</td>
-                <td>{{p.country}}</td>
+                <td>{{p.get_app_type_display}}</td>
+                <td>{{p.get_country_display}}</td>
                 {% if not p.ga_profile_id %}
                     <td class="account-selector control-group">
                     <select>
