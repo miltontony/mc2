@@ -226,8 +226,8 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.client.login(username='testuser2', password='test')
         resp = self.client.get(reverse('manage_ga'))
-        self.assertContains(resp, 'ffl')
-        self.assertNotContains(resp, 'gem')
+        self.assertContains(resp, 'Facts for Life')
+        self.assertNotContains(resp, 'Girl Effect Mobile')
         self.assertContains(resp, 'Account 1')
         self.assertContains(resp, 'GEM Test Account')
 
