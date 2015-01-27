@@ -67,6 +67,7 @@ class Project(models.Model):
     BAREFOOT_LAW = 'barefootlaw'
     U_REPORT = 'ureport'
     MARIE_STOPES = 'mariestopes'
+    FFL_ANGOLA = 'fflangola'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),
@@ -78,6 +79,7 @@ class Project(models.Model):
         (BAREFOOT_LAW, 'Barefoot Law'),
         (U_REPORT, 'U-Report'),
         (MARIE_STOPES, 'Marie Stopes'),
+        (FFL_ANGOLA, 'FFL Angola'),
     )
 
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
