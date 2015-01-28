@@ -2,7 +2,7 @@
 
 cp -a $REPO ./build/
 
-${PIP} install -r $REPO/requirements.txt
+${PIP} install -r $REPO/requirements.txt -U
 
 # ensure these dependencies are always updated in the sideloader workspace
 # ${PIP} uninstall elastic-git -y; ${PIP} install elastic-git
