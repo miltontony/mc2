@@ -9,14 +9,16 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
+from unicoremc.constants import LANGUAGES
 from unicoremc.models import Project, Localisation
 from unicoremc.manager import DbManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 from unicoremc.tests.base import UnicoremcTestCase
-from unicoremc import utils
 
 from mock import patch
+
+from pycountry import languages
 
 
 @pytest.mark.django_db
@@ -252,3 +254,8 @@ class ViewsTestCase(UnicoremcTestCase):
         resp = self.client.post(reverse('manage_ga_new'), data)
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.content, "Project already has a profile")
+
+    def test_all_language_codes(self):
+        for k, v in LANGUAGES.items():
+            lang = languages.get(bibliographic=k)
+            self.assertEqual(lang.bibliographic, k)
