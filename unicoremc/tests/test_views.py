@@ -19,7 +19,7 @@ from unicoremc.tests.base import UnicoremcTestCase
 from mock import patch
 
 from pycountry import languages
-from babel import Locale, UnknownLocaleError
+from icu import Locale
 
 
 @pytest.mark.django_db
@@ -260,11 +260,11 @@ class ViewsTestCase(UnicoremcTestCase):
         unsupported = {}
         for k, v in LANGUAGES.items():
             lang = languages.get(bibliographic=k)
-            try:
-                b = lang.terminology
-                Locale.parse(b)
-            except UnknownLocaleError:
-                unsupported.update({b: '%s(%s)' % (lang.name, k)})
+            locale = Locale(lang.terminology)
+            # an invalid code will have no ISO3Language code
+            if not locale.getISO3Language():
+                unsupported.update(
+                    {lang.terminology: '%s(%s)' % (lang.name, k)})
         if unsupported:
             print 'Total unsupported: %s/%s' % (
                 len(unsupported.items()), len(LANGUAGES.items()))
