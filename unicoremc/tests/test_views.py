@@ -19,7 +19,7 @@ from unicoremc.tests.base import UnicoremcTestCase
 from mock import patch
 
 from pycountry import languages
-from babel import Locale
+from babel import Locale, UnknownLocaleError
 
 
 @pytest.mark.django_db
@@ -257,6 +257,15 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(resp.content, "Project already has a profile")
 
     def test_all_language_codes(self):
+        unsupported = {}
         for k, v in LANGUAGES.items():
             lang = languages.get(bibliographic=k)
-            Locale.parse(lang.bibliographic)
+            try:
+                b = lang.terminology
+                Locale.parse(b)
+            except UnknownLocaleError:
+                unsupported.update({b: '%s(%s)' % (lang.name, k)})
+        if unsupported:
+            print 'Total unsupported: %s/%s' % (
+                len(unsupported.items()), len(LANGUAGES.items()))
+        self.assertEqual(unsupported, {})
