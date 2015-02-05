@@ -19,6 +19,7 @@ from unicoremc.tests.base import UnicoremcTestCase
 from mock import patch
 
 from pycountry import languages
+from babel import Locale
 
 
 @pytest.mark.django_db
@@ -258,4 +259,4 @@ class ViewsTestCase(UnicoremcTestCase):
     def test_all_language_codes(self):
         for k, v in LANGUAGES.items():
             lang = languages.get(bibliographic=k)
-            self.assertEqual(lang.bibliographic, k)
+            Locale.parse(lang.bibliographic)
