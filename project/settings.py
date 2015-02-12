@@ -301,6 +301,8 @@ RAVEN_DSN_FRONTEND_PROD = ''
 RAVEN_DSN_CMS_QA = ''
 RAVEN_DSN_CMS_PROD = ''
 
+ELASTICSEARCH_HOST = 'http://localhost:9200'
+
 try:
     from project.local_settings import *
 except ImportError:
