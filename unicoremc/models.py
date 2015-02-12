@@ -209,7 +209,9 @@ class Project(models.Model):
         origin.push()
 
     def setup_workspace(self, repo_path, index_prefix):
-        workspace = EG.workspace(repo_path, index_prefix=index_prefix)
+        workspace = EG.workspace(
+            repo_path, index_prefix=index_prefix,
+            es={'urls': settings.ELASTICSEARCH_HOST})
 
         branch = workspace.sm.repo.active_branch
         if workspace.im.index_exists(branch.name):
@@ -232,7 +234,9 @@ class Project(models.Model):
             'country': self.country.lower(),
         }
 
-        workspace = EG.workspace(self.repo_path(), index_prefix=index_prefix)
+        workspace = EG.workspace(
+            self.repo_path(), index_prefix=index_prefix,
+            es={'urls': settings.ELASTICSEARCH_HOST})
         workspace.sync(Category)
         workspace.sync(Page)
         workspace.sync(EGLocalisation)
