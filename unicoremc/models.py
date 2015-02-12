@@ -98,6 +98,7 @@ class Project(models.Model):
         related_name='default_language')
     ga_profile_id = models.TextField(blank=True, null=True)
     ga_account_id = models.TextField(blank=True, null=True)
+    custom_dns = models.TextField(blank=True, null=True, default='')
 
     class Meta:
         ordering = ('app_type', 'country')

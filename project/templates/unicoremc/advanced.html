@@ -51,6 +51,11 @@
             <strong>GA Profile ID</strong>
             <div>{{form.ga_profile_id}}</div>
         </div>
+        <div class="form-group">
+            <strong>Custom DNS</strong>
+            <div>Specify domain names to point to this mobi site</div>
+            <div>{{form.custom_dns}}</div>
+        </div>
 
         {% csrf_token %}
         <br/>
