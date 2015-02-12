@@ -261,7 +261,8 @@ class Project(models.Model):
         self.sync_frontend_index()
 
     def create_nginx(self):
-        self.config_manager.write_frontend_nginx(self.app_type, self.country)
+        self.config_manager.write_frontend_nginx(
+            self.app_type, self.country, self.custom_dns)
         self.config_manager.write_cms_nginx(self.app_type, self.country)
 
     def create_pyramid_settings(self):

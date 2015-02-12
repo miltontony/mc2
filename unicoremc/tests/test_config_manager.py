@@ -11,7 +11,7 @@ class ConfigManagerTestCase(UnicoremcTestCase):
     def test_write_frontend_nginx_configs(self):
         cm = self.get_config_manager()
 
-        cm.write_frontend_nginx('ffl', 'za')
+        cm.write_frontend_nginx('ffl', 'za', 'some.domain.com')
 
         frontend_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
@@ -28,6 +28,8 @@ class ConfigManagerTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: os.remove(frontend_nginx_config_path))
 
+        self.assertTrue(
+            'server_name za.ffl.qa-hub.unicore.io some.domain.com' in data)
         self.assertTrue('za.ffl.qa-hub.unicore.io' in data)
         self.assertTrue('unicore_frontend_ffl_za-access.log' in data)
         self.assertTrue('unicore_frontend_ffl_za-error.log' in data)

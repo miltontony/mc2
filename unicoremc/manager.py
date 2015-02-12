@@ -45,15 +45,16 @@ class ConfigManager(object):
         os.remove(self.get_frontend_nginx_path(app_type, country))
         os.remove(self.get_cms_nginx_path(app_type, country))
 
-    def write_frontend_nginx(self, app_type, country):
+    def write_frontend_nginx(self, app_type, country, custom_dns):
         frontend_nginx_content = render_to_string(
             'configs/frontend.nginx.conf', {
                 'deploy_environment': settings.DEPLOY_ENVIRONMENT,
                 'app_type': app_type,
                 'country': country.lower(),
+                'custom_dns': custom_dns,
                 'socket_path': os.path.join(
                     self.frontend_sockets_dir,
-                    '%s.socket' % (self.get_deploy_name(app_type, country),))
+                    '%s.socket' % (self.get_deploy_name(app_type, country),)),
             }
         )
 
