@@ -5,7 +5,7 @@ from django.forms import widgets
 
 class ProjectForm(forms.ModelForm):
     ga_profile_id = forms.CharField(required=False)
-    custom_domain = forms.CharField(
+    frontend_custom_domain = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'input-xxlarge'}))
     default_language = forms.ModelChoiceField(
@@ -22,4 +22,4 @@ class ProjectForm(forms.ModelForm):
         model = Project
         fields = (
             'available_languages', 'default_language', 'ga_profile_id',
-            'custom_domain')
+            'frontend_custom_domain')
