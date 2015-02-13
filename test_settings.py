@@ -29,3 +29,9 @@ FRONTEND_SETTINGS_OUTPUT_PATH = abspath(
 CMS_SETTINGS_OUTPUT_PATH = abspath(CONFIG_WORKSPACE, 'cms_settings')
 FRONTEND_SOCKETS_PATH = abspath(CONFIG_WORKSPACE, 'frontend_sockets')
 CMS_SOCKETS_PATH = abspath(CONFIG_WORKSPACE, 'cms_sockets')
+
+RAVEN_DSN_FRONTEND_QA = 'raven-qa'
+RAVEN_DSN_FRONTEND_PROD = 'raven-prod'
+
+RAVEN_DSN_CMS_QA = 'raven-cms-qa'
+RAVEN_DSN_CMS_PROD = 'raven-cms-prod'
