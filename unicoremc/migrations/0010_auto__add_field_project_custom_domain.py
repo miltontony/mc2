@@ -8,15 +8,15 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Project.custom_dns'
-        db.add_column(u'unicoremc_project', 'custom_dns',
+        # Adding field 'Project.custom_domain'
+        db.add_column(u'unicoremc_project', 'custom_domain',
                       self.gf('django.db.models.fields.TextField')(default='', null=True, blank=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Project.custom_dns'
-        db.delete_column(u'unicoremc_project', 'custom_dns')
+        # Deleting field 'Project.custom_domain'
+        db.delete_column(u'unicoremc_project', 'custom_domain')
 
 
     models = {
@@ -68,7 +68,7 @@ class Migration(SchemaMigration):
             'available_languages': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['unicoremc.Localisation']", 'null': 'True', 'blank': 'True'}),
             'base_repo_url': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             'country': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
-            'custom_dns': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
+            'custom_domain': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
             'default_language': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'default_language'", 'null': 'True', 'to': u"orm['unicoremc.Localisation']"}),
             'ga_account_id': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'ga_profile_id': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),

@@ -98,7 +98,7 @@ class Project(models.Model):
         related_name='default_language')
     ga_profile_id = models.TextField(blank=True, null=True)
     ga_account_id = models.TextField(blank=True, null=True)
-    custom_dns = models.TextField(blank=True, null=True, default='')
+    custom_domain = models.TextField(blank=True, null=True, default='')
 
     class Meta:
         ordering = ('app_type', 'country')
@@ -262,7 +262,7 @@ class Project(models.Model):
 
     def create_nginx(self):
         self.config_manager.write_frontend_nginx(
-            self.app_type, self.country, self.custom_dns)
+            self.app_type, self.country, self.custom_domain)
         self.config_manager.write_cms_nginx(self.app_type, self.country)
 
     def create_pyramid_settings(self):
