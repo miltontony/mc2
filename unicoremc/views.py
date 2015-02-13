@@ -75,6 +75,7 @@ class ProjectEditView(UpdateView):
 
         project = self.get_object()
         project.create_pyramid_settings()
+        project.create_nginx()
         return response
 
 

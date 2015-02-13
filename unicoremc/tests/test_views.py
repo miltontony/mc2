@@ -58,6 +58,10 @@ class ViewsTestCase(UnicoremcTestCase):
 
         project = Project.objects.all()[0]
         self.assertEqual(project.state, 'done')
+        self.assertEqual(
+            project.frontend_url(), 'http://za.ffl.qa-hub.unicore.io')
+        self.assertEqual(
+            project.cms_url(), 'http://cms.za.ffl.qa-hub.unicore.io')
 
         workspace = self.mk_workspace(
             working_dir=settings.CMS_REPO_PATH,
@@ -147,10 +151,12 @@ class ViewsTestCase(UnicoremcTestCase):
             reverse('advanced', args=[project.id]), {
                 'available_languages': [1, 2],
                 'default_language': [Localisation._for('swa_TZ').pk],
-                'ga_profile_id': 'UA-some-profile-id'})
+                'ga_profile_id': 'UA-some-profile-id',
+                'frontend_custom_domain': 'some.domain.com'})
         project = Project.objects.get(pk=project.id)
         self.assertEqual(project.available_languages.count(), 2)
         self.assertEqual(project.default_language.get_code(), 'swa_TZ')
+        self.assertEqual(project.frontend_custom_domain, 'some.domain.com')
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -164,6 +170,16 @@ class ViewsTestCase(UnicoremcTestCase):
             "(u'swa_TZ', u'Swahili')]" in data)
         self.assertTrue('pyramid.default_locale_name = swa_TZ' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
+
+        frontend_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'frontend_ffl_za.conf')
+
+        with open(frontend_nginx_config_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertTrue(
+            'server_name za.ffl.qa-hub.unicore.io some.domain.com' in data)
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
