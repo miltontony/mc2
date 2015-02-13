@@ -1,5 +1,4 @@
 import os
-import shutil
 
 from django.conf import settings
 
@@ -36,10 +35,6 @@ class ConfigManagerTestCase(UnicoremcTestCase):
         self.assertTrue(
             '/var/praekelt/unicore-cms-ffl/unicorecmsffl/static/' in data)
         self.assertTrue(frontend_socket_path in data)
-
-    def cleanup_config_manager(self, cm):
-        for dir_ in cm.dirs:
-            shutil.rmtree(dir_)
 
     def test_write_cms_nginx_configs(self):
         cm = self.get_config_manager()
