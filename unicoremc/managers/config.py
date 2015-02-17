@@ -3,15 +3,21 @@ import os
 from django.template.loader import render_to_string
 from django.conf import settings
 
+from elasticgit import EG
+
 
 class ConfigManager(object):
     def __init__(self):
-        self.supervisor_dir = settings.SUPERVISOR_CONFIGS_PATH
-        self.nginx_dir = settings.NGINX_CONFIGS_PATH
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
-        self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
-        self.frontend_sockets_dir = settings.FRONTEND_SOCKETS_PATH
-        self.cms_sockets_dir = settings.CMS_SOCKETS_PATH
+        self.supervisor_dir = 'supervisor/'
+        self.nginx_dir = 'nginx/'
+        self.frontend_settings_dir = 'frontend_settings/'
+        self.frontend_sockets_dir = 'frontend_sockets/'
+        self.cms_sockets_dir = 'cms_sockets/'
+
+        self.workspace = None
+        if settings.CONFIGS_REPO_PATH:
+            self.workspace = EG.workspace(settings.CONFIGS_REPO_PATH)
 
         self.dirs = [
             self.frontend_sockets_dir,
@@ -51,6 +57,7 @@ class ConfigManager(object):
                 'country': country.lower(),
                 'frontend_custom_domain': frontend_custom_domain,
                 'socket_path': os.path.join(
+                    self.workspace.working_dir,
                     self.frontend_sockets_dir,
                     '%s.socket' % (self.get_deploy_name(app_type, country),)),
             }
@@ -58,8 +65,9 @@ class ConfigManager(object):
 
         filepath = self.get_frontend_nginx_path(app_type, country)
 
-        with open(filepath, 'w') as config_file:
-            config_file.write(frontend_nginx_content)
+        if self.workspace:
+            self.workspace.sm.store_data(
+                filepath, frontend_nginx_content, 'Save frontend nginx config')
 
     def write_cms_nginx(self, app_type, country):
         cms_nginx_content = render_to_string(
@@ -68,6 +76,7 @@ class ConfigManager(object):
                 'app_type': app_type,
                 'country': country.lower(),
                 'socket_path': os.path.join(
+                    self.workspace.working_dir,
                     self.cms_sockets_dir,
                     '%s.socket' % (self.get_deploy_name(app_type, country),))
             }
@@ -75,5 +84,6 @@ class ConfigManager(object):
 
         filepath = self.get_cms_nginx_path(app_type, country)
 
-        with open(filepath, 'w') as config_file:
-            config_file.write(cms_nginx_content)
+        if self.workspace:
+            self.workspace.sm.store_data(
+                filepath, cms_nginx_content, 'Save cms nginx config')

@@ -253,6 +253,8 @@ DEPLOY_ENVIRONMENT = 'qa'
 FRONTEND_REPO_PATH = abspath('repos', 'frontend')
 CMS_REPO_PATH = abspath('repos', 'cms')
 
+CONFIGS_REPO_PATH = abspath('configs')
+
 # path to supervisor conf files
 SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
 # path to ngix conf files
