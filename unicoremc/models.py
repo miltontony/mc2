@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from unicoremc import constants, exceptions, mappings
-from unicoremc.manager import ConfigManager, SettingsManager, DbManager
+from unicoremc.managers import ConfigManager, SettingsManager, DbManager
 
 from git import Repo
 

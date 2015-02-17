@@ -11,7 +11,7 @@ from git import Repo
 from elasticgit.tests.base import ModelBaseTest
 from elasticgit.storage import StorageManager
 
-from unicoremc.manager import ConfigManager
+from unicoremc.managers import ConfigManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 
