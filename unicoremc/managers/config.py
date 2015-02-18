@@ -35,12 +35,14 @@ class ConfigManager(object):
 
     def get_frontend_nginx_path(self, app_type, country):
         return os.path.join(
+            self.workspace.working_dir,
             self.nginx_dir,
             'frontend_%s.conf' % (self.get_deploy_name(app_type, country),)
         )
 
     def get_cms_nginx_path(self, app_type, country):
         return os.path.join(
+            self.workspace.working_dir,
             self.nginx_dir,
             'cms_%s.conf' % (self.get_deploy_name(app_type, country),)
         )
