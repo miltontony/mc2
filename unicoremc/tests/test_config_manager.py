@@ -1,4 +1,5 @@
 import os
+import shutil
 
 from django.conf import settings
 from django.test.utils import override_settings
@@ -106,3 +107,44 @@ class ConfigManagerTestCase(UnicoremcTestCase):
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
         self.assertTrue(cms_socket_path in data)
+
+    def test_configs_pushed_to_git(self):
+        remote_ws = self.mk_workspace(
+            working_dir='%s_remote' % settings.CONFIGS_REPO_PATH,
+            auto_destroy=False)
+        remote_ws.repo.git.checkout('HEAD', b='temp')
+
+        self.addCleanup(
+            lambda: shutil.rmtree('%s_remote' % settings.CONFIGS_REPO_PATH))
+
+        config_ws = self.mk_workspace(working_dir=settings.CONFIGS_REPO_PATH)
+        origin = config_ws.repo.create_remote('origin', remote_ws.repo.git_dir)
+
+        branch = config_ws.repo.active_branch
+        origin.fetch()
+        remote_master = origin.refs.master
+        branch.set_tracking_branch(remote_master)
+
+        with self.settings(CONFIGS_REPO_PATH=config_ws.working_dir):
+            cm = self.get_config_manager()
+        cm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
+
+        cms_nginx_config_path = os.path.join(
+            config_ws.working_dir,
+            'nginx',
+            'cms_ffl_za.conf')
+        remote_cms_nginx_config_path = os.path.join(
+            remote_ws.working_dir,
+            'nginx',
+            'cms_ffl_za.conf')
+
+        remote_ws.repo.heads.master.checkout()
+
+        self.assertTrue(os.path.exists(cms_nginx_config_path))
+        self.assertTrue(os.path.exists(remote_cms_nginx_config_path))
+
+        with open(cms_nginx_config_path, "r") as config_file:
+            nginx_data = config_file.read()
+        with open(cms_nginx_config_path, "r") as config_file:
+            remote_nginx_data = config_file.read()
+        self.assertEquals(nginx_data, remote_nginx_data)

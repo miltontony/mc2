@@ -5,6 +5,8 @@ from django.conf import settings
 
 from elasticgit import EG
 
+from unicoremc.tasks import push_to_git
+
 
 class ConfigManager(object):
     def __init__(self):
@@ -66,6 +68,7 @@ class ConfigManager(object):
 
         self.workspace.sm.store_data(
             filepath, frontend_nginx_content, 'Save frontend nginx config')
+        push_to_git.delay(self.workspace.working_dir)
 
     def write_cms_nginx(self, app_type, country, cms_custom_domain):
         cms_nginx_content = render_to_string(
@@ -85,3 +88,4 @@ class ConfigManager(object):
 
         self.workspace.sm.store_data(
             filepath, cms_nginx_content, 'Save cms nginx config')
+        push_to_git.delay(self.workspace.working_dir)
