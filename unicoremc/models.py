@@ -84,7 +84,8 @@ class Project(models.Model):
 
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
     base_repo_url = models.URLField()
-    country = models.CharField(choices=constants.COUNTRY_CHOICES, max_length=2)
+    country = models.CharField(
+        choices=constants.COUNTRY_CHOICES, max_length=256)
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
     repo_git_url = models.URLField(blank=True, null=True)
