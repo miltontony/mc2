@@ -84,7 +84,8 @@ class Project(models.Model):
 
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
     base_repo_url = models.URLField()
-    country = models.CharField(choices=constants.COUNTRY_CHOICES, max_length=2)
+    country = models.CharField(
+        choices=constants.COUNTRY_CHOICES, max_length=256)
     state = models.CharField(max_length=50, default='initial')
     repo_url = models.URLField(blank=True, null=True)
     repo_git_url = models.URLField(blank=True, null=True)
@@ -99,6 +100,8 @@ class Project(models.Model):
     ga_profile_id = models.TextField(blank=True, null=True)
     ga_account_id = models.TextField(blank=True, null=True)
     frontend_custom_domain = models.TextField(
+        blank=True, null=True, default='')
+    cms_custom_domain = models.TextField(
         blank=True, null=True, default='')
 
     class Meta:
@@ -264,7 +267,8 @@ class Project(models.Model):
     def create_nginx(self):
         self.config_manager.write_frontend_nginx(
             self.app_type, self.country, self.frontend_custom_domain)
-        self.config_manager.write_cms_nginx(self.app_type, self.country)
+        self.config_manager.write_cms_nginx(
+            self.app_type, self.country, self.cms_custom_domain)
 
     def create_pyramid_settings(self):
         self.settings_manager.write_frontend_settings(
