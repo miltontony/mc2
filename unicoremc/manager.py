@@ -63,12 +63,13 @@ class ConfigManager(object):
         with open(filepath, 'w') as config_file:
             config_file.write(frontend_nginx_content)
 
-    def write_cms_nginx(self, app_type, country):
+    def write_cms_nginx(self, app_type, country, cms_custom_domain):
         cms_nginx_content = render_to_string(
             'configs/cms.nginx.conf', {
                 'deploy_environment': self.deploy_environment,
                 'app_type': app_type,
                 'country': country.lower(),
+                'cms_custom_domain': cms_custom_domain,
                 'socket_path': os.path.join(
                     self.cms_sockets_dir,
                     '%s.socket' % (self.get_deploy_name(app_type, country),))

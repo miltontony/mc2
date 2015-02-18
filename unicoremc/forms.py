@@ -8,6 +8,9 @@ class ProjectForm(forms.ModelForm):
     frontend_custom_domain = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'input-xxlarge'}))
+    cms_custom_domain = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'input-xxlarge'}))
     default_language = forms.ModelChoiceField(
         queryset=Localisation.objects.all(),
         empty_label="Unspecified",
@@ -22,4 +25,4 @@ class ProjectForm(forms.ModelForm):
         model = Project
         fields = (
             'available_languages', 'default_language', 'ga_profile_id',
-            'frontend_custom_domain')
+            'frontend_custom_domain', 'cms_custom_domain')
