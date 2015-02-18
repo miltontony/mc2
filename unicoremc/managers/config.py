@@ -67,12 +67,13 @@ class ConfigManager(object):
         self.workspace.sm.store_data(
             filepath, frontend_nginx_content, 'Save frontend nginx config')
 
-    def write_cms_nginx(self, app_type, country):
+    def write_cms_nginx(self, app_type, country, cms_custom_domain):
         cms_nginx_content = render_to_string(
             'configs/cms.nginx.conf', {
                 'deploy_environment': self.deploy_environment,
                 'app_type': app_type,
                 'country': country.lower(),
+                'cms_custom_domain': cms_custom_domain,
                 'socket_path': os.path.join(
                     self.workspace.working_dir,
                     self.cms_sockets_dir,
