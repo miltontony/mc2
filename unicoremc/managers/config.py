@@ -14,10 +14,7 @@ class ConfigManager(object):
         self.frontend_settings_dir = 'frontend_settings/'
         self.frontend_sockets_dir = 'frontend_sockets/'
         self.cms_sockets_dir = 'cms_sockets/'
-
-        self.workspace = None
-        if settings.CONFIGS_REPO_PATH:
-            self.workspace = EG.workspace(settings.CONFIGS_REPO_PATH)
+        self.workspace = EG.workspace(settings.CONFIGS_REPO_PATH)
 
         self.dirs = [
             self.frontend_sockets_dir,
@@ -67,9 +64,8 @@ class ConfigManager(object):
 
         filepath = self.get_frontend_nginx_path(app_type, country)
 
-        if self.workspace:
-            self.workspace.sm.store_data(
-                filepath, frontend_nginx_content, 'Save frontend nginx config')
+        self.workspace.sm.store_data(
+            filepath, frontend_nginx_content, 'Save frontend nginx config')
 
     def write_cms_nginx(self, app_type, country):
         cms_nginx_content = render_to_string(
@@ -86,6 +82,5 @@ class ConfigManager(object):
 
         filepath = self.get_cms_nginx_path(app_type, country)
 
-        if self.workspace:
-            self.workspace.sm.store_data(
-                filepath, cms_nginx_content, 'Save cms nginx config')
+        self.workspace.sm.store_data(
+            filepath, cms_nginx_content, 'Save cms nginx config')
