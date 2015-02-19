@@ -8,7 +8,7 @@ from elasticgit import EG
 from unicoremc.tasks import push_to_git
 
 
-class ConfigManager(object):
+class NginxManager(object):
     def __init__(self):
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
         self.nginx_dir = 'nginx/'

@@ -11,7 +11,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 
 from unicoremc import constants, exceptions, mappings
-from unicoremc.managers import ConfigManager, SettingsManager, DbManager
+from unicoremc.managers import NginxManager, SettingsManager, DbManager
 
 from git import Repo
 
@@ -110,7 +110,7 @@ class Project(models.Model):
     def __init__(self, *args, **kwargs):
         super(Project, self).__init__(*args, **kwargs)
 
-        self.config_manager = ConfigManager()
+        self.nginx_manager = NginxManager()
         self.settings_manager = SettingsManager()
         self.db_manager = DbManager()
 
@@ -265,9 +265,9 @@ class Project(models.Model):
         self.sync_frontend_index()
 
     def create_nginx(self):
-        self.config_manager.write_frontend_nginx(
+        self.nginx_manager.write_frontend_nginx(
             self.app_type, self.country, self.frontend_custom_domain)
-        self.config_manager.write_cms_nginx(
+        self.nginx_manager.write_cms_nginx(
             self.app_type, self.country, self.cms_custom_domain)
 
     def create_pyramid_settings(self):
@@ -335,6 +335,6 @@ class Project(models.Model):
     def destroy(self):
         shutil.rmtree(self.repo_path())
         shutil.rmtree(self.frontend_repo_path())
-        self.config_manager.destroy(self.app_type, self.country)
+        self.nginx_manager.destroy(self.app_type, self.country)
         self.settings_manager.destroy(self.app_type, self.country)
         self.db_manager.destroy(self.app_type, self.country)

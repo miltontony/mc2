@@ -7,12 +7,12 @@ from django.test.utils import override_settings
 from unicoremc.tests.base import UnicoremcTestCase
 
 
-class ConfigManagerTestCase(UnicoremcTestCase):
+class NginxManagerTestCase(UnicoremcTestCase):
 
     def test_write_frontend_nginx_configs(self):
-        cm = self.get_config_manager()
+        nm = self.get_nginx_manager()
 
-        cm.write_frontend_nginx('ffl', 'za', 'some.domain.com')
+        nm.write_frontend_nginx('ffl', 'za', 'some.domain.com')
 
         frontend_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
@@ -40,8 +40,8 @@ class ConfigManagerTestCase(UnicoremcTestCase):
 
     @override_settings(DEPLOY_ENVIRONMENT='prod')
     def test_write_frontend_nginx_configs_prod(self):
-        cm = self.get_config_manager()
-        cm.write_frontend_nginx('ffl', 'za', 'some.domain.com')
+        nm = self.get_nginx_manager()
+        nm.write_frontend_nginx('ffl', 'za', 'some.domain.com')
 
         frontend_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
@@ -56,8 +56,8 @@ class ConfigManagerTestCase(UnicoremcTestCase):
         self.addCleanup(lambda: os.remove(frontend_nginx_config_path))
 
     def test_write_cms_nginx_configs(self):
-        cm = self.get_config_manager()
-        cm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
+        nm = self.get_nginx_manager()
+        nm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
 
         cms_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
@@ -83,8 +83,8 @@ class ConfigManagerTestCase(UnicoremcTestCase):
 
     @override_settings(DEPLOY_ENVIRONMENT='prod')
     def test_write_cms_nginx_configs_prod(self):
-        cm = self.get_config_manager()
-        cm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
+        nm = self.get_nginx_manager()
+        nm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
 
         cms_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
@@ -113,9 +113,6 @@ class ConfigManagerTestCase(UnicoremcTestCase):
             working_dir='%s_remote' % settings.CONFIGS_REPO_PATH)
         remote_ws.repo.git.checkout('HEAD', b='temp')
 
-        self.addCleanup(
-            lambda: shutil.rmtree('%s_remote' % settings.CONFIGS_REPO_PATH))
-
         config_ws = self.mk_workspace(working_dir=settings.CONFIGS_REPO_PATH)
         origin = config_ws.repo.create_remote('origin', remote_ws.repo.git_dir)
 
@@ -125,8 +122,8 @@ class ConfigManagerTestCase(UnicoremcTestCase):
         branch.set_tracking_branch(remote_master)
 
         with self.settings(CONFIGS_REPO_PATH=config_ws.working_dir):
-            cm = self.get_config_manager()
-        cm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
+            nm = self.get_nginx_manager()
+        nm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
 
         cms_nginx_config_path = os.path.join(
             config_ws.working_dir,
@@ -144,6 +141,12 @@ class ConfigManagerTestCase(UnicoremcTestCase):
 
         with open(cms_nginx_config_path, "r") as config_file:
             nginx_data = config_file.read()
-        with open(cms_nginx_config_path, "r") as config_file:
+        with open(remote_cms_nginx_config_path, "r") as config_file:
             remote_nginx_data = config_file.read()
         self.assertEquals(nginx_data, remote_nginx_data)
+
+        self.addCleanup(lambda: shutil.rmtree(settings.CONFIGS_REPO_PATH))
+        self.addCleanup(
+            lambda: shutil.rmtree('%s_remote' % settings.CONFIGS_REPO_PATH))
+        self.addCleanup(lambda: os.remove(cms_nginx_config_path))
+        self.addCleanup(lambda: os.remove(remote_cms_nginx_config_path))
