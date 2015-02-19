@@ -11,7 +11,6 @@ from unicoremc.tasks import push_to_git
 class ConfigManager(object):
     def __init__(self):
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
-        self.supervisor_dir = 'supervisor/'
         self.nginx_dir = 'nginx/'
         self.frontend_settings_dir = 'frontend_settings/'
         self.frontend_sockets_dir = 'frontend_sockets/'
@@ -22,7 +21,6 @@ class ConfigManager(object):
             self.frontend_sockets_dir,
             self.cms_sockets_dir,
             self.frontend_settings_dir,
-            self.supervisor_dir,
             self.nginx_dir,
         ]
         for dir_ in self.dirs:
