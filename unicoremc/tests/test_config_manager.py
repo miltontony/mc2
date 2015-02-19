@@ -110,8 +110,7 @@ class ConfigManagerTestCase(UnicoremcTestCase):
 
     def test_configs_pushed_to_git(self):
         remote_ws = self.mk_workspace(
-            working_dir='%s_remote' % settings.CONFIGS_REPO_PATH,
-            auto_destroy=False)
+            working_dir='%s_remote' % settings.CONFIGS_REPO_PATH)
         remote_ws.repo.git.checkout('HEAD', b='temp')
 
         self.addCleanup(
