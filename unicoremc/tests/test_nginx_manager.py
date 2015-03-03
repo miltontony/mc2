@@ -136,6 +136,8 @@ class NginxManagerTestCase(UnicoremcTestCase):
 
         remote_ws.repo.heads.master.checkout()
 
+        print 'config dir: ', os.listdir(config_ws.working_dir)
+        print 'remote dir: ', os.listdir(remote_ws.working_dir)
         self.assertTrue(os.path.exists(cms_nginx_config_path))
         self.assertTrue(os.path.exists(remote_cms_nginx_config_path))
 
