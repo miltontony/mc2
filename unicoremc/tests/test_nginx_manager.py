@@ -123,7 +123,7 @@ class NginxManagerTestCase(UnicoremcTestCase):
 
         with self.settings(CONFIGS_REPO_PATH=config_ws.working_dir):
             nm = self.get_nginx_manager()
-        nm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
+            nm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
 
         cms_nginx_config_path = os.path.join(
             config_ws.working_dir,
@@ -138,6 +138,11 @@ class NginxManagerTestCase(UnicoremcTestCase):
 
         print 'config dir: ', os.listdir(config_ws.working_dir)
         print 'remote dir: ', os.listdir(remote_ws.working_dir)
+        git_config = os.path.join(config_ws.working_dir, '.git', 'config')
+        with open(git_config, "r") as git_config_file:
+            git_config_data = git_config_file.read()
+            print git_config_data
+
         self.assertTrue(os.path.exists(cms_nginx_config_path))
         self.assertTrue(os.path.exists(remote_cms_nginx_config_path))
 
