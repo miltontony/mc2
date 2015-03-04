@@ -109,6 +109,10 @@ class NginxManagerTestCase(UnicoremcTestCase):
         self.assertTrue(cms_socket_path in data)
 
     def test_configs_pushed_to_git(self):
+        print 'config ws exists: ', os.path.exists(settings.CONFIGS_REPO_PATH)
+        print 'config ws exists: ', os.path.exists(
+            '%s_remote' % settings.CONFIGS_REPO_PATH)
+
         remote_ws = self.mk_workspace(
             working_dir='%s_remote' % settings.CONFIGS_REPO_PATH)
         remote_ws.repo.git.checkout('HEAD', b='temp')
