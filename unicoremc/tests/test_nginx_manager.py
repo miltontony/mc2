@@ -122,6 +122,8 @@ class NginxManagerTestCase(UnicoremcTestCase):
         remote_master = origin.refs.master
         branch.set_tracking_branch(remote_master)
 
+        config_ws.fast_forward()
+
         with self.settings(CONFIGS_REPO_PATH=config_ws.working_dir):
             nm = self.get_nginx_manager()
             nm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
