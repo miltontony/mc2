@@ -109,10 +109,6 @@ class NginxManagerTestCase(UnicoremcTestCase):
         self.assertTrue(cms_socket_path in data)
 
     def test_configs_pushed_to_git(self):
-        print 'config ws exists: ', os.path.exists(settings.CONFIGS_REPO_PATH)
-        print 'config ws exists: ', os.path.exists(
-            '%s_remote' % settings.CONFIGS_REPO_PATH)
-
         remote_ws = self.mk_workspace(
             working_dir='%s_remote' % settings.CONFIGS_REPO_PATH)
         remote_repo = remote_ws.repo
@@ -140,13 +136,6 @@ class NginxManagerTestCase(UnicoremcTestCase):
             'cms_ffl_za.conf')
 
         remote_repo.heads.master.checkout()
-
-        print 'config dir: ', os.listdir(config_ws.working_dir)
-        print 'remote dir: ', os.listdir(remote_ws.working_dir)
-        git_config = os.path.join(config_ws.working_dir, '.git', 'config')
-        with open(git_config, "r") as git_config_file:
-            git_config_data = git_config_file.read()
-            print git_config_data
 
         self.assertTrue(os.path.exists(cms_nginx_config_path))
         self.assertTrue(os.path.exists(remote_cms_nginx_config_path))
