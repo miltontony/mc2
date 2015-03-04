@@ -19,18 +19,7 @@ def push_to_git(repo_path):
     workspace = EG.workspace(repo_path)
     if workspace.repo.remotes:
         repo = workspace.repo
-        print 'fetch started..'
         remote = repo.remote()
-        finfo = remote.fetch()[0]
-        print finfo.ref
-        print finfo.flags
-        print finfo.note
-        print finfo.old_commit
+        remote.fetch()
         remote_master = remote.refs.master
-        print 'push started..'
-        info = remote.push(remote_master.remote_head)[0]
-        print info.local_ref
-        print info.remote_ref_string
-        print info.flags
-        print info.old_commit
-        print info.summary
+        remote.push(remote_master.remote_head)
