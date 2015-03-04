@@ -115,10 +115,11 @@ class NginxManagerTestCase(UnicoremcTestCase):
 
         remote_ws = self.mk_workspace(
             working_dir='%s_remote' % settings.CONFIGS_REPO_PATH)
-        remote_ws.repo.git.checkout('HEAD', b='temp')
+        remote_repo = remote_ws.repo
+        remote_repo.git.checkout('HEAD', b='temp')
 
         config_ws = self.mk_workspace(working_dir=settings.CONFIGS_REPO_PATH)
-        origin = config_ws.repo.create_remote('origin', remote_ws.repo.git_dir)
+        origin = config_ws.repo.create_remote('origin', remote_ws.working_dir)
 
         branch = config_ws.repo.active_branch
         origin.fetch()
@@ -138,7 +139,7 @@ class NginxManagerTestCase(UnicoremcTestCase):
             'nginx',
             'cms_ffl_za.conf')
 
-        remote_ws.repo.heads.master.checkout()
+        remote_repo.heads.master.checkout()
 
         print 'config dir: ', os.listdir(config_ws.working_dir)
         print 'remote dir: ', os.listdir(remote_ws.working_dir)
