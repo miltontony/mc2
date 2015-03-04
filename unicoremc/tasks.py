@@ -24,7 +24,12 @@ def push_to_git(repo_path):
         remote = repo.remote()
         remote.fetch()
         remote_master = remote.refs.master
-        remote.push(remote_master.remote_head)
+        info = remote.push(remote_master.remote_head)[0]
+        print info.local_ref
+        print info.remote_ref_string
+        print info.flags
+        print info.old_commit
+        print info.summary
         print workspace.working_dir
         print os.listdir(workspace.working_dir)
         print 'pushing to git finished'
