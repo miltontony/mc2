@@ -20,7 +20,7 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
 
     def get_nginx_manager(self):
         nm = NginxManager()
-        self.addCleanup(lambda: [shutil.rmtree(dir_) for dir_ in nm.dirs])
+        #self.addCleanup(lambda: [shutil.rmtree(dir_) for dir_ in nm.dirs])
         return nm
 
     def mk_test_repos(self):
