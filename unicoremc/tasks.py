@@ -16,6 +16,7 @@ def start_new_project(project_id, access_token):
 
 @task(serializer='json')
 def push_to_git(repo_path):
+    import os
     workspace = EG.workspace(repo_path)
     if workspace.repo.remotes:
         print 'pushing to git started'
@@ -24,4 +25,6 @@ def push_to_git(repo_path):
         remote.fetch()
         remote_master = remote.refs.master
         remote.push(remote_master.remote_head)
+        print workspace.working_dir
+        print os.listdir(workspace.working_dir)
         print 'pushing to git finished'
