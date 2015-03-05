@@ -255,10 +255,6 @@ CMS_REPO_PATH = abspath('repos', 'cms')
 
 CONFIGS_REPO_PATH = abspath('configs')
 
-# path to supervisor conf files
-SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
-# path to ngix conf files
-NGINX_CONFIGS_PATH = abspath('configs', 'nginx')
 # path to settings files
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
 CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')

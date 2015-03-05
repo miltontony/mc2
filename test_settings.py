@@ -23,7 +23,6 @@ CMS_REPO_PATH = abspath(REPO_WORKSPACE, 'cms')
 
 CONFIG_WORKSPACE = '.test_config_dir'
 CONFIGS_REPO_PATH = abspath('.test_config_dir')
-SUPERVISOR_CONFIGS_PATH = abspath(CONFIG_WORKSPACE, 'supervisor')
 NGINX_CONFIGS_PATH = abspath(CONFIG_WORKSPACE, 'nginx')
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath(
     CONFIG_WORKSPACE, 'frontend_settings')
