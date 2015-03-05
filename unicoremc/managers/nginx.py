@@ -12,15 +12,13 @@ class NginxManager(object):
     def __init__(self):
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
         self.nginx_dir = 'nginx/'
-        self.frontend_settings_dir = 'frontend_settings/'
-        self.frontend_sockets_dir = 'frontend_sockets/'
-        self.cms_sockets_dir = 'cms_sockets/'
+        self.frontend_sockets_dir = settings.FRONTEND_SOCKETS_PATH
+        self.cms_sockets_dir = settings.CMS_SOCKETS_PATH
         self.workspace = EG.workspace(settings.CONFIGS_REPO_PATH)
 
         self.dirs = [
             self.frontend_sockets_dir,
             self.cms_sockets_dir,
-            self.frontend_settings_dir,
             self.nginx_dir,
         ]
         for dir_ in self.dirs:
@@ -61,7 +59,6 @@ class NginxManager(object):
                 'country': country.lower(),
                 'frontend_custom_domain': frontend_custom_domain,
                 'socket_path': os.path.join(
-                    self.workspace.working_dir,
                     self.frontend_sockets_dir,
                     '%s.socket' % (self.get_deploy_name(app_type, country),)),
             }
@@ -82,7 +79,6 @@ class NginxManager(object):
                 'country': country.lower(),
                 'cms_custom_domain': cms_custom_domain,
                 'socket_path': os.path.join(
-                    self.workspace.working_dir,
                     self.cms_sockets_dir,
                     '%s.socket' % (self.get_deploy_name(app_type, country),))
             }

@@ -28,8 +28,9 @@ NGINX_CONFIGS_PATH = abspath(CONFIG_WORKSPACE, 'nginx')
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath(
     CONFIG_WORKSPACE, 'frontend_settings')
 CMS_SETTINGS_OUTPUT_PATH = abspath(CONFIG_WORKSPACE, 'cms_settings')
-FRONTEND_SOCKETS_PATH = abspath(CONFIG_WORKSPACE, 'frontend_sockets')
-CMS_SOCKETS_PATH = abspath(CONFIG_WORKSPACE, 'cms_sockets')
+
+FRONTEND_SOCKETS_PATH = abspath('.test_sockets_dir', 'frontend_sockets')
+CMS_SOCKETS_PATH = abspath('.test_sockets_dir', 'cms_sockets')
 
 RAVEN_DSN_FRONTEND_QA = 'raven-qa'
 RAVEN_DSN_FRONTEND_PROD = 'raven-prod'
