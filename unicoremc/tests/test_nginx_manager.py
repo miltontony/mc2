@@ -136,14 +136,13 @@ class NginxManagerTestCase(UnicoremcTestCase):
         remote_cms_nginx_config_path = os.path.join(
             remote_ws.working_dir, 'nginx', 'cms_ffl_za.conf')
 
-        self.assertTrue(os.path.exists(cms_nginx_config_path))
-        self.assertTrue(os.path.exists(remote_cms_nginx_config_path))
-
         frontend_nginx_config_path = os.path.join(
             config_ws.working_dir, 'nginx', 'frontend_ffl_za.conf')
         remote_frontend_nginx_config_path = os.path.join(
             remote_ws.working_dir, 'nginx', 'frontend_ffl_za.conf')
 
+        self.assertTrue(os.path.exists(cms_nginx_config_path))
+        self.assertTrue(os.path.exists(remote_cms_nginx_config_path))
         self.assertTrue(os.path.exists(frontend_nginx_config_path))
         self.assertTrue(os.path.exists(remote_frontend_nginx_config_path))
 
@@ -195,14 +194,13 @@ class NginxManagerTestCase(UnicoremcTestCase):
         remote_cms_nginx_config_path = os.path.join(
             remote_ws.working_dir, 'nginx', 'cms_ffl_za.conf')
 
-        self.assertTrue(os.path.exists(cms_nginx_config_path))
-        self.assertTrue(os.path.exists(remote_cms_nginx_config_path))
-
         frontend_nginx_config_path = os.path.join(
             config_ws.working_dir, 'nginx', 'frontend_ffl_za.conf')
         remote_frontend_nginx_config_path = os.path.join(
             remote_ws.working_dir, 'nginx', 'frontend_ffl_za.conf')
 
+        self.assertTrue(os.path.exists(cms_nginx_config_path))
+        self.assertTrue(os.path.exists(remote_cms_nginx_config_path))
         self.assertTrue(os.path.exists(frontend_nginx_config_path))
         self.assertTrue(os.path.exists(remote_frontend_nginx_config_path))
 
