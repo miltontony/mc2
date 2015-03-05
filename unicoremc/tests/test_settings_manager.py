@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django.conf import settings
 
-from unicoremc.manager import SettingsManager
+from unicoremc.managers import SettingsManager
 from unicoremc.models import Localisation
 
 

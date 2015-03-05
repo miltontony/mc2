@@ -3,7 +3,7 @@ import os
 from django.conf import settings
 from django.test import TestCase
 
-from unicoremc.manager import DbManager
+from unicoremc.managers import DbManager
 
 
 class DbManagerTestCase(TestCase):

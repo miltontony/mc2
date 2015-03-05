@@ -1,1 +1,1 @@
-rm -rf project/.test_* && py.test --ds=test_settings --verbose --cov ./unicoremc unicoremc$1
+rm -rf project/.test_* && py.test -s --ds=test_settings --verbose --cov ./unicoremc unicoremc$1

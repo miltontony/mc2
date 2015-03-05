@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import Project, Localisation
-from unicoremc.manager import DbManager
+from unicoremc.managers import DbManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 from unicoremc.tests.base import UnicoremcTestCase

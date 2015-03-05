@@ -253,16 +253,14 @@ DEPLOY_ENVIRONMENT = 'qa'
 FRONTEND_REPO_PATH = abspath('repos', 'frontend')
 CMS_REPO_PATH = abspath('repos', 'cms')
 
-# path to supervisor conf files
-SUPERVISOR_CONFIGS_PATH = abspath('configs', 'supervisor')
-# path to ngix conf files
-NGINX_CONFIGS_PATH = abspath('configs', 'nginx')
+CONFIGS_REPO_PATH = abspath('configs')
+
 # path to settings files
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
 CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
 
-FRONTEND_SOCKETS_PATH = abspath('configs', 'frontend_sockets')
-CMS_SOCKETS_PATH = abspath('configs', 'cms_sockets')
+FRONTEND_SOCKETS_PATH = abspath('sockets', 'frontend_sockets')
+CMS_SOCKETS_PATH = abspath('sockets', 'cms_sockets')
 
 UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
 UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
