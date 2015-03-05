@@ -56,6 +56,9 @@ class Localisation(models.Model):
         country = constants.COUNTRIES.get(self.country_code)
         return u'%s (%s)' % (language, country)
 
+    class Meta:
+        ordering = ('language_code', )
+
 
 class Project(models.Model):
     FFL = 'ffl'
