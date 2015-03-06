@@ -3,18 +3,18 @@ import os
 from django.template.loader import render_to_string
 from django.conf import settings
 
+from unicoremc.tasks import push_to_git
+
 
 class SettingsManager(object):
     def __init__(self):
-        self.frontend_settings_dir = settings.FRONTEND_SETTINGS_OUTPUT_PATH
-        self.cms_settings_dir = settings.CMS_SETTINGS_OUTPUT_PATH
+        self.frontend_settings_dir = 'frontend_settings/'
+        self.cms_settings_dir = 'cms_settings/'
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
         self.cms_sockets_dir = settings.CMS_SOCKETS_PATH
         self.frontend_sockets_dir = settings.FRONTEND_SOCKETS_PATH
 
         self.dirs = [
-            self.frontend_settings_dir,
-            self.cms_settings_dir,
             self.cms_sockets_dir,
             self.frontend_sockets_dir,
         ]
@@ -46,9 +46,16 @@ class SettingsManager(object):
         )
 
     def destroy(self, app_type, country):
-        os.remove(self.get_frontend_settings_path(app_type, country))
-        os.remove(self.get_cms_settings_path(app_type, country))
-        os.remove(self.get_cms_config_path(app_type, country))
+        self.workspace.sm.delete_data(
+            self.get_frontend_settings_path(app_type, country),
+            'Deleted frontend settings config for %s_%s' % (app_type, country))
+        self.workspace.sm.delete_data(
+            self.get_cms_settings_path(app_type, country),
+            'Deleted cms settings config for %s_%s' % (app_type, country))
+        self.workspace.sm.delete_data(
+            self.get_cms_config_path(app_type, country),
+            'Deleted cms config for %s_%s' % (app_type, country))
+        push_to_git.delay(self.workspace.working_dir)
 
     def write_frontend_settings(
             self, app_type, country, clone_url, available_languages,
@@ -80,8 +87,11 @@ class SettingsManager(object):
         )
 
         filepath = self.get_frontend_settings_path(app_type, country)
-        with open(filepath, 'w') as config_file:
-            config_file.write(frontend_settings_content)
+
+        self.workspace.sm.store_data(
+            filepath, frontend_settings_content,
+            'Save frontend settings config for %s_%s' % (app_type, country))
+        push_to_git.delay(self.workspace.working_dir)
 
     def write_cms_settings(self, app_type, country, clone_url, repo_path):
         if self.deploy_environment == 'qa':
@@ -101,8 +111,10 @@ class SettingsManager(object):
 
         filepath = self.get_cms_settings_path(app_type, country)
 
-        with open(filepath, 'w') as config_file:
-            config_file.write(cms_settings_content)
+        self.workspace.sm.store_data(
+            filepath, cms_settings_content,
+            'Save frontend settings config for %s_%s' % (app_type, country))
+        push_to_git.delay(self.workspace.working_dir)
 
     def write_cms_config(self, app_type, country, clone_url, repo_path):
         cms_config_content = render_to_string(
@@ -113,5 +125,8 @@ class SettingsManager(object):
             })
 
         filepath = self.get_cms_config_path(app_type, country)
-        with open(filepath, 'w') as config_file:
-            config_file.write(cms_config_content)
+
+        self.workspace.sm.store_data(
+            filepath, cms_config_content,
+            'Save frontend settings config for %s_%s' % (app_type, country))
+        push_to_git.delay(self.workspace.working_dir)
