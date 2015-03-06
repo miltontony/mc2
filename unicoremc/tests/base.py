@@ -11,7 +11,7 @@ from git import Repo
 from elasticgit.tests.base import ModelBaseTest
 from elasticgit.storage import StorageManager
 
-from unicoremc.managers import NginxManager
+from unicoremc.managers import NginxManager, SettingsManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 
@@ -22,6 +22,11 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
         nm = NginxManager()
         self.addCleanup(lambda: [shutil.rmtree(dir_) for dir_ in nm.dirs])
         return nm
+
+    def get_settings_manager(self):
+        sm = SettingsManager()
+        self.addCleanup(lambda: [shutil.rmtree(dir_) for dir_ in sm.dirs])
+        return sm
 
     def mk_test_repos(self):
         workdir = os.path.join(settings.CMS_REPO_PATH, 'test-source-repo')

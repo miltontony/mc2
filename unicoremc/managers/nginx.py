@@ -19,7 +19,6 @@ class NginxManager(object):
         self.dirs = [
             self.frontend_sockets_dir,
             self.cms_sockets_dir,
-            self.nginx_dir,
         ]
         for dir_ in self.dirs:
             if not os.path.isdir(dir_):
