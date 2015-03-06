@@ -3,6 +3,8 @@ import os
 from django.template.loader import render_to_string
 from django.conf import settings
 
+from elasticgit import EG
+
 from unicoremc.tasks import push_to_git
 
 
@@ -13,6 +15,7 @@ class SettingsManager(object):
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
         self.cms_sockets_dir = settings.CMS_SOCKETS_PATH
         self.frontend_sockets_dir = settings.FRONTEND_SOCKETS_PATH
+        self.workspace = EG.workspace(settings.CONFIGS_REPO_PATH)
 
         self.dirs = [
             self.cms_sockets_dir,
