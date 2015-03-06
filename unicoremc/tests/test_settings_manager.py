@@ -1,21 +1,20 @@
 import os
 from ConfigParser import ConfigParser
 
-from django.test import TestCase
 from django.test.utils import override_settings
 from django.conf import settings
 
-from unicoremc.managers import SettingsManager
 from unicoremc.models import Localisation
+from unicoremc.tests.base import UnicoremcTestCase
 
 
-class SettingsManagerTestCase(TestCase):
+class SettingsManagerTestCase(UnicoremcTestCase):
 
     def test_write_frontend_settings(self):
         english = Localisation._for('eng_GB')
         afrikaans = Localisation._for('swa_TZ')
-        cm = SettingsManager()
-        cm.write_frontend_settings(
+        sm = self.get_settings_manager()
+        sm.write_frontend_settings(
             'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
             '/path/to/repo/ffl_za/', english, 'UA-some-profile-id')
 
@@ -50,8 +49,8 @@ class SettingsManagerTestCase(TestCase):
     def test_write_frontend_settings_prod(self):
         english = Localisation._for('eng_GB')
         afrikaans = Localisation._for('swa_TZ')
-        cm = SettingsManager()
-        cm.write_frontend_settings(
+        sm = self.get_settings_manager()
+        sm.write_frontend_settings(
             'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
             '/path/to/repo/ffl_za/', english, 'UA-some-profile-id')
 
@@ -66,8 +65,8 @@ class SettingsManagerTestCase(TestCase):
         self.assertTrue('raven-prod' in data)
 
     def test_write_cms_settings(self):
-        cm = SettingsManager()
-        cm.write_cms_settings(
+        sm = self.get_settings_manager()
+        sm.write_cms_settings(
             'ffl', 'za', 'http://some.repo.com/.git',
             '/path/to/repo/ffl_za/')
 
@@ -91,8 +90,8 @@ class SettingsManagerTestCase(TestCase):
 
     @override_settings(DEPLOY_ENVIRONMENT='prod')
     def test_write_cms_settings_prod(self):
-        cm = SettingsManager()
-        cm.write_cms_settings(
+        sm = self.get_settings_manager()
+        sm.write_cms_settings(
             'ffl', 'za', 'http://some.repo.com/.git',
             '/path/to/repo/ffl_za/')
 
@@ -110,7 +109,7 @@ class SettingsManagerTestCase(TestCase):
         self.assertTrue('raven-cms-prod' in data)
 
     def test_write_cms_config(self):
-        sm = SettingsManager()
+        sm = self.get_settings_manager()
         sm.write_cms_config(
             'ffl', 'za', 'http://some.repo.com/.git',
             '/path/to/repo/ffl_za/')
