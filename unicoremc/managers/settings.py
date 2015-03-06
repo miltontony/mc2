@@ -116,7 +116,7 @@ class SettingsManager(object):
 
         self.workspace.sm.store_data(
             filepath, cms_settings_content,
-            'Save frontend settings config for %s_%s' % (app_type, country))
+            'Save cms settings config for %s_%s' % (app_type, country))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_cms_config(self, app_type, country, clone_url, repo_path):
@@ -131,5 +131,5 @@ class SettingsManager(object):
 
         self.workspace.sm.store_data(
             filepath, cms_config_content,
-            'Save frontend settings config for %s_%s' % (app_type, country))
+            'Save cms config for %s_%s' % (app_type, country))
         push_to_git.delay(self.workspace.working_dir)
