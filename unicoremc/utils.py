@@ -1,7 +1,12 @@
 import httplib2
 
+from django.conf import settings
+from django.core.exceptions import ImproperlyConfigured
+
 from apiclient import discovery
 from oauth2client import client
+
+from unicore.hub.client import AppClient
 
 
 def get_ga_accounts(access_token):
@@ -49,3 +54,19 @@ def create_ga_default_view(access_token, account_id, profile_id):
         }
     ).execute()
     return resp.get("id")
+
+
+def get_hub_app_client():
+    """
+    Returns an instance of AppClient if settings are present, otherwise
+    returns None. Raises ImproperlyConfigured if the settings are invalid.
+    """
+    client_settings = getattr(settings, 'HUBCLIENT_SETTINGS', None)
+    if client_settings is None:
+        return None
+
+    try:
+        client = AppClient(**client_settings)
+        return client
+    except KeyError as e:
+        raise ImproperlyConfigured('%s is missing in HUBCLIENT_SETTINGS' % e)

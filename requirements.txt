@@ -16,6 +16,7 @@ python-social-auth
 Django-ostinato
 elastic-git
 unicore-cms
+unicore.hub.client>=0.2.0
 uwsgi==2.0.8
 django-celery-email==1.0.4
 httplib2==0.9
