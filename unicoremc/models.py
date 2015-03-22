@@ -21,6 +21,8 @@ from elasticgit import EG
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 
+from unicoremc.utils import get_hub_app_client
+
 
 class Localisation(models.Model):
     """
@@ -106,6 +108,7 @@ class Project(models.Model):
         blank=True, null=True, default='')
     cms_custom_domain = models.TextField(
         blank=True, null=True, default='')
+    hub_app_id = models.CharField(blank=True, null=True, max_length=32)
 
     class Meta:
         ordering = ('app_type', 'country')
@@ -144,6 +147,43 @@ class Project(models.Model):
             'country': self.country.lower()
         }
         return os.path.join(settings.FRONTEND_REPO_PATH, repo_folder_name)
+
+    def hub_app_title(self):
+        return '%s - %s' % (
+            self.app_type, constants.COUNTRIES.get(self.country, None))
+
+    def hub_app(self):
+        if self.hub_app_id is None:
+            return None
+
+        if not getattr(self, '_hub_app', None):
+            client = get_hub_app_client()
+            if client is None:
+                return None
+            self._hub_app = client.get_app(self.hub_app_id)
+
+        return self._hub_app
+
+    def create_or_update_hub_app(self):
+        client = get_hub_app_client()
+        if client is None:
+            return None
+
+        if self.hub_app_id:
+            app = client.get_app(self.hub_app_id)
+            app.set('title', self.hub_app_title())
+            app.set('url', self.frontend_url())
+            app.save()
+        else:
+            app = client.create_app({
+                'title': self.hub_app_title(),
+                'url': self.frontend_url()
+            })
+            self.hub_app_id = app.get('uuid')
+            self.save()
+
+        self._hub_app = app
+        return app
 
     def create_repo(self, access_token):
         new_repo_name = constants.NEW_REPO_NAME_FORMAT % {

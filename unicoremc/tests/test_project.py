@@ -1,6 +1,8 @@
+import re
 import responses
 import pytest
 import os
+import json
 import shutil
 
 from unittest import skip
@@ -9,6 +11,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from git import Repo
+import mock
 
 from unicoremc.models import Project, Localisation
 from unicoremc.states import ProjectWorkflow
@@ -17,6 +20,7 @@ from unicoremc.tests.base import UnicoremcTestCase
 
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
+from unicore.hub.client import App
 
 
 @pytest.mark.django_db
@@ -416,3 +420,71 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertEquals(Project.objects.all()[0], p3)
         self.assertEquals(Project.objects.all()[1], p1)
         self.assertEquals(Project.objects.all()[2], p2)
+
+    def get_mock_app_client(self):
+        mock_app_client = mock.Mock()
+        mock_app_client.get_app = mock.Mock()
+        mock_app_client.get_app.return_value = mock.Mock()
+        mock_app_client.create_app = mock.Mock()
+        mock_app_client.create_app.return_value = mock.Mock()
+        return mock_app_client
+
+    @mock.patch('unicoremc.models.get_hub_app_client')
+    def test_hub_app(self, mock_get_client):
+        proj = Project.objects.create(
+            app_type='gem',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user
+        )
+        self.assertEqual(proj.hub_app(), None)
+
+        app_client = self.get_mock_app_client()
+        mock_get_client.return_value = app_client
+
+        proj.hub_app_id = 'abcd'
+        app = proj.hub_app()
+        self.assertTrue(app)
+        app_client.get_app.assert_called_with(proj.hub_app_id)
+        # check that the object isn't fetched again on subsequent calls
+        self.assertEqual(app, proj.hub_app())
+        self.assertEqual(app_client.get_app.call_count, 1)
+
+    @responses.activate
+    def test_create_or_update_hub_app(self):
+        proj = Project.objects.create(
+            app_type='gem',
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user
+        )
+        data = {
+            'title': proj.hub_app_title(),
+            'url': proj.frontend_url(),
+            'uuid': 'foouuid',
+            'key': 'fookey',
+        }
+        responses.add(
+            responses.POST, re.compile(r'.*/apps'),
+            body=json.dumps(data),
+            status=201,
+            content_type='application/json')
+
+        app = proj.create_or_update_hub_app()
+        self.assertEqual(proj.hub_app_id, 'foouuid')
+        self.assertEqual(proj.hub_app(), app)
+
+        responses.reset()
+        responses.add(
+            responses.GET, re.compile(r'.*/apps/foouuid'),
+            body=json.dumps(data),
+            status=200,
+            content_type='application/json')
+        responses.add(
+            responses.PUT, re.compile(r'.*/apps/foouuid'),
+            body='{}', status=200, content_type='application/json')
+
+        proj.app_type = 'ffl'
+        app = proj.create_or_update_hub_app()
+        self.assertIn('ffl', app.get('title'))
+        self.assertIn('ffl', app.get('url'))
