@@ -357,6 +357,7 @@ class ProjectTestCase(UnicoremcTestCase):
     def test_create_pyramid_settings(self):
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_hub_app()
 
         p = Project(
             app_type='ffl',
@@ -377,6 +378,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
         pw.take_action('create_nginx')
+        pw.take_action('create_hub_app')
         pw.take_action('create_pyramid_settings')
 
         frontend_settings_path = os.path.join(
@@ -457,17 +459,7 @@ class ProjectTestCase(UnicoremcTestCase):
             country='ZA',
             owner=self.user
         )
-        data = {
-            'title': proj.hub_app_title(),
-            'url': proj.frontend_url(),
-            'uuid': 'foouuid',
-            'key': 'fookey',
-        }
-        responses.add(
-            responses.POST, re.compile(r'.*/apps'),
-            body=json.dumps(data),
-            status=201,
-            content_type='application/json')
+        self.mock_create_hub_app(uuid='foouuid')
 
         app = proj.create_or_update_hub_app()
         self.assertEqual(proj.hub_app_id, 'foouuid')
@@ -482,7 +474,7 @@ class ProjectTestCase(UnicoremcTestCase):
         responses.reset()
         responses.add(
             responses.GET, re.compile(r'.*/apps/foouuid'),
-            body=json.dumps(data),
+            body=json.dumps(app.data),
             status=200,
             content_type='application/json')
         responses.add(

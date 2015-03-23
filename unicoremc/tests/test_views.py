@@ -37,6 +37,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_hub_app()
 
         data = {
             'app_type': 'ffl',

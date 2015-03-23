@@ -141,7 +141,7 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
-    def mock_create_hub_app(self):
+    def mock_create_hub_app(self, **fields):
 
         def make_response(request):
             data = json.loads(request.body)
@@ -149,6 +149,7 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
                 'uuid': uuid.uuid4().hex,
                 'key': 'anapikey'
             })
+            data.update(fields)
             return (201, {}, json.dumps(data))
 
         responses.add_callback(
