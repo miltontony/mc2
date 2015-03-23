@@ -9,9 +9,12 @@ from django.test import TransactionTestCase
 from django.conf import settings
 
 from git import Repo
+import mock
 
 from elasticgit.tests.base import ModelBaseTest
 from elasticgit.storage import StorageManager
+
+from unicore.hub.client import App
 
 from unicoremc.managers import NginxManager, SettingsManager
 from unicore.content.models import (
@@ -86,6 +89,16 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
 
         self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
         self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
+
+    def mk_hub_app(self, **fields):
+        data = {
+            'title': 'Foo',
+            'url': 'http://localhost/foo',
+            'uuid': uuid.uuid4().hex,
+            'key': 'anapikey'
+        }
+        data.update(fields)
+        return App(mock.Mock(), data)
 
     def mock_create_repo(self, status=201, data={}):
         default_response = {
