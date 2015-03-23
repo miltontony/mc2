@@ -473,6 +473,12 @@ class ProjectTestCase(UnicoremcTestCase):
         app = proj.create_or_update_hub_app()
         self.assertEqual(proj.hub_app_id, 'foouuid')
         self.assertEqual(proj.hub_app(), app)
+        self.assertIn(
+            '"title": "%s"' % proj.hub_app_title(),
+            responses.calls[0].request.body)
+        self.assertIn(
+            '"url": "%s"' % proj.frontend_url(),
+            responses.calls[0].request.body)
 
         responses.reset()
         responses.add(
@@ -486,5 +492,5 @@ class ProjectTestCase(UnicoremcTestCase):
 
         proj.app_type = 'ffl'
         app = proj.create_or_update_hub_app()
-        self.assertIn('ffl', app.get('title'))
+        self.assertIn(proj.get_app_type_display(), app.get('title'))
         self.assertIn('ffl', app.get('url'))
