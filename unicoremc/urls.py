@@ -48,6 +48,10 @@ urlpatterns = patterns(
             login_required(views.ProjectEditView.as_view())),
         name='advanced'),
     url(
+        r'^advanced/(?P<project_id>\d+)/reset_hub_app_key/$',
+        'unicoremc.views.reset_hub_app_key',
+        name='reset-hub-app-key'),
+    url(
         r'^logout/$',
         'django.contrib.auth.views.logout_then_login',
         name='logout'

@@ -39,6 +39,9 @@
                         <div class="grp-text">GA Profile</div>
                     </th>
                     <th scope="col">
+                        <div class="grp-text">Hub App ID</div>
+                    </th>
+                    <th scope="col">
                         <div class="grp-text">CMS URL <br />*.hub.unicore.io</div>
                     </th>
                 </tr>
@@ -69,6 +72,7 @@ function reload_projects(){
                     languages.push(' <a href="' + this.frontend_url + '/locale/'+ this.available_languages[key] +'/" target="_blank">'+ this.available_languages[key] + '</a>');
                 }
 
+                var hub_reset_link = this.hub_app_id ? '<br/><a href="/advanced/' + this.id + '/reset_hub_app_key/">Reset key</a>' : '';
                 var row = '<th>' + this.app_type +'</th>' +
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
@@ -76,9 +80,10 @@ function reload_projects(){
                           '<td><a target="_blank" href="'+ this.frontend_url +'">'+ frontend_url +'</a></td>' +
                           '<td>'+ languages + '</td>' +
                           '<td>'+ this.ga_profile_id + '</td>' +
+                          '<td>' + this.hub_app_id + '</td>' +
                           '<td><a target="_blank" href="'+ this.cms_url +'">'+ cms_url +'</a></td>' +
                           {% if user.is_superuser %}
-                          '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a></td>' +
+                          '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a>' + hub_reset_link + '</td>' +
                           {% endif %}
                           '';
 
