@@ -77,6 +77,15 @@ class WorkspaceInitialized(State):
 
 class NginxCreated(State):
     verbose_name = 'Nginx created'
+    transitions = {'create_hub_app': 'hub_app_created'}
+
+    def create_hub_app(self, **kwargs):
+        if self.instance:
+            self.instance.create_or_update_hub_app()
+
+
+class HubAppCreated(State):
+    verbose_name = 'Hub app created'
     transitions = {'create_pyramid_settings': 'pyramid_settings_created'}
 
     def create_pyramid_settings(self, **kwargs):
@@ -142,6 +151,7 @@ class ProjectWorkflow(StateMachine):
         'webhook_created': WebhookCreated,
         'workspace_initialized': WorkspaceInitialized,
         'nginx_created': NginxCreated,
+        'hub_app_created': HubAppCreated,
         'pyramid_settings_created': PyramidSettingsCreated,
         'cms_settings_created': CmsSettingsCreated,
         'db_created': DbCreated,

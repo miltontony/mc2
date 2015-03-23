@@ -62,6 +62,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_hub_app()
 
         p = Project(
             app_type='ffl',
@@ -82,6 +83,7 @@ class StatesTestCase(UnicoremcTestCase):
         pw.take_action('create_webhook', access_token='sample-token')
         pw.take_action('init_workspace')
         pw.take_action('create_nginx')
+        pw.take_action('create_hub_app')
         pw.take_action('create_pyramid_settings')
         pw.take_action('create_cms_settings')
 
@@ -119,6 +121,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_hub_app()
 
         p = Project(
             app_type='ffl',
@@ -157,6 +160,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_hub_app()
 
         p = Project(
             app_type='ffl',

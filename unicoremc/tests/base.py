@@ -2,6 +2,8 @@ import os
 import json
 import responses
 import shutil
+import uuid
+from urlparse import urljoin
 
 from django.test import TransactionTestCase
 from django.conf import settings
@@ -125,3 +127,19 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             body=json.dumps({}),
             content_type="application/json",
             status=status)
+
+    def mock_create_hub_app(self):
+
+        def make_response(request):
+            data = json.loads(request.body)
+            data.update({
+                'uuid': uuid.uuid4().hex,
+                'key': 'anapikey'
+            })
+            return (201, {}, json.dumps(data))
+
+        responses.add_callback(
+            responses.POST,
+            urljoin(settings.HUBCLIENT_SETTINGS['host'], 'apps'),
+            callback=make_response,
+            content_type="application/json")
