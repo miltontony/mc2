@@ -2,14 +2,19 @@ import os
 import json
 import responses
 import shutil
+import uuid
+from urlparse import urljoin
 
 from django.test import TransactionTestCase
 from django.conf import settings
 
 from git import Repo
+import mock
 
 from elasticgit.tests.base import ModelBaseTest
 from elasticgit.storage import StorageManager
+
+from unicore.hub.client import App
 
 from unicoremc.managers import NginxManager, SettingsManager
 from unicore.content.models import (
@@ -85,6 +90,16 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
         self.addCleanup(lambda: self.source_repo_sm.destroy_storage())
         self.addCleanup(lambda: self.base_repo_sm.destroy_storage())
 
+    def mk_hub_app(self, **fields):
+        data = {
+            'title': 'Foo',
+            'url': 'http://localhost/foo',
+            'uuid': uuid.uuid4().hex,
+            'key': 'anapikey'
+        }
+        data.update(fields)
+        return App(mock.Mock(), data)
+
     def mock_create_repo(self, status=201, data={}):
         default_response = {
             'clone_url': self.source_repo_sm.repo.git_dir,
@@ -125,3 +140,20 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             body=json.dumps({}),
             content_type="application/json",
             status=status)
+
+    def mock_create_hub_app(self, **fields):
+
+        def make_response(request):
+            data = json.loads(request.body)
+            data.update({
+                'uuid': uuid.uuid4().hex,
+                'key': 'anapikey'
+            })
+            data.update(fields)
+            return (201, {}, json.dumps(data))
+
+        responses.add_callback(
+            responses.POST,
+            urljoin(settings.HUBCLIENT_SETTINGS['host'], 'apps'),
+            callback=make_response,
+            content_type="application/json")

@@ -36,3 +36,10 @@ RAVEN_DSN_FRONTEND_PROD = 'raven-prod'
 
 RAVEN_DSN_CMS_QA = 'raven-cms-qa'
 RAVEN_DSN_CMS_PROD = 'raven-cms-prod'
+
+HUBCLIENT_SETTINGS = {
+    'host': 'http://localhost:8080',
+    'app_id': '',
+    'app_key': '',
+    'redirect_to_https': False,
+}

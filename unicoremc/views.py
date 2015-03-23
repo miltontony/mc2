@@ -74,6 +74,7 @@ class ProjectEditView(UpdateView):
             pk=project.pk).update(project_version=F('project_version') + 1)
 
         project = self.get_object()
+        project.create_or_update_hub_app()
         project.create_pyramid_settings()
         project.create_nginx()
         return response
@@ -171,6 +172,19 @@ def manage_ga_new(request, *args, **kwargs):
 
 
 @login_required
+@permission_required('project.can_change')
+def reset_hub_app_key(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    app = project.hub_app()
+    if app is not None:
+        app.reset_key()
+        project.create_pyramid_settings()
+
+    return redirect(reverse('advanced', args=(project_id, )))
+
+
+@login_required
 def projects_progress(request, *args, **kwargs):
     projects = Project.objects.all()
     return HttpResponse(json.dumps(
@@ -183,6 +197,7 @@ def projects_progress(request, *args, **kwargs):
             'frontend_url': p.frontend_url(),
             'cms_url': p.cms_url(),
             'ga_profile_id': p.ga_profile_id or '',
+            'hub_app_id': p.hub_app_id or '',
             'available_languages': [
                 l.get_code() for l in p.available_languages.all()],
             'id': p.pk

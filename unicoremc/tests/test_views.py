@@ -3,6 +3,7 @@ import os
 import shutil
 import pytest
 import responses
+from urlparse import urljoin
 
 from django.conf import settings
 from django.test.client import Client
@@ -37,6 +38,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_hub_app()
 
         data = {
             'app_type': 'ffl',
@@ -108,6 +110,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_hub_app()
 
         Localisation._for('eng_UK')
         Localisation._for('swa_TZ')
@@ -126,6 +129,9 @@ class ViewsTestCase(UnicoremcTestCase):
             self.client.post(reverse('start_new_project'), data)
 
         project = Project.objects.all()[0]
+        project.hub_app_id = None
+        project.save()
+        self.assertFalse(project.hub_app())
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -159,6 +165,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(project.default_language.get_code(), 'swa_TZ')
         self.assertEqual(project.frontend_custom_domain, 'some.domain.com')
         self.assertEqual(project.cms_custom_domain, 'cms.some.domain.com')
+        self.assertTrue(project.hub_app_id)
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -277,3 +284,51 @@ class ViewsTestCase(UnicoremcTestCase):
         for k, v in LANGUAGES.items():
             lang = languages.get(bibliographic=k)
             self.assertEqual(lang.bibliographic, k)
+
+    @responses.activate
+    def test_reset_hub_app_key(self):
+        self.mock_create_hub_app()
+        self.client.login(username='testuser2', password='test')
+
+        proj = Project.objects.create(
+            app_type='ffl',
+            base_repo_url='http://some-git-repo.com',
+            country='ZA',
+            owner=User.objects.get(pk=2),
+            state='done')
+        proj.create_or_update_hub_app()
+        app_data = proj.hub_app().data
+        app_data_with_new_key = app_data.copy()
+        app_data_with_new_key['key'] = 'iamanewkey'
+
+        responses.reset()
+        responses.add(
+            responses.GET,
+            urljoin(settings.HUBCLIENT_SETTINGS['host'],
+                    'apps/%s' % app_data['uuid']),
+            body=json.dumps(app_data),
+            status=200,
+            content_type='application/json')
+        responses.add(
+            responses.PUT,
+            urljoin(settings.HUBCLIENT_SETTINGS['host'],
+                    'apps/%s/reset_key' % app_data['uuid']),
+            body=json.dumps(app_data_with_new_key),
+            status=200,
+            content_type='application/json')
+
+        resp = self.client.get(reverse('reset-hub-app-key', args=(proj.id, )))
+        self.assertRedirects(resp, reverse('advanced', args=(proj.id, )))
+        self.assertEqual(len(responses.calls), 2)
+        self.assertIn(
+            '%s/reset_key' % app_data['uuid'],
+            responses.calls[-1].request.url)
+
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+
+        with open(frontend_settings_path, "r") as config_file:
+            data = config_file.read()
+
+        self.assertIn('unicorehub.app_key = iamanewkey', data)

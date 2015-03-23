@@ -15,10 +15,11 @@ class SettingsManagerTestCase(UnicoremcTestCase):
     def test_write_frontend_settings(self):
         english = Localisation._for('eng_GB')
         afrikaans = Localisation._for('swa_TZ')
+        hub_app = self.mk_hub_app()
         sm = self.get_settings_manager()
         sm.write_frontend_settings(
             'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id')
+            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id', hub_app)
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -46,15 +47,31 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
         self.assertTrue('raven-qa' in data)
+        self.assertIn('unicorehub.app_id = %s' % hub_app.get('uuid'), data)
+        self.assertIn('unicorehub.app_key = %s' % hub_app.get('key'), data)
+        self.assertIn(
+            'unicorehub.host = %s' % settings.HUBCLIENT_SETTINGS['host'], data)
+        self.assertIn('unicorehub.redirect_to_https = \n', data)
+
+        # check that Hub settings aren't present if hub_app is None
+        sm.write_frontend_settings(
+            'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
+            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id', None)
+        with open(frontend_settings_path, "r") as config_file:
+            data = config_file.read()
+
+        for key in ('host', 'app_id', 'app_key', 'redirect_to_https'):
+            self.assertNotIn('unicorehub.%s' % key, data)
 
     @override_settings(DEPLOY_ENVIRONMENT='prod')
     def test_write_frontend_settings_prod(self):
         english = Localisation._for('eng_GB')
         afrikaans = Localisation._for('swa_TZ')
+        hub_app = self.mk_hub_app()
         sm = self.get_settings_manager()
         sm.write_frontend_settings(
             'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id')
+            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id', hub_app)
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -149,12 +166,14 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         english = Localisation._for('eng_GB')
         afrikaans = Localisation._for('swa_TZ')
+        hub_app = self.mk_hub_app()
 
         with self.settings(CONFIGS_REPO_PATH=config_ws.working_dir):
             sm = self.get_settings_manager()
             sm.write_frontend_settings(
                 'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-                '/path/to/repo/ffl_za/', english, 'UA-some-profile-id')
+                '/path/to/repo/ffl_za/', english, 'UA-some-profile-id',
+                hub_app)
             sm.write_cms_settings(
                 'ffl', 'za', 'http://some.repo.com/.git',
                 '/path/to/repo/ffl_za/')
@@ -233,12 +252,14 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         english = Localisation._for('eng_GB')
         afrikaans = Localisation._for('swa_TZ')
+        hub_app = self.mk_hub_app()
 
         with self.settings(CONFIGS_REPO_PATH=config_ws.working_dir):
             sm = self.get_settings_manager()
             sm.write_frontend_settings(
                 'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-                '/path/to/repo/ffl_za/', english, 'UA-some-profile-id')
+                '/path/to/repo/ffl_za/', english, 'UA-some-profile-id',
+                hub_app)
             sm.write_cms_settings(
                 'ffl', 'za', 'http://some.repo.com/.git',
                 '/path/to/repo/ffl_za/')
