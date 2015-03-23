@@ -72,12 +72,8 @@ class SettingsManager(object):
         for lang in available_languages:
             languages.append(repr((lang.get_code(), lang.get_display_name())))
 
-        if hub_app:
-            hub_app_id = hub_app.get('uuid')
-            hub_app_key = hub_app.get('key')
-        else:
-            hub_app_id = None
-            hub_app_key = None
+        hub_app_id = hub_app.get('uuid') if hub_app else None
+        hub_app_key = hub_app.get('key') if hub_app else None
 
         frontend_settings_content = render_to_string(
             'configs/pyramid.ini', {

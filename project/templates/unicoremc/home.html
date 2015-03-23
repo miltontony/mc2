@@ -80,10 +80,10 @@ function reload_projects(){
                           '<td><a target="_blank" href="'+ this.frontend_url +'">'+ frontend_url +'</a></td>' +
                           '<td>'+ languages + '</td>' +
                           '<td>'+ this.ga_profile_id + '</td>' +
-                          '<td>' + this.hub_app_id + '</td>' +
+                          '<td>' + this.hub_app_id + hub_reset_link + '</td>' +
                           '<td><a target="_blank" href="'+ this.cms_url +'">'+ cms_url +'</a></td>' +
                           {% if user.is_superuser %}
-                          '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a>' + hub_reset_link + '</td>' +
+                          '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a></td>' +
                           {% endif %}
                           '';
 
