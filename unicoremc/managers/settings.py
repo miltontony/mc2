@@ -62,7 +62,7 @@ class SettingsManager(object):
 
     def write_frontend_settings(
             self, app_type, country, clone_url, available_languages,
-            repo_path, default_language, ga_profile_id):
+            repo_path, default_language, ga_profile_id, hub_app):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
@@ -71,6 +71,13 @@ class SettingsManager(object):
         languages = []
         for lang in available_languages:
             languages.append(repr((lang.get_code(), lang.get_display_name())))
+
+        if hub_app:
+            hub_app_id = hub_app.get('uuid')
+            hub_app_key = hub_app.get('key')
+        else:
+            hub_app_id = None
+            hub_app_key = None
 
         frontend_settings_content = render_to_string(
             'configs/pyramid.ini', {
@@ -85,7 +92,10 @@ class SettingsManager(object):
                     '%s.socket' % (self.get_deploy_name(
                         app_type, country.lower()),)),
                 'repo_path': repo_path,
-                'ga_profile_id': ga_profile_id
+                'ga_profile_id': ga_profile_id,
+                'hub_app_id': hub_app_id,
+                'hub_app_key': hub_app_key,
+                'hub_settings': settings.HUBCLIENT_SETTINGS
             }
         )
 
