@@ -20,7 +20,6 @@ from unicoremc.tests.base import UnicoremcTestCase
 
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
-from unicore.hub.client import App
 
 
 @pytest.mark.django_db
