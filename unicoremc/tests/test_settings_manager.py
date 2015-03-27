@@ -22,8 +22,8 @@ class SettingsManagerTestCase(UnicoremcTestCase):
             '/path/to/repo/ffl_za/', english, 'UA-some-profile-id', hub_app)
 
         frontend_settings_path = os.path.join(
-            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
-            'ffl_za.ini')
+            settings.CONFIGS_REPO_PATH,
+            sm.get_frontend_settings_path('ffl', 'za'))
 
         socket_path = os.path.join(
             settings.FRONTEND_SOCKETS_PATH,
@@ -74,8 +74,8 @@ class SettingsManagerTestCase(UnicoremcTestCase):
             '/path/to/repo/ffl_za/', english, 'UA-some-profile-id', hub_app)
 
         frontend_settings_path = os.path.join(
-            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
-            'ffl_za.ini')
+            settings.CONFIGS_REPO_PATH,
+            sm.get_frontend_settings_path('ffl', 'za'))
 
         with open(frontend_settings_path, "r") as config_file:
             data = config_file.read()
@@ -95,8 +95,17 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         self.assertTrue(os.path.exists(cms_settings_path))
 
+        cms_settings_output_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.py')
+
+        self.assertTrue(os.path.exists(cms_settings_output_path))
+
         with open(cms_settings_path, "r") as config_file:
             data = config_file.read()
+
+        with open(cms_settings_output_path, "r") as config_file:
+            data2 = config_file.read()
 
         self.addCleanup(lambda: os.remove(cms_settings_path))
 
@@ -106,6 +115,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue("/path/to/repo/ffl_za" in data)
         self.assertTrue('http://some.repo.com/.git' in data)
         self.assertTrue('raven-cms-qa' in data)
+        self.assertEqual(data, data2)
 
     @override_settings(DEPLOY_ENVIRONMENT='prod')
     def test_write_cms_settings_prod(self):
@@ -120,12 +130,22 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         self.assertTrue(os.path.exists(cms_settings_path))
 
+        cms_settings_output_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.py')
+
+        self.assertTrue(os.path.exists(cms_settings_output_path))
+
         with open(cms_settings_path, "r") as config_file:
             data = config_file.read()
+
+        with open(cms_settings_output_path, "r") as config_file:
+            data2 = config_file.read()
 
         self.addCleanup(lambda: os.remove(cms_settings_path))
 
         self.assertTrue('raven-cms-prod' in data)
+        self.assertEqual(data, data2)
 
     def test_write_cms_config(self):
         sm = self.get_settings_manager()
@@ -139,14 +159,28 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         self.assertTrue(os.path.exists(cms_config_path))
 
+        cms_config_output_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+
+        self.assertTrue(os.path.exists(cms_config_output_path))
+
         cp = ConfigParser()
         with open(cms_config_path, "r") as fp:
             cp.readfp(fp)
 
+        cp2 = ConfigParser()
+        with open(cms_config_output_path, "r") as fp:
+            cp2.readfp(fp)
+
         self.assertEqual(
             cp.get('uwsgi', 'env'),
             'DJANGO_SETTINGS_MODULE=project.ffl_za')
+        self.assertEqual(
+            cp2.get('uwsgi', 'env'),
+            'DJANGO_SETTINGS_MODULE=project.ffl_za')
         self.assertTrue(cp.get('uwsgi', 'idle'))
+        self.assertTrue(cp2.get('uwsgi', 'idle'))
 
     def test_configs_pushed_to_git(self):
         remote_ws = self.mk_workspace(
@@ -284,12 +318,21 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         remote_cms_config_path = os.path.join(
             remote_ws.working_dir, 'cms_settings', 'ffl_za.ini')
 
+        cms_settings_output_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.py')
+        cms_config_output_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+
         self.assertTrue(os.path.exists(cms_settings_config_path))
         self.assertTrue(os.path.exists(remote_cms_settings_config_path))
         self.assertTrue(os.path.exists(frontend_settings_config_path))
         self.assertTrue(os.path.exists(remote_frontend_settings_config_path))
         self.assertTrue(os.path.exists(cms_config_path))
         self.assertTrue(os.path.exists(remote_cms_config_path))
+        self.assertTrue(os.path.exists(cms_settings_output_path))
+        self.assertTrue(os.path.exists(cms_config_output_path))
 
         remote_repo.heads.temp.checkout()
         sm.destroy('ffl', 'za')
@@ -301,6 +344,8 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertFalse(os.path.exists(remote_frontend_settings_config_path))
         self.assertFalse(os.path.exists(cms_config_path))
         self.assertFalse(os.path.exists(remote_cms_config_path))
+        self.assertFalse(os.path.exists(cms_settings_output_path))
+        self.assertFalse(os.path.exists(cms_config_output_path))
 
         self.addCleanup(lambda: shutil.rmtree(settings.CONFIGS_REPO_PATH))
         self.addCleanup(
