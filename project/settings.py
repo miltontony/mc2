@@ -301,7 +301,7 @@ RAVEN_DSN_CMS_PROD = ''
 
 ELASTICSEARCH_HOST = 'http://localhost:9200'
 
-HUBCLIENT_SETTINGS = {}
+HUBCLIENT_SETTINGS = None
 
 try:
     from project.local_settings import *
