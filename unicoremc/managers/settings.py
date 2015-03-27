@@ -12,6 +12,8 @@ class SettingsManager(object):
     def __init__(self):
         self.frontend_settings_dir = 'frontend_settings/'
         self.cms_settings_dir = 'cms_settings/'
+        self.cms_settings_output_dir = settings.CMS_SETTINGS_OUTPUT_PATH
+
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
         self.cms_sockets_dir = settings.CMS_SOCKETS_PATH
         self.frontend_sockets_dir = settings.FRONTEND_SOCKETS_PATH
@@ -20,6 +22,7 @@ class SettingsManager(object):
         self.dirs = [
             self.cms_sockets_dir,
             self.frontend_sockets_dir,
+            self.cms_settings_output_dir,
         ]
 
         for dir_ in self.dirs:
@@ -41,6 +44,12 @@ class SettingsManager(object):
             '%s.py' % (self.get_deploy_name(app_type, country),)
         )
 
+    def get_cms_settings_output_path(self, app_type, country):
+        return os.path.join(
+            self.cms_settings_output_dir,
+            '%s.py' % (self.get_deploy_name(app_type, country),)
+        )
+
     def get_cms_config_path(self, app_type, country):
         # NOTE: this needs to match the socket name
         return os.path.join(
@@ -48,7 +57,17 @@ class SettingsManager(object):
             '%s.ini' % (self.get_deploy_name(app_type, country),)
         )
 
+    def get_cms_config_output_path(self, app_type, country):
+        # NOTE: this needs to match the socket name
+        return os.path.join(
+            self.cms_settings_output_dir,
+            '%s.ini' % (self.get_deploy_name(app_type, country),)
+        )
+
     def destroy(self, app_type, country):
+        os.remove(self.get_cms_settings_output_path(app_type, country))
+        os.remove(self.get_cms_config_output_path(app_type, country))
+
         self.workspace.sm.delete_data(
             self.get_frontend_settings_path(app_type, country),
             'Deleted frontend settings config for %s_%s' % (app_type, country))
@@ -118,12 +137,17 @@ class SettingsManager(object):
             }
         )
 
+        # Write settings file to git repo
         filepath = self.get_cms_settings_path(app_type, country)
-
         self.workspace.sm.store_data(
             filepath, cms_settings_content,
             'Save cms settings config for %s_%s' % (app_type, country))
         push_to_git.delay(self.workspace.working_dir)
+
+        # Write settings file to django config folder
+        filepath = self.get_cms_settings_output_path(app_type, country)
+        with open(filepath, 'w') as config_file:
+            config_file.write(cms_settings_content)
 
     def write_cms_config(self, app_type, country, clone_url, repo_path):
         cms_config_content = render_to_string(
@@ -133,9 +157,14 @@ class SettingsManager(object):
                     app_type, country)
             })
 
+        # Write settings file to git repo
         filepath = self.get_cms_config_path(app_type, country)
-
         self.workspace.sm.store_data(
             filepath, cms_config_content,
             'Save cms config for %s_%s' % (app_type, country))
         push_to_git.delay(self.workspace.working_dir)
+
+        # Write settings file to django config folder
+        filepath = self.get_cms_config_output_path(app_type, country)
+        with open(filepath, 'w') as config_file:
+            config_file.write(cms_config_content)
