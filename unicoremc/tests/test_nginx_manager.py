@@ -14,9 +14,7 @@ class NginxManagerTestCase(UnicoremcTestCase):
 
         nm.write_frontend_nginx('ffl', 'za', 'some.domain.com')
 
-        frontend_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
+        frontend_nginx_config_path = nm.get_frontend_nginx_path('ffl', 'za')
 
         frontend_socket_path = os.path.join(
             settings.FRONTEND_SOCKETS_PATH,
@@ -43,9 +41,7 @@ class NginxManagerTestCase(UnicoremcTestCase):
         nm = self.get_nginx_manager()
         nm.write_frontend_nginx('ffl', 'za', 'some.domain.com')
 
-        frontend_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
+        frontend_nginx_config_path = nm.get_frontend_nginx_path('ffl', 'za')
 
         with open(frontend_nginx_config_path, "r") as config_file:
             data = config_file.read()
@@ -59,9 +55,7 @@ class NginxManagerTestCase(UnicoremcTestCase):
         nm = self.get_nginx_manager()
         nm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
 
-        cms_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'cms_ffl_za.conf')
+        cms_nginx_config_path = nm.get_cms_nginx_path('ffl', 'za')
 
         cms_socket_path = os.path.join(
             settings.CMS_SOCKETS_PATH,
@@ -86,9 +80,7 @@ class NginxManagerTestCase(UnicoremcTestCase):
         nm = self.get_nginx_manager()
         nm.write_cms_nginx('ffl', 'za', 'cms.domain.com')
 
-        cms_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'cms_ffl_za.conf')
+        cms_nginx_config_path = nm.get_cms_nginx_path('ffl', 'za')
 
         cms_socket_path = os.path.join(
             settings.CMS_SOCKETS_PATH,

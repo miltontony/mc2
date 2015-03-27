@@ -23,9 +23,9 @@ CMS_REPO_PATH = abspath(REPO_WORKSPACE, 'cms')
 
 CONFIG_WORKSPACE = '.test_config_dir'
 CONFIGS_REPO_PATH = abspath('.test_config_repo_dir')
-NGINX_CONFIGS_PATH = abspath(CONFIG_WORKSPACE, 'nginx')
+NGINX_CONFIGS_PATH = abspath(CONFIGS_REPO_PATH, 'nginx')
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath(
-    CONFIG_WORKSPACE, 'frontend_settings')
+    CONFIGS_REPO_PATH, 'frontend_settings')
 CMS_SETTINGS_OUTPUT_PATH = abspath(CONFIG_WORKSPACE, 'cms_settings')
 
 FRONTEND_SOCKETS_PATH = abspath('.test_sockets_dir', 'frontend_sockets')
