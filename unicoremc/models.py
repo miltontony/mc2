@@ -73,6 +73,7 @@ class Project(models.Model):
     U_REPORT = 'ureport'
     MARIE_STOPES = 'mariestopes'
     FFL_ANGOLA = 'fflangola'
+    APONJON = 'aponjon'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),
@@ -85,6 +86,7 @@ class Project(models.Model):
         (U_REPORT, 'U-Report'),
         (MARIE_STOPES, 'Marie Stopes'),
         (FFL_ANGOLA, 'FFL Angola'),
+        (APONJON, 'MAMA Aponjon'),
     )
 
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
