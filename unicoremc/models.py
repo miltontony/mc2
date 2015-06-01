@@ -75,6 +75,8 @@ class Project(models.Model):
     FFL_ANGOLA = 'fflangola'
     APONJON = 'aponjon'
     GEM_RWANDA = 'gemrwanda'
+    CREA = 'crea'
+    EPIC_QUEEN = 'epicqueen'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),
@@ -89,6 +91,8 @@ class Project(models.Model):
         (FFL_ANGOLA, 'FFL Angola'),
         (APONJON, 'MAMA Aponjon'),
         (GEM_RWANDA, 'GEM Rwanda'),
+        (CREA, 'Crea'),
+        (EPIC_QUEEN, 'Epic Queen'),
     )
 
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
