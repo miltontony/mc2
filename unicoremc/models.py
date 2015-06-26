@@ -77,6 +77,7 @@ class Project(models.Model):
     GEM_RWANDA = 'gemrwanda'
     CREA = 'crea'
     EPIC_QUEEN = 'epicqueen'
+    CONNECT_SMART = 'connectsmart'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),
@@ -93,6 +94,7 @@ class Project(models.Model):
         (GEM_RWANDA, 'GEM Rwanda'),
         (CREA, 'Crea'),
         (EPIC_QUEEN, 'Epic Queen'),
+        (CONNECT_SMART, 'Connect Smart'),
     )
 
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
