@@ -10,7 +10,7 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding field 'Project.project_type'
         db.add_column(u'unicoremc_project', 'project_type',
-                      self.gf('django.db.models.fields.CharField')(default='unicorecms', max_length=256),
+                      self.gf('django.db.models.fields.CharField')(default='unicore-cms', max_length=256),
                       keep_default=False)
 
 

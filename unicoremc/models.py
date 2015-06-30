@@ -97,7 +97,7 @@ class Project(models.Model):
         (CONNECT_SMART, 'Connect Smart'),
     )
 
-    UNICORE_CMS = 'unicorecms'
+    UNICORE_CMS = 'unicore-cms'
     SPRINGBOARD = 'springboard'
     PROJECT_TYPES = (
         (UNICORE_CMS, 'unicore-cms'),
