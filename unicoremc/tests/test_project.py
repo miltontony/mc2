@@ -36,6 +36,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
 
         p = Project(
+            project_type='unicore-cms',
             app_type='ffl',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
@@ -57,6 +58,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=self.user)
@@ -74,6 +76,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=self.user)
@@ -92,6 +95,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=self.user)
@@ -117,6 +121,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -145,6 +150,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=(
                 'git://github.com/universalcore/'
                 'unicore-cms-content-gem-tanzania.git'),
@@ -179,6 +185,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -220,6 +227,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -249,6 +257,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -309,6 +318,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -361,6 +371,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user,
@@ -404,16 +415,19 @@ class ProjectTestCase(UnicoremcTestCase):
     def test_ordering(self):
         p1 = Project.objects.create(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p2 = Project.objects.create(
             app_type='gem',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='KE',
             owner=self.user)
         p3 = Project.objects.create(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='KE',
             owner=self.user)
@@ -434,6 +448,7 @@ class ProjectTestCase(UnicoremcTestCase):
     def test_hub_app(self, mock_get_client):
         proj = Project.objects.create(
             app_type='gem',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user
@@ -455,6 +470,7 @@ class ProjectTestCase(UnicoremcTestCase):
     def test_create_or_update_hub_app(self):
         proj = Project.objects.create(
             app_type='gem',
+            project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user
