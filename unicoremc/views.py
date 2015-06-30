@@ -50,6 +50,7 @@ def new_project_view(request, *args, **kwargs):
     context = {
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
+        'project_types': Project.PROJECT_TYPES,
         'app_types': Project.APP_TYPES,
         'access_token': access_token,
     }

@@ -97,7 +97,16 @@ class Project(models.Model):
         (CONNECT_SMART, 'Connect Smart'),
     )
 
+    UNICORE_CMS = 'unicorecms'
+    SPRINGBOARD = 'springboard'
+    PROJECT_TYPES = (
+        (UNICORE_CMS, 'unicore-cms'),
+        (SPRINGBOARD, 'springboard'),
+    )
+
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
+    project_type = models.CharField(
+        choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
     base_repo_url = models.URLField()
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
