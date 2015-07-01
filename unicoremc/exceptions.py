@@ -4,3 +4,7 @@ class GithubApiException(Exception):
 
 class AccessTokenRequiredException(Exception):
     pass
+
+
+class ProjectTypeRequiredException(Exception):
+    pass

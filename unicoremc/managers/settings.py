@@ -12,6 +12,7 @@ class SettingsManager(object):
     def __init__(self):
         self.frontend_settings_dir = 'frontend_settings/'
         self.cms_settings_dir = 'cms_settings/'
+        self.springboard_settings_dir = 'springboard_settings/'
         self.cms_settings_output_dir = settings.CMS_SETTINGS_OUTPUT_PATH
 
         self.deploy_environment = settings.DEPLOY_ENVIRONMENT
@@ -36,6 +37,18 @@ class SettingsManager(object):
         return os.path.join(
             self.frontend_settings_dir,
             '%s.ini' % (self.get_deploy_name(app_type, country),)
+        )
+
+    def get_springboard_settings_path(self, app_type, country):
+        return os.path.join(
+            self.springboard_settings_dir,
+            '%s.ini' % (self.get_deploy_name(app_type, country),)
+        )
+
+    def get_springboard_config_path(self, app_type, country):
+        return os.path.join(
+            self.springboard_settings_dir,
+            '%s.yaml' % (self.get_deploy_name(app_type, country),)
         )
 
     def get_cms_settings_path(self, app_type, country):
@@ -77,6 +90,12 @@ class SettingsManager(object):
         self.workspace.sm.delete_data(
             self.get_cms_config_path(app_type, country),
             'Deleted cms config for %s_%s' % (app_type, country))
+        self.workspace.sm.delete_data(
+            self.get_springboard_settings_path(app_type, country),
+            'Deleted springboard settings for %s_%s' % (app_type, country))
+        self.workspace.sm.delete_data(
+            self.get_springboard_config_path(app_type, country),
+            'Deleted springboard config for %s_%s' % (app_type, country))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_frontend_settings(
@@ -119,6 +138,57 @@ class SettingsManager(object):
         self.workspace.sm.store_data(
             filepath, frontend_settings_content,
             'Save frontend settings config for %s_%s' % (app_type, country))
+        push_to_git.delay(self.workspace.working_dir)
+
+    def write_springboard_settings(
+            self, app_type, country, available_languages,
+            default_language, ga_profile_id, hub_app):
+        if self.deploy_environment == 'qa':
+            raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
+        else:
+            raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
+
+        languages = [lang.get_code() for lang in available_languages]
+
+        hub_app_id = hub_app.get('uuid') if hub_app else None
+        hub_app_key = hub_app.get('key') if hub_app else None
+
+        content = render_to_string(
+            'configs/springboard.ini', {
+                'app_type': app_type,
+                'country': country.lower(),
+                'available_languages': languages,
+                'default_language': default_language.get_code(),
+                'raven_dsn_uri': raven_dsn,
+                'ga_profile_id': ga_profile_id,
+                'hub_app_id': hub_app_id,
+                'hub_app_key': hub_app_key,
+                'hub_settings': settings.HUBCLIENT_SETTINGS
+            }
+        )
+
+        filepath = self.get_springboard_settings_path(app_type, country)
+
+        self.workspace.sm.store_data(
+            filepath, content,
+            'Save springboard settings config for %s_%s' % (app_type, country))
+        push_to_git.delay(self.workspace.working_dir)
+
+    def write_springboard_config(self, app_type, country, clone_url):
+
+        content = render_to_string(
+            'configs/springboard.yaml', {
+                'app_type': app_type,
+                'country': country.lower(),
+                'git_repo_uri': clone_url,
+            }
+        )
+
+        filepath = self.get_springboard_config_path(app_type, country)
+
+        self.workspace.sm.store_data(
+            filepath, content,
+            'Save springboard settings config for %s_%s' % (app_type, country))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_cms_settings(self, app_type, country, clone_url, repo_path):
