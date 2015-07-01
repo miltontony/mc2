@@ -418,4 +418,13 @@ class Project(models.Model):
         shutil.rmtree(self.frontend_repo_path())
         self.nginx_manager.destroy(self.app_type, self.country)
         self.settings_manager.destroy(self.app_type, self.country)
+
+        if self.project_type == Project.UNICORE_CMS:
+            self.settings_manager.destroy_unicore_cms_settings(
+                self.app_type, self.country)
+
+        if self.project_type == Project.SPRINGBOARD:
+            self.settings_manager.destroy_springboard_settings(
+                self.app_type, self.country)
+
         self.db_manager.destroy(self.app_type, self.country)

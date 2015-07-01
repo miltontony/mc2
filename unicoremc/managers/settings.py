@@ -82,14 +82,20 @@ class SettingsManager(object):
         os.remove(self.get_cms_config_output_path(app_type, country))
 
         self.workspace.sm.delete_data(
-            self.get_frontend_settings_path(app_type, country),
-            'Deleted frontend settings config for %s_%s' % (app_type, country))
-        self.workspace.sm.delete_data(
             self.get_cms_settings_path(app_type, country),
             'Deleted cms settings config for %s_%s' % (app_type, country))
         self.workspace.sm.delete_data(
             self.get_cms_config_path(app_type, country),
             'Deleted cms config for %s_%s' % (app_type, country))
+        push_to_git.delay(self.workspace.working_dir)
+
+    def destroy_unicore_cms_settings(self, app_type, country):
+        self.workspace.sm.delete_data(
+            self.get_frontend_settings_path(app_type, country),
+            'Deleted frontend settings config for %s_%s' % (app_type, country))
+        push_to_git.delay(self.workspace.working_dir)
+
+    def destroy_springboard_settings(self, app_type, country):
         self.workspace.sm.delete_data(
             self.get_springboard_settings_path(app_type, country),
             'Deleted springboard settings for %s_%s' % (app_type, country))
