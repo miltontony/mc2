@@ -256,6 +256,7 @@ CMS_REPO_PATH = abspath('repos', 'cms')
 CONFIGS_REPO_PATH = abspath('configs')
 
 # path to settings files
+SPRINGBOARD_SETTINGS_OUTPUT_PATH = abspath('configs', 'springboard_settings')
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
 CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
 
