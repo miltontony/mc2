@@ -107,10 +107,9 @@ def start_new_project(request, *args, **kwargs):
             owner=user)
 
         if created:
-            project.application_type = AppType.objects.get(int(app_type))
+            project.application_type = AppType.objects.get(pk=int(app_type))
             project.save()
-            #tasks.start_new_project.delay(project.id, access_token)
-            pass
+            tasks.start_new_project.delay(project.id, access_token)
 
     return HttpResponse(json.dumps({'success': True}),
                         content_type='application/json')
