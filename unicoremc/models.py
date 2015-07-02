@@ -145,7 +145,7 @@ class Project(models.Model):
     hub_app_id = models.CharField(blank=True, null=True, max_length=32)
 
     class Meta:
-        ordering = ('application_type', 'country')
+        ordering = ('application_type__title', 'country')
 
     def __init__(self, *args, **kwargs):
         super(Project, self).__init__(*args, **kwargs)

@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from git import Repo
 import mock
 
-from unicoremc.models import Project, Localisation
+from unicoremc.models import Project, Localisation, AppType
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
@@ -35,9 +35,10 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
             project_type='unicore-cms',
-            app_type='ffl',
+            application_type=app_type,
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=self.user)
@@ -56,8 +57,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
@@ -74,8 +76,9 @@ class ProjectTestCase(UnicoremcTestCase):
     def test_create_repo_bad_response(self):
         self.mock_create_repo(status=404, data={'message': 'Not authorized'})
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
@@ -93,8 +96,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
@@ -119,8 +123,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -148,8 +153,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url=(
                 'git://github.com/universalcore/'
@@ -183,8 +189,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -225,8 +232,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -255,8 +263,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -316,8 +325,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -369,8 +379,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -418,8 +429,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='springboard',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -468,20 +480,22 @@ class ProjectTestCase(UnicoremcTestCase):
         self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     def test_ordering(self):
+        ffl = AppType._for('ffl', 'Facts for Life')
+        gem = AppType._for('gem', 'Girl Effect Mobile')
         p1 = Project.objects.create(
-            app_type='ffl',
+            application_type=ffl,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
         p2 = Project.objects.create(
-            app_type='gem',
+            application_type=gem,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='KE',
             owner=self.user)
         p3 = Project.objects.create(
-            app_type='ffl',
+            application_type=ffl,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='KE',
@@ -501,8 +515,9 @@ class ProjectTestCase(UnicoremcTestCase):
 
     @mock.patch('unicoremc.models.get_hub_app_client')
     def test_hub_app(self, mock_get_client):
+        gem = AppType._for('gem', 'Girl Effect Mobile')
         proj = Project.objects.create(
-            app_type='gem',
+            application_type=gem,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -523,8 +538,10 @@ class ProjectTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_create_or_update_hub_app(self):
+        gem = AppType._for('gem', 'Girl Effect Mobile')
+        ffl = AppType._for('ffl', 'Facts for Life')
         proj = Project.objects.create(
-            app_type='gem',
+            application_type=gem,
             project_type='unicore-cms',
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
@@ -552,7 +569,7 @@ class ProjectTestCase(UnicoremcTestCase):
             responses.PUT, re.compile(r'.*/apps/foouuid'),
             body='{}', status=200, content_type='application/json')
 
-        proj.app_type = 'ffl'
+        proj.application_type = ffl
         app = proj.create_or_update_hub_app()
         self.assertIn(proj.application_type.title, app.get('title'))
         self.assertIn('ffl', app.get('url'))
