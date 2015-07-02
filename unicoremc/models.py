@@ -62,6 +62,11 @@ class Localisation(models.Model):
         ordering = ('language_code', )
 
 
+class AppType(models.Model):
+    name = models.CharField(max_length=256, blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
+
+
 class Project(models.Model):
     FFL = 'ffl'
     GEM = 'gem'
@@ -98,6 +103,7 @@ class Project(models.Model):
     )
 
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
+    application_type = models.ForeignKey(AppType, blank=True, null=True)
     base_repo_url = models.URLField()
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
