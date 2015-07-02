@@ -505,6 +505,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertEquals(Project.objects.all()[1], p1)
         self.assertEquals(Project.objects.all()[2], p2)
 
+        self.assertEquals(
+            str(Project.objects.all()[0].application_type), ffl.title)
+
     def get_mock_app_client(self):
         mock_app_client = mock.Mock()
         mock_app_client.get_app = mock.Mock()
