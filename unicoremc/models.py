@@ -72,6 +72,9 @@ class AppType(models.Model):
             name=name, title=title)
         return application_type
 
+    def __unicode__(self):
+        return u'%s' % self.title
+
     class Meta:
         ordering = ('title', )
 

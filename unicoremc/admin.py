@@ -7,7 +7,7 @@ from djcelery.models import (
 from django.contrib import admin
 from django.contrib.sites.models import Site
 
-from unicoremc.models import Project, Localisation
+from unicoremc.models import Project, Localisation, AppType
 from unicoremc.states import ProjectWorkflow
 
 from ostinato.statemachine.forms import sm_form_factory
@@ -25,6 +25,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Localisation, admin.ModelAdmin)
+admin.site.register(AppType, admin.ModelAdmin)
 admin.site.register(Project, ProjectAdmin)
 
 # remove celery from admin
