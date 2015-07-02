@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 from unicoremc.constants import LANGUAGES
-from unicoremc.models import Project, Localisation
+from unicoremc.models import Project, Localisation, AppType
 from unicoremc.managers import DbManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
@@ -40,8 +40,10 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
+        app_type = AppType._for('ffl', 'Facts for Life')
+
         data = {
-            'app_type': 'ffl',
+            'app_type': app_type.id,
             'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
@@ -116,8 +118,10 @@ class ViewsTestCase(UnicoremcTestCase):
         Localisation._for('eng_UK')
         Localisation._for('swa_TZ')
 
+        app_type = AppType._for('ffl', 'Facts for Life')
+
         data = {
-            'app_type': 'ffl',
+            'app_type': app_type.id,
             'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
@@ -209,8 +213,9 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertContains(resp, 'edit')
 
     def test_staff_access_required(self):
+        app_type = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
@@ -242,15 +247,19 @@ class ViewsTestCase(UnicoremcTestCase):
         ]
         mock_create_ga_profile.return_value = "UA-some-new-profile-id"
 
+        app_type = AppType._for('ffl', 'Facts for Life')
+
         p = Project.objects.create(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2),
             state='done')
+
+        app_type = AppType._for('gem', 'Girl Effect Mobile')
         Project.objects.create(
-            app_type='gem',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
@@ -295,8 +304,9 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.client.login(username='testuser2', password='test')
 
+        app_type = AppType._for('ffl', 'Facts for Life')
         proj = Project.objects.create(
-            app_type='ffl',
+            application_type=app_type,
             project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',

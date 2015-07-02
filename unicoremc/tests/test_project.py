@@ -554,5 +554,5 @@ class ProjectTestCase(UnicoremcTestCase):
 
         proj.app_type = 'ffl'
         app = proj.create_or_update_hub_app()
-        self.assertIn(proj.get_app_type_display(), app.get('title'))
+        self.assertIn(proj.application_type.title, app.get('title'))
         self.assertIn('ffl', app.get('url'))

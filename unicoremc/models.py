@@ -190,7 +190,7 @@ class Project(models.Model):
 
     def hub_app_title(self):
         return '%s - %s' % (
-            self.get_app_type_display(), self.get_country_display())
+            self.application_type.title, self.get_country_display())
 
     def hub_app(self):
         if self.hub_app_id is None:
