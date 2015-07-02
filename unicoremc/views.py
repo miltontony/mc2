@@ -50,6 +50,7 @@ def new_project_view(request, *args, **kwargs):
     context = {
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
+        'project_types': Project.PROJECT_TYPES,
         'app_types': Project.APP_TYPES,
         'access_token': access_token,
     }
@@ -90,6 +91,7 @@ def start_new_project(request, *args, **kwargs):
     if request.method == 'POST':
 
         app_type = request.POST.get('app_type')
+        project_type = request.POST.get('project_type')
         base_repo = request.POST.get('base_repo')
         country = request.POST.get('country')
         access_token = request.POST.get('access_token')
@@ -98,6 +100,7 @@ def start_new_project(request, *args, **kwargs):
 
         user = User.objects.get(pk=user_id)
         project, created = Project.objects.get_or_create(
+            project_type=project_type,
             app_type=app_type,
             base_repo_url=base_repo,
             country=country,
@@ -189,6 +192,7 @@ def projects_progress(request, *args, **kwargs):
     projects = Project.objects.all()
     return HttpResponse(json.dumps(
         [{
+            'project_type': p.get_project_type_display(),
             'app_type': p.get_app_type_display(),
             'base_repo': p.base_repo_url,
             'state': ProjectWorkflow(instance=p).get_state(),

@@ -97,7 +97,16 @@ class Project(models.Model):
         (CONNECT_SMART, 'Connect Smart'),
     )
 
+    UNICORE_CMS = 'unicore-cms'
+    SPRINGBOARD = 'springboard'
+    PROJECT_TYPES = (
+        (UNICORE_CMS, 'unicore-cms'),
+        (SPRINGBOARD, 'springboard'),
+    )
+
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
+    project_type = models.CharField(
+        choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
     base_repo_url = models.URLField()
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
@@ -324,16 +333,34 @@ class Project(models.Model):
             self.app_type, self.country, self.cms_custom_domain)
 
     def create_pyramid_settings(self):
-        self.settings_manager.write_frontend_settings(
-            self.app_type,
-            self.country,
-            self.repo_git_url,
-            self.available_languages.all(),
-            self.frontend_repo_path(),
-            self.default_language or Localisation._for('eng_GB'),
-            self.ga_profile_id,
-            self.hub_app()
-        )
+        if self.project_type == Project.UNICORE_CMS:
+            self.settings_manager.write_frontend_settings(
+                self.app_type,
+                self.country,
+                self.repo_git_url,
+                self.available_languages.all(),
+                self.frontend_repo_path(),
+                self.default_language or Localisation._for('eng_GB'),
+                self.ga_profile_id,
+                self.hub_app()
+            )
+        elif self.project_type == Project.SPRINGBOARD:
+            self.settings_manager.write_springboard_settings(
+                self.app_type,
+                self.country,
+                self.available_languages.all(),
+                self.default_language or Localisation._for('eng_GB'),
+                self.ga_profile_id,
+                self.hub_app()
+            )
+            self.settings_manager.write_springboard_config(
+                self.app_type,
+                self.country,
+                self.repo_git_url
+            )
+        else:
+            raise exceptions.ProjecTyeRequiredException(
+                'project_type is required')
 
     def create_cms_settings(self):
         self.settings_manager.write_cms_settings(
@@ -391,4 +418,13 @@ class Project(models.Model):
         shutil.rmtree(self.frontend_repo_path())
         self.nginx_manager.destroy(self.app_type, self.country)
         self.settings_manager.destroy(self.app_type, self.country)
+
+        if self.project_type == Project.UNICORE_CMS:
+            self.settings_manager.destroy_unicore_cms_settings(
+                self.app_type, self.country)
+
+        if self.project_type == Project.SPRINGBOARD:
+            self.settings_manager.destroy_springboard_settings(
+                self.app_type, self.country)
+
         self.db_manager.destroy(self.app_type, self.country)

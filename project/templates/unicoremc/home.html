@@ -73,7 +73,18 @@ function reload_projects(){
                 }
 
                 var hub_reset_link = this.hub_app_id ? '<br/><a href="/advanced/' + this.id + '/reset_hub_app_key/">Reset key</a>' : '';
-                var row = '<th>' + this.app_type +'</th>' +
+
+                var project_type = $('<span>').addClass('label').html(this.project_type);
+                switch(this.project_type){
+                  case 'unicore-cms':
+                    project_type.addClass('label-info');
+                    break;
+                  case 'springboard':
+                    project_type.addClass('label-success');
+                    break;
+                  default:;
+                }
+                var row = '<th>' + this.app_type +' '+project_type[0].outerHTML+'</th>' +
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
                           '<td><a target="_blank" href="'+ this.repo_url +'">Github</a></td>' +
