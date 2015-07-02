@@ -102,7 +102,9 @@ class Project(models.Model):
         (CONNECT_SMART, 'Connect Smart'),
     )
 
+    # deprecated : to be removed in next version
     app_type = models.CharField(choices=APP_TYPES, max_length=256)
+
     application_type = models.ForeignKey(AppType, blank=True, null=True)
     base_repo_url = models.URLField()
     country = models.CharField(
