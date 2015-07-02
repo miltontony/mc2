@@ -19,7 +19,7 @@
             <select class="form-control" id="unicore_app">
                 <option value="">---------</option>
                 {% for app_type in app_types %}
-                    <option value="{{app_type.pk}}">{{app_type.title}}</option>
+                    <option value="{{app_type.pk}}">{{app_type}}</option>
                 {% endfor %}
             </select>
             <span class="help-block">Type of app to create.</span>
