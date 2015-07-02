@@ -40,7 +40,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
-        app_type = AppType._for('ffl', 'Facts for Life')
+        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
 
         data = {
             'app_type': app_type.id,
@@ -118,7 +118,7 @@ class ViewsTestCase(UnicoremcTestCase):
         Localisation._for('eng_UK')
         Localisation._for('swa_TZ')
 
-        app_type = AppType._for('ffl', 'Facts for Life')
+        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
 
         data = {
             'app_type': app_type.id,
@@ -213,10 +213,9 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertContains(resp, 'edit')
 
     def test_staff_access_required(self):
-        app_type = AppType._for('ffl', 'Facts for Life')
+        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
             application_type=app_type,
-            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2))
@@ -247,20 +246,18 @@ class ViewsTestCase(UnicoremcTestCase):
         ]
         mock_create_ga_profile.return_value = "UA-some-new-profile-id"
 
-        app_type = AppType._for('ffl', 'Facts for Life')
+        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
 
         p = Project.objects.create(
             application_type=app_type,
-            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2),
             state='done')
 
-        app_type = AppType._for('gem', 'Girl Effect Mobile')
+        app_type = AppType._for('gem', 'Girl Effect Mobile', 'unicore-cms')
         Project.objects.create(
             application_type=app_type,
-            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2))
@@ -304,10 +301,9 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.client.login(username='testuser2', password='test')
 
-        app_type = AppType._for('ffl', 'Facts for Life')
+        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         proj = Project.objects.create(
             application_type=app_type,
-            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2),

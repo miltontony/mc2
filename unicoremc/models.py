@@ -63,17 +63,26 @@ class Localisation(models.Model):
 
 
 class AppType(models.Model):
+    UNICORE_CMS = 'unicore-cms'
+    SPRINGBOARD = 'springboard'
+    PROJECT_TYPES = (
+        (UNICORE_CMS, 'unicore-cms'),
+        (SPRINGBOARD, 'springboard'),
+    )
+
     name = models.CharField(max_length=256, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
+    project_type = models.CharField(
+        choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
 
     @classmethod
-    def _for(cls, name, title):
+    def _for(cls, name, title, project_type):
         application_type, _ = cls.objects.get_or_create(
-            name=name, title=title)
+            name=name, title=title, project_type=project_type)
         return application_type
 
     def __unicode__(self):
-        return u'%s' % self.title
+        return u'%s (%s)' % (self.title, self.project_type)
 
     class Meta:
         ordering = ('title', )
@@ -113,16 +122,6 @@ class Project(models.Model):
         (EPIC_QUEEN, 'Epic Queen'),
         (CONNECT_SMART, 'Connect Smart'),
     )
-
-    UNICORE_CMS = 'unicore-cms'
-    SPRINGBOARD = 'springboard'
-    PROJECT_TYPES = (
-        (UNICORE_CMS, 'unicore-cms'),
-        (SPRINGBOARD, 'springboard'),
-    )
-
-    project_type = models.CharField(
-        choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
 
     application_type = models.ForeignKey(AppType, blank=True, null=True)
     base_repo_url = models.URLField()
@@ -357,7 +356,7 @@ class Project(models.Model):
             self.app_type, self.country, self.cms_custom_domain)
 
     def create_pyramid_settings(self):
-        if self.project_type == Project.UNICORE_CMS:
+        if self.application_type.project_type == AppType.UNICORE_CMS:
             self.settings_manager.write_frontend_settings(
                 self.app_type,
                 self.country,
@@ -368,7 +367,7 @@ class Project(models.Model):
                 self.ga_profile_id,
                 self.hub_app()
             )
-        elif self.project_type == Project.SPRINGBOARD:
+        elif self.application_type.project_type == AppType.SPRINGBOARD:
             self.settings_manager.write_springboard_settings(
                 self.app_type,
                 self.country,
@@ -443,11 +442,11 @@ class Project(models.Model):
         self.nginx_manager.destroy(self.app_type, self.country)
         self.settings_manager.destroy(self.app_type, self.country)
 
-        if self.project_type == Project.UNICORE_CMS:
+        if self.application_type.project_type == AppType.UNICORE_CMS:
             self.settings_manager.destroy_unicore_cms_settings(
                 self.app_type, self.country)
 
-        if self.project_type == Project.SPRINGBOARD:
+        if self.application_type.project_type == AppType.SPRINGBOARD:
             self.settings_manager.destroy_springboard_settings(
                 self.app_type, self.country)
 

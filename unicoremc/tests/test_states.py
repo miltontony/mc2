@@ -20,7 +20,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.user = User.objects.get(username='testuser')
 
     def test_initial_state(self):
-        ffl = AppType._for('ffl', 'Facts for Life')
+        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
             application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
@@ -65,7 +65,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
-        ffl = AppType._for('ffl', 'Facts for Life')
+        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
             application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
@@ -102,7 +102,7 @@ class StatesTestCase(UnicoremcTestCase):
     @responses.activate
     def test_next(self):
         self.mock_create_repo()
-        ffl = AppType._for('ffl', 'Facts for Life')
+        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
             application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
@@ -126,7 +126,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
-        ffl = AppType._for('ffl', 'Facts for Life')
+        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
             application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
@@ -166,7 +166,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
-        ffl = AppType._for('ffl', 'Facts for Life')
+        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
             application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
