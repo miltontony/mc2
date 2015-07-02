@@ -76,7 +76,7 @@ class Migration(SchemaMigration):
             'hub_app_id': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
-            'project_type': ('django.db.models.fields.CharField', [], {'default': "'unicorecms'", 'max_length': '256'}),
+            'project_type': ('django.db.models.fields.CharField', [], {'default': "'unicore-cms'", 'max_length': '256'}),
             'project_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'repo_git_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'repo_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
