@@ -8,15 +8,26 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'Project.project_type'
-        db.add_column(u'unicoremc_project', 'project_type',
-                      self.gf('django.db.models.fields.CharField')(default='unicore-cms', max_length=256),
+        # Adding model 'AppType'
+        db.create_table(u'unicoremc_apptype', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('name', self.gf('django.db.models.fields.CharField')(max_length=256, null=True, blank=True)),
+            ('title', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
+        ))
+        db.send_create_signal(u'unicoremc', ['AppType'])
+
+        # Adding field 'Project.application_type'
+        db.add_column(u'unicoremc_project', 'application_type',
+                      self.gf('django.db.models.fields.related.ForeignKey')(to=orm['unicoremc.AppType'], null=True, blank=True),
                       keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Project.project_type'
-        db.delete_column(u'unicoremc_project', 'project_type')
+        # Deleting model 'AppType'
+        db.delete_table(u'unicoremc_apptype')
+
+        # Deleting field 'Project.application_type'
+        db.delete_column(u'unicoremc_project', 'application_type_id')
 
 
     models = {
@@ -56,6 +67,12 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        u'unicoremc.apptype': {
+            'Meta': {'object_name': 'AppType'},
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True', 'blank': 'True'}),
+            'title': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'})
+        },
         u'unicoremc.localisation': {
             'Meta': {'ordering': "('language_code',)", 'object_name': 'Localisation'},
             'country_code': ('django.db.models.fields.CharField', [], {'max_length': '2'}),
@@ -65,6 +82,7 @@ class Migration(SchemaMigration):
         u'unicoremc.project': {
             'Meta': {'ordering': "('app_type', 'country')", 'object_name': 'Project'},
             'app_type': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
+            'application_type': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['unicoremc.AppType']", 'null': 'True', 'blank': 'True'}),
             'available_languages': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'to': u"orm['unicoremc.Localisation']", 'null': 'True', 'blank': 'True'}),
             'base_repo_url': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             'cms_custom_domain': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
@@ -76,7 +94,6 @@ class Migration(SchemaMigration):
             'hub_app_id': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'owner': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['auth.User']"}),
-            'project_type': ('django.db.models.fields.CharField', [], {'default': "'unicorecms'", 'max_length': '256'}),
             'project_version': ('django.db.models.fields.PositiveIntegerField', [], {'default': '0'}),
             'repo_git_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
             'repo_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
