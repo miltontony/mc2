@@ -62,6 +62,23 @@ class Localisation(models.Model):
         ordering = ('language_code', )
 
 
+class AppType(models.Model):
+    name = models.CharField(max_length=256, blank=True, null=True)
+    title = models.TextField(blank=True, null=True)
+
+    @classmethod
+    def _for(cls, name, title):
+        application_type, _ = cls.objects.get_or_create(
+            name=name, title=title)
+        return application_type
+
+    def __unicode__(self):
+        return u'%s' % self.title
+
+    class Meta:
+        ordering = ('title', )
+
+
 class Project(models.Model):
     FFL = 'ffl'
     GEM = 'gem'
@@ -104,9 +121,10 @@ class Project(models.Model):
         (SPRINGBOARD, 'springboard'),
     )
 
-    app_type = models.CharField(choices=APP_TYPES, max_length=256)
     project_type = models.CharField(
         choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
+
+    application_type = models.ForeignKey(AppType, blank=True, null=True)
     base_repo_url = models.URLField()
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
@@ -130,7 +148,7 @@ class Project(models.Model):
     hub_app_id = models.CharField(blank=True, null=True, max_length=32)
 
     class Meta:
-        ordering = ('app_type', 'country')
+        ordering = ('application_type__title', 'country')
 
     def __init__(self, *args, **kwargs):
         super(Project, self).__init__(*args, **kwargs)
@@ -138,6 +156,12 @@ class Project(models.Model):
         self.nginx_manager = NginxManager()
         self.settings_manager = SettingsManager()
         self.db_manager = DbManager()
+
+    @property
+    def app_type(self):
+        if self.application_type:
+            return self.application_type.name
+        return ''
 
     def frontend_url(self):
         return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
@@ -169,7 +193,7 @@ class Project(models.Model):
 
     def hub_app_title(self):
         return '%s - %s' % (
-            self.get_app_type_display(), self.get_country_display())
+            self.application_type.title, self.get_country_display())
 
     def hub_app(self):
         if self.hub_app_id is None:

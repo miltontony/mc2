@@ -16,7 +16,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
 
-from unicoremc.models import Project, Localisation
+from unicoremc.models import Project, Localisation, AppType
 from unicoremc.forms import ProjectForm
 from unicoremc.states import ProjectWorkflow
 from unicoremc import constants
@@ -51,7 +51,7 @@ def new_project_view(request, *args, **kwargs):
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
         'project_types': Project.PROJECT_TYPES,
-        'app_types': Project.APP_TYPES,
+        'app_types': AppType.objects.all(),
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)
@@ -101,7 +101,7 @@ def start_new_project(request, *args, **kwargs):
         user = User.objects.get(pk=user_id)
         project, created = Project.objects.get_or_create(
             project_type=project_type,
-            app_type=app_type,
+            application_type=AppType.objects.get(pk=int(app_type)),
             base_repo_url=base_repo,
             country=country,
             team_id=int(team_id),
@@ -193,7 +193,7 @@ def projects_progress(request, *args, **kwargs):
     return HttpResponse(json.dumps(
         [{
             'project_type': p.get_project_type_display(),
-            'app_type': p.get_app_type_display(),
+            'app_type': p.application_type.title,
             'base_repo': p.base_repo_url,
             'state': ProjectWorkflow(instance=p).get_state(),
             'country': p.get_country_display(),

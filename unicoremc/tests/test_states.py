@@ -6,7 +6,7 @@ import shutil
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from unicoremc.models import Project
+from unicoremc.models import Project, AppType
 from unicoremc.states import ProjectWorkflow
 from unicoremc.tests.base import UnicoremcTestCase
 
@@ -20,8 +20,9 @@ class StatesTestCase(UnicoremcTestCase):
         self.user = User.objects.get(username='testuser')
 
     def test_initial_state(self):
+        ffl = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -64,8 +65,9 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
+        ffl = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -100,8 +102,9 @@ class StatesTestCase(UnicoremcTestCase):
     @responses.activate
     def test_next(self):
         self.mock_create_repo()
+        ffl = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -123,8 +126,9 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
+        ffl = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)
@@ -162,8 +166,9 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
+        ffl = AppType._for('ffl', 'Facts for Life')
         p = Project(
-            app_type='ffl',
+            application_type=ffl,
             base_repo_url=self.base_repo_sm.repo.git_dir,
             country='ZA',
             owner=self.user)

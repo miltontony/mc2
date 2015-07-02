@@ -12,7 +12,7 @@
 <div id="content-main" class="new-project">
     <div>
     <form class="form-horizontal" role="form" method="POST">
-        <legend>{{project.get_app_type_display}} - {{project.get_country_display}}</legend>
+        <legend>{{project.application_type.title}} - {{project.get_country_display}}</legend>
         {% if form.non_field_errors %}
             <div class="alert alert-error">
                 {{ form.non_field_errors|join:", " }}
