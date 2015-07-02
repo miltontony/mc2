@@ -118,8 +118,6 @@ class Project(models.Model):
         (SPRINGBOARD, 'springboard'),
     )
 
-    # deprecated : to be removed in next version
-    app_type = models.CharField(choices=APP_TYPES, max_length=256)
     project_type = models.CharField(
         choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
 
@@ -147,7 +145,7 @@ class Project(models.Model):
     hub_app_id = models.CharField(blank=True, null=True, max_length=32)
 
     class Meta:
-        ordering = ('app_type', 'country')
+        ordering = ('application_type', 'country')
 
     def __init__(self, *args, **kwargs):
         super(Project, self).__init__(*args, **kwargs)
@@ -155,6 +153,12 @@ class Project(models.Model):
         self.nginx_manager = NginxManager()
         self.settings_manager = SettingsManager()
         self.db_manager = DbManager()
+
+    @property
+    def app_type(self):
+        if self.application_type:
+            return self.application_type.name
+        return ''
 
     def frontend_url(self):
         return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
