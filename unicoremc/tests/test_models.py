@@ -14,14 +14,13 @@ class ModelsTestCase(UnicoremcTestCase):
         self.user = User.objects.get(username='testuser')
 
     def test_app_type_title(self):
-        app_type = AppType._for('gem', 'Girl Effect')
-        self.assertEquals(str(app_type), 'Girl Effect')
+        app_type = AppType._for('gem', 'Girl Effect', 'unicore-cms')
+        self.assertEquals(str(app_type), 'Girl Effect (unicore-cms)')
 
     def test_project_app_type(self):
-        app_type = AppType._for('gem', 'Girl Effect')
+        app_type = AppType._for('gem', 'Girl Effect', 'unicore-cms')
 
         p = Project(
-            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=self.user)
@@ -30,7 +29,6 @@ class ModelsTestCase(UnicoremcTestCase):
         self.assertEquals(p.app_type, '')
 
         p = Project(
-            project_type='unicore-cms',
             application_type=app_type,
             base_repo_url='http://some-git-repo.com',
             country='ZA',
