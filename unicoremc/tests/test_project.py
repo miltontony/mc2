@@ -149,7 +149,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     @skip("slow test that connects to github")
-    def test_create_remotes_repo_from_github(self):
+    def test_create_remotes_repo_from_github(self):  # pragma: no cover
         self.mock_create_repo()
         self.mock_create_webhook()
 
