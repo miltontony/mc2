@@ -24,6 +24,8 @@ CMS_REPO_PATH = abspath(REPO_WORKSPACE, 'cms')
 CONFIG_WORKSPACE = '.test_config_dir'
 CONFIGS_REPO_PATH = abspath('.test_config_repo_dir')
 NGINX_CONFIGS_PATH = abspath(CONFIGS_REPO_PATH, 'nginx')
+SPRINGBOARD_SETTINGS_OUTPUT_PATH = abspath(
+    CONFIGS_REPO_PATH, 'springboard_settings')
 FRONTEND_SETTINGS_OUTPUT_PATH = abspath(
     CONFIGS_REPO_PATH, 'frontend_settings')
 CMS_SETTINGS_OUTPUT_PATH = abspath(CONFIG_WORKSPACE, 'cms_settings')

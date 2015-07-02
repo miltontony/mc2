@@ -42,6 +42,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         data = {
             'app_type': 'ffl',
+            'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
@@ -117,6 +118,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         data = {
             'app_type': 'ffl',
+            'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
@@ -209,6 +211,7 @@ class ViewsTestCase(UnicoremcTestCase):
     def test_staff_access_required(self):
         p = Project(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2))
@@ -241,12 +244,14 @@ class ViewsTestCase(UnicoremcTestCase):
 
         p = Project.objects.create(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2),
             state='done')
         Project.objects.create(
             app_type='gem',
+            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2))
@@ -292,6 +297,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         proj = Project.objects.create(
             app_type='ffl',
+            project_type='unicore-cms',
             base_repo_url='http://some-git-repo.com',
             country='ZA',
             owner=User.objects.get(pk=2),
