@@ -16,7 +16,10 @@ from ostinato.statemachine.forms import sm_form_factory
 class ProjectAdmin(admin.ModelAdmin):
     form = sm_form_factory(ProjectWorkflow)
 
-    list_filter = ('state',)
+    search_fields = (
+        'state', 'country', 'application_type__name',
+        'application_type__title', 'application_type__project_type')
+    list_filter = ('state', 'application_type')
     list_display = (
         'application_type', 'country', 'state', 'base_repo_url', 'repo_url')
     readonly_fields = (
