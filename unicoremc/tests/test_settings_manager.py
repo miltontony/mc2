@@ -393,7 +393,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: os.remove(springboard_settings_path))
 
-        self.assertTrue('egg:springboard-ffl' in data)
+        self.assertTrue('egg:springboard_ffl' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('swa_TZ' in data)
         self.assertTrue(

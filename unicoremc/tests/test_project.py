@@ -452,7 +452,7 @@ class ProjectTestCase(UnicoremcTestCase):
         with open(springboard_settings_path, "r") as config_file:
             data = config_file.read()
 
-        self.assertTrue('egg:springboard-ffl' in data)
+        self.assertTrue('egg:springboard_ffl' in data)
         self.assertTrue('eng_GB' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
