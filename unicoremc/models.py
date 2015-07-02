@@ -66,6 +66,15 @@ class AppType(models.Model):
     name = models.CharField(max_length=256, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
 
+    @classmethod
+    def _for(cls, name, title):
+        application_type, _ = cls.objects.get_or_create(
+            name=name, title=title)
+        return application_type
+
+    class Meta:
+        ordering = ('title', )
+
 
 class Project(models.Model):
     FFL = 'ffl'
