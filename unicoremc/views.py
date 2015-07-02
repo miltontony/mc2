@@ -101,14 +101,13 @@ def start_new_project(request, *args, **kwargs):
         user = User.objects.get(pk=user_id)
         project, created = Project.objects.get_or_create(
             project_type=project_type,
+            application_type=AppType.objects.get(pk=int(app_type)),
             base_repo_url=base_repo,
             country=country,
             team_id=int(team_id),
             owner=user)
 
         if created:
-            project.application_type = AppType.objects.get(pk=int(app_type))
-            project.save()
             tasks.start_new_project.delay(project.id, access_token)
 
     return HttpResponse(json.dumps({'success': True}),
