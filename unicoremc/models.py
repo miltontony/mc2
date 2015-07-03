@@ -89,42 +89,6 @@ class AppType(models.Model):
 
 
 class Project(models.Model):
-    FFL = 'ffl'
-    GEM = 'gem'
-    EBOLA = 'ebola'
-    MAMA = 'mama'
-    MNM = 'mnm'
-    STRAIGHT_TALK = 'straighttalk'
-    BAREFOOT_LAW = 'barefootlaw'
-    U_REPORT = 'ureport'
-    MARIE_STOPES = 'mariestopes'
-    FFL_ANGOLA = 'fflangola'
-    APONJON = 'aponjon'
-    GEM_RWANDA = 'gemrwanda'
-    CREA = 'crea'
-    EPIC_QUEEN = 'epicqueen'
-    CONNECT_SMART = 'connectsmart'
-    MY_RIGHTS = 'myrights'
-
-    APP_TYPES = (
-        (FFL, 'Facts for Life'),
-        (GEM, 'Girl Effect Mobile'),
-        (EBOLA, 'Ebola Information'),
-        (MAMA, 'MAMA Baby Center'),
-        (MNM, 'Malaria no More'),
-        (STRAIGHT_TALK, 'Straight Talk'),
-        (BAREFOOT_LAW, 'Barefoot Law'),
-        (U_REPORT, 'U-Report'),
-        (MARIE_STOPES, 'Marie Stopes'),
-        (FFL_ANGOLA, 'FFL Angola'),
-        (APONJON, 'MAMA Aponjon'),
-        (GEM_RWANDA, 'GEM Rwanda'),
-        (CREA, 'Crea'),
-        (EPIC_QUEEN, 'Epic Queen'),
-        (CONNECT_SMART, 'Connect Smart'),
-        (MY_RIGHTS, 'My Rights'),
-    )
-
     application_type = models.ForeignKey(AppType, blank=True, null=True)
     base_repo_url = models.URLField()
     country = models.CharField(
