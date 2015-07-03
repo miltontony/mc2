@@ -19,7 +19,7 @@
             <select class="form-control" id="unicore_app">
                 <option value="">---------</option>
                 {% for app_type in app_types %}
-                    <option value="{{app_type.pk}}">{{app_type}}</option>
+                    <option value="{{app_type.pk}}" app_name="{{app_type.name}}">{{app_type}}</option>
                 {% endfor %}
             </select>
             <span class="help-block">Type of app to create.</span>
@@ -116,8 +116,9 @@ if (typeof String.prototype.startsWith != 'function') {
 
     $(document).ready(function() {
         $('#unicore_app').change(function(){
-            if($(this).val() != '')
-                load_content_repos($(this).val());
+            var app_name = $('option:selected', this).attr('app_name');
+            if(app_name != '')
+                load_content_repos(app_name);
             else{
                 $("#base_repo").attr('disabled', 'disabled').val('').change();
             }
