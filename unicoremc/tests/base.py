@@ -141,6 +141,13 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
+    def mock_create_unicore_distribute_repo(self, status=200):
+        responses.add(
+            responses.POST, '%s/repos.json' % settings.UNICORE_DISTRIBUTE_HOST,
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
     def mock_create_hub_app(self, **fields):
 
         def make_response(request):
