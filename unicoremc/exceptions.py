@@ -1,3 +1,7 @@
+class UnicoreDistributeApiException(Exception):
+    pass
+
+
 class GithubApiException(Exception):
     pass
 

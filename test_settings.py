@@ -39,6 +39,9 @@ RAVEN_DSN_FRONTEND_PROD = 'raven-prod'
 RAVEN_DSN_CMS_QA = 'raven-cms-qa'
 RAVEN_DSN_CMS_PROD = 'raven-cms-prod'
 
+ELASTICSEARCH_HOST = 'http://localhost:9200'
+UNICORE_DISTRIBUTE_HOST = 'http://localhost:6543'
+
 HUBCLIENT_SETTINGS = {
     'host': 'http://localhost:8080',
     'app_id': '',

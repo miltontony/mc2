@@ -6,6 +6,7 @@ from django.conf import settings
 from elasticgit import EG
 
 from unicoremc.tasks import push_to_git
+from unicoremc import constants
 
 
 class SettingsManager(object):
@@ -133,6 +134,7 @@ class SettingsManager(object):
                         app_type, country.lower()),)),
                 'repo_path': repo_path,
                 'ga_profile_id': ga_profile_id,
+                'es_host': settings.ELASTICSEARCH_HOST,
                 'hub_app_id': hub_app_id,
                 'hub_app_key': hub_app_key,
                 'hub_settings': settings.HUBCLIENT_SETTINGS
@@ -154,6 +156,11 @@ class SettingsManager(object):
         else:
             raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
 
+        repo_name = constants.NEW_REPO_NAME_FORMAT % {
+            'app_type': app_type,
+            'country': country.lower(),
+            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+
         languages = [lang.get_code() for lang in available_languages]
 
         hub_app_id = hub_app.get('uuid') if hub_app else None
@@ -169,7 +176,10 @@ class SettingsManager(object):
                 'ga_profile_id': ga_profile_id,
                 'hub_app_id': hub_app_id,
                 'hub_app_key': hub_app_key,
-                'hub_settings': settings.HUBCLIENT_SETTINGS
+                'hub_settings': settings.HUBCLIENT_SETTINGS,
+                'es_host': settings.ELASTICSEARCH_HOST,
+                'ucd_host': settings.UNICORE_DISTRIBUTE_HOST,
+                'repo_name': repo_name,
             }
         )
 

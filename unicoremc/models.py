@@ -311,9 +311,12 @@ class Project(models.Model):
     def init_workspace(self):
         self.sync_cms_index()
 
-        # We also need to clone the repo for the frontend and initialize it
-        Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
-        self.sync_frontend_index()
+        if self.application_type.project_type == AppType.UNICORE_CMS:
+            # We also need to clone the repo for the frontend and initialize it
+            Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
+            self.sync_frontend_index()
+        elif self.application_type.project_type == AppType.SPRINGBOARD:
+            self.create_unicore_distribute_repo()
 
     def create_nginx(self):
         self.nginx_manager.write_frontend_nginx(
@@ -396,6 +399,20 @@ class Project(models.Model):
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
 
+    def create_unicore_distribute_repo(self):
+        post_data = {
+            "repo_url": self.repo_git_url
+        }
+
+        resp = requests.post(
+            '%s/repos.json' % settings.UNICORE_DISTRIBUTE_HOST,
+            json=post_data)
+
+        if resp.status_code != 200:
+            raise exceptions.UnicoreDistributeApiException(
+                'Clone repo failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('errors')))
+
     def create_db(self):
         self.db_manager.create_db(self.app_type, self.country)
 
@@ -404,11 +421,11 @@ class Project(models.Model):
 
     def destroy(self):
         shutil.rmtree(self.repo_path())
-        shutil.rmtree(self.frontend_repo_path())
         self.nginx_manager.destroy(self.app_type, self.country)
         self.settings_manager.destroy(self.app_type, self.country)
 
         if self.application_type.project_type == AppType.UNICORE_CMS:
+            shutil.rmtree(self.frontend_repo_path())
             self.settings_manager.destroy_unicore_cms_settings(
                 self.app_type, self.country)
 

@@ -397,7 +397,10 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('swa_TZ' in data)
         self.assertTrue(
-            'unicore.content_repos = unicore_frontend_ffl_za' in data)
+            'unicore.content_repo_urls = '
+            'http://localhost:6543/repos/unicore-cms-content-ffl-za.json'
+            in data)
+        self.assertTrue('es.host = http://localhost:9200' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
         self.assertTrue('raven-qa' in data)
         self.assertIn('unicorehub.app_id = %s' % hub_app.get('uuid'), data)

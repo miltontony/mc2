@@ -417,6 +417,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
         p = Project(
@@ -465,7 +466,6 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue(self.source_repo_sm.repo.git_dir in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     def test_ordering(self):
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
