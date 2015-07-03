@@ -104,6 +104,7 @@ class Project(models.Model):
     CREA = 'crea'
     EPIC_QUEEN = 'epicqueen'
     CONNECT_SMART = 'connectsmart'
+    MY_RIGHTS = 'myrights'
 
     APP_TYPES = (
         (FFL, 'Facts for Life'),
@@ -121,6 +122,7 @@ class Project(models.Model):
         (CREA, 'Crea'),
         (EPIC_QUEEN, 'Epic Queen'),
         (CONNECT_SMART, 'Connect Smart'),
+        (MY_RIGHTS, 'My Rights'),
     )
 
     application_type = models.ForeignKey(AppType, blank=True, null=True)
