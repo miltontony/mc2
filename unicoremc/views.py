@@ -20,7 +20,6 @@ from django.core.cache import cache
 
 from unicoremc.models import Project, Localisation, AppType
 from unicoremc.forms import ProjectForm
-from unicoremc.states import ProjectWorkflow
 from unicoremc import constants
 from unicoremc import tasks, utils
 
