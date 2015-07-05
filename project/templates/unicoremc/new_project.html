@@ -31,6 +31,7 @@
                     <select class="form-control" id="base_repo" name="base_repo" disabled="disabled">
                         <option value="">---------</option>
                     </select>
+                    <button class="btn btn-success btn-small" id="refresh_repos"><i class="icon-refresh"></i> refresh repos</button>
                     <span class="help-block">This is the Content Repo that the site will be based on.</span>
                 </div>
         </div>
@@ -72,9 +73,9 @@ if (typeof String.prototype.startsWith != 'function') {
 
 
 (function($) {
-    function load_content_repos(app_name){
+    function load_content_repos(app_name, refresh){
         //javascript goes here
-       $.get('/repos/')
+       $.get('/repos/', {refresh: refresh})
             .done(function(data){
                 var options = new Array();
                 options.push($('<option>').val('').text('---------'));
@@ -115,10 +116,17 @@ if (typeof String.prototype.startsWith != 'function') {
     }
 
     $(document).ready(function() {
+        $('#refresh_repos').click(function(event){
+            event.preventDefault();
+            $("#base_repo").attr('disabled', 'disabled').val('').change();
+            var app_name = $('option:selected', this).attr('app_name');
+            if(app_name != '')
+                load_content_repos(app_name, true);
+        });
         $('#unicore_app').change(function(){
             var app_name = $('option:selected', this).attr('app_name');
             if(app_name != '')
-                load_content_repos(app_name);
+                load_content_repos(app_name, false);
             else{
                 $("#base_repo").attr('disabled', 'disabled').val('').change();
             }
