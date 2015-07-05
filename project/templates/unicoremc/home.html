@@ -73,6 +73,12 @@ jQuery(document).ready(function($) {
     function receiveMessage(msg) {
       var data = JSON.parse(msg);
 
+      if (document.getElementById(data.id) == null){
+        //project is probably new
+        window.location.reload();
+        return
+      }
+
       $('#'+data.id).attr('class', data.state);
       $('#'+data.id+' .state').html(data.state_display);
 
