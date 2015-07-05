@@ -4,7 +4,7 @@
     {% else %}
       class="bg-warning"
     {% endif %}>
-  <th>{{project.application_type.title}}
+  <th class="title">{{project.application_type.title}}<br/>
   {% if project.application_type.project_type == 'unicore-cms' %}
   <span class="label label-info">
     {{project.application_type.project_type}}
@@ -17,24 +17,26 @@
   <span class="label">{{project.application_type.project_type}}</span>
   {% endif %}{% endif %}
   </th>
-  <td>{{project.get_country_display}}</td>
-  <td>{{project.state}}</td>
-  <td><a target="_blank" href="{{project.repo_url}}">Github</a></td>
-  <td><a target="_blank" href="{{project.frontend_url}}">Mobi</a></td>
-  <td><a target="_blank" href="{{project.cms_url}}">CMS</a></td>
-  <td>
+  <td class="country">{{project.get_country_display}}</td>
+  <td class="state">{{project.get_state_display}}</td>
+  <td class="repo_url"><a target="_blank" href="{{project.repo_url}}">Github</a></td>
+  <td class="frontend_url"><a target="_blank" href="{{project.frontend_url}}">Mobi</a></td>
+  <td class="cms_url"><a target="_blank" href="{{project.cms_url}}">CMS</a></td>
+  <td class="languages">
   {% for lang in project.available_languages.all %}
-  <a target="_blank" href="{{project.frontend_url}}/locale/{{lang.get_code}}/">{{lang.get_code}}</a>&nbsp;
+  <a target="_blank" href="{{project.frontend_url}}/locale/{{lang.get_code}}/"
+  {% if lange.get_code == lang.default_language.get_code %}class="active"{%endif%}
+  >{{lang.get_code}}</a>,&nbsp;
   {% endfor %}
   </td>
-  <td>{{project.ga_profile_id|default:''}}</td>
-  <td>
+  <td class="ga_profile_id">{{project.ga_profile_id|default:''}}</td>
+  <td class="hub_app_id">
   {% if project.hub_app_id %}
   {{project.hub_app_id}}
   <br/><a href="{% url 'reset-hub-app-key' project.id %}">Reset key</a>
   {% endif %}
   </td>
   {% if user.is_superuser %}
-  <td><a href="{% url 'advanced' project.id %}">edit</a></td>
+  <td class="advanced"><a href="{% url 'advanced' project.id %}">edit</a></td>
   {% endif %}
 </tr>
