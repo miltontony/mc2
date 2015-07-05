@@ -477,11 +477,13 @@ class Project(models.Model):
 
 
 @receiver(post_save, sender=Project)
-def publish_to_websocket(sender, instance, **kwargs):
+def publish_to_websocket(sender, instance, created, **kwargs):
     '''
     Broadcasts the state of a project when it is saved.
     broadcast channel: progress
     '''
+    data = instance.to_dict()
+    data.update({'is_created': created})
     redis_publisher = RedisPublisher(facility='progress', broadcast=True)
-    message = RedisMessage(json.dumps(instance.to_dict()))
+    message = RedisMessage(json.dumps(data))
     redis_publisher.publish_message(message)

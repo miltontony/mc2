@@ -25,8 +25,8 @@
   <td class="languages">
   {% for lang in project.available_languages.all %}
   <a target="_blank" href="{{project.frontend_url}}/locale/{{lang.get_code}}/"
-  {% if lange.get_code == lang.default_language.get_code %}class="active"{%endif%}
-  >{{lang.get_code}}</a>,&nbsp;
+    {% if lang.get_code == project.default_language.get_code %}class="active"{%endif%}
+    >{{lang.get_code}}</a>,
   {% endfor %}
   </td>
   <td class="ga_profile_id">{{project.ga_profile_id|default:''}}</td>
