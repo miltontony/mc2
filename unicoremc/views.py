@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
+from django.core.cache import cache
 
 from unicoremc.models import Project, Localisation, AppType
 from unicoremc.forms import ProjectForm
@@ -23,7 +24,7 @@ from unicoremc import constants
 from unicoremc import tasks, utils
 
 
-def get_all_repos(request):
+def get_repos():
     url = ('https://api.github.com/orgs/universalcore/'
            'repos?type=public&per_page=100&page=%s')
     pageNum = 1
@@ -35,7 +36,12 @@ def get_all_repos(request):
             break
         repos.extend(data)
         pageNum += 1
+    return repos
 
+
+def get_all_repos(request):
+    # cache list of repos for 10mins
+    repos = cache.get_or_set('repos', get_repos, timeout=60*10)
     return HttpResponse(json.dumps(repos), content_type='application/json')
 
 

@@ -175,6 +175,7 @@ INSTALLED_APPS = (
 
     # sample apps to explain usage
     'unicoremc',
+    'redis_cache',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -203,6 +204,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/2'
     }
 }
 
