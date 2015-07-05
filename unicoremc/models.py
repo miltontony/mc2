@@ -148,7 +148,8 @@ class Project(models.Model):
         return {
             'id': self.id,
             'app_type': self.app_type,
-            'application_type': self.application_type.to_dict(),
+            'application_type': self.application_type.to_dict()
+            if self.application_type else None,
             'base_repo_url': self.base_repo_url,
             'country': self.country,
             'country_display': self.get_country_display(),

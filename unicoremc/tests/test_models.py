@@ -1,9 +1,10 @@
 import pytest
 
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 from unicoremc.tests.base import UnicoremcTestCase
-from unicoremc.models import Project, AppType
+from unicoremc.models import Project, AppType, publish_to_websocket
 
 
 @pytest.mark.django_db
@@ -12,6 +13,7 @@ class ModelsTestCase(UnicoremcTestCase):
 
     def setUp(self):
         self.user = User.objects.get(username='testuser')
+        post_save.disconnect(publish_to_websocket, sender=Project)
 
     def test_app_type_title(self):
         app_type = AppType._for('gem', 'Girl Effect', 'unicore-cms')
