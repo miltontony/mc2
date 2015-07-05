@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import (
     login_required, permission_required, user_passes_test)
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import ListView
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
@@ -60,6 +61,11 @@ def new_project_view(request, *args, **kwargs):
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)
+
+
+class HomepageView(ListView):
+    model = Project
+    template_name = 'unicoremc/home.html'
 
 
 class ProjectEditView(UpdateView):
@@ -188,25 +194,3 @@ def reset_hub_app_key(request, project_id):
         project.create_pyramid_settings()
 
     return redirect(reverse('advanced', args=(project_id, )))
-
-
-@login_required
-def projects_progress(request, *args, **kwargs):
-    projects = Project.objects.all()
-    return HttpResponse(json.dumps(
-        [{
-            'project_type': p.application_type.get_project_type_display(),
-            'app_type': p.application_type.title,
-            'base_repo': p.base_repo_url,
-            'state': ProjectWorkflow(instance=p).get_state(),
-            'country': p.get_country_display(),
-            'repo_url': p.repo_url or '',
-            'frontend_url': p.frontend_url(),
-            'cms_url': p.cms_url(),
-            'ga_profile_id': p.ga_profile_id or '',
-            'hub_app_id': p.hub_app_id or '',
-            'available_languages': [
-                l.get_code() for l in p.available_languages.all()],
-            'id': p.pk
-        } for p in projects]
-    ))

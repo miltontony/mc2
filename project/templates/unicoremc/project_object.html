@@ -1,0 +1,40 @@
+<tr id="{{project.id}}"
+    {% if project.state == 'done' %}
+      class="bg-success"
+    {% else %}
+      class="bg-warning"
+    {% endif %}>
+  <th>{{project.application_type.title}}
+  {% if project.application_type.project_type == 'unicore-cms' %}
+  <span class="label label-info">
+    {{project.application_type.project_type}}
+  </span>
+  {% else %}{% if project.application_type.project_type == 'springboard' %}
+  <span class="label label-success">
+  {{project.application_type.project_type}}
+  </span>
+  {% else %}
+  <span class="label">{{project.application_type.project_type}}</span>
+  {% endif %}{% endif %}
+  </th>
+  <td>{{project.get_country_display}}</td>
+  <td>{{project.state}}</td>
+  <td><a target="_blank" href="{{project.repo_url}}">Github</a></td>
+  <td><a target="_blank" href="{{project.frontend_url}}">Mobi</a></td>
+  <td><a target="_blank" href="{{project.cms_url}}">CMS</a></td>
+  <td>
+  {% for lang in project.available_languages.all %}
+  <a target="_blank" href="{{project.frontend_url}}/locale/{{lang.get_code}}/">{{lang.get_code}}</a>&nbsp;
+  {% endfor %}
+  </td>
+  <td>{{project.ga_profile_id|default:''}}</td>
+  <td>
+  {% if project.hub_app_id %}
+  {{project.hub_app_id}}
+  <br/><a href="{% url 'reset-hub-app-key' project.id %}">Reset key</a>
+  {% endif %}
+  </td>
+  {% if user.is_superuser %}
+  <td><a href="{% url 'advanced' project.id %}">edit</a></td>
+  {% endif %}
+</tr>
