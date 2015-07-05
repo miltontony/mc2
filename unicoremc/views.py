@@ -24,7 +24,9 @@ from unicoremc import constants
 from unicoremc import tasks, utils
 
 
-def get_repos():
+def get_repos(refresh):
+    if not refresh:
+        return cache.get('repos')
     url = ('https://api.github.com/orgs/universalcore/'
            'repos?type=public&per_page=100&page=%s')
     pageNum = 1
@@ -36,12 +38,13 @@ def get_repos():
             break
         repos.extend(data)
         pageNum += 1
+    cache.set('repos', repos)
     return repos
 
 
 def get_all_repos(request):
-    # cache list of repos for 10mins
-    repos = cache.get_or_set('repos', get_repos, timeout=60*10)
+    refresh = request.GET.get('refresh', 'false') == 'true'
+    repos = get_repos(refresh)
     return HttpResponse(json.dumps(repos), content_type='application/json')
 
 
