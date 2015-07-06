@@ -46,12 +46,6 @@ class SettingsManager(object):
             '%s.ini' % (self.get_deploy_name(app_type, country),)
         )
 
-    def get_springboard_config_path(self, app_type, country):
-        return os.path.join(
-            self.springboard_settings_dir,
-            '%s.yaml' % (self.get_deploy_name(app_type, country),)
-        )
-
     def get_cms_settings_path(self, app_type, country):
         return os.path.join(
             self.cms_settings_dir,
@@ -100,9 +94,6 @@ class SettingsManager(object):
         self.workspace.sm.delete_data(
             self.get_springboard_settings_path(app_type, country),
             'Deleted springboard settings for %s_%s' % (app_type, country))
-        self.workspace.sm.delete_data(
-            self.get_springboard_config_path(app_type, country),
-            'Deleted springboard config for %s_%s' % (app_type, country))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_frontend_settings(
@@ -174,6 +165,7 @@ class SettingsManager(object):
                 'default_language': default_language.get_code(),
                 'raven_dsn_uri': raven_dsn,
                 'ga_profile_id': ga_profile_id,
+                'thumbor_security_key': settings.THUMBOR_SECURITY_KEY,
                 'hub_app_id': hub_app_id,
                 'hub_app_key': hub_app_key,
                 'hub_settings': settings.HUBCLIENT_SETTINGS,
@@ -184,23 +176,6 @@ class SettingsManager(object):
         )
 
         filepath = self.get_springboard_settings_path(app_type, country)
-
-        self.workspace.sm.store_data(
-            filepath, content,
-            'Save springboard settings config for %s_%s' % (app_type, country))
-        push_to_git.delay(self.workspace.working_dir)
-
-    def write_springboard_config(self, app_type, country, clone_url):
-
-        content = render_to_string(
-            'configs/springboard.yaml', {
-                'app_type': app_type,
-                'country': country.lower(),
-                'git_repo_uri': clone_url,
-            }
-        )
-
-        filepath = self.get_springboard_config_path(app_type, country)
 
         self.workspace.sm.store_data(
             filepath, content,
