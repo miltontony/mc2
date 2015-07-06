@@ -148,6 +148,13 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
+    def mock_create_springboard_marathon_app(self, status=201):
+        responses.add(
+            responses.POST, '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
     def mock_create_hub_app(self, **fields):
 
         def make_response(request):

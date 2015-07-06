@@ -5,7 +5,7 @@ NEW_REPO_NAME_FORMAT = (
 SPRINGBOARD_MARATHON_CMD = (
     "/var/praekelt/springboard-python/bin/gunicorn"
     "--bind localhost:$PORT"
-    "--paste %(config_path)s --preload",
+    "--paste %(config_path)s --preload"
 )
 
 LANGUAGES = {

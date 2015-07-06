@@ -165,7 +165,7 @@ class ProjectWorkflow(StateMachine):
         'cms_settings_created': CmsSettingsCreated,
         'db_created': DbCreated,
         'db_initialized': DbInitialized,
-        'db_initialized': DbInitialized,
+        'marathon_app_created': MarathonAppCreated,
         'done': Done,
     }
     initial_state = 'initial'

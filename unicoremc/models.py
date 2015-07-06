@@ -426,9 +426,11 @@ class Project(models.Model):
                 'id': self.id,
             },
             "cmd": constants.SPRINGBOARD_MARATHON_CMD % {
-                os.path.join(
+                'config_path': os.path.join(
                     settings.UNICORE_CONFIGS_INSTALL_DIR,
-                    self.settings_manager.get_springboard_settings_path())
+                    self.settings_manager.get_springboard_settings_path(
+                        self.app_type, self.country.lower())
+                    ),
             },
             "cpus": 0.1,
             "mem": 100.0,

@@ -6,6 +6,10 @@ class GithubApiException(Exception):
     pass
 
 
+class MarathonApiException(Exception):
+    pass
+
+
 class AccessTokenRequiredException(Exception):
     pass
 

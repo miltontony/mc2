@@ -64,6 +64,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_springboard_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -94,6 +95,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         p.db_manager.call_subprocess = init_db_call_mock
         pw.take_action('init_db')
+        pw.take_action('create_marathon_app')
 
         pw.take_action('finish')
 
@@ -125,6 +127,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_springboard_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -165,6 +168,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_springboard_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -246,6 +250,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
+        self.mock_create_springboard_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'springboard')
         p = Project(
