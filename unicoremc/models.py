@@ -345,11 +345,6 @@ class Project(models.Model):
                 self.ga_profile_id,
                 self.hub_app()
             )
-            self.settings_manager.write_springboard_config(
-                self.app_type,
-                self.country,
-                self.repo_git_url
-            )
         else:
             raise exceptions.ProjecTyeRequiredException(
                 'project_type is required')

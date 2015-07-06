@@ -297,8 +297,6 @@ class SettingsManagerTestCase(UnicoremcTestCase):
             sm.write_springboard_settings(
                 'ffl', 'za', [english, afrikaans], english,
                 'UA-some-profile-id', hub_app)
-            sm.write_springboard_config(
-                'ffl', 'za', 'git://some.repo.com/.git')
             sm.write_cms_settings(
                 'ffl', 'za', 'http://some.repo.com/.git',
                 '/path/to/repo/ffl_za/')
@@ -317,11 +315,6 @@ class SettingsManagerTestCase(UnicoremcTestCase):
             config_ws.working_dir, 'springboard_settings', 'ffl_za.ini')
         remote_springboard_settings_config_path = os.path.join(
             remote_ws.working_dir, 'springboard_settings', 'ffl_za.ini')
-
-        springboard_config_path = os.path.join(
-            config_ws.working_dir, 'springboard_settings', 'ffl_za.yaml')
-        remote_springboard_config_path = os.path.join(
-            remote_ws.working_dir, 'springboard_settings', 'ffl_za.yaml')
 
         cms_settings_config_path = os.path.join(
             config_ws.working_dir, 'cms_settings', 'ffl_za.py')
@@ -362,8 +355,6 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertFalse(os.path.exists(springboard_settings_config_path))
         self.assertFalse(
             os.path.exists(remote_springboard_settings_config_path))
-        self.assertFalse(os.path.exists(springboard_config_path))
-        self.assertFalse(os.path.exists(remote_springboard_config_path))
         self.assertFalse(os.path.exists(cms_config_path))
         self.assertFalse(os.path.exists(remote_cms_config_path))
         self.assertFalse(os.path.exists(cms_settings_output_path))

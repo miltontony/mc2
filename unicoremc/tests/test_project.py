@@ -445,9 +445,6 @@ class ProjectTestCase(UnicoremcTestCase):
         springboard_settings_path = os.path.join(
             settings.SPRINGBOARD_SETTINGS_OUTPUT_PATH,
             'ffl_za.ini')
-        springboard_config_path = os.path.join(
-            settings.SPRINGBOARD_SETTINGS_OUTPUT_PATH,
-            'ffl_za.yaml')
 
         self.assertTrue(os.path.exists(springboard_settings_path))
         with open(springboard_settings_path, "r") as config_file:
@@ -457,13 +454,6 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('eng_GB' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
-
-        self.assertTrue(os.path.exists(springboard_config_path))
-        with open(springboard_config_path, "r") as config_file:
-            data = config_file.read()
-
-        self.assertTrue('unicore_frontend_ffl_za' in data)
-        self.assertTrue(self.source_repo_sm.repo.git_dir in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
