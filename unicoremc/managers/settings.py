@@ -174,6 +174,7 @@ class SettingsManager(object):
                 'default_language': default_language.get_code(),
                 'raven_dsn_uri': raven_dsn,
                 'ga_profile_id': ga_profile_id,
+                'thumbor_security_key': settings.THUMBOR_SECURITY_KEY,
                 'hub_app_id': hub_app_id,
                 'hub_app_key': hub_app_key,
                 'hub_settings': settings.HUBCLIENT_SETTINGS,

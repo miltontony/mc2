@@ -402,6 +402,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
             in data)
         self.assertTrue('es.host = http://localhost:9200' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
+        self.assertTrue('thumbor.security_key = some-key' in data)
         self.assertTrue('raven-qa' in data)
         self.assertIn('unicorehub.app_id = %s' % hub_app.get('uuid'), data)
         self.assertIn('unicorehub.app_key = %s' % hub_app.get('key'), data)
