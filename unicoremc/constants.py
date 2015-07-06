@@ -2,6 +2,12 @@ NEW_REPO_NAME_FORMAT = (
     'unicore-cms-content-'
     '%(app_type)s-%(country)s%(suffix)s')
 
+SPRINGBOARD_MARATHON_CMD = (
+    "/var/praekelt/springboard-python/bin/gunicorn"
+    "--bind localhost:$PORT"
+    "--paste %(config_path)s --preload",
+)
+
 LANGUAGES = {
     "aar": "Afar",
     "abk": "Abkhazian",

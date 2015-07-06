@@ -269,6 +269,7 @@ CMS_SOCKETS_PATH = abspath('configs', 'cms_sockets')
 
 UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
 UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
+UNICORE_CONFIGS_INSTALL_DIR = '/path/to/unicore-configs'
 
 SOCIAL_AUTH_SESSION_EXPIRATION = True
 SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
@@ -308,6 +309,7 @@ THUMBOR_SECURITY_KEY = ''
 
 ELASTICSEARCH_HOST = 'http://localhost:9200'
 UNICORE_DISTRIBUTE_HOST = 'http://localhost:6543'
+MESOS_MARATHON_HOST = 'http://localhost:8080'
 
 HUBCLIENT_SETTINGS = None
 

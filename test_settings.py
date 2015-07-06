@@ -22,6 +22,7 @@ CELERY_ALWAYS_EAGER = True
 
 UNICORE_CMS_INSTALL_DIR = abspath('.test_config_dir', 'unicore-cms-django')
 UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
+UNICORE_CONFIGS_INSTALL_DIR = '/path/to/unicore-configs'
 
 REPO_WORKSPACE = '.test_repo_dir'
 FRONTEND_REPO_PATH = abspath(REPO_WORKSPACE, 'frontend')
@@ -47,6 +48,7 @@ RAVEN_DSN_CMS_PROD = 'raven-cms-prod'
 
 ELASTICSEARCH_HOST = 'http://localhost:9200'
 UNICORE_DISTRIBUTE_HOST = 'http://localhost:6543'
+MESOS_MARATHON_HOST = 'http://localhost:8080'
 
 THUMBOR_SECURITY_KEY = 'some-key'
 

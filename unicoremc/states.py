@@ -122,6 +122,15 @@ class DbCreated(State):
 
 class DbInitialized(State):
     verbose_name = 'Database initialized'
+    transitions = {'create_marathon_app': 'marathon_app_created'}
+
+    def create_marathon_app(self, **kwargs):
+        if self.instance:
+            self.instance.create_marathon_app()
+
+
+class MarathonAppCreated(State):
+    verbose_name = 'Marathon app created'
     transitions = {'finish': 'done'}
 
 
@@ -155,6 +164,7 @@ class ProjectWorkflow(StateMachine):
         'pyramid_settings_created': PyramidSettingsCreated,
         'cms_settings_created': CmsSettingsCreated,
         'db_created': DbCreated,
+        'db_initialized': DbInitialized,
         'db_initialized': DbInitialized,
         'done': Done,
     }

@@ -414,6 +414,36 @@ class Project(models.Model):
     def init_db(self):
         self.db_manager.init_db(self.app_type, self.country)
 
+    def create_marathon_app(self):
+        if self.application_type.project_type == AppType.SPRINGBOARD:
+            self.create_springboard_marathon_app()
+
+    def create_springboard_marathon_app(self):
+        post_data = {
+            "id": "%(app_type)s-%(country)s-%(id)s" % {
+                'app_type': self.app_type,
+                'country': self.country.lower(),
+                'id': self.id,
+            },
+            "cmd": constants.SPRINGBOARD_MARATHON_CMD % {
+                os.path.join(
+                    settings.UNICORE_CONFIGS_INSTALL_DIR,
+                    self.settings_manager.get_springboard_settings_path())
+            },
+            "cpus": 0.1,
+            "mem": 100.0,
+            "instances": 1
+        }
+
+        resp = requests.post(
+            '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
+            json=post_data)
+
+        if resp.status_code != 201:
+            raise exceptions.MarathonApiException(
+                'Create Marathon app failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('message')))
+
     def destroy(self):
         shutil.rmtree(self.repo_path())
         self.nginx_manager.destroy(self.app_type, self.country)
