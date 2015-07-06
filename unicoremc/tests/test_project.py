@@ -550,3 +550,50 @@ class ProjectTestCase(UnicoremcTestCase):
         app = proj.create_or_update_hub_app()
         self.assertIn(proj.application_type.title, app.get('title'))
         self.assertIn('ffl', app.get('url'))
+
+    @responses.activate
+    def test_create_marathon_app_bad_response(self):
+
+        def call_mock(*call_args, **call_kwargs):
+            pass
+
+        self.mock_create_repo()
+        self.mock_create_webhook()
+        self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_springboard_marathon_app(404)
+
+        app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
+        p = Project(
+            application_type=app_type,
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user,
+            ga_profile_id='UA-some-profile-id')
+        p.save()
+        p.available_languages.add(*[Localisation._for('eng_GB')])
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+        pw.take_action('push_repo')
+        pw.take_action('create_webhook', access_token='sample-token')
+        pw.take_action('init_workspace')
+        pw.take_action('create_nginx')
+        pw.take_action('create_hub_app')
+        pw.take_action('create_pyramid_settings')
+        pw.take_action('create_cms_settings')
+
+        p.db_manager.call_subprocess = call_mock
+        pw.take_action('create_db')
+
+        p.db_manager.call_subprocess = call_mock
+        pw.take_action('init_db')
+
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+
+        with self.assertRaises(exceptions.MarathonApiException):
+            pw.take_action('create_marathon_app')
