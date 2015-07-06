@@ -159,11 +159,10 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Uncomment the next line to enable the admin:
     'grappelli',
     'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
+
+    'redis_cache',
     'south',
     'gunicorn',
     'django_nose',
@@ -172,8 +171,6 @@ INSTALLED_APPS = (
     'debug_toolbar',
 
     'social.apps.django_app.default',
-
-    # sample apps to explain usage
     'unicoremc',
 )
 
@@ -203,6 +200,13 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+    }
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'redis://localhost:6379/2'
     }
 }
 
