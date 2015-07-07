@@ -38,6 +38,11 @@ def get_repos(refresh):
             break
         repos.extend(data)
         pageNum += 1
+    repos = [{
+        'name': r.get('name'),
+        'git_url': r.get('git_url'),
+        'clone_url': r.get('clone_url')
+    } for r in repos]
     cache.set('repos', repos)
     return repos
 

@@ -32,7 +32,7 @@
                         <option value="">---------</option>
                     </select>
                     <button class="btn btn-success btn-small" id="refresh_repos"><i class="icon-refresh"></i> refresh repos</button>
-                    <span class="help-block">This is the Content Repo that the site will be based on.</span>
+                    <span id="base_repo_help" class="help-block">This is the Content Repo that the site will be based on.</span>
                 </div>
         </div>
         <div class="form-group">
@@ -77,15 +77,24 @@ if (typeof String.prototype.startsWith != 'function') {
         //javascript goes here
        $.get('/repos/', {refresh: refresh})
             .done(function(data){
-                var options = new Array();
-                options.push($('<option>').val('').text('---------'));
-                $.each(data, function(){
-                    if(this.name.startsWith('unicore-cms-content-' + app_name) ||
-                        this.name.startsWith('unicore-cms-content-blank')){
-                            options.push($('<option>').val(this.git_url).text(this.name));
-                    }
-                });
-                $('#base_repo').html(options).removeAttr('disabled').change();
+                if (data != null){
+                  var options = new Array();
+                  options.push($('<option>').val('').text('---------'));
+                  $.each(data, function(){
+                      if(this.name.startsWith('unicore-cms-content-' + app_name) ||
+                          this.name.startsWith('unicore-cms-content-blank')){
+                              options.push($('<option>').val(this.git_url).text(this.name));
+                      }
+                  });
+                  $('#base_repo').html(options).removeAttr('disabled').change();
+                  $('#base_repo_help')
+                    .html("This is the Content Repo that the site will be based on.")
+                    .removeClass('error');
+                }else{
+                  $('#base_repo_help')
+                    .html("Error loading repos. Please refresh")
+                    .addClass('error');
+                }
             });
 
         $.get('https://api.github.com/orgs/universalcore/teams?access_token={{access_token}}')
@@ -119,7 +128,10 @@ if (typeof String.prototype.startsWith != 'function') {
         $('#refresh_repos').click(function(event){
             event.preventDefault();
             $("#base_repo").attr('disabled', 'disabled').val('').change();
-            var app_name = $('option:selected', this).attr('app_name');
+            var app_name = $('#unicore_app option:selected').attr('app_name');
+            $('#base_repo_help')
+                    .html("Fetching latest content repos..")
+                    .removeClass('error');
             if(app_name != '')
                 load_content_repos(app_name, true);
         });
