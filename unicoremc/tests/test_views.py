@@ -231,6 +231,27 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(resp.status_code, 302)
 
     @responses.activate
+    def test_cleanup_get_repos(self):
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        test_repos_path = os.path.join(cur_dir, 'repos.json')
+
+        with open(test_repos_path, "r") as repos_file:
+            data = repos_file.read()
+        repos = json.loads(data)
+
+        self.mock_list_repos(repos)
+
+        resp = self.client.get(reverse('get_all_repos'), {'refresh': 'true'})
+        resp_json = json.loads(resp.content)
+        self.assertEquals(
+            resp_json[0], {
+                'clone_url':
+                    'https://github.com/universalcore/unicore-cms.git',
+                'git_url': 'git://github.com/universalcore/unicore-cms.git',
+                'name': 'unicore-cms'}
+        )
+
+    @responses.activate
     def test_no_repos(self):
         self.client.login(username='testuser2', password='test')
         self.mock_list_repos()
