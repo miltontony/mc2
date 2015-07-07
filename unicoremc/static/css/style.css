@@ -5,6 +5,7 @@
 .new-project{}
   .new-project .help-block{display: inline;}
   .new-project .no-bullets li{list-style: none;}
+  .new-project .error {color: #c00;}
 
 .form-group{
   padding-bottom: 10px;
