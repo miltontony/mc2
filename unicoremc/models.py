@@ -2,7 +2,7 @@ import shutil
 import os
 import pwd
 
-os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]
+os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]  # noqa
 
 import requests
 
@@ -88,14 +88,18 @@ class AppType(models.Model):
         ordering = ('title', )
 
 
+class ProjectRepo(models.Model):
+    project = models.ForeignKey('Project', related_name='repos')
+    base_url = models.URLField()
+    git_url = models.URLField(blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
+
+
 class Project(models.Model):
     application_type = models.ForeignKey(AppType, blank=True, null=True)
-    base_repo_url = models.URLField()
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
     state = models.CharField(max_length=50, default='initial')
-    repo_url = models.URLField(blank=True, null=True)
-    repo_git_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
     team_id = models.IntegerField(blank=True, null=True)
     project_version = models.PositiveIntegerField(default=0)
@@ -127,6 +131,24 @@ class Project(models.Model):
         if self.application_type:
             return self.application_type.name
         return ''
+
+    def _get_repo_attribute(self, attr):
+        # this will raise MultipleObjectsReturned
+        # if the project has more than 1 repo
+        repo = self.repos.get()
+        return getattr(repo, attr)
+
+    @property
+    def base_repo_url(self):
+        return self._get_repo_attribute('base_url')
+
+    @property
+    def repo_url(self):
+        return self._get_repo_attribute('url')
+
+    @property
+    def repo_git_url(self):
+        return self._get_repo_attribute('git_url')
 
     def frontend_url(self):
         return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
