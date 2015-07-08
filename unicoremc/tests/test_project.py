@@ -404,8 +404,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('egg:unicore-cms-ffl' in data)
         self.assertTrue(
             "[(u'eng_UK', u'English')]" in data)
-        self.assertTrue(self.source_repo_sm.repo.working_dir in data)
-        self.assertTrue(self.source_repo_sm.repo.git_dir in data)
+        self.assertTrue(
+            'git.path = http://localhost:6543/repos/'
+            'unicore-cms-content-ffl-za.json' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
 
@@ -452,6 +453,9 @@ class ProjectTestCase(UnicoremcTestCase):
 
         self.assertTrue('egg:springboard_ffl' in data)
         self.assertTrue('eng_GB' in data)
+        self.assertTrue(
+            'unicore.content_repo_urls = http://localhost:6543/repos/'
+            'unicore-cms-content-ffl-za.json' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
 

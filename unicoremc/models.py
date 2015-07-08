@@ -329,9 +329,7 @@ class Project(models.Model):
             self.settings_manager.write_frontend_settings(
                 self.app_type,
                 self.country,
-                self.repo_git_url,
                 self.available_languages.all(),
-                self.frontend_repo_path(),
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app()
@@ -416,22 +414,32 @@ class Project(models.Model):
 
     def create_marathon_app(self):
         if self.application_type.project_type == AppType.SPRINGBOARD:
-            self.create_springboard_marathon_app()
+            cmd = constants.SPRINGBOARD_MARATHON_CMD % {
+                'config_path': os.path.join(
+                    settings.UNICORE_CONFIGS_INSTALL_DIR,
+                    self.settings_manager.get_springboard_settings_path(
+                        self.app_type, self.country.lower())
+                    ),
+            }
+            self.initiate_create_marathon_app(cmd)
+        elif self.application_type.project_type == AppType.UNICORE_CMS:
+            cmd = constants.UNICORECMS_MARATHON_CMD % {
+                'config_path': os.path.join(
+                    settings.UNICORE_CONFIGS_INSTALL_DIR,
+                    self.settings_manager.get_frontend_settings_path(
+                        self.app_type, self.country.lower())
+                    ),
+            }
+            self.initiate_create_marathon_app(cmd)
 
-    def create_springboard_marathon_app(self):
+    def initiate_create_marathon_app(self, cmd):
         post_data = {
             "id": "%(app_type)s-%(country)s-%(id)s" % {
                 'app_type': self.app_type,
                 'country': self.country.lower(),
                 'id': self.id,
             },
-            "cmd": constants.SPRINGBOARD_MARATHON_CMD % {
-                'config_path': os.path.join(
-                    settings.UNICORE_CONFIGS_INSTALL_DIR,
-                    self.settings_manager.get_springboard_settings_path(
-                        self.app_type, self.country.lower())
-                    ),
-            },
+            "cmd": cmd,
             "cpus": 0.1,
             "mem": 100.0,
             "instances": 1

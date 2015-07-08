@@ -8,6 +8,12 @@ SPRINGBOARD_MARATHON_CMD = (
     "--paste %(config_path)s --preload"
 )
 
+UNICORECMS_MARATHON_CMD = (
+    "/var/praekelt/unicorecms-python/bin/gunicorn "
+    "--bind localhost:$PORT "
+    "--paste %(config_path)s --preload"
+)
+
 LANGUAGES = {
     "aar": "Afar",
     "abk": "Abkhazian",
