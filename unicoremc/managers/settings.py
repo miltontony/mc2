@@ -97,12 +97,17 @@ class SettingsManager(object):
         push_to_git.delay(self.workspace.working_dir)
 
     def write_frontend_settings(
-            self, app_type, country, clone_url, available_languages,
-            repo_path, default_language, ga_profile_id, hub_app):
+            self, app_type, country, available_languages,
+            default_language, ga_profile_id, hub_app):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
             raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
+
+        repo_name = constants.NEW_REPO_NAME_FORMAT % {
+            'app_type': app_type,
+            'country': country.lower(),
+            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
 
         languages = []
         for lang in available_languages:
@@ -117,15 +122,11 @@ class SettingsManager(object):
                 'country': country.lower(),
                 'available_languages': '[%s]' % ', '.join(languages),
                 'default_language': default_language.get_code(),
-                'git_repo_uri': clone_url,
                 'raven_dsn_uri': raven_dsn,
-                'socket_path': os.path.join(
-                    self.frontend_sockets_dir,
-                    '%s.socket' % (self.get_deploy_name(
-                        app_type, country.lower()),)),
-                'repo_path': repo_path,
                 'ga_profile_id': ga_profile_id,
                 'es_host': settings.ELASTICSEARCH_HOST,
+                'ucd_host': settings.UNICORE_DISTRIBUTE_HOST,
+                'repo_name': repo_name,
                 'hub_app_id': hub_app_id,
                 'hub_app_key': hub_app_key,
                 'hub_settings': settings.HUBCLIENT_SETTINGS
