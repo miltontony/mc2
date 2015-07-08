@@ -565,7 +565,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
-        self.mock_create_springboard_marathon_app(404)
+        self.mock_create_marathon_app(404)
 
         app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
         p = Project(
