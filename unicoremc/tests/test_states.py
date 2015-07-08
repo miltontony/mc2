@@ -128,7 +128,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
-        unicore-cms-content-ffl-za.json
+        self.mock_create_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
