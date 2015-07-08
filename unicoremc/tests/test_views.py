@@ -39,6 +39,8 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
 
@@ -104,8 +106,6 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
-        self.addCleanup(lambda: shutil.rmtree(
-            os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))
 
     @responses.activate
     def test_advanced_page(self):
@@ -114,6 +114,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
 
         Localisation._for('eng_UK')
         Localisation._for('swa_TZ')
@@ -198,8 +199,6 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
-        self.addCleanup(lambda: shutil.rmtree(
-            os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))

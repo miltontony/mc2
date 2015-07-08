@@ -65,7 +65,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
-        self.mock_create_springboard_marathon_app()
+        self.mock_create_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -128,7 +128,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
-        self.mock_create_springboard_marathon_app()
+        unicore-cms-content-ffl-za.json
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -169,7 +169,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
-        self.mock_create_springboard_marathon_app()
+        self.mock_create_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -251,7 +251,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
-        self.mock_create_springboard_marathon_app()
+        self.mock_create_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'springboard')
         p = Project(
