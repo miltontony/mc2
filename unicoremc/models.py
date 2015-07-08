@@ -454,7 +454,6 @@ class Project(models.Model):
         self.settings_manager.destroy(self.app_type, self.country)
 
         if self.application_type.project_type == AppType.UNICORE_CMS:
-            shutil.rmtree(self.frontend_repo_path())
             self.settings_manager.destroy_unicore_cms_settings(
                 self.app_type, self.country)
 

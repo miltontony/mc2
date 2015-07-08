@@ -64,6 +64,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
         self.mock_create_springboard_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
@@ -75,7 +76,6 @@ class StatesTestCase(UnicoremcTestCase):
         p.save()
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -127,6 +127,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
         self.mock_create_springboard_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
@@ -140,7 +141,6 @@ class StatesTestCase(UnicoremcTestCase):
         p.db_manager.call_subprocess = call_mock
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
         self.assertEquals(p.state, 'initial')
 
@@ -168,6 +168,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
         self.mock_create_springboard_marathon_app()
 
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
@@ -211,7 +212,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertTrue(os.path.exists(cms_nginx_config_path))
 
         self.assertTrue(os.path.exists(p.repo_path()))
-        self.assertTrue(os.path.exists(p.frontend_repo_path()))
+        self.assertFalse(os.path.exists(p.frontend_repo_path()))
 
         self.assertTrue(os.path.exists(frontend_settings_path))
         self.assertTrue(os.path.exists(cms_settings_path))
