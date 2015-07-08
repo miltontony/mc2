@@ -254,6 +254,7 @@ class ProjectTestCase(UnicoremcTestCase):
     def test_init_workspace(self):
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_unicore_distribute_repo()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -309,12 +310,12 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertEqual(workspace.S(EGLocalisation).count(), 2)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_nginx_config(self):
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_unicore_distribute_repo()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -361,13 +362,13 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_pyramid_settings(self):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -405,13 +406,12 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue(
             "[(u'eng_UK', u'English')]" in data)
         self.assertTrue(
-            'git.path = http://localhost:6543/repos/'
+            'git.path = http://testserver:6543/repos/'
             'unicore-cms-content-ffl-za.json' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_springboard_settings(self):
@@ -454,7 +454,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('egg:springboard_ffl' in data)
         self.assertTrue('eng_GB' in data)
         self.assertTrue(
-            'unicore.content_repo_urls = http://localhost:6543/repos/'
+            'unicore.content_repo_urls = http://testserver:6543/repos/'
             'unicore-cms-content-ffl-za.json' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)

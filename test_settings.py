@@ -47,13 +47,13 @@ RAVEN_DSN_CMS_QA = 'raven-cms-qa'
 RAVEN_DSN_CMS_PROD = 'raven-cms-prod'
 
 ELASTICSEARCH_HOST = 'http://localhost:9200'
-UNICORE_DISTRIBUTE_HOST = 'http://localhost:6543'
-MESOS_MARATHON_HOST = 'http://localhost:8080'
+UNICORE_DISTRIBUTE_HOST = 'http://testserver:6543'
+MESOS_MARATHON_HOST = 'http://testserver:8080'
 
 THUMBOR_SECURITY_KEY = 'some-key'
 
 HUBCLIENT_SETTINGS = {
-    'host': 'http://localhost:8080',
+    'host': 'http://testserver:8080',
     'app_id': '',
     'app_key': '',
     'redirect_to_https': False,

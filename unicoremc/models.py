@@ -310,13 +310,7 @@ class Project(models.Model):
 
     def init_workspace(self):
         self.sync_cms_index()
-
-        if self.application_type.project_type == AppType.UNICORE_CMS:
-            # We also need to clone the repo for the frontend and initialize it
-            Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
-            self.sync_frontend_index()
-        elif self.application_type.project_type == AppType.SPRINGBOARD:
-            self.create_unicore_distribute_repo()
+        self.create_unicore_distribute_repo()
 
     def create_nginx(self):
         self.nginx_manager.write_frontend_nginx(
