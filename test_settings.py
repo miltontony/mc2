@@ -2,9 +2,9 @@ from project.settings import *
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'unicoremc_test',
-        'USER': 'postgres',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'unicore_mc.db',
+        'USER': '',
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',

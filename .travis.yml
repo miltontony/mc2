@@ -6,8 +6,6 @@ install:
   - pip install -r requirements.txt --use-wheel
   - pip install -e . --use-wheel
   - pip install coveralls --use-wheel
-before_script:
-  - psql -c 'create database unicoremc_test;' -U postgres
 script:
   - ./run_tests.sh
 services:
