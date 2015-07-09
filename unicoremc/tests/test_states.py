@@ -316,7 +316,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertFalse(os.path.exists(cms_db_path))
 
     @responses.activate
-    def test_destroy_with_unicode(self):
+    def test_full_run_with_unicode(self):
         cms_db_path = os.path.join(
             settings.UNICORE_CMS_INSTALL_DIR,
             'django_cms_ffl_za.db')

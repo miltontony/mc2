@@ -78,22 +78,26 @@ class SettingsManager(object):
 
         self.workspace.sm.delete_data(
             self.get_cms_settings_path(app_type, country),
-            'Deleted cms settings config for %s_%s' % (app_type, country))
+            ('Deleted cms settings config for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         self.workspace.sm.delete_data(
             self.get_cms_config_path(app_type, country),
-            'Deleted cms config for %s_%s' % (app_type, country))
+            ('Deleted cms config for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def destroy_unicore_cms_settings(self, app_type, country):
         self.workspace.sm.delete_data(
             self.get_frontend_settings_path(app_type, country),
-            'Deleted frontend settings config for %s_%s' % (app_type, country))
+            ('Deleted frontend settings config for %s_%s' %
+                (app_type, country)).encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def destroy_springboard_settings(self, app_type, country):
         self.workspace.sm.delete_data(
             self.get_springboard_settings_path(app_type, country),
-            'Deleted springboard settings for %s_%s' % (app_type, country))
+            ('Deleted springboard settings for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_frontend_settings(
@@ -137,7 +141,8 @@ class SettingsManager(object):
 
         self.workspace.sm.store_data(
             filepath, frontend_settings_content,
-            'Save frontend settings config for %s_%s' % (app_type, country))
+            'Save frontend settings config for %s_%s'.encode('utf-8') %
+            (app_type, country))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_springboard_settings(
@@ -180,7 +185,8 @@ class SettingsManager(object):
 
         self.workspace.sm.store_data(
             filepath, content,
-            'Save springboard settings config for %s_%s' % (app_type, country))
+            ('Save springboard settings config for %s_%s' %
+                (app_type, country)).encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_cms_settings(self, app_type, country, clone_url, repo_path):
@@ -203,7 +209,8 @@ class SettingsManager(object):
         filepath = self.get_cms_settings_path(app_type, country)
         self.workspace.sm.store_data(
             filepath, cms_settings_content,
-            'Save cms settings config for %s_%s' % (app_type, country))
+            ('Save cms settings config for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
         # Write settings file to django config folder
@@ -223,7 +230,8 @@ class SettingsManager(object):
         filepath = self.get_cms_config_path(app_type, country)
         self.workspace.sm.store_data(
             filepath, cms_config_content,
-            'Save cms config for %s_%s' % (app_type, country))
+            ('Save cms config for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
         # Write settings file to django config folder
