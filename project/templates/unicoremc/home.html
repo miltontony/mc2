@@ -58,12 +58,16 @@
 <script src="{{STATIC_URL}}js/jquery.min.js"></script>
 <script type="text/javascript">
 
+function mk_github_link(url) {
+    var name = url.replace(/^(https?):\/\/github.com\/universalcore\/unicore-cms-content-/, '');
+    return '<a target="_blank" href="' + url + '">&hellip;' + name + '</a>';
+}
+
 function reload_projects(){
     $.getJSON('/progress/')
         .done(function(data){
             var projects = new Array();
             $.each(data, function(){
-                var repo_url = this.repo_url.replace(/^(https?):\/\/github.com\//, '');
                 var frontend_url = this.frontend_url.replace(/^(https?):\/\//, '').replace(/\.?(hub\.unicore\.io)/, '');
                 var cms_url = this.cms_url.replace(/^(https?):\/\//, '').replace(/\.?(hub\.unicore\.io)/, '');
 
@@ -87,7 +91,7 @@ function reload_projects(){
                 var row = '<th>' + this.app_type +' '+project_type[0].outerHTML+'</th>' +
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
-                          '<td><a target="_blank" href="'+ this.repo_url +'">Github</a></td>' +
+                          '<td>' + this.repo_urls.map(mk_github_link).join('<br/>') + '</td>' +
                           '<td><a target="_blank" href="'+ this.frontend_url +'">'+ frontend_url +'</a></td>' +
                           '<td>'+ languages + '</td>' +
                           '<td>'+ this.ga_profile_id + '</td>' +

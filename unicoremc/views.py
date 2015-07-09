@@ -17,7 +17,7 @@ from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
-from unicoremc.models import Project, Localisation, AppType
+from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.forms import ProjectForm
 from unicoremc.states import ProjectWorkflow
 from unicoremc import constants
@@ -104,7 +104,11 @@ def start_new_project(request, *args, **kwargs):
     if request.method == 'POST':
 
         app_type = request.POST.get('app_type')
-        base_repo = request.POST.get('base_repo')
+        base_repos = request.POST.getlist('base_repos[]')
+
+        if not base_repos:
+            raise HttpResponseBadRequest('No base repo selected')
+
         country = request.POST.get('country')
         access_token = request.POST.get('access_token')
         user_id = request.POST.get('user_id')
@@ -113,10 +117,13 @@ def start_new_project(request, *args, **kwargs):
         user = User.objects.get(pk=user_id)
         project, created = Project.objects.get_or_create(
             application_type=AppType.objects.get(pk=int(app_type)),
-            base_repo_url=base_repo,
             country=country,
             team_id=int(team_id),
             owner=user)
+        for base_repo_url in base_repos:
+            repo, _ = ProjectRepo.objects.get_or_create(
+                project=project,
+                base_url=base_repo_url)
 
         if created:
             tasks.start_new_project.delay(project.id, access_token)
@@ -205,10 +212,10 @@ def projects_progress(request, *args, **kwargs):
         [{
             'project_type': p.application_type.get_project_type_display(),
             'app_type': p.application_type.title,
-            'base_repo': p.base_repo_url,
+            'base_repos': p.base_repo_urls(),
             'state': ProjectWorkflow(instance=p).get_state(),
             'country': p.get_country_display(),
-            'repo_url': p.repo_url or '',
+            'repo_urls': p.repo_urls(),
             'frontend_url': p.frontend_url(),
             'cms_url': p.cms_url(),
             'ga_profile_id': p.ga_profile_id or '',

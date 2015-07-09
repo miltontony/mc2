@@ -26,13 +26,15 @@
             </div>
         </div>
         <div class="form-group">
-                <label class="col-sm-2 control-label" style="text-align:left">Base content repo</label>
+                <label class="col-sm-2 control-label" style="text-align:left">Base content repos</label>
                 <div class="col-sm-10">
-                    <select class="form-control" id="base_repo" name="base_repo" disabled="disabled">
+                    <select class="form-control" id="base_repo" name="base_repo" disabled="disabled" multiple="multiple">
                         <option value="">---------</option>
                     </select>
                     <button class="btn btn-success btn-small" id="refresh_repos"><i class="icon-refresh"></i> refresh repos</button>
-                    <span id="base_repo_help" class="help-block">This is the Content Repo that the site will be based on.</span>
+                    <span id="base_repo_help" class="help-block">This is the Content Repo that the site will be based on.<br/><strong>Note that you should only select one repo unless the app was specially built for multiple repos.</strong></span>
+                    <span id="base_repo_progress" class="help-block" style="display: none;">Fetching latest content repos&hellip;</span>
+                    <span id="base_repo_error" class="help-block error" style="display: none;">Error loading repos. Please refresh.</span>
                 </div>
         </div>
         <div class="form-group">
@@ -87,13 +89,11 @@ if (typeof String.prototype.startsWith != 'function') {
                       }
                   });
                   $('#base_repo').html(options).removeAttr('disabled').change();
-                  $('#base_repo_help')
-                    .html("This is the Content Repo that the site will be based on.")
-                    .removeClass('error');
+                  $('#base_repo').siblings('.help-block').hide()
+                  $('#base_repo_help').show()
                 }else{
-                  $('#base_repo_help')
-                    .html("Error loading repos. Please refresh")
-                    .addClass('error');
+                  $('#base_repo').siblings('.help-block').hide()
+                  $('#base_repo_error').show()
                 }
             });
 
@@ -108,11 +108,19 @@ if (typeof String.prototype.startsWith != 'function') {
             });
     }
 
+    function get_multi_selected(selector) {
+        return $.map($(selector + ' option:selected'), function(obj) {
+            return $(obj).val();
+        }).filter(function(obj) {
+            return obj !== "";
+        });
+    }
+
     function launch(){
         // Trigger start new project via ajax
         data = {
             'app_type': $('#unicore_app').val(),
-            'base_repo': $('#base_repo').val(),
+            'base_repos': get_multi_selected('#base_repo'),
             'country': $('#country').val(),
             'team_id': $('#repo_team').val(),
             'user_id': '{{request.user.id}}',
@@ -129,9 +137,8 @@ if (typeof String.prototype.startsWith != 'function') {
             event.preventDefault();
             $("#base_repo").attr('disabled', 'disabled').val('').change();
             var app_name = $('#unicore_app option:selected').attr('app_name');
-            $('#base_repo_help')
-                    .html("Fetching latest content repos..")
-                    .removeClass('error');
+            $('#base_repo').siblings('.help-block').hide()
+            $('#base_repo_progress').show()
             if(app_name != '')
                 load_content_repos(app_name, true);
         });

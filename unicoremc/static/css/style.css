@@ -3,7 +3,11 @@
   #projects_progress tr.bg-success td,tr.bg-success th{background-color:#DFF0D8 !important}
 
 .new-project{}
-  .new-project .help-block{display: inline;}
+  .new-project .help-block{
+      display: inline-block;
+      max-width: 50%;
+      margin-left: 20px;
+      vertical-align: middle}
   .new-project .no-bullets li{list-style: none;}
   .new-project .error {color: #c00;}
 
