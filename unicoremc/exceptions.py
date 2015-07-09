@@ -16,3 +16,7 @@ class AccessTokenRequiredException(Exception):
 
 class ProjectTypeRequiredException(Exception):
     pass
+
+
+class ProjectNotStandaloneException(Exception):
+    pass

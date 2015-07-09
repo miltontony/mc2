@@ -104,10 +104,16 @@ def start_new_project(request, *args, **kwargs):
     if request.method == 'POST':
 
         app_type = request.POST.get('app_type')
+        app_type = AppType.objects.get(pk=int(app_type))
         base_repos = request.POST.getlist('base_repos[]')
 
+        # validate base repos and app type
         if not base_repos:
-            raise HttpResponseBadRequest('No base repo selected')
+            raise HttpResponseBadRequest('No repo selected')
+        if (len(base_repos) > 1 and
+                app_type.project_type == AppType.UNICORE_CMS):
+            raise HttpResponseBadRequest(
+                '%s does not support multiple repos' % (AppType.UNICORE_CMS,))
 
         country = request.POST.get('country')
         access_token = request.POST.get('access_token')
@@ -116,7 +122,7 @@ def start_new_project(request, *args, **kwargs):
 
         user = User.objects.get(pk=user_id)
         project, created = Project.objects.get_or_create(
-            application_type=AppType.objects.get(pk=int(app_type)),
+            application_type=app_type,
             country=country,
             team_id=int(team_id),
             owner=user)

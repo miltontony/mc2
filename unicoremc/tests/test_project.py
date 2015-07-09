@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from git import Repo
 import mock
 
-from unicoremc.models import Project, Localisation, AppType
+from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
@@ -30,24 +30,43 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mk_test_repos()
         self.user = User.objects.get(username='testuser')
 
+    def mk_project(self, app_type={}, repo={}, project={}):
+        app_type_defaults = {
+            'name': 'ffl',
+            'title': 'Facts for Life',
+            'project_type': 'unicore-cms'
+        }
+        app_type_defaults.update(app_type)
+        app_type = AppType._for(**app_type_defaults)
+
+        project_defaults = {
+            'owner': self.user,
+            'country': 'ZA',
+            'application_type': app_type
+        }
+        project_defaults.update(project)
+        project = Project.objects.create(**project_defaults)
+
+        repo_defaults = {
+            'project': project,
+            'base_url': 'http://some-git-repo.com'
+        }
+        repo_defaults.update(repo)
+        ProjectRepo.objects.create(**repo_defaults)
+
+        return project
+
     @responses.activate
     def test_create_repo_state(self):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=self.user)
-        p.save()
-
+        p = self.mk_project()
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
 
         self.assertEquals(
-            p.repo_url,
+            p.repo_urls()[0],
             self.source_repo_sm.repo.git_dir)
         self.assertEquals(p.state, 'repo_created')
 
@@ -56,13 +75,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project()
 
         with self.assertRaises(exceptions.AccessTokenRequiredException):
             pw = ProjectWorkflow(instance=p)
@@ -74,13 +87,7 @@ class ProjectTestCase(UnicoremcTestCase):
     def test_create_repo_bad_response(self):
         self.mock_create_repo(status=404, data={'message': 'Not authorized'})
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project()
 
         with self.assertRaises(exceptions.GithubApiException):
             pw = ProjectWorkflow(instance=p)
@@ -93,13 +100,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project()
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -119,13 +120,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -148,15 +143,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=(
-                'git://github.com/universalcore/'
-                'unicore-cms-content-gem-tanzania.git'),
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={
+            'base_url': 'git://github.com/universalcore/'
+                        'unicore-cms-content-gem-tanzania.git'})
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -183,13 +172,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -225,13 +208,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -255,13 +232,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -316,13 +287,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -369,16 +334,10 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user,
-            ga_profile_id='UA-some-profile-id')
-        p.save()
-        p.available_languages.add(*[Localisation._for('eng_UK')])
-        p.save()
+        p = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            project={'ga_profile_id': 'UA-some-profile-id'})
+        p.available_languages.add(Localisation._for('eng_UK'))
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -419,16 +378,10 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user,
-            ga_profile_id='UA-some-profile-id')
-        p.save()
-        p.available_languages.add(*[Localisation._for('eng_GB')])
-        p.save()
+        p = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            project={'ga_profile_id': 'UA-some-profile-id'})
+        p.available_languages.add(Localisation._for('eng_GB'))
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -456,25 +409,18 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     def test_ordering(self):
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        gem = AppType._for('gem', 'Girl Effect Mobile', 'unicore-cms')
-        p1 = Project.objects.create(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p2 = Project.objects.create(
-            application_type=gem,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='KE',
-            owner=self.user)
-        p3 = Project.objects.create(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='KE',
-            owner=self.user)
+        p1 = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
+        p2 = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            project={'country': 'KE'},
+            app_type={'name': 'gem', 'title': 'Girl Effect Mobile',
+                      'project_type': 'unicore-cms'})
+        p3 = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            project={'country': 'KE'})
 
         self.assertEquals(Project.objects.all()[0], p3)
         self.assertEquals(Project.objects.all()[1], p1)
@@ -494,13 +440,10 @@ class ProjectTestCase(UnicoremcTestCase):
 
     @mock.patch('unicoremc.models.get_hub_app_client')
     def test_hub_app(self, mock_get_client):
-        gem = AppType._for('gem', 'Girl Effect Mobile', 'unicore-cms')
-        proj = Project.objects.create(
-            application_type=gem,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user
-        )
+        proj = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            app_type={'name': 'gem', 'title': 'Girl Effect Mobile',
+                      'project_type': 'unicore-cms'})
         self.assertEqual(proj.hub_app(), None)
 
         app_client = self.get_mock_app_client()
@@ -516,14 +459,11 @@ class ProjectTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_create_or_update_hub_app(self):
-        gem = AppType._for('gem', 'Girl Effect Mobile', 'unicore-cms')
         ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        proj = Project.objects.create(
-            application_type=gem,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user
-        )
+        proj = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            app_type={'name': 'gem', 'title': 'Girl Effect Mobile',
+                      'project_type': 'unicore-cms'})
         self.mock_create_hub_app(uuid='foouuid')
 
         app = proj.create_or_update_hub_app()
@@ -563,16 +503,11 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_unicore_distribute_repo()
         self.mock_create_springboard_marathon_app(404)
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
-        p = Project(
-            application_type=app_type,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user,
-            ga_profile_id='UA-some-profile-id')
-        p.save()
-        p.available_languages.add(*[Localisation._for('eng_GB')])
-        p.save()
+        p = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            project={'ga_profile_id': 'UA-some-profile-id'},
+            app_type={'project_type': 'springboard'})
+        p.available_languages.add(Localisation._for('eng_GB'))
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
