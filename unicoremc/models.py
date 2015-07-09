@@ -95,7 +95,19 @@ class ProjectRepo(models.Model):
     url = models.URLField(blank=True, null=True)
 
 
+class ProjectManager(models.Manager):
+    '''
+    Custom manager that uses prefetch_related and select_related
+    for repos and application_type to improve performance.
+    '''
+    def get_queryset(self):
+        qs = super(ProjectManager, self).get_queryset()
+        return qs.select_related('application_type').prefetch_related('repos')
+
+
 class Project(models.Model):
+    objects = ProjectManager()
+
     application_type = models.ForeignKey(AppType, blank=True, null=True)
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
@@ -133,21 +145,16 @@ class Project(models.Model):
         return ''
 
     def _get_repo_attribute(self, attr):
-        # this will raise MultipleObjectsReturned
-        # if the project has more than 1 repo
-        repo = self.repos.get()
-        return getattr(repo, attr)
+        repos = self.repos.all()
+        return [getattr(repo, attr) for repo in repos]
 
-    @property
-    def base_repo_url(self):
+    def base_repo_urls(self):
         return self._get_repo_attribute('base_url')
 
-    @property
-    def repo_url(self):
+    def repo_urls(self):
         return self._get_repo_attribute('url')
 
-    @property
-    def repo_git_url(self):
+    def repo_git_urls(self):
         return self._get_repo_attribute('git_url')
 
     def frontend_url(self):

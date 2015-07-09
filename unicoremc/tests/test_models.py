@@ -47,16 +47,15 @@ class ModelsTestCase(UnicoremcTestCase):
             base_url='http://some-git-repo.com',
             url='http://some-git-repo-clone.com',
             git_url='git://some-git-repo-clone.com')
-
-        self.assertEqual(project.base_repo_url, repo.base_url)
-        self.assertEqual(project.repo_url, repo.url)
-        self.assertEqual(project.repo_git_url, repo.git_url)
-
-        ProjectRepo.objects.create(
+        repo2 = ProjectRepo.objects.create(
             project=project,
             base_url='http://some-git-repo2.com',
             url='http://some-git-repo2-clone.com',
             git_url='git://some-git-repo2-clone.com')
 
-        with self.assertRaises(MultipleObjectsReturned):
-            project.base_repo_url
+        self.assertEqual(project.base_repo_urls(),
+                         [repo.base_url, repo2.base_url])
+        self.assertEqual(project.repo_urls(),
+                         [repo.url, repo2.url])
+        self.assertEqual(project.repo_git_urls(),
+                         [repo.git_url, repo2.git_url])
