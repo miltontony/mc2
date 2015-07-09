@@ -6,7 +6,6 @@ import shutil
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from unicoremc.models import Project, AppType
 from unicoremc.states import ProjectWorkflow
 from unicoremc.tests.base import UnicoremcTestCase
 
@@ -20,13 +19,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.user = User.objects.get(username='testuser')
 
     def test_initial_state(self):
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
         self.assertEquals(p.state, 'initial')
 
     @responses.activate
@@ -66,13 +59,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.mock_create_springboard_marathon_app()
 
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
         self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
@@ -104,13 +91,7 @@ class StatesTestCase(UnicoremcTestCase):
     @responses.activate
     def test_next(self):
         self.mock_create_repo()
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         self.assertEquals(p.state, 'initial')
 
@@ -129,13 +110,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.mock_create_springboard_marathon_app()
 
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         p.db_manager.call_subprocess = call_mock
 
@@ -149,7 +124,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.state, 'done')
         self.assertEquals(
-            p.repo_url,
+            p.repo_urls()[0],
             self.source_repo_sm.repo.git_dir)
 
     @responses.activate
@@ -170,13 +145,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.mock_create_springboard_marathon_app()
 
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         p.db_manager.call_subprocess = call_mock
 
@@ -252,13 +221,9 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_unicore_distribute_repo()
         self.mock_create_springboard_marathon_app()
 
-        ffl = AppType._for('ffl', 'Facts for Life', 'springboard')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            app_type={'project_type': 'springboard'})
 
         p.db_manager.call_subprocess = call_mock
 

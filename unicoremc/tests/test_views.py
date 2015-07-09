@@ -45,7 +45,7 @@ class ViewsTestCase(UnicoremcTestCase):
         data = {
             'app_type': app_type.id,
             'project_type': 'unicore-cms',
-            'base_repo': self.base_repo_sm.repo.git_dir,
+            'base_repos[]': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
             'user_id': 1,
@@ -123,7 +123,7 @@ class ViewsTestCase(UnicoremcTestCase):
         data = {
             'app_type': app_type.id,
             'project_type': 'unicore-cms',
-            'base_repo': self.base_repo_sm.repo.git_dir,
+            'base_repos[]': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
             'user_id': 1,
@@ -213,13 +213,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertContains(resp, 'edit')
 
     def test_staff_access_required(self):
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=User.objects.get(pk=2))
-        p.save()
+        self.mk_project(project={'owner': User.objects.get(pk=2)})
 
         resp = self.client.get(reverse('new_project'))
         self.assertEqual(resp.status_code, 302)
@@ -267,21 +261,12 @@ class ViewsTestCase(UnicoremcTestCase):
         ]
         mock_create_ga_profile.return_value = "UA-some-new-profile-id"
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-
-        p = Project.objects.create(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=User.objects.get(pk=2),
-            state='done')
-
-        app_type = AppType._for('gem', 'Girl Effect Mobile', 'unicore-cms')
-        Project.objects.create(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=User.objects.get(pk=2))
+        p = self.mk_project(
+            project={'owner': User.objects.get(pk=2), 'state': 'done'})
+        self.mk_project(
+            project={'owner': User.objects.get(pk=2)},
+            app_type={'name': 'gem', 'title': 'Girl Effect Mobile',
+                      'project_type': 'unicore-cms'})
 
         self.client.login(username='testuser2', password='test')
         resp = self.client.get(reverse('manage_ga'))
@@ -322,13 +307,8 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.client.login(username='testuser2', password='test')
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        proj = Project.objects.create(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=User.objects.get(pk=2),
-            state='done')
+        proj = self.mk_project(
+            project={'owner': User.objects.get(pk=2), 'state': 'done'})
         proj.create_or_update_hub_app()
         app_data = proj.hub_app().data
         app_data_with_new_key = app_data.copy()

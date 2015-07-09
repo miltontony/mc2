@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from git import Repo
 import mock
 
-from unicoremc.models import Project, Localisation, AppType, ProjectRepo
+from unicoremc.models import Project, Localisation, AppType
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
@@ -29,32 +29,6 @@ class ProjectTestCase(UnicoremcTestCase):
     def setUp(self):
         self.mk_test_repos()
         self.user = User.objects.get(username='testuser')
-
-    def mk_project(self, app_type={}, repo={}, project={}):
-        app_type_defaults = {
-            'name': 'ffl',
-            'title': 'Facts for Life',
-            'project_type': 'unicore-cms'
-        }
-        app_type_defaults.update(app_type)
-        app_type = AppType._for(**app_type_defaults)
-
-        project_defaults = {
-            'owner': self.user,
-            'country': 'ZA',
-            'application_type': app_type
-        }
-        project_defaults.update(project)
-        project = Project.objects.create(**project_defaults)
-
-        repo_defaults = {
-            'project': project,
-            'base_url': 'http://some-git-repo.com'
-        }
-        repo_defaults.update(repo)
-        ProjectRepo.objects.create(**repo_defaults)
-
-        return project
 
     @responses.activate
     def test_create_repo_state(self):
