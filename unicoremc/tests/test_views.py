@@ -47,7 +47,7 @@ class ViewsTestCase(UnicoremcTestCase):
         data = {
             'app_type': app_type.id,
             'project_type': 'unicore-cms',
-            'base_repos[]': self.base_repo_sm.repo.git_dir,
+            'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
             'user_id': 1,
@@ -124,7 +124,7 @@ class ViewsTestCase(UnicoremcTestCase):
         data = {
             'app_type': app_type.id,
             'project_type': 'unicore-cms',
-            'base_repos[]': self.base_repo_sm.repo.git_dir,
+            'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'access_token': 'some-access-token',
             'user_id': 1,

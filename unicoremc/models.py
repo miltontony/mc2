@@ -119,7 +119,7 @@ def standalone_only(method):
     '''
     @functools.wraps(method)
     def wrapper(self, *args, **kwargs):
-        if self.is_standalone():
+        if self.own_repo():
             return method(self, *args, **kwargs)
         raise ProjectNotStandaloneException(
             '%s was called for a non-standalone project' % (method.__name__,))
@@ -178,12 +178,12 @@ class Project(models.Model):
     def repo_git_urls(self):
         return self._get_repo_attribute('git_url')
 
-    def is_standalone(self):
-        '''
-        Returns True if the project needs its own repo, index and CMS.
-        This is only False if the project has more than one base repo.
-        '''
-        return self.repos.count() <= 1
+    def own_repo(self):
+        try:
+            [repo] = [r for r in self.repos.all() if r.repo is None]
+            return repo
+        except ValueError:
+            return None
 
     def frontend_url(self):
         return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
@@ -280,7 +280,7 @@ class Project(models.Model):
                     'Create repo failed with response: %s - %s' %
                     (resp.status_code, resp.json().get('message')))
 
-            repo_db = self.repos.all()[0]
+            repo_db = self.own_repo()
             repo_db.url = resp.json().get('clone_url')
             repo_db.git_url = resp.json().get('git_url')
             repo_db.save()
@@ -290,7 +290,7 @@ class Project(models.Model):
 
     @standalone_only
     def clone_repo(self):
-        repo = Repo.clone_from(self.repo_urls()[0], self.repo_path())
+        repo = Repo.clone_from(self.own_repo().url, self.repo_path())
         sm = StorageManager(repo)
         sm.create_storage()
         sm.write_config('user', {
@@ -309,7 +309,7 @@ class Project(models.Model):
     @standalone_only
     def create_remote(self):
         repo = Repo(self.repo_path())
-        repo.create_remote('upstream', self.base_repo_urls()[0])
+        repo.create_remote('upstream', self.own_repo().base_url)
 
     @standalone_only
     def merge_remote(self):
@@ -413,13 +413,13 @@ class Project(models.Model):
         self.settings_manager.write_cms_settings(
             self.app_type,
             self.country,
-            self.repo_urls()[0],
+            self.own_repo().url,
             self.repo_path()
         )
         self.settings_manager.write_cms_config(
             self.app_type,
             self.country,
-            self.repo_urls()[0],
+            self.own_repo().url,
             self.repo_path()
         )
 
@@ -458,7 +458,7 @@ class Project(models.Model):
     @standalone_only
     def create_unicore_distribute_repo(self):
         post_data = {
-            "repo_url": self.repo_git_urls()[0]
+            "repo_url": self.own_repo().git_url
         }
 
         resp = requests.post(
