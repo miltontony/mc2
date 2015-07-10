@@ -57,12 +57,12 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
-        self.mock_create_springboard_marathon_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -108,14 +108,14 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
-        self.mock_create_springboard_marathon_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         p.db_manager.call_subprocess = call_mock
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
         self.assertEquals(p.state, 'initial')
 
@@ -143,7 +143,8 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
-        self.mock_create_springboard_marathon_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
@@ -180,7 +181,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertTrue(os.path.exists(cms_nginx_config_path))
 
         self.assertTrue(os.path.exists(p.repo_path()))
-        self.assertTrue(os.path.exists(p.frontend_repo_path()))
+        self.assertFalse(os.path.exists(p.frontend_repo_path()))
 
         self.assertTrue(os.path.exists(frontend_settings_path))
         self.assertTrue(os.path.exists(cms_settings_path))
@@ -219,7 +220,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
-        self.mock_create_springboard_marathon_app()
+        self.mock_create_marathon_app()
 
         p = self.mk_project(
             repo={'base_url': self.base_repo_sm.repo.git_dir},
@@ -272,6 +273,82 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertFalse(os.path.exists(cms_nginx_config_path))
 
         self.assertFalse(os.path.exists(p.repo_path()))
+
+        self.assertFalse(os.path.exists(frontend_settings_path))
+        self.assertFalse(os.path.exists(cms_settings_path))
+        self.assertFalse(os.path.exists(cms_uwsgi_path))
+
+        self.assertFalse(os.path.exists(cms_db_path))
+
+    @responses.activate
+    def test_full_run_with_unicode(self):
+        cms_db_path = os.path.join(
+            settings.UNICORE_CMS_INSTALL_DIR,
+            'django_cms_ffl_za.db')
+
+        def call_mock(*call_args, **call_kwargs):
+            if not os.path.exists(settings.UNICORE_CMS_INSTALL_DIR):
+                os.makedirs(settings.UNICORE_CMS_INSTALL_DIR)
+
+            with open(cms_db_path, 'a'):
+                os.utime(cms_db_path, None)
+
+        self.mock_create_repo()
+        self.mock_create_webhook()
+        self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
+
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
+
+        p.db_manager.call_subprocess = call_mock
+
+        self.assertEquals(p.state, 'initial')
+
+        pw = ProjectWorkflow(instance=p)
+        pw.run_all(access_token='sample-token')
+
+        self.assertEquals(p.state, 'done')
+
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+
+        cms_settings_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.py')
+
+        cms_uwsgi_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+
+        frontend_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'frontend_ffl_za.conf')
+
+        cms_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'cms_ffl_za.conf')
+
+        self.assertTrue(os.path.exists(frontend_nginx_config_path))
+        self.assertTrue(os.path.exists(cms_nginx_config_path))
+
+        self.assertTrue(os.path.exists(p.repo_path()))
+        self.assertFalse(os.path.exists(p.frontend_repo_path()))
+
+        self.assertTrue(os.path.exists(frontend_settings_path))
+        self.assertTrue(os.path.exists(cms_settings_path))
+        self.assertTrue(os.path.exists(cms_uwsgi_path))
+
+        self.assertTrue(os.path.exists(cms_db_path))
+
+        pw.take_action('destroy')
+
+        self.assertFalse(os.path.exists(frontend_nginx_config_path))
+        self.assertFalse(os.path.exists(cms_nginx_config_path))
+
+        self.assertFalse(os.path.exists(p.repo_path()))
+        self.assertFalse(os.path.exists(p.frontend_repo_path()))
 
         self.assertFalse(os.path.exists(frontend_settings_path))
         self.assertFalse(os.path.exists(cms_settings_path))
