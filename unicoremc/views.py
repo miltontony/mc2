@@ -92,6 +92,7 @@ class ProjectEditView(UpdateView):
         project.create_or_update_hub_app()
         project.create_pyramid_settings()
         project.create_nginx()
+        project.update_marathon_app()
         return response
 
 

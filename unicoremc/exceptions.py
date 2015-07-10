@@ -20,3 +20,7 @@ class ProjectTypeRequiredException(Exception):
 
 class ProjectNotStandaloneException(Exception):
     pass
+
+
+class ProjectTypeUnknownException(Exception):
+    pass

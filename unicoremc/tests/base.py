@@ -178,6 +178,14 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
+    def mock_update_marathon_app(self, app_type, country, app_id, status=200):
+        responses.add(
+            responses.PUT, '%s/v2/apps/%s-%s-%s' % (
+                settings.MESOS_MARATHON_HOST, app_type, country, app_id),
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
     def mock_create_hub_app(self, **fields):
 
         def make_response(request):

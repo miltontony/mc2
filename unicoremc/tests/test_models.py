@@ -1,10 +1,10 @@
 import pytest
 
-from django.core.exceptions import MultipleObjectsReturned
 from django.contrib.auth.models import User
 
 from unicoremc.tests.base import UnicoremcTestCase
 from unicoremc.models import Project, AppType, ProjectRepo
+from unicoremc import exceptions
 
 
 @pytest.mark.django_db
@@ -59,3 +59,57 @@ class ModelsTestCase(UnicoremcTestCase):
                          [repo.url, repo2.url])
         self.assertEqual(project.repo_git_urls(),
                          [repo.git_url, repo2.git_url])
+
+    def test_get_marathon_app_data(self):
+        p = self.mk_project(app_type={
+            'name': 'gem',
+            'title': 'Girl Effect',
+            'project_type': 'unicore-cms'})
+
+        self.assertEquals(p.get_marathon_app_data(), {
+            "id": "gem-za-%s" % p.id,
+            "cmd":
+                '/var/praekelt/python/bin/gunicorn --bind localhost:$PORT '
+                '--paste /path/to/unicore-configs/frontend_settings/gem_za.ini'
+                ' --preload',
+            "cpus": 0.1,
+            "mem": 100.0,
+            "instances": 1,
+            "labels": {
+                "domain": 'za.gem.qa-hub.unicore.io ',
+                "country": "South Africa",
+                "project_type": "unicore-cms",
+            },
+        })
+        p = self.mk_project(
+            app_type={'project_type': 'springboard'},
+            project={'country': 'TZ'})
+
+        self.assertEquals(p.get_marathon_app_data(), {
+            "id": "ffl-tz-%s" % p.id,
+            "cmd":
+                '/var/praekelt/springboard-python/bin/gunicorn --bind'
+                ' localhost:$PORT --paste'
+                ' /path/to/unicore-configs/springboard_settings/ffl_tz.ini'
+                ' --preload',
+            "cpus": 0.1,
+            "mem": 100.0,
+            "instances": 1,
+            "labels": {
+                "domain": 'tz.ffl.qa-hub.unicore.io ',
+                "country": "Tanzania, United Republic of",
+                "project_type": "springboard",
+            },
+        })
+
+        p = self.mk_project(project={'application_type': None})
+
+        with self.assertRaises(exceptions.ProjectTypeRequiredException):
+            p.get_marathon_app_data()
+
+        p = self.mk_project(
+            app_type={'project_type': 'foo-bar'},
+            project={'country': 'TZ'})
+
+        with self.assertRaises(exceptions.ProjectTypeUnknownException):
+            p.get_marathon_app_data()

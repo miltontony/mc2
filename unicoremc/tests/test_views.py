@@ -115,6 +115,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
         self.mock_create_hub_app()
         self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
 
         english = Localisation._for('eng_UK')
         swahili = Localisation._for('swa_TZ')
@@ -159,6 +160,11 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.assertEqual(project.available_languages.count(), 0)
         self.assertIsNone(project.default_language)
+
+        self.mock_update_marathon_app(
+            project.app_type,
+            project.country.lower(),
+            project.id)
 
         resp = self.client.post(
             reverse('advanced', args=[project.id]), {

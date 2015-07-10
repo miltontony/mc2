@@ -479,6 +479,13 @@ class Project(models.Model):
         self.db_manager.init_db(self.app_type, self.country)
 
     def create_marathon_app(self):
+        self.initiate_create_marathon_app()
+
+    def get_marathon_app_data(self):
+        if not (self.application_type and self.application_type.project_type):
+            raise exceptions.ProjectTypeRequiredException(
+                'project_type is required')
+
         if self.application_type.project_type == AppType.SPRINGBOARD:
             cmd = constants.SPRINGBOARD_MARATHON_CMD % {
                 'config_path': os.path.join(
@@ -487,7 +494,6 @@ class Project(models.Model):
                         self.app_type, self.country.lower())
                     ),
             }
-            self.initiate_create_marathon_app(cmd)
         elif self.application_type.project_type == AppType.UNICORE_CMS:
             cmd = constants.UNICORECMS_MARATHON_CMD % {
                 'config_path': os.path.join(
@@ -496,10 +502,18 @@ class Project(models.Model):
                         self.app_type, self.country.lower())
                     ),
             }
-            self.initiate_create_marathon_app(cmd)
+        else:
+            raise exceptions.ProjectTypeUnknownException(
+                'The provided project_type is unknown')
 
-    def initiate_create_marathon_app(self, cmd):
-        post_data = {
+        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
+        domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io %(custom)s" % {
+            'country': self.country.lower(),
+            'app_type': self.app_type,
+            'hub': hub,
+            'custom': self.frontend_custom_domain
+        }
+        return {
             "id": "%(app_type)s-%(country)s-%(id)s" % {
                 'app_type': self.app_type,
                 'country': self.country.lower(),
@@ -508,9 +522,16 @@ class Project(models.Model):
             "cmd": cmd,
             "cpus": 0.1,
             "mem": 100.0,
-            "instances": 1
+            "instances": 1,
+            "labels": {
+                "domain": domain,
+                "country": self.get_country_display(),
+                "project_type": self.application_type.project_type,
+            },
         }
 
+    def initiate_create_marathon_app(self):
+        post_data = self.get_marathon_app_data()
         resp = requests.post(
             '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
             json=post_data)
@@ -518,6 +539,21 @@ class Project(models.Model):
         if resp.status_code != 201:
             raise exceptions.MarathonApiException(
                 'Create Marathon app failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('message')))
+
+    def update_marathon_app(self):
+        post_data = self.get_marathon_app_data()
+        app_id = post_data.pop('id')
+        resp = requests.put(
+            '%(host)s/v2/apps/%(id)s' % {
+                'host': settings.MESOS_MARATHON_HOST,
+                'id': app_id
+            },
+            json=post_data)
+
+        if resp.status_code != 200:
+            raise exceptions.MarathonApiException(
+                'Update Marathon app failed with response: %s - %s' %
                 (resp.status_code, resp.json().get('message')))
 
     def destroy(self):
