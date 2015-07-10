@@ -32,7 +32,7 @@ class ProjectAdmin(admin.ModelAdmin):
     base_repo_url_list.allow_tags = True
 
     def repo_url_list(self, obj):
-        return '<br/>'.join(obj.repo_urls())
+        return '<br/>'.join(map(lambda url: url or '-', obj.repo_urls()))
     repo_url_list.allow_tags = True
 
 

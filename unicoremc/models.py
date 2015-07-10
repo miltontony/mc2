@@ -98,6 +98,9 @@ class ProjectRepo(models.Model):
     git_url = models.URLField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
 
+    def __unicode__(self):
+        return os.path.basename(self.url) if self.url else None
+
 
 class ProjectManager(models.Manager):
     '''

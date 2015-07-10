@@ -65,6 +65,7 @@ def new_project_view(request, *args, **kwargs):
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
         'app_types': AppType.objects.all(),
+        'project_repos': ProjectRepo.objects.exclude(url__isnull=True),
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)
@@ -105,14 +106,15 @@ def start_new_project(request, *args, **kwargs):
 
         app_type = request.POST.get('app_type')
         app_type = AppType.objects.get(pk=int(app_type))
-        base_repos = request.POST.getlist('base_repos[]')
+        base_repo = request.POST.get('base_repo')
+        project_repos = request.POST.getlist('project_repos[]')
+        repo_count = len(project_repos) + (1 if base_repo else 0)
 
         # validate base repos and app type
-        if not base_repos:
-            raise HttpResponseBadRequest('No repo selected')
-        if (len(base_repos) > 1 and
-                app_type.project_type == AppType.UNICORE_CMS):
-            raise HttpResponseBadRequest(
+        if not repo_count:
+            return HttpResponseBadRequest('No repo selected')
+        if (repo_count > 1 and app_type.project_type == AppType.UNICORE_CMS):
+            return HttpResponseBadRequest(
                 '%s does not support multiple repos' % (AppType.UNICORE_CMS,))
 
         country = request.POST.get('country')
@@ -126,10 +128,18 @@ def start_new_project(request, *args, **kwargs):
             country=country,
             team_id=int(team_id),
             owner=user)
-        for base_repo_url in base_repos:
+        if base_repo:
             repo, _ = ProjectRepo.objects.get_or_create(
                 project=project,
-                base_url=base_repo_url)
+                base_url=base_repo)
+        for project_repo in project_repos:
+            original_repo = ProjectRepo.objects.get(id=project_repo)
+            repo, _ = ProjectRepo.objects.get_or_create(
+                project=project,
+                repo=original_repo,
+                base_url=original_repo.base_url,
+                git_url=original_repo.git_url,
+                url=original_repo.url)
 
         if created:
             tasks.start_new_project.delay(project.id, access_token)

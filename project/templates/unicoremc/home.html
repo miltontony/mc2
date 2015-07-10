@@ -91,7 +91,10 @@ function reload_projects(){
                 var row = '<th>' + this.app_type +' '+project_type[0].outerHTML+'</th>' +
                           '<td>' + this.country + '</td>' +
                           '<td>' + this.state + '</td>' +
-                          '<td>' + this.repo_urls.map(mk_github_link).join('<br/>') + '</td>' +
+                          '<td>' + this.repo_urls
+                            .filter(function(url){return url;})
+                            .map(mk_github_link)
+                            .join('<br/>') + '</td>' +
                           '<td><a target="_blank" href="'+ this.frontend_url +'">'+ frontend_url +'</a></td>' +
                           '<td>'+ languages + '</td>' +
                           '<td>'+ this.ga_profile_id + '</td>' +

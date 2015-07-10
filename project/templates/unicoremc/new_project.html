@@ -28,13 +28,24 @@
         <div class="form-group">
                 <label class="col-sm-2 control-label" style="text-align:left">Base content repos</label>
                 <div class="col-sm-10">
-                    <select class="form-control" id="base_repo" name="base_repo" disabled="disabled" multiple="multiple">
+                    <select class="form-control" id="base_repo" name="base_repo" disabled="disabled">
                         <option value="">---------</option>
                     </select>
                     <button class="btn btn-success btn-small" id="refresh_repos"><i class="icon-refresh"></i> refresh repos</button>
-                    <span id="base_repo_help" class="help-block">This is the Content Repo that the site will be based on.<br/><strong>Note that you should only select one repo unless the app was specially built for multiple repos.</strong></span>
+                    <span id="base_repo_help" class="help-block">This is a content repo that the site will be based on.</span>
                     <span id="base_repo_progress" class="help-block" style="display: none;">Fetching latest content repos&hellip;</span>
                     <span id="base_repo_error" class="help-block error" style="display: none;">Error loading repos. Please refresh.</span>
+                </div>
+        </div>
+        <div class="form-group">
+                <label class="col-sm-2 control-label" style="text-align:left">Existing content repos</label>
+                <div class="col-sm-10">
+                    <select class="form-control" id="project_repo" name="project_repo" multiple="multiple" disabled="disabled">
+                        {% for repo in project_repos %}
+                            <option value="{{repo.pk}}">{{repo}}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="help-block">This is an existing content repo that the site will re-use. Changes made to the original project's CMS will reflect on this site.<br/><strong>Note that you should only select one repo unless the app was specially built for multiple repos.</strong></span>
                 </div>
         </div>
         <div class="form-group">
@@ -116,11 +127,16 @@ if (typeof String.prototype.startsWith != 'function') {
         });
     }
 
+    function repo_selected() {
+        return $('#base_repo').val() || $('#project_repo').val()
+    }
+
     function launch(){
         // Trigger start new project via ajax
         data = {
             'app_type': $('#unicore_app').val(),
-            'base_repos': get_multi_selected('#base_repo'),
+            'base_repo': $('#base_repo').val(),
+            'project_repos': get_multi_selected('#project_repo'),
             'country': $('#country').val(),
             'team_id': $('#repo_team').val(),
             'user_id': '{{request.user.id}}',
@@ -149,14 +165,28 @@ if (typeof String.prototype.startsWith != 'function') {
             else{
                 $("#base_repo").attr('disabled', 'disabled').val('').change();
             }
+            // Toggle springboard multiple repo select
+            var app_title = $('option:selected', this).html();
+            if (app_title.indexOf('springboard') > -1)
+                $("#project_repo").removeAttr('disabled');
+            else
+                $("#project_repo").attr('disabled', 'disabled').val('').change();
         });
         $('#base_repo').change(function(){
-            if($(this).val() != '')
+            if(repo_selected())
                 $("#country").removeAttr('disabled');
             else{
                 $("#country").attr('disabled', 'disabled').val('').change();
             }
         });
+
+        $('#project_repo').change(function(){
+            if(repo_selected())
+                $("#country").removeAttr('disabled');
+            else{
+                $("#country").attr('disabled', 'disabled').val('').change();
+            }
+        })
 
         $('#country').change(function(){
             if($(this).val() != '')
