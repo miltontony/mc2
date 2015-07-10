@@ -427,6 +427,13 @@ class Project(models.Model):
             self.initiate_create_marathon_app(cmd)
 
     def initiate_create_marathon_app(self, cmd):
+        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
+        domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io %(custom)s" % {
+            'country': self.country.lower(),
+            'app_type': self.app_type,
+            'hub': hub,
+            'custom': self.frontend_custom_domain
+        }
         post_data = {
             "id": "%(app_type)s-%(country)s-%(id)s" % {
                 'app_type': self.app_type,
@@ -436,7 +443,12 @@ class Project(models.Model):
             "cmd": cmd,
             "cpus": 0.1,
             "mem": 100.0,
-            "instances": 1
+            "instances": 1,
+            "labels": {
+                "domain": domain,
+                "app_type": self.app_type,
+                "project_type": self.application_type.project_type,
+            },
         }
 
         resp = requests.post(
