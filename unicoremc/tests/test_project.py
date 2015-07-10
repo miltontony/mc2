@@ -40,7 +40,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('create_repo', access_token='sample-token')
 
         self.assertEquals(
-            p.repo_urls()[0],
+            p.own_repo().url,
             self.source_repo_sm.repo.git_dir)
         self.assertEquals(p.state, 'repo_created')
 

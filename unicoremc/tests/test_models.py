@@ -36,29 +36,34 @@ class ModelsTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.app_type, 'gem')
 
-    def test_get_repo_attributes(self):
-        app_type = AppType._for('gem', 'Girl Effect', 'unicore-cms')
-        project = Project.objects.create(
-            application_type=app_type,
-            country='ZA',
-            owner=self.user)
-        repo = ProjectRepo.objects.create(
-            project=project,
-            base_url='http://some-git-repo.com',
-            url='http://some-git-repo-clone.com',
-            git_url='git://some-git-repo-clone.com')
-        repo2 = ProjectRepo.objects.create(
-            project=project,
-            base_url='http://some-git-repo2.com',
-            url='http://some-git-repo2-clone.com',
-            git_url='git://some-git-repo2-clone.com')
+    def test_project_repos(self):
+        p = self.mk_project()
+        p2 = self.mk_project(repo={
+            'base_url': 'foo.com',
+            'url': 'https://foo.com',
+            'git_url': 'git://foo.com'})
+        own_repo = p.own_repo()
+        p2_own_repo = p2.own_repo()
+        other_repo = ProjectRepo._for(p, p2_own_repo)
 
-        self.assertEqual(project.base_repo_urls(),
-                         [repo.base_url, repo2.base_url])
-        self.assertEqual(project.repo_urls(),
-                         [repo.url, repo2.url])
-        self.assertEqual(project.repo_git_urls(),
-                         [repo.git_url, repo2.git_url])
+        self.assertTrue(own_repo)
+        self.assertTrue(own_repo.base_url)
+        self.assertFalse(own_repo.repo)
+        self.assertFalse(own_repo.git_url)
+        self.assertFalse(own_repo.url)
+
+        self.assertEqual(other_repo, p.repos.exclude(pk=own_repo.pk).get())
+        other_repo = p.repos.exclude(pk=own_repo.pk).get()
+        self.assertEqual(other_repo.repo, p2_own_repo)
+        self.assertEqual(other_repo.project, p)
+        self.assertEqual(other_repo.base_url, p2_own_repo.base_url)
+        self.assertEqual(other_repo.url, p2_own_repo.url)
+        self.assertEqual(other_repo.git_url, p2_own_repo.git_url)
+        self.assertNotEqual(other_repo, other_repo.repo)
+
+        own_repo.delete()
+        self.assertIs(p.own_repo(), None)
+        self.assertEqual(p.repos.count(), 1)
 
     def test_get_marathon_app_data(self):
         p = self.mk_project(app_type={

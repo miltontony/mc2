@@ -101,6 +101,18 @@ class ProjectRepo(models.Model):
     def __unicode__(self):
         return os.path.basename(self.url) if self.url else None
 
+    @classmethod
+    def _for(cls, project, repo):
+        repo, _ = cls.objects.get_or_create(
+            project=project,
+            repo=repo,
+            defaults={
+                'base_url': repo.base_url,
+                'git_url': repo.git_url,
+                'url': repo.url
+            })
+        return repo
+
 
 class ProjectManager(models.Manager):
     '''
@@ -164,19 +176,6 @@ class Project(models.Model):
         if self.application_type:
             return self.application_type.name
         return ''
-
-    def _get_repo_attribute(self, attr):
-        repos = self.repos.all()
-        return [getattr(repo, attr) for repo in repos]
-
-    def base_repo_urls(self):
-        return self._get_repo_attribute('base_url')
-
-    def repo_urls(self):
-        return self._get_repo_attribute('url')
-
-    def repo_git_urls(self):
-        return self._get_repo_attribute('git_url')
 
     def own_repo(self):
         try:

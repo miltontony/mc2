@@ -135,12 +135,7 @@ def start_new_project(request, *args, **kwargs):
                 base_url=base_repo)
         for project_repo in project_repos:
             original_repo = ProjectRepo.objects.get(id=project_repo)
-            repo, _ = ProjectRepo.objects.get_or_create(
-                project=project,
-                repo=original_repo,
-                base_url=original_repo.base_url,
-                git_url=original_repo.git_url,
-                url=original_repo.url)
+            ProjectRepo._for(project, original_repo)
 
         if created:
             tasks.start_new_project.delay(project.id, access_token)
@@ -229,10 +224,10 @@ def projects_progress(request, *args, **kwargs):
         [{
             'project_type': p.application_type.get_project_type_display(),
             'app_type': p.application_type.title,
-            'base_repos': p.base_repo_urls(),
+            'base_repos': [repo.base_url for repo in p.repos.all()],
             'state': ProjectWorkflow(instance=p).get_state(),
             'country': p.get_country_display(),
-            'repo_urls': p.repo_urls(),
+            'repo_urls': [repo.url for repo in p.repos.all()],
             'frontend_url': p.frontend_url(),
             'cms_url': p.cms_url(),
             'ga_profile_id': p.ga_profile_id or '',

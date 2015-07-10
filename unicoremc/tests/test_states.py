@@ -124,7 +124,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.state, 'done')
         self.assertEquals(
-            p.repo_urls()[0],
+            p.own_repo().url,
             self.source_repo_sm.repo.git_dir)
 
     @responses.activate

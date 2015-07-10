@@ -6,6 +6,7 @@ from djcelery.models import (
 
 from django.contrib import admin
 from django.contrib.sites.models import Site
+from django.core.urlresolvers import reverse
 
 from unicoremc.models import Project, Localisation, AppType
 from unicoremc.states import ProjectWorkflow
@@ -28,11 +29,19 @@ class ProjectAdmin(admin.ModelAdmin):
         'repo_url_list', 'owner', 'available_languages')
 
     def base_repo_url_list(self, obj):
-        return '<br/>'.join(obj.base_repo_urls())
+        return '<br/>'.join([r.base_url for r in obj.repos.all()])
     base_repo_url_list.allow_tags = True
 
     def repo_url_list(self, obj):
-        return '<br/>'.join(map(lambda url: url or '-', obj.repo_urls()))
+        def repo_url(repo):
+            url = repo.url or '-'
+            if repo.repo:
+                return '%s (<a href="%s">owner project</a>)' % (
+                    url, reverse(
+                        'admin:unicoremc_project_change',
+                        args=(repo.repo.project_id,)))
+            return url
+        return '<br/>'.join(map(repo_url, obj.repos.all()))
     repo_url_list.allow_tags = True
 
 
