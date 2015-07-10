@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
 from unicoremc.constants import LANGUAGES
-from unicoremc.models import Project, Localisation, AppType
+from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.managers import DbManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
@@ -29,11 +29,14 @@ class ViewsTestCase(UnicoremcTestCase):
     def setUp(self):
         self.client = Client()
         self.client.login(username='testuser', password='test')
+        self.user = User.objects.get(username='testuser')
 
         self.mk_test_repos()
 
     @responses.activate
     def test_create_new_project(self):
+        existing_project = self.mk_project()
+
         self.client.login(username='testuser2', password='test')
 
         self.mock_create_repo()
@@ -42,12 +45,12 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_unicore_distribute_repo()
         self.mock_create_marathon_app()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
+        app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
 
         data = {
             'app_type': app_type.id,
-            'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
+            'project_repos[]': existing_project.own_repo().pk,
             'country': 'ZA',
             'access_token': 'some-access-token',
             'user_id': 1,
@@ -63,12 +66,14 @@ class ViewsTestCase(UnicoremcTestCase):
             'success': True
         })
 
-        project = Project.objects.all().last()
+        project = Project.objects.exclude(pk=existing_project.pk).get()
         self.assertEqual(project.state, 'done')
         self.assertEqual(
             project.frontend_url(), 'http://za.ffl.qa-hub.unicore.io')
         self.assertEqual(
             project.cms_url(), 'http://cms.za.ffl.qa-hub.unicore.io')
+        self.assertEqual(project.repos.count(), 2)
+        self.assertTrue(project.own_repo())
 
         workspace = self.mk_workspace(
             working_dir=settings.CMS_REPO_PATH,
@@ -106,6 +111,38 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
+
+    @responses.activate
+    def test_create_new_project_error(self):
+        existing_project = self.mk_project()
+
+        self.client.login(username='testuser2', password='test')
+
+        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
+
+        data = {
+            'app_type': app_type.id,
+            'country': 'ZA',
+            'access_token': 'some-access-token',
+            'user_id': 1,
+            'team_id': 1
+        }
+        response = self.client.post(reverse('start_new_project'), data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content, 'No repo selected')
+        self.assertEqual(Project.objects.count(), 1)
+        self.assertEqual(ProjectRepo.objects.count(), 1)
+
+        data['base_repo'] = self.base_repo_sm.repo.git_dir,
+        data['project_repos[]'] = existing_project.own_repo().pk,
+        response = self.client.post(reverse('start_new_project'), data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.content, 'unicore-cms does not support multiple repos')
+        self.assertEqual(Project.objects.count(), 1)
+        self.assertEqual(ProjectRepo.objects.count(), 1)
 
     @responses.activate
     def test_advanced_page(self):

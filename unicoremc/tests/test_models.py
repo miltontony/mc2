@@ -2,8 +2,10 @@ import pytest
 
 from django.contrib.auth.models import User
 
+from mock import patch, Mock
+
 from unicoremc.tests.base import UnicoremcTestCase
-from unicoremc.models import Project, AppType, ProjectRepo
+from unicoremc.models import Project, AppType, ProjectRepo, standalone_only
 from unicoremc import exceptions
 
 
@@ -64,6 +66,28 @@ class ModelsTestCase(UnicoremcTestCase):
         own_repo.delete()
         self.assertIs(p.own_repo(), None)
         self.assertEqual(p.repos.count(), 1)
+
+    def test_standalone_only_decorator(self):
+        class P(object):
+            def __init__(self, own_repo):
+                self._own_repo = own_repo
+                self.called_test_method = False
+
+            def own_repo(self):
+                return self._own_repo
+
+            @standalone_only
+            def test_method(self):
+                self.called_test_method = True
+                return 'foo'
+
+        p = P(own_repo=True)
+        self.assertEqual(p.test_method(), 'foo')
+        self.assertTrue(p.called_test_method)
+
+        p = P(own_repo=False)
+        self.assertIs(p.test_method(), None)
+        self.assertFalse(p.called_test_method)
 
     def test_get_marathon_app_data(self):
         p = self.mk_project(app_type={

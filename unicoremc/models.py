@@ -23,7 +23,6 @@ from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 
 from unicoremc.utils import get_hub_app_client
-from unicoremc.exceptions import ProjectNotStandaloneException
 
 
 class Localisation(models.Model):
@@ -133,8 +132,6 @@ def standalone_only(method):
     def wrapper(self, *args, **kwargs):
         if self.own_repo():
             return method(self, *args, **kwargs)
-        raise ProjectNotStandaloneException(
-            '%s was called for a non-standalone project' % (method.__name__,))
     return wrapper
 
 
