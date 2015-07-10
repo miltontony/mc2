@@ -59,7 +59,6 @@ class ModelsTestCase(UnicoremcTestCase):
             "instances": 1,
             "labels": {
                 "domain": 'za.gem.qa-hub.unicore.io ',
-                "app_type": "gem",
                 "project_type": "unicore-cms",
             },
         })
@@ -82,7 +81,6 @@ class ModelsTestCase(UnicoremcTestCase):
             "instances": 1,
             "labels": {
                 "domain": 'tz.ffl.qa-hub.unicore.io ',
-                "app_type": "ffl",
                 "project_type": "springboard",
             },
         })

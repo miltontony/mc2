@@ -453,7 +453,6 @@ class Project(models.Model):
             "instances": 1,
             "labels": {
                 "domain": domain,
-                "app_type": self.app_type,
                 "project_type": self.application_type.project_type,
             },
         }
