@@ -473,7 +473,7 @@ class Project(models.Model):
         post_data = self.get_marathon_app_data()
         app_id = post_data.pop('id')
         resp = requests.put(
-            '%(host)s/v2/apps/%(id)s?force=true' % {
+            '%(host)s/v2/apps/%(id)s' % {
                 'host': settings.MESOS_MARATHON_HOST,
                 'id': app_id
             },
