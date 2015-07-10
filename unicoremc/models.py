@@ -92,6 +92,8 @@ class AppType(models.Model):
 
 class ProjectRepo(models.Model):
     project = models.ForeignKey('Project', related_name='repos')
+    repo = models.ForeignKey(
+        'self', related_name='repo_viewers', blank=True, null=True)
     base_url = models.URLField()
     git_url = models.URLField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
