@@ -453,6 +453,7 @@ class Project(models.Model):
             "instances": 1,
             "labels": {
                 "domain": domain,
+                "country": self.get_country_display(),
                 "project_type": self.application_type.project_type,
             },
         }

@@ -59,6 +59,7 @@ class ModelsTestCase(UnicoremcTestCase):
             "instances": 1,
             "labels": {
                 "domain": 'za.gem.qa-hub.unicore.io ',
+                "country": "South Africa",
                 "project_type": "unicore-cms",
             },
         })
@@ -81,6 +82,7 @@ class ModelsTestCase(UnicoremcTestCase):
             "instances": 1,
             "labels": {
                 "domain": 'tz.ffl.qa-hub.unicore.io ',
+                "country": "Tanzania, United Republic of",
                 "project_type": "springboard",
             },
         })
