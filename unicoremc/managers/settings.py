@@ -105,16 +105,11 @@ class SettingsManager(object):
 
     def write_frontend_settings(
             self, app_type, country, available_languages,
-            default_language, ga_profile_id, hub_app):
+            default_language, ga_profile_id, hub_app, repo_name):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
             raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
-
-        repo_name = constants.NEW_REPO_NAME_FORMAT % {
-            'app_type': app_type,
-            'country': country.lower(),
-            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
 
         languages = []
         for lang in available_languages:
@@ -150,16 +145,11 @@ class SettingsManager(object):
 
     def write_springboard_settings(
             self, app_type, country, available_languages,
-            default_language, ga_profile_id, hub_app):
+            default_language, ga_profile_id, hub_app, repo_names):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
             raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
-
-        repo_name = constants.NEW_REPO_NAME_FORMAT % {
-            'app_type': app_type,
-            'country': country.lower(),
-            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
 
         languages = [lang.get_code() for lang in available_languages]
 
@@ -180,7 +170,7 @@ class SettingsManager(object):
                 'hub_settings': settings.HUBCLIENT_SETTINGS,
                 'es_host': settings.ELASTICSEARCH_HOST,
                 'ucd_host': settings.UNICORE_DISTRIBUTE_HOST,
-                'repo_name': repo_name,
+                'repo_names': repo_names,
             }
         )
 

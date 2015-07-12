@@ -19,7 +19,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         sm = self.get_settings_manager()
         sm.write_frontend_settings(
             'ffl', 'za', [english, swahili], english, 'UA-some-profile-id',
-            hub_app)
+            hub_app, 'unicore-cms-content-ffl-za')
 
         frontend_settings_path = os.path.join(
             settings.CONFIGS_REPO_PATH,
@@ -49,7 +49,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         # check that Hub settings aren't present if hub_app is None
         sm.write_frontend_settings(
             'ffl', 'za', [english, swahili], english, 'UA-some-profile-id',
-            None)
+            None, 'unicore-cms-content-ffl-za')
         with open(frontend_settings_path, "r") as config_file:
             data = config_file.read()
 
@@ -64,7 +64,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         sm = self.get_settings_manager()
         sm.write_frontend_settings(
             'ffl', 'za', [english, swahili], english, 'UA-some-profile-id',
-            hub_app)
+            hub_app, 'unicore-cms-content-ffl-za')
 
         frontend_settings_path = os.path.join(
             settings.CONFIGS_REPO_PATH,
@@ -199,7 +199,8 @@ class SettingsManagerTestCase(UnicoremcTestCase):
             sm = self.get_settings_manager()
             sm.write_frontend_settings(
                 'ffl', 'za', [english, swahili], english,
-                'UA-some-profile-id', hub_app)
+                'UA-some-profile-id', hub_app,
+                'unicore-cms-content-ffl-za')
             sm.write_cms_settings(
                 'ffl', 'za', 'http://some.repo.com/.git',
                 '/path/to/repo/ffl_za/')
@@ -284,10 +285,12 @@ class SettingsManagerTestCase(UnicoremcTestCase):
             sm = self.get_settings_manager()
             sm.write_frontend_settings(
                 'ffl', 'za', [english, afrikaans],
-                english, 'UA-some-profile-id', hub_app)
+                english, 'UA-some-profile-id', hub_app,
+                'unicore-cms-content-ffl-za')
             sm.write_springboard_settings(
                 'ffl', 'za', [english, afrikaans], english,
-                'UA-some-profile-id', hub_app)
+                'UA-some-profile-id', hub_app,
+                ['unicore-cms-content-ffl-za'])
             sm.write_cms_settings(
                 'ffl', 'za', 'http://some.repo.com/.git',
                 '/path/to/repo/ffl_za/')
@@ -361,7 +364,8 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         sm = self.get_settings_manager()
         sm.write_springboard_settings(
             'ffl', 'za', [english, swahili], english,
-            'UA-some-profile-id', hub_app)
+            'UA-some-profile-id', hub_app,
+            ['unicore-cms-content-ffl-za'])
 
         springboard_settings_path = os.path.join(
             settings.CONFIGS_REPO_PATH,
@@ -378,8 +382,8 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('swa_TZ' in data)
         self.assertTrue(
-            'unicore.content_repo_urls = '
-            'http://testserver:6543/repos/unicore-cms-content-ffl-za.json'
+            'unicore.content_repo_urls =\n'
+            '    http://testserver:6543/repos/unicore-cms-content-ffl-za.json'
             in data)
         self.assertTrue('es.host = http://localhost:9200' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
@@ -394,7 +398,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         # check that Hub settings aren't present if hub_app is None
         sm.write_springboard_settings(
             'ffl', 'za', [english, swahili], english,
-            'UA-some-profile-id', None)
+            'UA-some-profile-id', None, ['unicore-cms-content-ffl-za'])
         with open(springboard_settings_path, "r") as config_file:
             data = config_file.read()
 

@@ -112,6 +112,12 @@ class ProjectRepo(models.Model):
             })
         return repo
 
+    def name(self):
+        return constants.NEW_REPO_NAME_FORMAT % {
+            'app_type': self.project.app_type,
+            'country': self.project.country.lower(),
+            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+
 
 class ProjectManager(models.Manager):
     '''
@@ -248,10 +254,8 @@ class Project(models.Model):
 
     @standalone_only
     def create_repo(self, access_token):
-        new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+        repo_db = self.own_repo()
+        new_repo_name = repo_db.name()
 
         post_data = {
             "name": new_repo_name,
@@ -276,7 +280,6 @@ class Project(models.Model):
                     'Create repo failed with response: %s - %s' %
                     (resp.status_code, resp.json().get('message')))
 
-            repo_db = self.own_repo()
             repo_db.url = resp.json().get('clone_url')
             repo_db.git_url = resp.json().get('git_url')
             repo_db.save()
@@ -391,7 +394,8 @@ class Project(models.Model):
                 self.available_languages.all(),
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
-                self.hub_app()
+                self.hub_app(),
+                self.repos.get().name()
             )
         elif self.application_type.project_type == AppType.SPRINGBOARD:
             self.settings_manager.write_springboard_settings(
@@ -400,7 +404,8 @@ class Project(models.Model):
                 self.available_languages.all(),
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
-                self.hub_app()
+                self.hub_app(),
+                [repo.name() for repo in self.repos.all()]
             )
         else:
             raise exceptions.ProjecTyeRequiredException(
@@ -423,10 +428,7 @@ class Project(models.Model):
 
     @standalone_only
     def create_webhook(self, access_token):
-        repo_name = constants.NEW_REPO_NAME_FORMAT % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+        repo_name = self.own_repo().name()
 
         post_data = {
             "name": "web",

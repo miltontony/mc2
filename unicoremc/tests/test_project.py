@@ -355,8 +355,10 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = self.mk_project(
             repo={'base_url': self.base_repo_sm.repo.git_dir},
-            project={'ga_profile_id': 'UA-some-profile-id'})
+            project={'ga_profile_id': 'UA-some-profile-id'},
+            app_type={'project_type': 'springboard'})
         p.available_languages.add(Localisation._for('eng_GB'))
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -381,12 +383,11 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('egg:springboard_ffl' in data)
         self.assertTrue('eng_GB' in data)
         self.assertTrue(
-            'unicore.content_repo_urls = http://testserver:6543/repos/'
-            'unicore-cms-content-ffl-za.json' in data)
+            'unicore.content_repo_urls =\n'
+            '    http://testserver:6543/repos/unicore-cms-content-ffl-za.json'
+            in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
-
-        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
     def test_ordering(self):
         p1 = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
@@ -485,6 +486,7 @@ class ProjectTestCase(UnicoremcTestCase):
             project={'ga_profile_id': 'UA-some-profile-id'},
             app_type={'project_type': 'springboard'})
         p.available_languages.add(Localisation._for('eng_GB'))
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
         pw = ProjectWorkflow(instance=p)
         pw.take_action('create_repo', access_token='sample-token')
@@ -504,8 +506,6 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p.db_manager.call_subprocess = call_mock
         pw.take_action('init_db')
-
-        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
         with self.assertRaises(exceptions.MarathonApiException):
             pw.take_action('create_marathon_app')
