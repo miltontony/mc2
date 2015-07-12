@@ -202,3 +202,10 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             urljoin(settings.HUBCLIENT_SETTINGS['host'], 'apps'),
             callback=make_response,
             content_type="application/json")
+
+    def mock_create_all(self):
+        self.mock_create_repo()
+        self.mock_create_webhook()
+        self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()

@@ -338,7 +338,6 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         sm.destroy_unicore_cms_settings('ffl', 'za')
         sm.destroy_springboard_settings('ffl', 'za')
         remote_repo.heads.master.checkout()
-
         self.assertFalse(os.path.exists(cms_settings_config_path))
         self.assertFalse(os.path.exists(remote_cms_settings_config_path))
         self.assertFalse(os.path.exists(frontend_settings_config_path))

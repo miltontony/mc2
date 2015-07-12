@@ -6,6 +6,7 @@ from django.conf import settings
 from elasticgit import EG
 
 from unicoremc.tasks import push_to_git
+from unicoremc.utils import git_remove_if_exists
 
 
 class NginxManager(object):
@@ -42,14 +43,16 @@ class NginxManager(object):
         )
 
     def destroy(self, app_type, country):
-        self.workspace.sm.delete_data(
+        git_remove_if_exists(
+            self.workspace,
             self.get_frontend_nginx_path(app_type, country),
-            ('Deleting frontend nginx config for %s_%s' % (app_type, country))
-            .encode('utf-8'))
-        self.workspace.sm.delete_data(
+            ('Deleting frontend nginx config for %s_%s'
+                % (app_type, country)).encode('utf-8'))
+        git_remove_if_exists(
+            self.workspace,
             self.get_cms_nginx_path(app_type, country),
-            ('Deleting cms nginx config for %s_%s' % (app_type, country))
-            .encode('utf-8'))
+            ('Deleting cms nginx config for %s_%s'
+                % (app_type, country)).encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_frontend_nginx(self, app_type, country, frontend_custom_domain):

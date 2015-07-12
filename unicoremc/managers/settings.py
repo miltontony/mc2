@@ -6,6 +6,7 @@ from django.conf import settings
 from elasticgit import EG
 
 from unicoremc.tasks import push_to_git
+from unicoremc.utils import remove_if_exists, git_remove_if_exists
 from unicoremc import constants
 
 
@@ -73,17 +74,19 @@ class SettingsManager(object):
         )
 
     def destroy(self, app_type, country):
-        os.remove(self.get_cms_settings_output_path(app_type, country))
-        os.remove(self.get_cms_config_output_path(app_type, country))
+        remove_if_exists(self.get_cms_settings_output_path(app_type, country))
+        remove_if_exists(self.get_cms_config_output_path(app_type, country))
 
-        self.workspace.sm.delete_data(
+        git_remove_if_exists(
+            self.workspace,
             self.get_cms_settings_path(app_type, country),
-            ('Deleted cms settings config for %s_%s' % (app_type, country))
-            .encode('utf-8'))
-        self.workspace.sm.delete_data(
+            ('Deleted cms settings config for %s_%s'
+                % (app_type, country)).encode('utf-8'))
+        git_remove_if_exists(
+            self.workspace,
             self.get_cms_config_path(app_type, country),
-            ('Deleted cms config for %s_%s' % (app_type, country))
-            .encode('utf-8'))
+            ('Deleted cms config for %s_%s'
+                % (app_type, country)).encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def destroy_unicore_cms_settings(self, app_type, country):

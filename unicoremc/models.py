@@ -378,8 +378,10 @@ class Project(models.Model):
     def create_nginx(self):
         self.nginx_manager.write_frontend_nginx(
             self.app_type, self.country, self.frontend_custom_domain)
-        self.nginx_manager.write_cms_nginx(
-            self.app_type, self.country, self.cms_custom_domain)
+
+        if self.own_repo():
+            self.nginx_manager.write_cms_nginx(
+                self.app_type, self.country, self.cms_custom_domain)
 
     def create_pyramid_settings(self):
         if self.application_type.project_type == AppType.UNICORE_CMS:
@@ -553,7 +555,7 @@ class Project(models.Model):
                 (resp.status_code, resp.json().get('message')))
 
     def destroy(self):
-        shutil.rmtree(self.repo_path())
+        shutil.rmtree(self.repo_path(), ignore_errors=True)
         self.nginx_manager.destroy(self.app_type, self.country)
         self.settings_manager.destroy(self.app_type, self.country)
 
