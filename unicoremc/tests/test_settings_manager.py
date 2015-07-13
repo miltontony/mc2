@@ -365,7 +365,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         sm.write_springboard_settings(
             'ffl', 'za', [english, swahili], english,
             'UA-some-profile-id', hub_app,
-            ['unicore-cms-content-ffl-za'])
+            ['unicore-cms-content-ffl-za', 'unicore-cms-content-gem-uk'])
 
         springboard_settings_path = os.path.join(
             settings.CONFIGS_REPO_PATH,
@@ -384,6 +384,8 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue(
             'unicore.content_repo_urls =\n'
             '    http://testserver:6543/repos/unicore-cms-content-ffl-za.json'
+            '\n'
+            '    http://testserver:6543/repos/unicore-cms-content-gem-uk.json'
             in data)
         self.assertTrue('es.host = http://localhost:9200' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)

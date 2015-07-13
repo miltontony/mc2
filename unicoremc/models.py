@@ -113,6 +113,8 @@ class ProjectRepo(models.Model):
         return repo
 
     def name(self):
+        if self.repo:
+            return self.repo.name()
         return constants.NEW_REPO_NAME_FORMAT % {
             'app_type': self.project.app_type,
             'country': self.project.country.lower(),

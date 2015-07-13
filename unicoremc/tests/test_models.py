@@ -40,10 +40,13 @@ class ModelsTestCase(UnicoremcTestCase):
 
     def test_project_repos(self):
         p = self.mk_project()
-        p2 = self.mk_project(repo={
-            'base_url': 'foo.com',
-            'url': 'https://foo.com',
-            'git_url': 'git://foo.com'})
+        p2 = self.mk_project(
+            project={'country': 'UK'},
+            repo={
+                'base_url': 'foo.com',
+                'url': 'https://foo.com',
+                'git_url': 'git://foo.com'},
+            app_type={'name': 'gem'})
         own_repo = p.own_repo()
         p2_own_repo = p2.own_repo()
         other_repo = ProjectRepo._for(p, p2_own_repo)
@@ -53,6 +56,7 @@ class ModelsTestCase(UnicoremcTestCase):
         self.assertFalse(own_repo.repo)
         self.assertFalse(own_repo.git_url)
         self.assertFalse(own_repo.url)
+        self.assertEqual(own_repo.name(), 'unicore-cms-content-ffl-za')
 
         self.assertEqual(other_repo, p.repos.exclude(pk=own_repo.pk).get())
         other_repo = p.repos.exclude(pk=own_repo.pk).get()
@@ -61,6 +65,8 @@ class ModelsTestCase(UnicoremcTestCase):
         self.assertEqual(other_repo.base_url, p2_own_repo.base_url)
         self.assertEqual(other_repo.url, p2_own_repo.url)
         self.assertEqual(other_repo.git_url, p2_own_repo.git_url)
+        self.assertEqual(other_repo.name(), p2_own_repo.name())
+        self.assertEqual(other_repo.name(), 'unicore-cms-content-gem-uk')
         self.assertNotEqual(other_repo, other_repo.repo)
 
         own_repo.delete()

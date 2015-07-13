@@ -65,7 +65,8 @@ def new_project_view(request, *args, **kwargs):
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
         'app_types': AppType.objects.all(),
-        'project_repos': ProjectRepo.objects.exclude(url__isnull=True),
+        'project_repos': ProjectRepo.objects.exclude(
+            url__isnull=True).filter(repo__isnull=True),
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)

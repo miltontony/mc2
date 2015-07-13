@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from git import Repo
 import mock
 
-from unicoremc.models import Project, Localisation, AppType
+from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
@@ -358,6 +358,10 @@ class ProjectTestCase(UnicoremcTestCase):
             project={'ga_profile_id': 'UA-some-profile-id'},
             app_type={'project_type': 'springboard'})
         p.available_languages.add(Localisation._for('eng_GB'))
+        other_repo = self.mk_project(
+            project={'country': 'UK'},
+            app_type={'name': 'gem'}).own_repo()
+        ProjectRepo._for(p, other_repo)
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
         pw = ProjectWorkflow(instance=p)
@@ -385,6 +389,8 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue(
             'unicore.content_repo_urls =\n'
             '    http://testserver:6543/repos/unicore-cms-content-ffl-za.json'
+            '\n'
+            '    http://testserver:6543/repos/unicore-cms-content-gem-uk.json'
             in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
