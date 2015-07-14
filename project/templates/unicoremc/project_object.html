@@ -1,4 +1,8 @@
 <tr id="{{project.id}}"
+    country="{{project.get_country_display}}"
+    apptype="{{project.application_type.title}}"
+    projecttype="{{project.application_type.project_type}}"
+
     {% if project.state == 'done' %}
       class="bg-success"
     {% else %}
