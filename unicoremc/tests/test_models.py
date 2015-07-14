@@ -63,6 +63,8 @@ class ModelsTestCase(UnicoremcTestCase):
                 "domain": 'za.gem.qa-hub.unicore.io ',
                 "country": "South Africa",
                 "project_type": "unicore-cms",
+                "staticfiles_path":
+                    "/var/praekelt/unicore-cms-gem/unicorecmsgem/static/",
             },
         })
         p = Project(
@@ -86,6 +88,8 @@ class ModelsTestCase(UnicoremcTestCase):
                 "domain": 'tz.ffl.qa-hub.unicore.io ',
                 "country": "Tanzania, United Republic of",
                 "project_type": "springboard",
+                "staticfiles_path":
+                    "/var/praekelt/springboard-ffl/springboard_ffl/static/",
             },
         })
 
