@@ -65,8 +65,7 @@ def new_project_view(request, *args, **kwargs):
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
         'app_types': AppType.objects.all(),
-        'project_repos': ProjectRepo.objects.exclude(
-            url__isnull=True).filter(repo__isnull=True),
+        'project_repos': ProjectRepo.objects.filter(project__state='done'),
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)
@@ -130,13 +129,11 @@ def start_new_project(request, *args, **kwargs):
             country=country,
             team_id=int(team_id),
             owner=user)
+        project.external_repos.add(*project_repos)
         if base_repo:
-            repo, _ = ProjectRepo.objects.get_or_create(
+            ProjectRepo.objects.get_or_create(
                 project=project,
-                base_url=base_repo)
-        for project_repo in project_repos:
-            original_repo = ProjectRepo.objects.get(id=project_repo)
-            ProjectRepo._for(project, original_repo)
+                defaults={'base_url': base_repo})
 
         if created:
             tasks.start_new_project.delay(project.id, access_token)
@@ -225,10 +222,10 @@ def projects_progress(request, *args, **kwargs):
         [{
             'project_type': p.application_type.get_project_type_display(),
             'app_type': p.application_type.title,
-            'base_repos': [repo.base_url for repo in p.repos.all()],
+            'base_repos': [repo.base_url for repo in p.all_repos()],
             'state': ProjectWorkflow(instance=p).get_state(),
             'country': p.get_country_display(),
-            'repo_urls': [repo.url for repo in p.repos.all()],
+            'repo_urls': [repo.url for repo in p.all_repos()],
             'frontend_url': p.frontend_url(),
             'cms_url': p.cms_url(),
             'ga_profile_id': p.ga_profile_id or '',

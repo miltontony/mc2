@@ -22,7 +22,7 @@ class Migration(DataMigration):
         "Write your backwards methods here."
         for project in orm.Project.objects.all():
             try:
-                [repo] = project.repos[:1]
+                repo = project.repo
                 project.base_repo_url = repo.base_url
                 project.repo_url = repo.url
                 project.repo_git_url = repo.git_url
@@ -88,6 +88,7 @@ class Migration(DataMigration):
             'cms_custom_domain': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
             'country': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'default_language': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'default_language'", 'null': 'True', 'to': u"orm['unicoremc.Localisation']"}),
+            'external_repos': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'external_projects'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['unicoremc.ProjectRepo']"}),
             'frontend_custom_domain': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
             'ga_account_id': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'ga_profile_id': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
@@ -104,8 +105,7 @@ class Migration(DataMigration):
             'Meta': {'object_name': 'ProjectRepo'},
             'base_url': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             'git_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'repos'", 'to': u"orm['unicoremc.Project']"}),
+            'project': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'repo'", 'unique': 'True', 'primary_key': 'True', 'to': u"orm['unicoremc.Project']"}),
             'url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
         }
     }

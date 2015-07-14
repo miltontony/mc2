@@ -90,9 +90,8 @@ class AppType(models.Model):
 
 
 class ProjectRepo(models.Model):
-    project = models.ForeignKey('Project', related_name='repos')
-    repo = models.ForeignKey(
-        'self', related_name='repo_viewers', blank=True, null=True)
+    project = models.OneToOneField(
+        'Project', primary_key=True, related_name='repo')
     base_url = models.URLField()
     git_url = models.URLField(blank=True, null=True)
     url = models.URLField(blank=True, null=True)
@@ -100,21 +99,7 @@ class ProjectRepo(models.Model):
     def __unicode__(self):
         return os.path.basename(self.url) if self.url else None
 
-    @classmethod
-    def _for(cls, project, repo):
-        repo, _ = cls.objects.get_or_create(
-            project=project,
-            repo=repo,
-            defaults={
-                'base_url': repo.base_url,
-                'git_url': repo.git_url,
-                'url': repo.url
-            })
-        return repo
-
     def name(self):
-        if self.repo:
-            return self.repo.name()
         return constants.NEW_REPO_NAME_FORMAT % {
             'app_type': self.project.app_type,
             'country': self.project.country.lower(),
@@ -128,7 +113,9 @@ class ProjectManager(models.Manager):
     '''
     def get_queryset(self):
         qs = super(ProjectManager, self).get_queryset()
-        return qs.select_related('application_type').prefetch_related('repos')
+        return (qs
+                .select_related('application_type', 'repo')
+                .prefetch_related('external_repos'))
 
 
 def standalone_only(method):
@@ -149,6 +136,8 @@ class Project(models.Model):
     application_type = models.ForeignKey(AppType, blank=True, null=True)
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
+    external_repos = models.ManyToManyField(
+        ProjectRepo, blank=True, null=True, related_name='external_projects')
     state = models.CharField(max_length=50, default='initial')
     owner = models.ForeignKey('auth.User')
     team_id = models.IntegerField(blank=True, null=True)
@@ -183,11 +172,13 @@ class Project(models.Model):
         return ''
 
     def own_repo(self):
-        try:
-            [repo] = [r for r in self.repos.all() if r.repo is None]
-            return repo
-        except ValueError:
-            return None
+        return self.repo
+
+    def all_repos(self):
+        external = list(self.external_repos.all())
+        if self.repo:
+            return [self.repo] + external
+        return external
 
     def frontend_url(self):
         return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
@@ -397,7 +388,7 @@ class Project(models.Model):
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app(),
-                self.repos.get().name()
+                self.all_repos()[0].name()
             )
         elif self.application_type.project_type == AppType.SPRINGBOARD:
             self.settings_manager.write_springboard_settings(
@@ -407,7 +398,7 @@ class Project(models.Model):
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app(),
-                [repo.name() for repo in self.repos.all()]
+                [repo.name() for repo in self.all_repos()]
             )
         else:
             raise exceptions.ProjecTyeRequiredException(

@@ -10,18 +10,29 @@ class Migration(SchemaMigration):
     def forwards(self, orm):
         # Adding model 'ProjectRepo'
         db.create_table(u'unicoremc_projectrepo', (
-            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('project', self.gf('django.db.models.fields.related.ForeignKey')(related_name='repos', to=orm['unicoremc.Project'])),
+            ('project', self.gf('django.db.models.fields.related.OneToOneField')(related_name='repo', unique=True, primary_key=True, to=orm['unicoremc.Project'])),
             ('base_url', self.gf('django.db.models.fields.URLField')(max_length=200)),
             ('git_url', self.gf('django.db.models.fields.URLField')(max_length=200, null=True, blank=True)),
             ('url', self.gf('django.db.models.fields.URLField')(max_length=200, null=True, blank=True)),
         ))
         db.send_create_signal(u'unicoremc', ['ProjectRepo'])
 
+        # Adding M2M table for field external_repos on 'Project'
+        m2m_table_name = db.shorten_name(u'unicoremc_project_external_repos')
+        db.create_table(m2m_table_name, (
+            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
+            ('project', models.ForeignKey(orm[u'unicoremc.project'], null=False)),
+            ('projectrepo', models.ForeignKey(orm[u'unicoremc.projectrepo'], null=False))
+        ))
+        db.create_unique(m2m_table_name, ['project_id', 'projectrepo_id'])
+
 
     def backwards(self, orm):
         # Deleting model 'ProjectRepo'
         db.delete_table(u'unicoremc_projectrepo')
+
+        # Removing M2M table for field external_repos on 'Project'
+        db.delete_table(db.shorten_name(u'unicoremc_project_external_repos'))
 
 
     models = {
@@ -82,6 +93,7 @@ class Migration(SchemaMigration):
             'cms_custom_domain': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
             'country': ('django.db.models.fields.CharField', [], {'max_length': '256'}),
             'default_language': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'default_language'", 'null': 'True', 'to': u"orm['unicoremc.Localisation']"}),
+            'external_repos': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'external_projects'", 'null': 'True', 'symmetrical': 'False', 'to': u"orm['unicoremc.ProjectRepo']"}),
             'frontend_custom_domain': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True', 'blank': 'True'}),
             'ga_account_id': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'ga_profile_id': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
@@ -98,8 +110,7 @@ class Migration(SchemaMigration):
             'Meta': {'object_name': 'ProjectRepo'},
             'base_url': ('django.db.models.fields.URLField', [], {'max_length': '200'}),
             'git_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'repos'", 'to': u"orm['unicoremc.Project']"}),
+            'project': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'repo'", 'unique': 'True', 'primary_key': 'True', 'to': u"orm['unicoremc.Project']"}),
             'url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
         }
     }
