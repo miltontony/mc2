@@ -9,11 +9,13 @@ from unittest import skip
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 from git import Repo
 import mock
 
-from unicoremc.models import Project, Localisation, AppType
+from unicoremc.models import (
+    Project, Localisation, AppType, publish_to_websocket)
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
@@ -29,6 +31,7 @@ class ProjectTestCase(UnicoremcTestCase):
     def setUp(self):
         self.mk_test_repos()
         self.user = User.objects.get(username='testuser')
+        post_save.disconnect(publish_to_websocket, sender=Project)
 
     @responses.activate
     def test_create_repo_state(self):

@@ -1,6 +1,7 @@
 import shutil
 import os
 import pwd
+import json
 
 os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]
 
@@ -9,8 +10,10 @@ import requests
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-from unicoremc import constants, exceptions, mappings
+from unicoremc import constants, exceptions, mappings, states
 from unicoremc.managers import NginxManager, SettingsManager, DbManager
 
 from git import Repo
@@ -22,6 +25,9 @@ from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 
 from unicoremc.utils import get_hub_app_client
+
+from ws4redis.publisher import RedisPublisher
+from ws4redis.redis_store import RedisMessage
 
 
 class Localisation(models.Model):
@@ -75,6 +81,13 @@ class AppType(models.Model):
     project_type = models.CharField(
         choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
 
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'title': self.title,
+            'project_type': self.project_type
+        }
+
     @classmethod
     def _for(cls, name, title, project_type):
         application_type, _ = cls.objects.get_or_create(
@@ -127,6 +140,34 @@ class Project(models.Model):
         if self.application_type:
             return self.application_type.name
         return ''
+
+    def get_state_display(self):
+        return states.ProjectWorkflow(instance=self).get_state()
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'app_type': self.app_type,
+            'application_type': self.application_type.to_dict()
+            if self.application_type else None,
+            'base_repo_url': self.base_repo_url,
+            'country': self.country,
+            'country_display': self.get_country_display(),
+            'state': self.state,
+            'state_display': self.get_state_display(),
+            'repo_url': self.repo_url,
+            'repo_git_url': self.repo_git_url,
+            'team_id': self.team_id,
+            'available_languages': [
+                lang.get_code() for lang in self.available_languages.all()],
+            'default_language': self.default_language.get_code()
+            if self.default_language else None,
+            'ga_profile_id': self.ga_profile_id or '',
+            'ga_account_id': self.ga_account_id or '',
+            'frontend_custom_domain': self.frontend_custom_domain or '',
+            'cms_custom_domain': self.cms_custom_domain or '',
+            'hub_app_id': self.hub_app_id or '',
+        }
 
     def frontend_url(self):
         return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
@@ -498,3 +539,16 @@ class Project(models.Model):
                 self.app_type, self.country)
 
         self.db_manager.destroy(self.app_type, self.country)
+
+
+@receiver(post_save, sender=Project)
+def publish_to_websocket(sender, instance, created, **kwargs):
+    '''
+    Broadcasts the state of a project when it is saved.
+    broadcast channel: progress
+    '''
+    data = instance.to_dict()
+    data.update({'is_created': created})
+    redis_publisher = RedisPublisher(facility='progress', broadcast=True)
+    message = RedisMessage(json.dumps(data))
+    redis_publisher.publish_message(message)
