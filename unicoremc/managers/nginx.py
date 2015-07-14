@@ -16,7 +16,6 @@ class NginxManager(object):
         self.workspace = EG.workspace(settings.CONFIGS_REPO_PATH)
 
         self.dirs = [
-            self.frontend_sockets_dir,
             self.cms_sockets_dir,
         ]
         for dir_ in self.dirs:
