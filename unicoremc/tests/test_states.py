@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 
 from mock import patch
 
+from unicoremc.models import Project
 from unicoremc.states import ProjectWorkflow
 from unicoremc.tests.base import UnicoremcTestCase
 
@@ -341,9 +342,11 @@ class StatesTestCase(UnicoremcTestCase):
     @patch('unicoremc.managers.database.DbManager.call_subprocess')
     @responses.activate
     def test_non_standalone_project_workflow(self, mock_subprocess):
+        existing_repo = self.mk_project().own_repo()
         p = self.mk_project()
-        existing_repo = p.own_repo()
-        p = self.mk_project(repo={'repo': existing_repo})
+        p.own_repo().delete()
+        p.external_repos.add(existing_repo)
+        p = Project.objects.get(pk=p.pk)
         self.assertIs(p.own_repo(), None)
 
         self.mock_create_all()

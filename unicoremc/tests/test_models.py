@@ -49,29 +49,23 @@ class ModelsTestCase(UnicoremcTestCase):
             app_type={'name': 'gem'})
         own_repo = p.own_repo()
         p2_own_repo = p2.own_repo()
-        other_repo = ProjectRepo._for(p, p2_own_repo)
+        p.external_repos.add(p2_own_repo)
 
         self.assertTrue(own_repo)
         self.assertTrue(own_repo.base_url)
-        self.assertFalse(own_repo.repo)
         self.assertFalse(own_repo.git_url)
         self.assertFalse(own_repo.url)
         self.assertEqual(own_repo.name(), 'unicore-cms-content-ffl-za')
 
-        self.assertEqual(other_repo, p.repos.exclude(pk=own_repo.pk).get())
-        other_repo = p.repos.exclude(pk=own_repo.pk).get()
-        self.assertEqual(other_repo.repo, p2_own_repo)
-        self.assertEqual(other_repo.project, p)
-        self.assertEqual(other_repo.base_url, p2_own_repo.base_url)
-        self.assertEqual(other_repo.url, p2_own_repo.url)
-        self.assertEqual(other_repo.git_url, p2_own_repo.git_url)
-        self.assertEqual(other_repo.name(), p2_own_repo.name())
-        self.assertEqual(other_repo.name(), 'unicore-cms-content-gem-uk')
-        self.assertNotEqual(other_repo, other_repo.repo)
+        external_repo = p.external_repos.get()
+        self.assertEqual(p2_own_repo, external_repo)
+        self.assertEqual(external_repo.name(), 'unicore-cms-content-gem-uk')
 
+        self.assertEqual(len(p.all_repos()), 2)
         own_repo.delete()
+        p = Project.objects.get(pk=p.pk)
         self.assertIs(p.own_repo(), None)
-        self.assertEqual(p.repos.count(), 1)
+        self.assertEqual(len(p.all_repos()), 1)
 
     def test_standalone_only_decorator(self):
         class P(object):

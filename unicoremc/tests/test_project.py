@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 from git import Repo
 import mock
 
-from unicoremc.models import Project, Localisation, AppType, ProjectRepo
+from unicoremc.models import Project, Localisation, AppType
 from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
@@ -361,7 +361,7 @@ class ProjectTestCase(UnicoremcTestCase):
         other_repo = self.mk_project(
             project={'country': 'UK'},
             app_type={'name': 'gem'}).own_repo()
-        ProjectRepo._for(p, other_repo)
+        p.external_repos.add(other_repo)
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
         pw = ProjectWorkflow(instance=p)

@@ -72,8 +72,9 @@ class ViewsTestCase(UnicoremcTestCase):
             project.frontend_url(), 'http://za.ffl.qa-hub.unicore.io')
         self.assertEqual(
             project.cms_url(), 'http://cms.za.ffl.qa-hub.unicore.io')
-        self.assertEqual(project.repos.count(), 2)
+        self.assertEqual(project.external_repos.count(), 1)
         self.assertTrue(project.own_repo())
+        self.assertEqual(len(project.all_repos()), 2)
 
         workspace = self.mk_workspace(
             working_dir=settings.CMS_REPO_PATH,

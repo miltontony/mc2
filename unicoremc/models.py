@@ -172,13 +172,17 @@ class Project(models.Model):
         return ''
 
     def own_repo(self):
-        return self.repo
+        try:
+            return self.repo
+        except ProjectRepo.DoesNotExist:
+            return None
 
     def all_repos(self):
-        external = list(self.external_repos.all())
-        if self.repo:
-            return [self.repo] + external
-        return external
+        external_repos = list(self.external_repos.all())
+        own_repo = self.own_repo()
+        if own_repo:
+            return [own_repo] + external_repos
+        return external_repos
 
     def frontend_url(self):
         return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
