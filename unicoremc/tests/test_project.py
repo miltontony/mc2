@@ -257,6 +257,7 @@ class ProjectTestCase(UnicoremcTestCase):
     def test_init_workspace(self):
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_unicore_distribute_repo()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -312,12 +313,12 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertEqual(workspace.S(EGLocalisation).count(), 2)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_nginx_config(self):
         self.mock_create_repo()
         self.mock_create_webhook()
+        self.mock_create_unicore_distribute_repo()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -364,13 +365,13 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_pyramid_settings(self):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
         p = Project(
@@ -407,13 +408,13 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('egg:unicore-cms-ffl' in data)
         self.assertTrue(
             "[(u'eng_UK', u'English')]" in data)
-        self.assertTrue(self.source_repo_sm.repo.working_dir in data)
-        self.assertTrue(self.source_repo_sm.repo.git_dir in data)
+        self.assertTrue(
+            'git.path = http://testserver:6543/repos/'
+            'unicore-cms-content-ffl-za.json' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
-        self.addCleanup(lambda: shutil.rmtree(p.frontend_repo_path()))
 
     @responses.activate
     def test_create_springboard_settings(self):
@@ -448,9 +449,6 @@ class ProjectTestCase(UnicoremcTestCase):
         springboard_settings_path = os.path.join(
             settings.SPRINGBOARD_SETTINGS_OUTPUT_PATH,
             'ffl_za.ini')
-        springboard_config_path = os.path.join(
-            settings.SPRINGBOARD_SETTINGS_OUTPUT_PATH,
-            'ffl_za.yaml')
 
         self.assertTrue(os.path.exists(springboard_settings_path))
         with open(springboard_settings_path, "r") as config_file:
@@ -458,15 +456,11 @@ class ProjectTestCase(UnicoremcTestCase):
 
         self.assertTrue('egg:springboard_ffl' in data)
         self.assertTrue('eng_GB' in data)
+        self.assertTrue(
+            'unicore.content_repo_urls = http://testserver:6543/repos/'
+            'unicore-cms-content-ffl-za.json' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
-
-        self.assertTrue(os.path.exists(springboard_config_path))
-        with open(springboard_config_path, "r") as config_file:
-            data = config_file.read()
-
-        self.assertTrue('unicore_frontend_ffl_za' in data)
-        self.assertTrue(self.source_repo_sm.repo.git_dir in data)
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
@@ -563,3 +557,50 @@ class ProjectTestCase(UnicoremcTestCase):
         app = proj.create_or_update_hub_app()
         self.assertIn(proj.application_type.title, app.get('title'))
         self.assertIn('ffl', app.get('url'))
+
+    @responses.activate
+    def test_create_marathon_app_bad_response(self):
+
+        def call_mock(*call_args, **call_kwargs):
+            pass
+
+        self.mock_create_repo()
+        self.mock_create_webhook()
+        self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app(404)
+
+        app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
+        p = Project(
+            application_type=app_type,
+            base_repo_url=self.base_repo_sm.repo.git_dir,
+            country='ZA',
+            owner=self.user,
+            ga_profile_id='UA-some-profile-id')
+        p.save()
+        p.available_languages.add(*[Localisation._for('eng_GB')])
+        p.save()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('clone_repo')
+        pw.take_action('create_remote')
+        pw.take_action('merge_remote')
+        pw.take_action('push_repo')
+        pw.take_action('create_webhook', access_token='sample-token')
+        pw.take_action('init_workspace')
+        pw.take_action('create_nginx')
+        pw.take_action('create_hub_app')
+        pw.take_action('create_pyramid_settings')
+        pw.take_action('create_cms_settings')
+
+        p.db_manager.call_subprocess = call_mock
+        pw.take_action('create_db')
+
+        p.db_manager.call_subprocess = call_mock
+        pw.take_action('init_db')
+
+        self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
+
+        with self.assertRaises(exceptions.MarathonApiException):
+            pw.take_action('create_marathon_app')

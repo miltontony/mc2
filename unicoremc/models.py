@@ -351,13 +351,7 @@ class Project(models.Model):
 
     def init_workspace(self):
         self.sync_cms_index()
-
-        if self.application_type.project_type == AppType.UNICORE_CMS:
-            # We also need to clone the repo for the frontend and initialize it
-            Repo.clone_from(self.repo_git_url, self.frontend_repo_path())
-            self.sync_frontend_index()
-        elif self.application_type.project_type == AppType.SPRINGBOARD:
-            self.create_unicore_distribute_repo()
+        self.create_unicore_distribute_repo()
 
     def create_nginx(self):
         self.nginx_manager.write_frontend_nginx(
@@ -370,9 +364,7 @@ class Project(models.Model):
             self.settings_manager.write_frontend_settings(
                 self.app_type,
                 self.country,
-                self.repo_git_url,
                 self.available_languages.all(),
-                self.frontend_repo_path(),
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app()
@@ -385,11 +377,6 @@ class Project(models.Model):
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app()
-            )
-            self.settings_manager.write_springboard_config(
-                self.app_type,
-                self.country,
-                self.repo_git_url
             )
         else:
             raise exceptions.ProjecTyeRequiredException(
@@ -460,13 +447,90 @@ class Project(models.Model):
     def init_db(self):
         self.db_manager.init_db(self.app_type, self.country)
 
+    def create_marathon_app(self):
+        self.initiate_create_marathon_app()
+
+    def get_marathon_app_data(self):
+        if not (self.application_type and self.application_type.project_type):
+            raise exceptions.ProjectTypeRequiredException(
+                'project_type is required')
+
+        if self.application_type.project_type == AppType.SPRINGBOARD:
+            cmd = constants.SPRINGBOARD_MARATHON_CMD % {
+                'config_path': os.path.join(
+                    settings.UNICORE_CONFIGS_INSTALL_DIR,
+                    self.settings_manager.get_springboard_settings_path(
+                        self.app_type, self.country.lower())
+                    ),
+            }
+        elif self.application_type.project_type == AppType.UNICORE_CMS:
+            cmd = constants.UNICORECMS_MARATHON_CMD % {
+                'config_path': os.path.join(
+                    settings.UNICORE_CONFIGS_INSTALL_DIR,
+                    self.settings_manager.get_frontend_settings_path(
+                        self.app_type, self.country.lower())
+                    ),
+            }
+        else:
+            raise exceptions.ProjectTypeUnknownException(
+                'The provided project_type is unknown')
+
+        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
+        domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io %(custom)s" % {
+            'country': self.country.lower(),
+            'app_type': self.app_type,
+            'hub': hub,
+            'custom': self.frontend_custom_domain
+        }
+        return {
+            "id": "%(app_type)s-%(country)s-%(id)s" % {
+                'app_type': self.app_type,
+                'country': self.country.lower(),
+                'id': self.id,
+            },
+            "cmd": cmd,
+            "cpus": 0.1,
+            "mem": 100.0,
+            "instances": 1,
+            "labels": {
+                "domain": domain,
+                "country": self.get_country_display(),
+                "project_type": self.application_type.project_type,
+            },
+        }
+
+    def initiate_create_marathon_app(self):
+        post_data = self.get_marathon_app_data()
+        resp = requests.post(
+            '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
+            json=post_data)
+
+        if resp.status_code != 201:
+            raise exceptions.MarathonApiException(
+                'Create Marathon app failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('message')))
+
+    def update_marathon_app(self):
+        post_data = self.get_marathon_app_data()
+        app_id = post_data.pop('id')
+        resp = requests.put(
+            '%(host)s/v2/apps/%(id)s' % {
+                'host': settings.MESOS_MARATHON_HOST,
+                'id': app_id
+            },
+            json=post_data)
+
+        if resp.status_code != 200:
+            raise exceptions.MarathonApiException(
+                'Update Marathon app failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('message')))
+
     def destroy(self):
         shutil.rmtree(self.repo_path())
         self.nginx_manager.destroy(self.app_type, self.country)
         self.settings_manager.destroy(self.app_type, self.country)
 
         if self.application_type.project_type == AppType.UNICORE_CMS:
-            shutil.rmtree(self.frontend_repo_path())
             self.settings_manager.destroy_unicore_cms_settings(
                 self.app_type, self.country)
 

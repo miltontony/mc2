@@ -42,6 +42,8 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
 
@@ -64,7 +66,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'success': True
         })
 
-        project = Project.objects.all()[0]
+        project = Project.objects.all().last()
         self.assertEqual(project.state, 'done')
         self.assertEqual(
             project.frontend_url(), 'http://za.ffl.qa-hub.unicore.io')
@@ -107,8 +109,6 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
-        self.addCleanup(lambda: shutil.rmtree(
-            os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))
 
     @responses.activate
     def test_advanced_page(self):
@@ -117,9 +117,11 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_repo()
         self.mock_create_webhook()
         self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
 
-        Localisation._for('eng_UK')
-        Localisation._for('swa_TZ')
+        english = Localisation._for('eng_UK')
+        swahili = Localisation._for('swa_TZ')
 
         app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
 
@@ -137,7 +139,7 @@ class ViewsTestCase(UnicoremcTestCase):
             mock_subprocess.return_value = None
             self.client.post(reverse('start_new_project'), data)
 
-        project = Project.objects.all()[0]
+        project = Project.objects.all().last()
         project.hub_app_id = None
         project.save()
         self.assertFalse(project.hub_app())
@@ -162,9 +164,14 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(project.available_languages.count(), 0)
         self.assertIsNone(project.default_language)
 
+        self.mock_update_marathon_app(
+            project.app_type,
+            project.country.lower(),
+            project.id)
+
         resp = self.client.post(
             reverse('advanced', args=[project.id]), {
-                'available_languages': [1, 2],
+                'available_languages': [english.id, swahili.id],
                 'default_language': [Localisation._for('swa_TZ').pk],
                 'ga_profile_id': 'UA-some-profile-id',
                 'frontend_custom_domain': 'some.domain.com',
@@ -201,8 +208,6 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
-        self.addCleanup(lambda: shutil.rmtree(
-            os.path.join(settings.FRONTEND_REPO_PATH, 'ffl-za')))
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))
@@ -231,6 +236,27 @@ class ViewsTestCase(UnicoremcTestCase):
 
         resp = self.client.get(reverse('advanced', args=[1]))
         self.assertEqual(resp.status_code, 302)
+
+    @responses.activate
+    def test_cleanup_get_repos(self):
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        test_repos_path = os.path.join(cur_dir, 'repos.json')
+
+        with open(test_repos_path, "r") as repos_file:
+            data = repos_file.read()
+        repos = json.loads(data)
+
+        self.mock_list_repos(repos)
+
+        resp = self.client.get(reverse('get_all_repos'), {'refresh': 'true'})
+        resp_json = json.loads(resp.content)
+        self.assertEquals(
+            resp_json[0], {
+                'clone_url':
+                    'https://github.com/universalcore/unicore-cms.git',
+                'git_url': 'git://github.com/universalcore/unicore-cms.git',
+                'name': 'unicore-cms'}
+        )
 
     @responses.activate
     def test_no_repos(self):

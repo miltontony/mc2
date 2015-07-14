@@ -113,15 +113,11 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
-    def mock_list_repos(self):
-        default_response = [{
-            'clone_url': '',
-            'git_url': '',
-        }]
+    def mock_list_repos(self, data=[]):
         responses.add(
             responses.GET, settings.GITHUB_API +
             'repos?type=public&per_page=100&page=1',
-            body=json.dumps(default_response),
+            body=json.dumps(data),
             content_type="application/json",
             status=200,
             match_querystring=True)
@@ -144,6 +140,21 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
     def mock_create_unicore_distribute_repo(self, status=200):
         responses.add(
             responses.POST, '%s/repos.json' % settings.UNICORE_DISTRIBUTE_HOST,
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
+    def mock_create_marathon_app(self, status=201):
+        responses.add(
+            responses.POST, '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
+    def mock_update_marathon_app(self, app_type, country, app_id, status=200):
+        responses.add(
+            responses.PUT, '%s/v2/apps/%s-%s-%s' % (
+                settings.MESOS_MARATHON_HOST, app_type, country, app_id),
             body=json.dumps({}),
             content_type="application/json",
             status=status)

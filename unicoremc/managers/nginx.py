@@ -44,10 +44,12 @@ class NginxManager(object):
     def destroy(self, app_type, country):
         self.workspace.sm.delete_data(
             self.get_frontend_nginx_path(app_type, country),
-            'Deleting frontend nginx config for %s_%s' % (app_type, country))
+            ('Deleting frontend nginx config for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         self.workspace.sm.delete_data(
             self.get_cms_nginx_path(app_type, country),
-            'Deleting cms nginx config for %s_%s' % (app_type, country))
+            ('Deleting cms nginx config for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_frontend_nginx(self, app_type, country, frontend_custom_domain):
@@ -67,7 +69,8 @@ class NginxManager(object):
 
         self.workspace.sm.store_data(
             filepath, frontend_nginx_content,
-            'Save frontend nginx config for %s_%s' % (app_type, country))
+            ('Save frontend nginx config for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def write_cms_nginx(self, app_type, country, cms_custom_domain):
@@ -87,5 +90,6 @@ class NginxManager(object):
 
         self.workspace.sm.store_data(
             filepath, cms_nginx_content,
-            'Save cms nginx config for %s_%s' % (app_type, country))
+            ('Save cms nginx config for %s_%s' % (app_type, country))
+            .encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)

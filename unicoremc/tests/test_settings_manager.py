@@ -14,20 +14,16 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
     def test_write_frontend_settings(self):
         english = Localisation._for('eng_GB')
-        afrikaans = Localisation._for('swa_TZ')
+        swahili = Localisation._for('swa_TZ')
         hub_app = self.mk_hub_app()
         sm = self.get_settings_manager()
         sm.write_frontend_settings(
-            'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id', hub_app)
+            'ffl', 'za', [english, swahili], english, 'UA-some-profile-id',
+            hub_app)
 
         frontend_settings_path = os.path.join(
             settings.CONFIGS_REPO_PATH,
             sm.get_frontend_settings_path('ffl', 'za'))
-
-        socket_path = os.path.join(
-            settings.FRONTEND_SOCKETS_PATH,
-            'ffl_za.socket')
 
         self.assertTrue(os.path.exists(frontend_settings_path))
 
@@ -40,12 +36,9 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue(
             "[(u'eng_GB', u'English')"
             ", (u'swa_TZ', u'Swahili')]" in data)
-        self.assertTrue('/ffl_za/' in data)
-        self.assertTrue('es.index_prefix = unicore_frontend_ffl_za' in data)
-        self.assertTrue('git://some.repo.com/.git' in data)
-        self.assertTrue(socket_path in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
+        self.assertTrue('es.index_prefix = unicore-cms-content-ffl-za' in data)
         self.assertTrue('raven-qa' in data)
         self.assertIn('unicorehub.app_id = %s' % hub_app.get('uuid'), data)
         self.assertIn('unicorehub.app_key = %s' % hub_app.get('key'), data)
@@ -55,8 +48,8 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         # check that Hub settings aren't present if hub_app is None
         sm.write_frontend_settings(
-            'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id', None)
+            'ffl', 'za', [english, swahili], english, 'UA-some-profile-id',
+            None)
         with open(frontend_settings_path, "r") as config_file:
             data = config_file.read()
 
@@ -66,12 +59,12 @@ class SettingsManagerTestCase(UnicoremcTestCase):
     @override_settings(DEPLOY_ENVIRONMENT='prod')
     def test_write_frontend_settings_prod(self):
         english = Localisation._for('eng_GB')
-        afrikaans = Localisation._for('swa_TZ')
+        swahili = Localisation._for('swa_TZ')
         hub_app = self.mk_hub_app()
         sm = self.get_settings_manager()
         sm.write_frontend_settings(
-            'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-            '/path/to/repo/ffl_za/', english, 'UA-some-profile-id', hub_app)
+            'ffl', 'za', [english, swahili], english, 'UA-some-profile-id',
+            hub_app)
 
         frontend_settings_path = os.path.join(
             settings.CONFIGS_REPO_PATH,
@@ -199,15 +192,14 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         config_ws.fast_forward()
 
         english = Localisation._for('eng_GB')
-        afrikaans = Localisation._for('swa_TZ')
+        swahili = Localisation._for('swa_TZ')
         hub_app = self.mk_hub_app()
 
         with self.settings(CONFIGS_REPO_PATH=config_ws.working_dir):
             sm = self.get_settings_manager()
             sm.write_frontend_settings(
-                'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-                '/path/to/repo/ffl_za/', english, 'UA-some-profile-id',
-                hub_app)
+                'ffl', 'za', [english, swahili], english,
+                'UA-some-profile-id', hub_app)
             sm.write_cms_settings(
                 'ffl', 'za', 'http://some.repo.com/.git',
                 '/path/to/repo/ffl_za/')
@@ -291,14 +283,11 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         with self.settings(CONFIGS_REPO_PATH=config_ws.working_dir):
             sm = self.get_settings_manager()
             sm.write_frontend_settings(
-                'ffl', 'za', 'git://some.repo.com/.git', [english, afrikaans],
-                '/path/to/repo/ffl_za/', english, 'UA-some-profile-id',
-                hub_app)
+                'ffl', 'za', [english, afrikaans],
+                english, 'UA-some-profile-id', hub_app)
             sm.write_springboard_settings(
                 'ffl', 'za', [english, afrikaans], english,
                 'UA-some-profile-id', hub_app)
-            sm.write_springboard_config(
-                'ffl', 'za', 'git://some.repo.com/.git')
             sm.write_cms_settings(
                 'ffl', 'za', 'http://some.repo.com/.git',
                 '/path/to/repo/ffl_za/')
@@ -317,11 +306,6 @@ class SettingsManagerTestCase(UnicoremcTestCase):
             config_ws.working_dir, 'springboard_settings', 'ffl_za.ini')
         remote_springboard_settings_config_path = os.path.join(
             remote_ws.working_dir, 'springboard_settings', 'ffl_za.ini')
-
-        springboard_config_path = os.path.join(
-            config_ws.working_dir, 'springboard_settings', 'ffl_za.yaml')
-        remote_springboard_config_path = os.path.join(
-            remote_ws.working_dir, 'springboard_settings', 'ffl_za.yaml')
 
         cms_settings_config_path = os.path.join(
             config_ws.working_dir, 'cms_settings', 'ffl_za.py')
@@ -362,8 +346,6 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertFalse(os.path.exists(springboard_settings_config_path))
         self.assertFalse(
             os.path.exists(remote_springboard_settings_config_path))
-        self.assertFalse(os.path.exists(springboard_config_path))
-        self.assertFalse(os.path.exists(remote_springboard_config_path))
         self.assertFalse(os.path.exists(cms_config_path))
         self.assertFalse(os.path.exists(remote_cms_config_path))
         self.assertFalse(os.path.exists(cms_settings_output_path))
@@ -398,10 +380,11 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue('swa_TZ' in data)
         self.assertTrue(
             'unicore.content_repo_urls = '
-            'http://localhost:6543/repos/unicore-cms-content-ffl-za.json'
+            'http://testserver:6543/repos/unicore-cms-content-ffl-za.json'
             in data)
         self.assertTrue('es.host = http://localhost:9200' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
+        self.assertTrue('thumbor.security_key = some-key' in data)
         self.assertTrue('raven-qa' in data)
         self.assertIn('unicorehub.app_id = %s' % hub_app.get('uuid'), data)
         self.assertIn('unicorehub.app_key = %s' % hub_app.get('key'), data)
