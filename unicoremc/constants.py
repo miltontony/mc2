@@ -8,6 +8,14 @@ SPRINGBOARD_MARATHON_CMD = (
     "--paste %(config_path)s --preload"
 )
 
+SPRINGBOARD_STATIC_FILES_PATH = (
+    "/var/praekelt/springboard-%(app_type)s/springboard_%(app_type)s/static/"
+)
+
+UNICORE_CMS_STATIC_FILES_PATH = (
+    "/var/praekelt/unicore-cms-%(app_type)s/unicorecms%(app_type)s/static/"
+)
+
 # NOTE: It's probably better to move all unicore-cms apps to their own
 # virtual env.
 UNICORECMS_MARATHON_CMD = (
