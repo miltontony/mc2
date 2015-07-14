@@ -10,7 +10,10 @@
 <a href="{% url 'new_project' %}" class="btn btn-primary">Start new project</a>
 <a href="{% url 'manage_ga' %}" class="btn btn-primary">Manage GA Profiles</a>
 {% endif %}
-
+<section>
+<p></p>
+<input tabindex="1" type="text" id="filter" placeholder="search projects" autofocus/>
+</section>
 <div id="projects_progress">
     <section id="grp-changelist">
     <div class="grp-module grp-changelist-results">
@@ -33,6 +36,9 @@
                         <div class="grp-text">Frontend URL <br />*.hub.unicore.io</div>
                     </th>
                     <th scope="col">
+                        <div class="grp-text">CMS URL <br />*.hub.unicore.io</div>
+                    </th>
+                    <th scope="col">
                         <div class="grp-text">Languages</div>
                     </th>
                     <th scope="col">
@@ -41,12 +47,12 @@
                     <th scope="col">
                         <div class="grp-text">Hub App ID</div>
                     </th>
-                    <th scope="col">
-                        <div class="grp-text">CMS URL <br />*.hub.unicore.io</div>
-                    </th>
                 </tr>
             </thead>
             <tbody>
+            {% for project in project_list %}
+            {% include 'unicoremc/project_object.html' %}
+            {% endfor %}
             </tbody>
         </table>
     </div>
@@ -56,71 +62,52 @@
 
 {% block script %}
 <script src="{{STATIC_URL}}js/jquery.min.js"></script>
+<script src="{{STATIC_URL}}js/ws4redis.min.js"></script>
 <script type="text/javascript">
 
-function mk_github_link(url) {
-    var name = url.replace(/^(https?):\/\/github.com\/universalcore\/unicore-cms-content-/, '');
-    return '<a target="_blank" href="' + url + '">&hellip;' + name + '</a>';
-}
-
-function reload_projects(){
-    $.getJSON('/progress/')
-        .done(function(data){
-            var projects = new Array();
-            $.each(data, function(){
-                var frontend_url = this.frontend_url.replace(/^(https?):\/\//, '').replace(/\.?(hub\.unicore\.io)/, '');
-                var cms_url = this.cms_url.replace(/^(https?):\/\//, '').replace(/\.?(hub\.unicore\.io)/, '');
-
-                var languages = new Array();
-                for (key in this.available_languages){
-                    languages.push(' <a href="' + this.frontend_url + '/locale/'+ this.available_languages[key] +'/" target="_blank">'+ this.available_languages[key] + '</a>');
-                }
-
-                var hub_reset_link = this.hub_app_id ? '<br/><a href="/advanced/' + this.id + '/reset_hub_app_key/">Reset key</a>' : '';
-
-                var project_type = $('<span>').addClass('label').html(this.project_type);
-                switch(this.project_type){
-                  case 'unicore-cms':
-                    project_type.addClass('label-info');
-                    break;
-                  case 'springboard':
-                    project_type.addClass('label-success');
-                    break;
-                  default:;
-                }
-                var row = '<th>' + this.app_type +' '+project_type[0].outerHTML+'</th>' +
-                          '<td>' + this.country + '</td>' +
-                          '<td>' + this.state + '</td>' +
-                          '<td>' + this.repo_urls
-                            .filter(function(url){return url;})
-                            .map(mk_github_link)
-                            .join('<br/>') + '</td>' +
-                          '<td><a target="_blank" href="'+ this.frontend_url +'">'+ frontend_url +'</a></td>' +
-                          '<td>'+ languages + '</td>' +
-                          '<td>'+ this.ga_profile_id + '</td>' +
-                          '<td>' + this.hub_app_id + hub_reset_link + '</td>' +
-                          '<td><a target="_blank" href="'+ this.cms_url +'">'+ cms_url +'</a></td>' +
-                          {% if user.is_superuser %}
-                          '<td><a href="/advanced/'+ this.id +'/">'+ 'edit' +'</a></td>' +
-                          {% endif %}
-                          '';
-
-                var state_class = this.state == 'Ready for use' ? 'bg-success' : 'bg-warning';
-                projects.push(
-                    $('<tr>').html(row).addClass(state_class));
-            });
-            $('#projects_progress tbody').html(projects)
+jQuery(document).ready(function($) {
+    var ws4redis = WS4Redis({
+        uri: '{{ WEBSOCKET_URI }}progress?subscribe-broadcast',
+        receive_message: receiveMessage,
+        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
     });
-}
 
-var timeout = null;
-function refresh(){
-    clearTimeout(timeout);
-    timeout = setTimeout("refresh()", 3000);
-    reload_projects();
-}
-$(document).ready(function() {
-    refresh();
+    // receive a message though the websocket from the server
+    function receiveMessage(msg) {
+      var data = JSON.parse(msg);
+      if (data.is_created && document.getElementById(data.id) == null){
+        //reload page when new project added
+        window.location.reload();
+        return
+      }
+
+      $('#'+data.id).attr('class', data.state);
+      $('#'+data.id+' .state').html(data.state_display);
+
+      var languages = new Array();
+      $.each(data.available_languages, function(){
+        var lang_link = $('<a/>')
+          .attr('target', '_blank')
+          .attr('href', data.frontend_url+'/locale/' + this + '/')
+          .html(this + ',&nbsp;');
+        if (this == data.default_language){
+          lang_link.addClass('active');
+        }
+        languages.push(lang_link);
+      });
+      $('#'+data.id+' .languages').html(languages);
+    }
+
+    $('#filter').keyup(function(){
+        var valThis = $(this).val().toLowerCase();
+
+        $('#result_list>tbody>tr').each(function(){
+            var text = $(this).attr('country').toLowerCase() + ' ' +
+                       $(this).attr('apptype').toLowerCase() + ' ' +
+                       $(this).attr('projecttype').toLowerCase();
+            (text.indexOf(valThis) != -1) ? $(this).show() : $(this).hide();
+        });
+    });
 });
 </script>
 {% endblock %}

@@ -9,9 +9,11 @@ from django.conf import settings
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 from unicoremc.constants import LANGUAGES
-from unicoremc.models import Project, Localisation, AppType, ProjectRepo
+from unicoremc.models import (
+    Project, Localisation, AppType, ProjectRepo, publish_to_websocket)
 from unicoremc.managers import DbManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
@@ -32,6 +34,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.user = User.objects.get(username='testuser')
 
         self.mk_test_repos()
+        post_save.disconnect(publish_to_websocket, sender=Project)
 
     @responses.activate
     def test_create_new_project(self):
@@ -253,7 +256,6 @@ class ViewsTestCase(UnicoremcTestCase):
 
         resp = self.client.get(reverse('home'))
         self.assertContains(resp, 'Start new project')
-        self.assertContains(resp, 'edit')
 
     def test_staff_access_required(self):
         self.mk_project(project={'owner': User.objects.get(pk=2)})

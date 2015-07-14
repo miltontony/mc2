@@ -1,7 +1,7 @@
 #projects_progress {font-size: 0.9em;}
-  #projects_progress tr.bg-warning td,tr.bg-warning th{background-color:#FCF8E3 !important}
-  #projects_progress tr.bg-success td,tr.bg-success th{background-color:#DFF0D8 !important}
-
+  #projects_progress tbody tr td,tbody tr th{background-color:#FCF8E3 !important}
+  #projects_progress tbody tr.done td,tbody tr.done th{background-color:#DFF0D8 !important}
+  #projects_progress .languages a.active{font-weight: bold;}
 .new-project{}
   .new-project .help-block{
       display: inline-block;

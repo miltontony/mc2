@@ -115,6 +115,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
+    'ws4redis.context_processors.default',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -142,7 +143,7 @@ FIELDS_STORED_IN_SESSION = ['access_token', ]
 ROOT_URLCONF = 'project.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'project.wsgi.application'
+WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -172,6 +173,7 @@ INSTALLED_APPS = (
 
     'social.apps.django_app.default',
     'unicoremc',
+    'ws4redis',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -206,11 +208,20 @@ LOGGING = {
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'redis://localhost:6379/2'
+        'LOCATION': 'localhost:6379',
+        'OPTIONS': {
+            'DB': 2,
+        }
     }
 }
 
 GRAPPELLI_ADMIN_TITLE = 'UC Mission Control'
+
+WS4REDIS_EXPIRE = 1
+WEBSOCKET_URL = '/ws/'
+WS4REDIS_CONNECTION = {
+    'db': 4
+}
 
 # Celery configuration options
 BROKER_URL = 'redis://localhost:6379/0'
@@ -234,6 +245,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
     'ENABLE_STACKTRACES': True,
 }
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # South configuration variables
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

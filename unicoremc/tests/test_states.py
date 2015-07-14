@@ -5,10 +5,11 @@ import shutil
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 from mock import patch
 
-from unicoremc.models import Project
+from unicoremc.models import Project, publish_to_websocket
 from unicoremc.states import ProjectWorkflow
 from unicoremc.tests.base import UnicoremcTestCase
 
@@ -20,6 +21,7 @@ class StatesTestCase(UnicoremcTestCase):
     def setUp(self):
         self.mk_test_repos()
         self.user = User.objects.get(username='testuser')
+        post_save.disconnect(publish_to_websocket, sender=Project)
 
     def test_initial_state(self):
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})

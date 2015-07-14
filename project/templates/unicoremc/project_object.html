@@ -1,0 +1,41 @@
+<tr id="{{project.id}}"
+    country="{{project.get_country_display}}"
+    apptype="{{project.application_type.title}}"
+    projecttype="{{project.application_type.project_type}}"
+    class="project.state">
+  <th class="title">{{project.application_type.title}}<br/>
+  {% if project.application_type.project_type == 'unicore-cms' %}
+  <span class="label label-info">
+    {{project.application_type.project_type}}
+  </span>
+  {% else %}{% if project.application_type.project_type == 'springboard' %}
+  <span class="label label-success">
+  {{project.application_type.project_type}}
+  </span>
+  {% else %}
+  <span class="label">{{project.application_type.project_type}}</span>
+  {% endif %}{% endif %}
+  </th>
+  <td class="country">{{project.get_country_display}}</td>
+  <td class="state">{{project.get_state_display}}</td>
+  <td class="repo_url"><a target="_blank" href="{{project.repo_url}}">Github</a></td>
+  <td class="frontend_url"><a target="_blank" href="{{project.frontend_url}}">Mobi</a></td>
+  <td class="cms_url"><a target="_blank" href="{{project.cms_url}}">CMS</a></td>
+  <td class="languages">
+  {% for lang in project.available_languages.all %}
+  <a target="_blank" href="{{project.frontend_url}}/locale/{{lang.get_code}}/"
+    {% if lang.get_code == project.default_language.get_code %}class="active"{%endif%}
+    >{{lang.get_code}}</a>,
+  {% endfor %}
+  </td>
+  <td class="ga_profile_id">{{project.ga_profile_id|default:''}}</td>
+  <td class="hub_app_id">
+  {% if project.hub_app_id %}
+  {{project.hub_app_id}}
+  <br/><a href="{% url 'reset-hub-app-key' project.id %}">Reset key</a>
+  {% endif %}
+  </td>
+  {% if user.is_superuser %}
+  <td class="advanced"><a href="{% url 'advanced' project.id %}">edit</a></td>
+  {% endif %}
+</tr>

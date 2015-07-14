@@ -1,11 +1,11 @@
 import pytest
 
 from django.contrib.auth.models import User
-
-from mock import patch, Mock
+from django.db.models.signals import post_save
 
 from unicoremc.tests.base import UnicoremcTestCase
-from unicoremc.models import Project, AppType, ProjectRepo, standalone_only
+from unicoremc.models import (
+    Project, AppType, standalone_only, publish_to_websocket)
 from unicoremc import exceptions
 
 
@@ -15,6 +15,7 @@ class ModelsTestCase(UnicoremcTestCase):
 
     def setUp(self):
         self.user = User.objects.get(username='testuser')
+        post_save.disconnect(publish_to_websocket, sender=Project)
 
     def test_app_type_title(self):
         app_type = AppType._for('gem', 'Girl Effect', 'unicore-cms')
