@@ -53,7 +53,7 @@ class ModelsTestCase(UnicoremcTestCase):
         self.assertEquals(p.get_marathon_app_data(), {
             "id": "gem-za-%s" % p.id,
             "cmd":
-                '/var/praekelt/python/bin/gunicorn --bind localhost:$PORT '
+                '/var/praekelt/python/bin/gunicorn --bind $HOST:$PORT '
                 '--paste /path/to/unicore-configs/frontend_settings/gem_za.ini'
                 ' --preload',
             "cpus": 0.1,
@@ -76,7 +76,7 @@ class ModelsTestCase(UnicoremcTestCase):
             "id": "ffl-tz-%s" % p.id,
             "cmd":
                 '/var/praekelt/springboard-python/bin/gunicorn --bind'
-                ' localhost:$PORT --paste'
+                ' $HOST:$PORT --paste'
                 ' /path/to/unicore-configs/springboard_settings/ffl_tz.ini'
                 ' --preload',
             "cpus": 0.1,
