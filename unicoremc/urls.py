@@ -9,7 +9,7 @@ urlpatterns = patterns(
     url(
         r'^$',
         login_required(
-            TemplateView.as_view(template_name='unicoremc/home.html')),
+            views.HomepageView.as_view()),
         name='home'
     ),
     url(
@@ -36,11 +36,6 @@ urlpatterns = patterns(
         r'^new/create/$',
         'unicoremc.views.start_new_project',
         name='start_new_project'
-    ),
-    url(
-        r'^progress/$',
-        'unicoremc.views.projects_progress',
-        name='projects_progress'
     ),
     url(
         r'^advanced/(?P<project_id>\d+)/$',
