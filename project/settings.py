@@ -245,6 +245,7 @@ DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
     'ENABLE_STACKTRACES': True,
 }
+DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
 # South configuration variables
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
