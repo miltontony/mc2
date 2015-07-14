@@ -479,7 +479,7 @@ class Project(models.Model):
             },
             json=post_data)
 
-        if resp.status_code != 200:
+        if resp.status_code not in [200, 201]:
             raise exceptions.MarathonApiException(
                 'Update Marathon app failed with response: %s - %s' %
                 (resp.status_code, resp.json().get('message')))
