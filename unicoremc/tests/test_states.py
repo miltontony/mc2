@@ -202,15 +202,10 @@ class StatesTestCase(UnicoremcTestCase):
             settings.CMS_SETTINGS_OUTPUT_PATH,
             'ffl_za.ini')
 
-        frontend_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
-
         cms_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
-        self.assertTrue(os.path.exists(frontend_nginx_config_path))
         self.assertTrue(os.path.exists(cms_nginx_config_path))
 
         self.assertTrue(os.path.exists(p.repo_path()))
@@ -224,7 +219,6 @@ class StatesTestCase(UnicoremcTestCase):
 
         pw.take_action('destroy')
 
-        self.assertFalse(os.path.exists(frontend_nginx_config_path))
         self.assertFalse(os.path.exists(cms_nginx_config_path))
 
         self.assertFalse(os.path.exists(p.repo_path()))
@@ -284,15 +278,10 @@ class StatesTestCase(UnicoremcTestCase):
             settings.CMS_SETTINGS_OUTPUT_PATH,
             'ffl_za.ini')
 
-        frontend_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
-
         cms_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
-        self.assertTrue(os.path.exists(frontend_nginx_config_path))
         self.assertTrue(os.path.exists(cms_nginx_config_path))
 
         self.assertTrue(os.path.exists(p.repo_path()))
@@ -306,7 +295,6 @@ class StatesTestCase(UnicoremcTestCase):
 
         pw.take_action('destroy')
 
-        self.assertFalse(os.path.exists(frontend_nginx_config_path))
         self.assertFalse(os.path.exists(cms_nginx_config_path))
 
         self.assertFalse(os.path.exists(p.repo_path()))
@@ -365,15 +353,10 @@ class StatesTestCase(UnicoremcTestCase):
             settings.CMS_SETTINGS_OUTPUT_PATH,
             'ffl_za.ini')
 
-        frontend_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
-
         cms_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
-        self.assertTrue(os.path.exists(frontend_nginx_config_path))
         self.assertTrue(os.path.exists(cms_nginx_config_path))
 
         self.assertTrue(os.path.exists(p.repo_path()))
@@ -387,7 +370,6 @@ class StatesTestCase(UnicoremcTestCase):
 
         pw.take_action('destroy')
 
-        self.assertFalse(os.path.exists(frontend_nginx_config_path))
         self.assertFalse(os.path.exists(cms_nginx_config_path))
 
         self.assertFalse(os.path.exists(p.repo_path()))

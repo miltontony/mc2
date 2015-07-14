@@ -354,8 +354,6 @@ class Project(models.Model):
         self.create_unicore_distribute_repo()
 
     def create_nginx(self):
-        self.nginx_manager.write_frontend_nginx(
-            self.app_type, self.country, self.frontend_custom_domain)
         self.nginx_manager.write_cms_nginx(
             self.app_type, self.country, self.cms_custom_domain)
 

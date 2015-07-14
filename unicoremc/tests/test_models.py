@@ -5,7 +5,6 @@ from django.db.models.signals import post_save
 
 from unicoremc.tests.base import UnicoremcTestCase
 from unicoremc.models import Project, AppType, publish_to_websocket
-from unicoremc.models import Project, AppType
 from unicoremc import exceptions
 
 
