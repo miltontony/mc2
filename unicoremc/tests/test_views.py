@@ -217,6 +217,7 @@ class ViewsTestCase(UnicoremcTestCase):
                 'marathon_cpus': 0.5,
                 'marathon_mem': 100.0,
                 'marathon_instances': 2,
+                'marathon_health_check_path': '/health/'
                 })
         project = Project.objects.get(pk=project.id)
         self.assertEqual(project.available_languages.count(), 2)
@@ -226,6 +227,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(project.marathon_cpus, 0.5)
         self.assertEqual(project.marathon_mem, 100.0)
         self.assertEqual(project.marathon_instances, 2)
+        self.assertEqual(project.marathon_health_check_path, '/health/')
         self.assertTrue(project.hub_app_id)
 
         frontend_settings_path = os.path.join(

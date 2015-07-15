@@ -94,7 +94,10 @@ class ModelsTestCase(UnicoremcTestCase):
         p = self.mk_project(app_type={
             'name': 'gem',
             'title': 'Girl Effect',
-            'project_type': 'unicore-cms'})
+            'project_type': 'unicore-cms',
+        }, project={
+            'marathon_health_check_path': '/health/'
+        })
 
         self.assertEquals(p.get_marathon_app_data(), {
             "id": "gem-za-%s" % p.id,
@@ -117,10 +120,23 @@ class ModelsTestCase(UnicoremcTestCase):
                 "staticfiles_path":
                     "/var/praekelt/unicore-cms-gem/unicorecmsgem/static/",
             },
+            "ports": [0],
+            "healthChecks": [{
+                "gracePeriodSeconds": 3,
+                "intervalSeconds": 10,
+                "maxConsecutiveFailures": 3,
+                "path": "/health/",
+                "portIndex": 0,
+                "protocol": "HTTP",
+                "timeoutSeconds": 5
+            }],
         })
         p = self.mk_project(
             app_type={'project_type': 'springboard'},
-            project={'country': 'TZ'})
+            project={
+                'country': 'TZ',
+                'marathon_health_check_path': '/health/',
+            })
 
         self.assertEquals(p.get_marathon_app_data(), {
             "id": "ffl-tz-%s" % p.id,
@@ -144,6 +160,16 @@ class ModelsTestCase(UnicoremcTestCase):
                 "staticfiles_path":
                     "/var/praekelt/springboard-ffl/springboard_ffl/static/",
             },
+            "ports": [0],
+            "healthChecks": [{
+                "gracePeriodSeconds": 3,
+                "intervalSeconds": 10,
+                "maxConsecutiveFailures": 3,
+                "path": "/health/",
+                "portIndex": 0,
+                "protocol": "HTTP",
+                "timeoutSeconds": 5
+            }],
         })
 
         p = self.mk_project(project={'application_type': None})

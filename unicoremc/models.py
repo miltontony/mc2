@@ -173,6 +173,8 @@ class Project(models.Model):
         default=settings.MESOS_DEFAULT_MEMORY_ALLOCATION)
     marathon_instances = models.IntegerField(
         default=settings.MESOS_DEFAULT_INSTANCES)
+    marathon_health_check_path = models.CharField(
+        max_length=255, blank=True, null=True)
 
     class Meta:
         ordering = ('application_type__title', 'country')
@@ -571,7 +573,7 @@ class Project(models.Model):
             'custom': self.frontend_custom_domain
         }
 
-        return {
+        app_data = {
             "id": "%(app_type)s-%(country)s-%(id)s" % {
                 'app_type': self.app_type,
                 'country': self.country.lower(),
@@ -586,8 +588,24 @@ class Project(models.Model):
                 "country": self.get_country_display(),
                 "project_type": self.application_type.project_type,
                 "staticfiles_path": self.get_staticfiles_path(),
-            },
+            }
         }
+
+        if self.marathon_health_check_path:
+            app_data.update({
+                "ports": [0],
+                "healthChecks": [{
+                    "gracePeriodSeconds": 3,
+                    "intervalSeconds": 10,
+                    "maxConsecutiveFailures": 3,
+                    "path": self.marathon_health_check_path,
+                    "portIndex": 0,
+                    "protocol": "HTTP",
+                    "timeoutSeconds": 5
+                }]
+            })
+
+        return app_data
 
     def initiate_create_marathon_app(self):
         post_data = self.get_marathon_app_data()

@@ -30,10 +30,14 @@ class ProjectForm(forms.ModelForm):
         required=False,
         min_value=0,
         widget=forms.TextInput(attrs={'class': 'input-small'}))
+    marathon_health_check_path = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'input-small'})
+    )
 
     class Meta:
         model = Project
         fields = (
             'available_languages', 'default_language', 'ga_profile_id',
             'frontend_custom_domain', 'cms_custom_domain', 'marathon_cpus',
-            'marathon_mem', 'marathon_instances')
+            'marathon_mem', 'marathon_instances', 'marathon_health_check_path')
