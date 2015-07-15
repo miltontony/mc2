@@ -98,10 +98,15 @@ class ModelsTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.get_marathon_app_data(), {
             "id": "gem-za-%s" % p.id,
-            "cmd":
-                '/var/praekelt/python/bin/gunicorn --bind $HOST:$PORT '
-                '--paste /path/to/unicore-configs/frontend_settings/gem_za.ini'
-                ' --preload',
+            "cmd": (
+                "/var/praekelt/python/bin/uwsgi "
+                "--virtualenv /var/praekelt/python "
+                "--ini-paste /path/to/unicore-configs/"
+                "frontend_settings/gem_za.ini "
+                "--http $HOST:$PORT "
+                "--processes 1 "
+                "--threads 1"
+            ),
             "cpus": 0.1,
             "mem": 100.0,
             "instances": 1,
@@ -119,11 +124,16 @@ class ModelsTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.get_marathon_app_data(), {
             "id": "ffl-tz-%s" % p.id,
-            "cmd":
-                '/var/praekelt/springboard-python/bin/gunicorn --bind'
-                ' $HOST:$PORT --paste'
-                ' /path/to/unicore-configs/springboard_settings/ffl_tz.ini'
-                ' --preload',
+            "cmd": (
+                "/var/praekelt/springboard-python/bin/uwsgi "
+                "--virtualenv /var/praekelt/springboard-python "
+                "--ini-paste /path/to/unicore-configs/"
+                "springboard_settings/ffl_tz.ini "
+                "--http $HOST:$PORT "
+                "--processes 1 "
+                "--threads 1"
+
+            ),
             "cpus": 0.1,
             "mem": 100.0,
             "instances": 1,

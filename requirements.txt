@@ -1,6 +1,5 @@
 Django<1.7
 South
-gunicorn
 python-memcached
 raven==5.0.0
 nose

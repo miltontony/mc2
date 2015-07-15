@@ -165,7 +165,6 @@ INSTALLED_APPS = (
 
     'redis_cache',
     'south',
-    'gunicorn',
     'django_nose',
     'raven.contrib.django.raven_compat',
     'djcelery',

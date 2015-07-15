@@ -3,9 +3,12 @@ NEW_REPO_NAME_FORMAT = (
     '%(app_type)s-%(country)s%(suffix)s')
 
 SPRINGBOARD_MARATHON_CMD = (
-    "/var/praekelt/springboard-python/bin/gunicorn "
-    "--bind $HOST:$PORT "
-    "--paste %(config_path)s --preload"
+    "/var/praekelt/springboard-python/bin/uwsgi "
+    "--virtualenv /var/praekelt/springboard-python "
+    "--ini-paste %(config_path)s "
+    "--http $HOST:$PORT "
+    "--processes 1 "
+    "--threads 1"
 )
 
 SPRINGBOARD_STATIC_FILES_PATH = (
@@ -19,9 +22,12 @@ UNICORE_CMS_STATIC_FILES_PATH = (
 # NOTE: It's probably better to move all unicore-cms apps to their own
 # virtual env.
 UNICORECMS_MARATHON_CMD = (
-    "/var/praekelt/python/bin/gunicorn "
-    "--bind $HOST:$PORT "
-    "--paste %(config_path)s --preload"
+    "/var/praekelt/python/bin/uwsgi "
+    "--virtualenv /var/praekelt/python "
+    "--ini-paste %(config_path)s "
+    "--http $HOST:$PORT "
+    "--processes 1 "
+    "--threads 1"
 )
 
 LANGUAGES = {
