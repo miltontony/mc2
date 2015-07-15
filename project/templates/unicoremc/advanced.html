@@ -25,7 +25,7 @@
                 {{form.available_languages.errors|join:", " }}
             </div>
         {% endif %}
-        <div class="no-bullets">
+        <div class="no-bullets languages">
             <strong>Available Languages</strong>
             {{form.available_languages}}
         </div>
@@ -36,11 +36,11 @@
                 {{form.default_language.errors|join:", " }}
             </div>
         {% endif %}
-        <div class="no-bullets">
+        <div class="no-bullets languages">
             <strong>Default Language</strong>
             {{form.default_language}}
         </div>
-
+        <div style="clear:both"></div>
         {% if form.ga_profile_id.errors %}
             <div class="alert alert-error">
                 <strong>{{form.ga_profile_id.label}}</strong>
@@ -61,6 +61,13 @@
             <div>Specify domain names to point to the cms site</div>
             <div>{{form.cms_custom_domain}}</div>
         </div>
+
+        <fieldset>
+            <legend>Marathon</legend>
+            <p><strong>CPUs Limit</strong> {{form.marathon_cpus}}</p>
+            <p><strong>MEM Limit</strong> {{form.marathon_mem}}</p>
+            <p><strong>Number of instances</strong> {{form.marathon_instances}}</p>
+        </fieldset>
 
         {% csrf_token %}
         <br/>

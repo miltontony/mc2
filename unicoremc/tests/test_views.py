@@ -213,12 +213,19 @@ class ViewsTestCase(UnicoremcTestCase):
                 'default_language': [Localisation._for('swa_TZ').pk],
                 'ga_profile_id': 'UA-some-profile-id',
                 'frontend_custom_domain': 'some.domain.com',
-                'cms_custom_domain': 'cms.some.domain.com'})
+                'cms_custom_domain': 'cms.some.domain.com',
+                'marathon_cpus': 0.5,
+                'marathon_mem': 100.0,
+                'marathon_instances': 2,
+                })
         project = Project.objects.get(pk=project.id)
         self.assertEqual(project.available_languages.count(), 2)
         self.assertEqual(project.default_language.get_code(), 'swa_TZ')
         self.assertEqual(project.frontend_custom_domain, 'some.domain.com')
         self.assertEqual(project.cms_custom_domain, 'cms.some.domain.com')
+        self.assertEqual(project.marathon_cpus, 0.5)
+        self.assertEqual(project.marathon_mem, 100.0)
+        self.assertEqual(project.marathon_instances, 2)
         self.assertTrue(project.hub_app_id)
 
         frontend_settings_path = os.path.join(

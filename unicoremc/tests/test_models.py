@@ -108,7 +108,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 "--threads 1"
             ),
             "cpus": 0.1,
-            "mem": 100.0,
+            "mem": 50.0,
             "instances": 1,
             "labels": {
                 "domain": 'za.gem.qa-hub.unicore.io ',
@@ -135,7 +135,7 @@ class ModelsTestCase(UnicoremcTestCase):
 
             ),
             "cpus": 0.1,
-            "mem": 100.0,
+            "mem": 50.0,
             "instances": 1,
             "labels": {
                 "domain": 'tz.ffl.qa-hub.unicore.io ',
