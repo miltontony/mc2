@@ -103,8 +103,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 "--virtualenv /var/praekelt/python "
                 "--ini-paste /path/to/unicore-configs/"
                 "frontend_settings/gem_za.ini "
-                "--socket $HOST:$PORT "
-                "--protocol http "
+                "--http $HOST:$PORT "
                 "--processes 1 "
                 "--threads 1"
             ),
@@ -130,8 +129,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 "--virtualenv /var/praekelt/springboard-python "
                 "--ini-paste /path/to/unicore-configs/"
                 "springboard_settings/ffl_tz.ini "
-                "--socket $HOST:$PORT "
-                "--protocol http "
+                "--http $HOST:$PORT "
                 "--processes 1 "
                 "--threads 1"
 
