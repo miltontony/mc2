@@ -571,9 +571,9 @@ class Project(models.Model):
                 'id': self.id,
             },
             "cmd": cmd,
-            "cpus": 0.1,
-            "mem": 100.0,
-            "instances": 1,
+            "cpus": settings.MESOS_DEFAULT_CPU_SHARE,
+            "mem": settings.MESOS_DEFAULT_MEMORY_ALLOCATION,
+            "instances": settings.MESOS_DEFAULT_INSTANCES,
             "labels": {
                 "domain": domain,
                 "country": self.get_country_display(),

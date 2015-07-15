@@ -103,7 +103,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 '--paste /path/to/unicore-configs/frontend_settings/gem_za.ini'
                 ' --preload',
             "cpus": 0.1,
-            "mem": 100.0,
+            "mem": 50.0,
             "instances": 1,
             "labels": {
                 "domain": 'za.gem.qa-hub.unicore.io ',
@@ -125,7 +125,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 ' /path/to/unicore-configs/springboard_settings/ffl_tz.ini'
                 ' --preload',
             "cpus": 0.1,
-            "mem": 100.0,
+            "mem": 50.0,
             "instances": 1,
             "labels": {
                 "domain": 'tz.ffl.qa-hub.unicore.io ',
