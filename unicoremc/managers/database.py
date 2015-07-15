@@ -38,7 +38,7 @@ class DbManager(object):
         ]
         self.call_subprocess(args, env=env, cwd=self.unicore_cms_install_dir)
 
-    def init_db(self, app_type, country):
+    def init_db(self, app_type, country, push_to_git=False):
         env = {
             'DJANGO_SETTINGS_MODULE': 'project.%s' % self.get_deploy_name(
                 app_type, country)
@@ -50,4 +50,6 @@ class DbManager(object):
             'import_from_git',
             '--quiet',
         ]
+        if push_to_git:
+            args.append('--push')
         self.call_subprocess(args, env=env, cwd=self.unicore_cms_install_dir)
