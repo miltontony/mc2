@@ -58,6 +58,7 @@ class StatesTestCase(UnicoremcTestCase):
                 in args)
             self.assertTrue('import_from_git' in args)
             self.assertTrue('--quiet' in args)
+            self.assertTrue('--push' in args)
 
         self.mock_create_all()
 

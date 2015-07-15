@@ -43,6 +43,7 @@ class DbManagerTestCase(TestCase):
                 in args)
             self.assertTrue('import_from_git' in args)
             self.assertTrue('--quiet' in args)
+            self.assertFalse('--push' in args)
 
         cm = DbManager()
 
