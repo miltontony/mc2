@@ -511,7 +511,8 @@ class Project(models.Model):
 
     @standalone_only
     def init_db(self):
-        self.db_manager.init_db(self.app_type, self.country)
+        self.db_manager.init_db(
+            self.app_type, self.country, push_to_git=True)
 
     def create_marathon_app(self):
         self.initiate_create_marathon_app()
