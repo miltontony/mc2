@@ -39,6 +39,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
         self.assertTrue('es.index_prefix = unicore-cms-content-ffl-za' in data)
+        self.assertTrue('thumbor.security_key = some-key' in data)
         self.assertTrue('raven-qa' in data)
         self.assertIn('unicorehub.app_id = %s' % hub_app.get('uuid'), data)
         self.assertIn('unicorehub.app_key = %s' % hub_app.get('key'), data)
@@ -75,6 +76,7 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: os.remove(frontend_settings_path))
         self.assertTrue('raven-prod' in data)
+        self.assertTrue('thumbor.security_key = some-key' in data)
 
     def test_write_cms_settings(self):
         sm = self.get_settings_manager()
