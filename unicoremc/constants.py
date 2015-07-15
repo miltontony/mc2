@@ -6,8 +6,7 @@ SPRINGBOARD_MARATHON_CMD = (
     "/var/praekelt/springboard-python/bin/uwsgi "
     "--virtualenv /var/praekelt/springboard-python "
     "--ini-paste %(config_path)s "
-    "--socket $HOST:$PORT "
-    "--protocol http "
+    "--http $HOST:$PORT "
     "--processes 1 "
     "--threads 1"
 )
@@ -26,8 +25,7 @@ UNICORECMS_MARATHON_CMD = (
     "/var/praekelt/python/bin/uwsgi "
     "--virtualenv /var/praekelt/python "
     "--ini-paste %(config_path)s "
-    "--socket $HOST:$PORT "
-    "--protocol http "
+    "--http $HOST:$PORT "
     "--processes 1 "
     "--threads 1"
 )
