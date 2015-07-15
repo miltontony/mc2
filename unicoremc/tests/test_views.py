@@ -13,7 +13,7 @@ from django.db.models.signals import post_save
 
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import (
-    Project, Localisation, AppType, publish_to_websocket)
+    Project, Localisation, AppType, ProjectRepo, publish_to_websocket)
 from unicoremc.managers import DbManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
@@ -31,12 +31,15 @@ class ViewsTestCase(UnicoremcTestCase):
     def setUp(self):
         self.client = Client()
         self.client.login(username='testuser', password='test')
+        self.user = User.objects.get(username='testuser')
 
         self.mk_test_repos()
         post_save.disconnect(publish_to_websocket, sender=Project)
 
     @responses.activate
     def test_create_new_project(self):
+        existing_project = self.mk_project()
+
         self.client.login(username='testuser2', password='test')
 
         self.mock_create_repo()
@@ -45,12 +48,12 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_unicore_distribute_repo()
         self.mock_create_marathon_app()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
+        app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
 
         data = {
             'app_type': app_type.id,
-            'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
+            'project_repos[]': existing_project.own_repo().pk,
             'country': 'ZA',
             'access_token': 'some-access-token',
             'user_id': 1,
@@ -66,12 +69,15 @@ class ViewsTestCase(UnicoremcTestCase):
             'success': True
         })
 
-        project = Project.objects.all().last()
+        project = Project.objects.exclude(pk=existing_project.pk).get()
         self.assertEqual(project.state, 'done')
         self.assertEqual(
             project.frontend_url(), 'http://za.ffl.qa-hub.unicore.io')
         self.assertEqual(
             project.cms_url(), 'http://cms.za.ffl.qa-hub.unicore.io')
+        self.assertEqual(project.external_repos.count(), 1)
+        self.assertTrue(project.own_repo())
+        self.assertEqual(len(project.all_repos()), 2)
 
         workspace = self.mk_workspace(
             working_dir=settings.CMS_REPO_PATH,
@@ -109,6 +115,38 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
+
+    @responses.activate
+    def test_create_new_project_error(self):
+        existing_project = self.mk_project()
+
+        self.client.login(username='testuser2', password='test')
+
+        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
+
+        data = {
+            'app_type': app_type.id,
+            'country': 'ZA',
+            'access_token': 'some-access-token',
+            'user_id': 1,
+            'team_id': 1
+        }
+        response = self.client.post(reverse('start_new_project'), data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.content, 'No repo selected')
+        self.assertEqual(Project.objects.count(), 1)
+        self.assertEqual(ProjectRepo.objects.count(), 1)
+
+        data['base_repo'] = self.base_repo_sm.repo.git_dir,
+        data['project_repos[]'] = existing_project.own_repo().pk,
+        response = self.client.post(reverse('start_new_project'), data)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.content, 'unicore-cms does not support multiple repos')
+        self.assertEqual(Project.objects.count(), 1)
+        self.assertEqual(ProjectRepo.objects.count(), 1)
 
     @responses.activate
     def test_advanced_page(self):
@@ -210,13 +248,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertContains(resp, 'Start new project')
 
     def test_staff_access_required(self):
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=User.objects.get(pk=2))
-        p.save()
+        self.mk_project(project={'owner': User.objects.get(pk=2)})
 
         resp = self.client.get(reverse('new_project'))
         self.assertEqual(resp.status_code, 302)
@@ -264,21 +296,12 @@ class ViewsTestCase(UnicoremcTestCase):
         ]
         mock_create_ga_profile.return_value = "UA-some-new-profile-id"
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-
-        p = Project.objects.create(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=User.objects.get(pk=2),
-            state='done')
-
-        app_type = AppType._for('gem', 'Girl Effect Mobile', 'unicore-cms')
-        Project.objects.create(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=User.objects.get(pk=2))
+        p = self.mk_project(
+            project={'owner': User.objects.get(pk=2), 'state': 'done'})
+        self.mk_project(
+            project={'owner': User.objects.get(pk=2)},
+            app_type={'name': 'gem', 'title': 'Girl Effect Mobile',
+                      'project_type': 'unicore-cms'})
 
         self.client.login(username='testuser2', password='test')
         resp = self.client.get(reverse('manage_ga'))
@@ -319,13 +342,8 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.client.login(username='testuser2', password='test')
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        proj = Project.objects.create(
-            application_type=app_type,
-            base_repo_url='http://some-git-repo.com',
-            country='ZA',
-            owner=User.objects.get(pk=2),
-            state='done')
+        proj = self.mk_project(
+            project={'owner': User.objects.get(pk=2), 'state': 'done'})
         proj.create_or_update_hub_app()
         app_data = proj.hub_app().data
         app_data_with_new_key = app_data.copy()

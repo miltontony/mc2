@@ -53,7 +53,7 @@ MESOS_MARATHON_HOST = 'http://testserver:8080'
 THUMBOR_SECURITY_KEY = 'some-key'
 
 HUBCLIENT_SETTINGS = {
-    'host': 'http://testserver:8080',
+    'host': 'http://testserver:8888',
     'app_id': '',
     'app_key': '',
     'redirect_to_https': False,

@@ -1,3 +1,5 @@
+import os
+import errno
 import httplib2
 
 from django.conf import settings
@@ -6,7 +8,31 @@ from django.core.exceptions import ImproperlyConfigured
 from apiclient import discovery
 from oauth2client import client
 
+from elasticgit.storage import StorageException
+
 from unicore.hub.client import AppClient
+
+
+def remove_if_exists(path):
+    """
+    Removes file and fails silently if file does not exist.
+    """
+    try:
+        os.remove(path)
+    except OSError as e:
+        if e.errno != errno.ENOENT:
+            raise
+
+
+def git_remove_if_exists(workspace, path, commit_msg):
+    """
+    Removes file from repo and fails silently if file does not exist.
+    """
+    try:
+        workspace.sm.delete_data(path, commit_msg)
+    except StorageException as e:
+        if 'does not exist' not in e.message:
+            raise
 
 
 def get_ga_accounts(access_token):

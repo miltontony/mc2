@@ -17,6 +17,7 @@ from elasticgit.storage import StorageManager
 from unicore.hub.client import App
 
 from unicoremc.managers import NginxManager, SettingsManager
+from unicoremc.models import Project, ProjectRepo, AppType
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 
@@ -100,6 +101,32 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
         data.update(fields)
         return App(mock.Mock(), data)
 
+    def mk_project(self, app_type={}, repo={}, project={}):
+        app_type_defaults = {
+            'name': 'ffl',
+            'title': 'Facts for Life',
+            'project_type': 'unicore-cms'
+        }
+        app_type_defaults.update(app_type)
+        app_type = AppType._for(**app_type_defaults)
+
+        project_defaults = {
+            'owner': getattr(self, 'user', None),
+            'country': 'ZA',
+            'application_type': app_type
+        }
+        project_defaults.update(project)
+        project = Project.objects.create(**project_defaults)
+
+        repo_defaults = {
+            'project': project,
+            'base_url': 'http://some-git-repo.com'
+        }
+        repo_defaults.update(repo)
+        ProjectRepo.objects.create(**repo_defaults)
+
+        return project
+
     def mock_create_repo(self, status=201, data={}):
         default_response = {
             'clone_url': self.source_repo_sm.repo.git_dir,
@@ -175,3 +202,10 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             urljoin(settings.HUBCLIENT_SETTINGS['host'], 'apps'),
             callback=make_response,
             content_type="application/json")
+
+    def mock_create_all(self):
+        self.mock_create_repo()
+        self.mock_create_webhook()
+        self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()

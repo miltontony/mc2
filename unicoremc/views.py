@@ -18,7 +18,7 @@ from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
-from unicoremc.models import Project, Localisation, AppType
+from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.forms import ProjectForm
 from unicoremc import constants
 from unicoremc import tasks, utils
@@ -65,6 +65,7 @@ def new_project_view(request, *args, **kwargs):
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
         'app_types': AppType.objects.all(),
+        'project_repos': ProjectRepo.objects.filter(project__state='done'),
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)
@@ -110,7 +111,18 @@ def start_new_project(request, *args, **kwargs):
     if request.method == 'POST':
 
         app_type = request.POST.get('app_type')
+        app_type = AppType.objects.get(pk=int(app_type))
         base_repo = request.POST.get('base_repo')
+        project_repos = request.POST.getlist('project_repos[]')
+        repo_count = len(project_repos) + (1 if base_repo else 0)
+
+        # validate base repos and app type
+        if not repo_count:
+            return HttpResponseBadRequest('No repo selected')
+        if (repo_count > 1 and app_type.project_type == AppType.UNICORE_CMS):
+            return HttpResponseBadRequest(
+                '%s does not support multiple repos' % (AppType.UNICORE_CMS,))
+
         country = request.POST.get('country')
         access_token = request.POST.get('access_token')
         user_id = request.POST.get('user_id')
@@ -118,11 +130,15 @@ def start_new_project(request, *args, **kwargs):
 
         user = User.objects.get(pk=user_id)
         project, created = Project.objects.get_or_create(
-            application_type=AppType.objects.get(pk=int(app_type)),
-            base_repo_url=base_repo,
+            application_type=app_type,
             country=country,
             team_id=int(team_id),
             owner=user)
+        project.external_repos.add(*project_repos)
+        if base_repo:
+            ProjectRepo.objects.get_or_create(
+                project=project,
+                defaults={'base_url': base_repo})
 
         if created:
             tasks.start_new_project.delay(project.id, access_token)

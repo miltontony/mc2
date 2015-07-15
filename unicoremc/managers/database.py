@@ -4,6 +4,8 @@ from subprocess import call
 
 from django.conf import settings
 
+from unicoremc.utils import remove_if_exists
+
 
 class DbManager(object):
     call_subprocess = lambda self, *args, **kwargs: call(*args, **kwargs)
@@ -13,7 +15,7 @@ class DbManager(object):
         self.unicore_cms_python_venv = settings.UNICORE_CMS_PYTHON_VENV
 
     def destroy(self, app_type, country):
-        os.remove(os.path.join(
+        remove_if_exists(os.path.join(
             self.unicore_cms_install_dir,
             'django_cms_%s_%s.db' % (app_type, country.lower())
         ))

@@ -18,5 +18,9 @@ class ProjectTypeRequiredException(Exception):
     pass
 
 
+class ProjectNotStandaloneException(Exception):
+    pass
+
+
 class ProjectTypeUnknownException(Exception):
     pass

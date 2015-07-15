@@ -6,6 +6,7 @@ from django.conf import settings
 from elasticgit import EG
 
 from unicoremc.tasks import push_to_git
+from unicoremc.utils import remove_if_exists, git_remove_if_exists
 from unicoremc import constants
 
 
@@ -73,17 +74,19 @@ class SettingsManager(object):
         )
 
     def destroy(self, app_type, country):
-        os.remove(self.get_cms_settings_output_path(app_type, country))
-        os.remove(self.get_cms_config_output_path(app_type, country))
+        remove_if_exists(self.get_cms_settings_output_path(app_type, country))
+        remove_if_exists(self.get_cms_config_output_path(app_type, country))
 
-        self.workspace.sm.delete_data(
+        git_remove_if_exists(
+            self.workspace,
             self.get_cms_settings_path(app_type, country),
-            ('Deleted cms settings config for %s_%s' % (app_type, country))
-            .encode('utf-8'))
-        self.workspace.sm.delete_data(
+            ('Deleted cms settings config for %s_%s'
+                % (app_type, country)).encode('utf-8'))
+        git_remove_if_exists(
+            self.workspace,
             self.get_cms_config_path(app_type, country),
-            ('Deleted cms config for %s_%s' % (app_type, country))
-            .encode('utf-8'))
+            ('Deleted cms config for %s_%s'
+                % (app_type, country)).encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
     def destroy_unicore_cms_settings(self, app_type, country):
@@ -102,16 +105,11 @@ class SettingsManager(object):
 
     def write_frontend_settings(
             self, app_type, country, available_languages,
-            default_language, ga_profile_id, hub_app):
+            default_language, ga_profile_id, hub_app, repo_name):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
             raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
-
-        repo_name = constants.NEW_REPO_NAME_FORMAT % {
-            'app_type': app_type,
-            'country': country.lower(),
-            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
 
         languages = []
         for lang in available_languages:
@@ -147,16 +145,11 @@ class SettingsManager(object):
 
     def write_springboard_settings(
             self, app_type, country, available_languages,
-            default_language, ga_profile_id, hub_app):
+            default_language, ga_profile_id, hub_app, repo_names):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
             raven_dsn = settings.RAVEN_DSN_FRONTEND_PROD
-
-        repo_name = constants.NEW_REPO_NAME_FORMAT % {
-            'app_type': app_type,
-            'country': country.lower(),
-            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
 
         languages = [lang.get_code() for lang in available_languages]
 
@@ -177,7 +170,7 @@ class SettingsManager(object):
                 'hub_settings': settings.HUBCLIENT_SETTINGS,
                 'es_host': settings.ELASTICSEARCH_HOST,
                 'ucd_host': settings.UNICORE_DISTRIBUTE_HOST,
-                'repo_name': repo_name,
+                'repo_names': repo_names,
             }
         )
 

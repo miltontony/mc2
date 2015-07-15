@@ -1,9 +1,10 @@
 import shutil
 import os
 import pwd
+import functools
 import json
 
-os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]
+os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]  # noqa
 
 import requests
 
@@ -101,14 +102,56 @@ class AppType(models.Model):
         ordering = ('title', )
 
 
+class ProjectRepo(models.Model):
+    project = models.OneToOneField(
+        'Project', primary_key=True, related_name='repo')
+    base_url = models.URLField()
+    git_url = models.URLField(blank=True, null=True)
+    url = models.URLField(blank=True, null=True)
+
+    def __unicode__(self):
+        return os.path.basename(self.url) if self.url else None
+
+    def name(self):
+        return constants.NEW_REPO_NAME_FORMAT % {
+            'app_type': self.project.app_type,
+            'country': self.project.country.lower(),
+            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+
+
+class ProjectManager(models.Manager):
+    '''
+    Custom manager that uses prefetch_related and select_related
+    for repos and application_type to improve performance.
+    '''
+    def get_queryset(self):
+        qs = super(ProjectManager, self).get_queryset()
+        return (qs
+                .select_related('application_type', 'repo')
+                .prefetch_related('external_repos'))
+
+
+def standalone_only(method):
+    '''
+    A decorator for Project methods that should only be executed
+    when the project is standalone.
+    '''
+    @functools.wraps(method)
+    def wrapper(self, *args, **kwargs):
+        if self.own_repo():
+            return method(self, *args, **kwargs)
+    return wrapper
+
+
 class Project(models.Model):
+    objects = ProjectManager()
+
     application_type = models.ForeignKey(AppType, blank=True, null=True)
-    base_repo_url = models.URLField()
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
+    external_repos = models.ManyToManyField(
+        ProjectRepo, blank=True, null=True, related_name='external_projects')
     state = models.CharField(max_length=50, default='initial')
-    repo_url = models.URLField(blank=True, null=True)
-    repo_git_url = models.URLField(blank=True, null=True)
     owner = models.ForeignKey('auth.User')
     team_id = models.IntegerField(blank=True, null=True)
     project_version = models.PositiveIntegerField(default=0)
@@ -141,6 +184,19 @@ class Project(models.Model):
             return self.application_type.name
         return ''
 
+    def own_repo(self):
+        try:
+            return self.repo
+        except ProjectRepo.DoesNotExist:
+            return None
+
+    def all_repos(self):
+        external_repos = list(self.external_repos.all())
+        own_repo = self.own_repo()
+        if own_repo:
+            return [own_repo] + external_repos
+        return external_repos
+
     def get_state_display(self):
         return states.ProjectWorkflow(instance=self).get_state()
 
@@ -150,13 +206,13 @@ class Project(models.Model):
             'app_type': self.app_type,
             'application_type': self.application_type.to_dict()
             if self.application_type else None,
-            'base_repo_url': self.base_repo_url,
+            'base_repo_urls': [r.base_url for r in self.all_repos()],
             'country': self.country,
             'country_display': self.get_country_display(),
             'state': self.state,
             'state_display': self.get_state_display(),
-            'repo_url': self.repo_url,
-            'repo_git_url': self.repo_git_url,
+            'repo_urls': [r.url for r in self.all_repos()],
+            'repo_git_urls': [r.git_url for r in self.all_repos()],
             'team_id': self.team_id,
             'available_languages': [
                 lang.get_code() for lang in self.available_languages.all()],
@@ -234,11 +290,10 @@ class Project(models.Model):
         self._hub_app = app
         return app
 
+    @standalone_only
     def create_repo(self, access_token):
-        new_repo_name = constants.NEW_REPO_NAME_FORMAT % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+        repo_db = self.own_repo()
+        new_repo_name = repo_db.name()
 
         post_data = {
             "name": new_repo_name,
@@ -263,15 +318,16 @@ class Project(models.Model):
                     'Create repo failed with response: %s - %s' %
                     (resp.status_code, resp.json().get('message')))
 
-            self.repo_url = resp.json().get('clone_url')
-            self.repo_git_url = resp.json().get('git_url')
-            self.save()
+            repo_db.url = resp.json().get('clone_url')
+            repo_db.git_url = resp.json().get('git_url')
+            repo_db.save()
         else:
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
 
+    @standalone_only
     def clone_repo(self):
-        repo = Repo.clone_from(self.repo_url, self.repo_path())
+        repo = Repo.clone_from(self.own_repo().url, self.repo_path())
         sm = StorageManager(repo)
         sm.create_storage()
         sm.write_config('user', {
@@ -287,10 +343,12 @@ class Project(models.Model):
             repo.index.commit('remove initial readme')
             os.remove(readme_path)
 
+    @standalone_only
     def create_remote(self):
         repo = Repo(self.repo_path())
-        repo.create_remote('upstream', self.base_repo_url)
+        repo.create_remote('upstream', self.own_repo().base_url)
 
+    @standalone_only
     def merge_remote(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
@@ -300,11 +358,13 @@ class Project(models.Model):
         workspace = self.setup_workspace(self.repo_path(), index_prefix)
         workspace.fast_forward(remote_name='upstream')
 
+    @standalone_only
     def push_repo(self):
         repo = Repo(self.repo_path())
         origin = repo.remote(name='origin')
         origin.push()
 
+    @standalone_only
     def setup_workspace(self, repo_path, index_prefix):
         workspace = EG.workspace(
             repo_path, index_prefix=index_prefix,
@@ -325,6 +385,7 @@ class Project(models.Model):
                                        mappings.LocalisationMapping)
         return workspace
 
+    @standalone_only
     def sync_cms_index(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
@@ -338,6 +399,7 @@ class Project(models.Model):
         workspace.sync(Page)
         workspace.sync(EGLocalisation)
 
+    @standalone_only
     def sync_frontend_index(self):
         index_prefix = 'unicore_frontend_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
@@ -349,10 +411,12 @@ class Project(models.Model):
         ws.sync(Page)
         ws.sync(EGLocalisation)
 
+    @standalone_only
     def init_workspace(self):
         self.sync_cms_index()
         self.create_unicore_distribute_repo()
 
+    @standalone_only
     def create_nginx(self):
         self.nginx_manager.write_cms_nginx(
             self.app_type, self.country, self.cms_custom_domain)
@@ -365,7 +429,8 @@ class Project(models.Model):
                 self.available_languages.all(),
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
-                self.hub_app()
+                self.hub_app(),
+                self.all_repos()[0].name()
             )
         elif self.application_type.project_type == AppType.SPRINGBOARD:
             self.settings_manager.write_springboard_settings(
@@ -374,31 +439,31 @@ class Project(models.Model):
                 self.available_languages.all(),
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
-                self.hub_app()
+                self.hub_app(),
+                [repo.name() for repo in self.all_repos()]
             )
         else:
             raise exceptions.ProjecTyeRequiredException(
                 'project_type is required')
 
+    @standalone_only
     def create_cms_settings(self):
         self.settings_manager.write_cms_settings(
             self.app_type,
             self.country,
-            self.repo_url,
+            self.own_repo().url,
             self.repo_path()
         )
         self.settings_manager.write_cms_config(
             self.app_type,
             self.country,
-            self.repo_url,
+            self.own_repo().url,
             self.repo_path()
         )
 
+    @standalone_only
     def create_webhook(self, access_token):
-        repo_name = constants.NEW_REPO_NAME_FORMAT % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-            'suffix': settings.GITHUB_REPO_NAME_SUFFIX}
+        repo_name = self.own_repo().name()
 
         post_data = {
             "name": "web",
@@ -425,9 +490,10 @@ class Project(models.Model):
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
 
+    @standalone_only
     def create_unicore_distribute_repo(self):
         post_data = {
-            "repo_url": self.repo_git_url
+            "repo_url": self.own_repo().git_url
         }
 
         resp = requests.post(
@@ -439,9 +505,11 @@ class Project(models.Model):
                 'Clone repo failed with response: %s - %s' %
                 (resp.status_code, resp.json().get('errors')))
 
+    @standalone_only
     def create_db(self):
         self.db_manager.create_db(self.app_type, self.country)
 
+    @standalone_only
     def init_db(self):
         self.db_manager.init_db(self.app_type, self.country)
 
@@ -541,7 +609,7 @@ class Project(models.Model):
                 (resp.status_code, resp.json().get('message')))
 
     def destroy(self):
-        shutil.rmtree(self.repo_path())
+        shutil.rmtree(self.repo_path(), ignore_errors=True)
         self.nginx_manager.destroy(self.app_type, self.country)
         self.settings_manager.destroy(self.app_type, self.country)
 

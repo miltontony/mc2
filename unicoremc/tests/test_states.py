@@ -7,7 +7,9 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
-from unicoremc.models import Project, AppType, publish_to_websocket
+from mock import patch
+
+from unicoremc.models import Project, publish_to_websocket
 from unicoremc.states import ProjectWorkflow
 from unicoremc.tests.base import UnicoremcTestCase
 
@@ -22,13 +24,7 @@ class StatesTestCase(UnicoremcTestCase):
         post_save.disconnect(publish_to_websocket, sender=Project)
 
     def test_initial_state(self):
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
         self.assertEquals(p.state, 'initial')
 
     @responses.activate
@@ -63,19 +59,9 @@ class StatesTestCase(UnicoremcTestCase):
             self.assertTrue('import_from_git' in args)
             self.assertTrue('--quiet' in args)
 
-        self.mock_create_repo()
-        self.mock_create_webhook()
-        self.mock_create_hub_app()
-        self.mock_create_unicore_distribute_repo()
-        self.mock_create_marathon_app()
+        self.mock_create_all()
 
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
@@ -106,13 +92,7 @@ class StatesTestCase(UnicoremcTestCase):
     @responses.activate
     def test_next(self):
         self.mock_create_repo()
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         self.assertEquals(p.state, 'initial')
 
@@ -126,19 +106,9 @@ class StatesTestCase(UnicoremcTestCase):
         def call_mock(*call_args, **call_kwargs):
             pass
 
-        self.mock_create_repo()
-        self.mock_create_webhook()
-        self.mock_create_hub_app()
-        self.mock_create_unicore_distribute_repo()
-        self.mock_create_marathon_app()
+        self.mock_create_all()
 
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         p.db_manager.call_subprocess = call_mock
 
@@ -151,7 +121,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.state, 'done')
         self.assertEquals(
-            p.repo_url,
+            p.own_repo().url,
             self.source_repo_sm.repo.git_dir)
 
     @responses.activate
@@ -167,19 +137,9 @@ class StatesTestCase(UnicoremcTestCase):
             with open(cms_db_path, 'a'):
                 os.utime(cms_db_path, None)
 
-        self.mock_create_repo()
-        self.mock_create_webhook()
-        self.mock_create_hub_app()
-        self.mock_create_unicore_distribute_repo()
-        self.mock_create_marathon_app()
+        self.mock_create_all()
 
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         p.db_manager.call_subprocess = call_mock
 
@@ -243,19 +203,11 @@ class StatesTestCase(UnicoremcTestCase):
             with open(cms_db_path, 'a'):
                 os.utime(cms_db_path, None)
 
-        self.mock_create_repo()
-        self.mock_create_webhook()
-        self.mock_create_hub_app()
-        self.mock_create_unicore_distribute_repo()
-        self.mock_create_marathon_app()
+        self.mock_create_all()
 
-        ffl = AppType._for('ffl', 'Facts for Life', 'springboard')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(
+            repo={'base_url': self.base_repo_sm.repo.git_dir},
+            app_type={'project_type': 'springboard'})
 
         p.db_manager.call_subprocess = call_mock
 
@@ -318,19 +270,9 @@ class StatesTestCase(UnicoremcTestCase):
             with open(cms_db_path, 'a'):
                 os.utime(cms_db_path, None)
 
-        self.mock_create_repo()
-        self.mock_create_webhook()
-        self.mock_create_hub_app()
-        self.mock_create_unicore_distribute_repo()
-        self.mock_create_marathon_app()
+        self.mock_create_all()
 
-        ffl = AppType._for(u'ffl', u'Facts for Life', u'unicore-cms')
-        p = Project(
-            application_type=ffl,
-            base_repo_url=self.base_repo_sm.repo.git_dir,
-            country='ZA',
-            owner=self.user)
-        p.save()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         p.db_manager.call_subprocess = call_mock
 
@@ -380,3 +322,59 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertFalse(os.path.exists(cms_uwsgi_path))
 
         self.assertFalse(os.path.exists(cms_db_path))
+
+    @patch('unicoremc.managers.database.DbManager.call_subprocess')
+    @responses.activate
+    def test_non_standalone_project_workflow(self, mock_subprocess):
+        existing_repo = self.mk_project().own_repo()
+        p = self.mk_project()
+        p.own_repo().delete()
+        p.external_repos.add(existing_repo)
+        p = Project.objects.get(pk=p.pk)
+        self.assertIs(p.own_repo(), None)
+
+        self.mock_create_all()
+
+        pw = ProjectWorkflow(instance=p)
+        pw.run_all(access_token='sample-token')
+
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+        cms_settings_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.py')
+        cms_uwsgi_path = os.path.join(
+            settings.CMS_SETTINGS_OUTPUT_PATH,
+            'ffl_za.ini')
+        cms_nginx_config_path = os.path.join(
+            settings.NGINX_CONFIGS_PATH,
+            'cms_ffl_za.conf')
+        cms_db_path = os.path.join(
+            settings.UNICORE_CMS_INSTALL_DIR,
+            'django_cms_ffl_za.db')
+
+        # check that frontend pyramid and nginx configs were created
+        self.assertTrue(os.path.exists(frontend_settings_path))
+        # check that unicore.hub and marathon were set up for frontend
+        self.assertTrue(p.hub_app_id)
+        self.assertEqual(len(filter(
+            lambda c: settings.MESOS_MARATHON_HOST in c.request.url,
+            responses.calls)), 1)
+
+        # check that repos and CMS configs were not created
+        self.assertFalse(os.path.exists(cms_nginx_config_path))
+        self.assertFalse(os.path.exists(p.repo_path()))
+        self.assertFalse(os.path.exists(p.frontend_repo_path()))
+        self.assertFalse(os.path.exists(cms_settings_path))
+        self.assertFalse(os.path.exists(cms_uwsgi_path))
+        self.assertFalse(os.path.exists(cms_db_path))
+        self.assertFalse(filter(
+            lambda c: settings.GITHUB_HOOKS_API in c.request.url,
+            responses.calls))
+        self.assertFalse(filter(
+            lambda c: settings.UNICORE_DISTRIBUTE_HOST in c.request.url,
+            responses.calls))
+
+        pw.take_action('destroy')
+        self.assertFalse(os.path.exists(frontend_settings_path))

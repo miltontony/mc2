@@ -18,7 +18,11 @@
   </th>
   <td class="country">{{project.get_country_display}}</td>
   <td class="state">{{project.get_state_display}}</td>
-  <td class="repo_url"><a target="_blank" href="{{project.repo_url}}">Github</a></td>
+  <td class="repo_url">
+  {% for repo in project.all_repos %}
+  <a target="_blank" href="{{repo.url}}">{{repo.name}}</a>{% if not forloop.last %}<br/>{% endif %}
+  {% endfor %}
+  </td>
   <td class="frontend_url"><a target="_blank" href="{{project.frontend_url}}">Mobi</a></td>
   <td class="cms_url"><a target="_blank" href="{{project.cms_url}}">CMS</a></td>
   <td class="languages">
