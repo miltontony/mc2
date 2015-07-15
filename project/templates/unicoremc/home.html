@@ -99,13 +99,12 @@ jQuery(document).ready(function($) {
     }
 
     $('#filter').keyup(function(){
-        var valThis = $(this).val().toLowerCase();
-
+        var valThis = $(this).val().toLowerCase().split(" ");
         $('#result_list>tbody>tr').each(function(){
-            var text = $(this).attr('country').toLowerCase() + ' ' +
-                       $(this).attr('apptype').toLowerCase() + ' ' +
-                       $(this).attr('projecttype').toLowerCase();
-            (text.indexOf(valThis) != -1) ? $(this).show() : $(this).hide();
+            var text = $(this).attr('country') + ' ' +
+                       $(this).attr('apptype') + ' ' +
+                       $(this).attr('projecttype');
+            valThis.every(function(a){return text.toLowerCase().indexOf(a) != -1}) ? $(this).show() : $(this).hide();
         });
     });
 });

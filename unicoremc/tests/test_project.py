@@ -277,24 +277,11 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('init_workspace')
         pw.take_action('create_nginx')
 
-        frontend_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
         cms_nginx_config_path = os.path.join(
             settings.NGINX_CONFIGS_PATH,
             'cms_ffl_za.conf')
 
-        self.assertTrue(os.path.exists(frontend_nginx_config_path))
         self.assertTrue(os.path.exists(cms_nginx_config_path))
-
-        with open(frontend_nginx_config_path, "r") as config_file:
-            data = config_file.read()
-
-        self.assertTrue('za.ffl.qa-hub.unicore.io' in data)
-        self.assertTrue('unicore_frontend_ffl_za-access.log' in data)
-        self.assertTrue('unicore_frontend_ffl_za-error.log' in data)
-        self.assertTrue(
-            '/var/praekelt/unicore-cms-ffl/unicorecmsffl/static/' in data)
 
         with open(cms_nginx_config_path, "r") as config_file:
             data = config_file.read()

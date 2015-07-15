@@ -234,16 +234,6 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertTrue('pyramid.default_locale_name = swa_TZ' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
 
-        frontend_nginx_config_path = os.path.join(
-            settings.NGINX_CONFIGS_PATH,
-            'frontend_ffl_za.conf')
-
-        with open(frontend_nginx_config_path, "r") as config_file:
-            data = config_file.read()
-
-        self.assertTrue(
-            'server_name za.ffl.qa-hub.unicore.io some.domain.com' in data)
-
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
 

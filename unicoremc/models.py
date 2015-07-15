@@ -416,13 +416,10 @@ class Project(models.Model):
         self.sync_cms_index()
         self.create_unicore_distribute_repo()
 
+    @standalone_only
     def create_nginx(self):
-        self.nginx_manager.write_frontend_nginx(
-            self.app_type, self.country, self.frontend_custom_domain)
-
-        if self.own_repo():
-            self.nginx_manager.write_cms_nginx(
-                self.app_type, self.country, self.cms_custom_domain)
+        self.nginx_manager.write_cms_nginx(
+            self.app_type, self.country, self.cms_custom_domain)
 
     def create_pyramid_settings(self):
         if self.application_type.project_type == AppType.UNICORE_CMS:
@@ -519,6 +516,21 @@ class Project(models.Model):
     def create_marathon_app(self):
         self.initiate_create_marathon_app()
 
+    def get_staticfiles_path(self):
+        if not (self.application_type and self.application_type.project_type):
+            raise exceptions.ProjectTypeRequiredException(
+                'project_type is required')
+
+        if self.application_type.project_type == AppType.SPRINGBOARD:
+            return constants.SPRINGBOARD_STATIC_FILES_PATH % {
+                'app_type': self.app_type}
+        elif self.application_type.project_type == AppType.UNICORE_CMS:
+            return constants.UNICORE_CMS_STATIC_FILES_PATH % {
+                'app_type': self.app_type}
+        else:
+            raise exceptions.ProjectTypeUnknownException(
+                'The provided project_type is unknown')
+
     def get_marathon_app_data(self):
         if not (self.application_type and self.application_type.project_type):
             raise exceptions.ProjectTypeRequiredException(
@@ -551,6 +563,7 @@ class Project(models.Model):
             'hub': hub,
             'custom': self.frontend_custom_domain
         }
+
         return {
             "id": "%(app_type)s-%(country)s-%(id)s" % {
                 'app_type': self.app_type,
@@ -565,6 +578,7 @@ class Project(models.Model):
                 "domain": domain,
                 "country": self.get_country_display(),
                 "project_type": self.application_type.project_type,
+                "staticfiles_path": self.get_staticfiles_path(),
             },
         }
 
