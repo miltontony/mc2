@@ -62,6 +62,13 @@
             <div>{{form.cms_custom_domain}}</div>
         </div>
 
+        <fieldset>
+            <legend>Marathon</legend>
+            <p><strong>CPUs Limit</strong> {{form.marathon_cpus}}</p>
+            <p><strong>MEM Limit</strong> {{form.marathon_mem}}</p>
+            <p><strong>Number of instances</strong> {{form.marathon_instances}}</p>
+        </fieldset>
+
         {% csrf_token %}
         <br/>
         <p><input type="submit" value="Save" class="btn btn-primary"/></p>

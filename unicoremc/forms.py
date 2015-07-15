@@ -20,9 +20,20 @@ class ProjectForm(forms.ModelForm):
         queryset=Localisation.objects.all(),
         widget=widgets.CheckboxSelectMultiple,
         required=False)
+    marathon_cpus = forms.FloatField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'input-small'}))
+    marathon_mem = forms.FloatField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'input-small'}))
+    marathon_instances = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.TextInput(attrs={'class': 'input-small'}))
 
     class Meta:
         model = Project
         fields = (
             'available_languages', 'default_language', 'ga_profile_id',
-            'frontend_custom_domain', 'cms_custom_domain')
+            'frontend_custom_domain', 'cms_custom_domain', 'marathon_cpus',
+            'marathon_mem', 'marathon_instances')

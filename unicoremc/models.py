@@ -167,6 +167,12 @@ class Project(models.Model):
     cms_custom_domain = models.TextField(
         blank=True, null=True, default='')
     hub_app_id = models.CharField(blank=True, null=True, max_length=32)
+    marathon_cpus = models.FloatField(
+        default=settings.MESOS_DEFAULT_CPU_SHARE)
+    marathon_mem = models.FloatField(
+        default=settings.MESOS_DEFAULT_MEMORY_ALLOCATION)
+    marathon_instances = models.IntegerField(
+        default=settings.MESOS_DEFAULT_INSTANCES)
 
     class Meta:
         ordering = ('application_type__title', 'country')
@@ -571,9 +577,9 @@ class Project(models.Model):
                 'id': self.id,
             },
             "cmd": cmd,
-            "cpus": settings.MESOS_DEFAULT_CPU_SHARE,
-            "mem": settings.MESOS_DEFAULT_MEMORY_ALLOCATION,
-            "instances": settings.MESOS_DEFAULT_INSTANCES,
+            "cpus": self.marathon_cpus,
+            "mem": self.marathon_mem,
+            "instances": self.marathon_instances,
             "labels": {
                 "domain": domain,
                 "country": self.get_country_display(),
