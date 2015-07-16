@@ -3,6 +3,10 @@
 <!-- LOADING -->
 {% load i18n %}
 
+{% block results_count %}
+<code id="results_count">{{project_list.count}}</code> results
+{% endblock %}
+
 <!-- CONTENT -->
 {% block content %}
 
@@ -103,6 +107,7 @@ jQuery(document).ready(function($) {
                        $(this).attr('projecttype');
             valThis.every(function(a){return text.toLowerCase().indexOf(a) != -1}) ? $(this).show() : $(this).hide();
         });
+        $("#results_count").html($('#result_list>tbody>tr:visible').length);
     });
 });
 </script>
