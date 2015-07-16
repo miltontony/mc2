@@ -62,12 +62,14 @@
             <div>{{form.cms_custom_domain}}</div>
         </div>
 
-        <fieldset>
+        <fieldset class="input-xxlarge">
             <legend>Marathon</legend>
-            <p><strong>CPUs Limit</strong> {{form.marathon_cpus}}</p>
-            <p><strong>MEM Limit</strong> {{form.marathon_mem}}</p>
-            <p><strong>Number of instances</strong> {{form.marathon_instances}}</p>
-            <p><strong>Health check path</strong> {{form.marathon_health_check_path}}</p>
+            <dl class="dl-horizontal">
+              <dt>CPUs Limit</dt><dd>{{form.marathon_cpus}}</dd>
+              <dt>MEM Limit</dt><dd>{{form.marathon_mem}}</dd>
+              <dt>Number of instances</dt><dd>{{form.marathon_instances}}</dd>
+              <dt>Health check path</dt><dd>{{form.marathon_health_check_path}}</dd>
+            </dl>
         </fieldset>
 
         {% csrf_token %}

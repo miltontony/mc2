@@ -32,7 +32,7 @@ class ProjectForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'input-small'}))
     marathon_health_check_path = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={'class': 'input-small'})
+        widget=forms.TextInput(attrs={'class': 'input-medium'})
     )
 
     class Meta:
