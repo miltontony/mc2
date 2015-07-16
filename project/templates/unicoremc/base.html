@@ -46,6 +46,8 @@
         </ul>
         <form class="navbar-form">
           <input tabindex="1" type="text" id="filter" placeholder="search projects" autofocus/>
+          {% block results_count %}
+          {% endblock %}
         </form>
         {% endblock %}
        </div>
