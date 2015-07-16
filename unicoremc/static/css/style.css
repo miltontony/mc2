@@ -12,6 +12,8 @@
   .new-project .error {color: #c00;}
   .new-project .languages {height: 200px; overflow-y: auto; width: 350px;float: left; margin-right: 20px}
 
+.navbar-form .input-prepend {width: 200px; float: left;}
+.results-count {padding: 8px;}
 .dl-horizontal dt,.dl-horizontal dd {margin-bottom: 5px;}
 
 .form-group{

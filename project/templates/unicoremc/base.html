@@ -14,7 +14,7 @@
 
     <!-- Le styles -->
     <link href="{{STATIC_URL}}css/bootstrap.css" rel="stylesheet">
-    <link href="{{STATIC_URL}}css/style.css?v=20141211" rel="stylesheet">
+    <link href="{{STATIC_URL}}css/style.css?v=20150716" rel="stylesheet">
     <link href="{{STATIC_URL}}css/bootstrap-responsive.css" rel="stylesheet">
     <link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico">
     <script src="{{STATIC_URL}}js/jquery.min.js"></script>
@@ -45,9 +45,12 @@
         <li class="active"><a href="{% url 'home' %}">Home</a></li>
         </ul>
         <form class="navbar-form">
-          <input tabindex="1" type="text" id="filter" placeholder="search projects" autofocus/>
-          {% block results_count %}
-          {% endblock %}
+            <div class="input-prepend">
+              <span class="add-on"><i class="icon-filter"></i></span>
+              <input class="span2" tabindex="1" type="text" id="filter" placeholder="search projects" autofocus/>
+            </div>
+            {% block results_count %}
+            {% endblock %}
         </form>
         {% endblock %}
        </div>
