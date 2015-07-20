@@ -385,11 +385,11 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         self.assertTrue('swa_TZ' in data)
         self.assertTrue(
             'unicore.content_repo_urls =\n'
-            '    http://testserver:6543/repos/unicore-cms-content-ffl-za.json'
+            '    http://servicehost:6543/repos/unicore-cms-content-ffl-za.json'
             '\n'
-            '    http://testserver:6543/repos/unicore-cms-content-gem-uk.json'
+            '    http://servicehost:6543/repos/unicore-cms-content-gem-uk.json'
             in data)
-        self.assertTrue('es.host = http://localhost:9200' in data)
+        self.assertTrue('es.host = http://servicehost:9200' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
         self.assertTrue('thumbor.security_key = some-key' in data)
         self.assertTrue('raven-qa' in data)
