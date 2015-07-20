@@ -89,6 +89,12 @@ class AppType(models.Model):
             'project_type': self.project_type
         }
 
+    def get_qualified_name(self):
+        return "%(project_type)s-%(app_type)s" % {
+            'project_type': self.project_type,
+            'app_type': self.name
+        }
+
     @classmethod
     def _for(cls, name, title, project_type):
         application_type, _ = cls.objects.get_or_create(
@@ -525,38 +531,23 @@ class Project(models.Model):
     def create_marathon_app(self):
         self.initiate_create_marathon_app()
 
-    def get_staticfiles_path(self):
-        if not (self.application_type and self.application_type.project_type):
-            raise exceptions.ProjectTypeRequiredException(
-                'project_type is required')
-
-        if self.application_type.project_type == AppType.SPRINGBOARD:
-            return constants.SPRINGBOARD_STATIC_FILES_PATH % {
-                'app_type': self.app_type}
-        elif self.application_type.project_type == AppType.UNICORE_CMS:
-            return constants.UNICORE_CMS_STATIC_FILES_PATH % {
-                'app_type': self.app_type}
-        else:
-            raise exceptions.ProjectTypeUnknownException(
-                'The provided project_type is unknown')
-
     def get_marathon_app_data(self):
         if not (self.application_type and self.application_type.project_type):
             raise exceptions.ProjectTypeRequiredException(
                 'project_type is required')
 
         if self.application_type.project_type == AppType.SPRINGBOARD:
-            cmd = constants.SPRINGBOARD_MARATHON_CMD % {
+            cmd = constants.MARATHON_CMD % {
                 'config_path': os.path.join(
-                    settings.UNICORE_CONFIGS_INSTALL_DIR,
+                    '/var/unicore-configs/',
                     self.settings_manager.get_springboard_settings_path(
                         self.app_type, self.country.lower())
                     ),
             }
         elif self.application_type.project_type == AppType.UNICORE_CMS:
-            cmd = constants.UNICORECMS_MARATHON_CMD % {
+            cmd = constants.MARATHON_CMD % {
                 'config_path': os.path.join(
-                    settings.UNICORE_CONFIGS_INSTALL_DIR,
+                    '/var/unicore-configs/',
                     self.settings_manager.get_frontend_settings_path(
                         self.app_type, self.country.lower())
                     ),
@@ -588,6 +579,24 @@ class Project(models.Model):
                 "country": self.get_country_display(),
                 "project_type": self.application_type.project_type,
                 "staticfiles_path": self.get_staticfiles_path(),
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "universalcore/%s"
+                        % self.application_type.get_qualified_name(),
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                    "portMappings": [{"containerPort": 8080, "hostPort": 0}],
+                    "parameters": [{
+                        "key": "add-host",
+                        "value": "servicehost:%s" % settings.SERVICE_HOST_IP}]
+                },
+                "volumes": [{
+                    "containerPath": "/var/unicore-configs",
+                    "hostPath": settings.UNICORE_CONFIGS_INSTALL_DIR,
+                    "mode": "RO"
+                }]
             }
         }
 

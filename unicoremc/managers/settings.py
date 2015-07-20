@@ -7,7 +7,6 @@ from elasticgit import EG
 
 from unicoremc.tasks import push_to_git
 from unicoremc.utils import remove_if_exists, git_remove_if_exists
-from unicoremc import constants
 
 
 class SettingsManager(object):
