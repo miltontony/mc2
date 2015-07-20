@@ -577,8 +577,7 @@ class Project(models.Model):
             "labels": {
                 "domain": domain,
                 "country": self.get_country_display(),
-                "project_type": self.application_type.project_type,
-                "staticfiles_path": self.get_staticfiles_path(),
+                "project_type": self.application_type.project_type
             },
             "container": {
                 "type": "DOCKER",
