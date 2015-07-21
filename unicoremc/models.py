@@ -586,7 +586,7 @@ class Project(models.Model):
                         % self.application_type.get_qualified_name(),
                     "forcePullImage": True,
                     "network": "BRIDGE",
-                    "portMappings": [{"containerPort": 8080, "hostPort": 0}],
+                    "portMappings": [{"containerPort": 5656, "hostPort": 0}],
                     "parameters": [{
                         "key": "add-host",
                         "value": "servicehost:%s" % settings.SERVICE_HOST_IP}]

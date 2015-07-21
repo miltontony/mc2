@@ -107,7 +107,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 "--pypy-home /usr/local/bin/ "
                 "--pypy-ini-paste /var/unicore-configs/"
                 "frontend_settings/gem_za.ini "
-                "--http :8080 "
+                "--http :5656 "
                 "--processes 1 "
                 "--threads 1 "
                 "--static-map /static=/var/app/static"
@@ -126,7 +126,7 @@ class ModelsTestCase(UnicoremcTestCase):
                     "image": "universalcore/unicore-cms-gem",
                     "forcePullImage": True,
                     "network": "BRIDGE",
-                    "portMappings": [{"containerPort": 8080, "hostPort": 0}],
+                    "portMappings": [{"containerPort": 5656, "hostPort": 0}],
                     "parameters": [{
                         "key": "add-host",
                         "value": "servicehost:127.0.0.1"}]
@@ -162,7 +162,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 "--pypy-home /usr/local/bin/ "
                 "--pypy-ini-paste /var/unicore-configs/"
                 "springboard_settings/ffl_tz.ini "
-                "--http :8080 "
+                "--http :5656 "
                 "--processes 1 "
                 "--threads 1 "
                 "--static-map /static=/var/app/static"
@@ -181,7 +181,7 @@ class ModelsTestCase(UnicoremcTestCase):
                     "image": "universalcore/springboard-ffl",
                     "forcePullImage": True,
                     "network": "BRIDGE",
-                    "portMappings": [{"containerPort": 8080, "hostPort": 0}],
+                    "portMappings": [{"containerPort": 5656, "hostPort": 0}],
                     "parameters": [{
                         "key": "add-host",
                         "value": "servicehost:127.0.0.1"}]
