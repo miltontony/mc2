@@ -8,7 +8,7 @@ MARATHON_CMD = (
     "/usr/local/bin/uwsgi "
     "--pypy-home /usr/local/bin/ "
     "--pypy-ini-paste %(config_path)s "
-    "--http $HOST:$PORT "
+    "--http :8080 "
     "--processes 1 "
     "--threads 1 "
     "--static-map /static=/var/app/static"
