@@ -16,6 +16,7 @@ class ModelsTestCase(UnicoremcTestCase):
     def setUp(self):
         self.user = User.objects.get(username='testuser')
         post_save.disconnect(publish_to_websocket, sender=Project)
+        self.maxDiff = None
 
     def test_app_type_title(self):
         app_type = AppType._for('gem', 'Girl Effect', 'unicore-cms')
@@ -102,23 +103,39 @@ class ModelsTestCase(UnicoremcTestCase):
         self.assertEquals(p.get_marathon_app_data(), {
             "id": "gem-za-%s" % p.id,
             "cmd": (
-                "/var/praekelt/python/bin/uwsgi "
-                "--virtualenv /var/praekelt/python "
-                "--ini-paste /path/to/unicore-configs/"
+                "/usr/local/bin/uwsgi "
+                "--pypy-home /usr/local/bin/ "
+                "--pypy-ini-paste /var/unicore-configs/"
                 "frontend_settings/gem_za.ini "
-                "--http $HOST:$PORT "
+                "--http :5656 "
                 "--processes 1 "
-                "--threads 1"
+                "--threads 1 "
+                "--static-map /static=/var/app/static"
             ),
             "cpus": 0.1,
-            "mem": 50.0,
+            "mem": 100.0,
             "instances": 1,
             "labels": {
                 "domain": 'za.gem.qa-hub.unicore.io ',
                 "country": "South Africa",
                 "project_type": "unicore-cms",
-                "staticfiles_path":
-                    "/var/praekelt/unicore-cms-gem/unicorecmsgem/static/",
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "universalcore/unicore-cms-gem",
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                    "portMappings": [{"containerPort": 5656, "hostPort": 0}],
+                    "parameters": [{
+                        "key": "add-host",
+                        "value": "servicehost:127.0.0.1"}]
+                },
+                "volumes": [{
+                    "containerPath": "/var/unicore-configs",
+                    "hostPath": "/path/to/unicore-configs",
+                    "mode": "RO"
+                }]
             },
             "ports": [0],
             "healthChecks": [{
@@ -141,24 +158,39 @@ class ModelsTestCase(UnicoremcTestCase):
         self.assertEquals(p.get_marathon_app_data(), {
             "id": "ffl-tz-%s" % p.id,
             "cmd": (
-                "/var/praekelt/springboard-python/bin/uwsgi "
-                "--virtualenv /var/praekelt/springboard-python "
-                "--ini-paste /path/to/unicore-configs/"
+                "/usr/local/bin/uwsgi "
+                "--pypy-home /usr/local/bin/ "
+                "--pypy-ini-paste /var/unicore-configs/"
                 "springboard_settings/ffl_tz.ini "
-                "--http $HOST:$PORT "
+                "--http :5656 "
                 "--processes 1 "
-                "--threads 1"
-
+                "--threads 1 "
+                "--static-map /static=/var/app/static"
             ),
             "cpus": 0.1,
-            "mem": 50.0,
+            "mem": 100.0,
             "instances": 1,
             "labels": {
-                "domain": 'tz.ffl.qa-hub.unicore.io ',
-                "country": "Tanzania, United Republic of",
+                "domain": u"tz.ffl.qa-hub.unicore.io ",
+                "country": u"Tanzania, United Republic of",
                 "project_type": "springboard",
-                "staticfiles_path":
-                    "/var/praekelt/springboard-ffl/springboard_ffl/static/",
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "universalcore/springboard-ffl",
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                    "portMappings": [{"containerPort": 5656, "hostPort": 0}],
+                    "parameters": [{
+                        "key": "add-host",
+                        "value": "servicehost:127.0.0.1"}]
+                },
+                "volumes": [{
+                    "containerPath": "/var/unicore-configs",
+                    "hostPath": "/path/to/unicore-configs",
+                    "mode": "RO"
+                }]
             },
             "ports": [0],
             "healthChecks": [{

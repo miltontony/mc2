@@ -329,7 +329,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue(
             "[(u'eng_UK', u'English')]" in data)
         self.assertTrue(
-            'git.path = http://testserver:6543/repos/'
+            'git.path = http://servicehost:6543/repos/'
             'unicore-cms-content-ffl-za.json' in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
@@ -378,9 +378,9 @@ class ProjectTestCase(UnicoremcTestCase):
         self.assertTrue('eng_GB' in data)
         self.assertTrue(
             'unicore.content_repo_urls =\n'
-            '    http://testserver:6543/repos/unicore-cms-content-ffl-za.json'
+            '    http://servicehost:6543/repos/unicore-cms-content-ffl-za.json'
             '\n'
-            '    http://testserver:6543/repos/unicore-cms-content-gem-uk.json'
+            '    http://servicehost:6543/repos/unicore-cms-content-gem-uk.json'
             in data)
         self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)

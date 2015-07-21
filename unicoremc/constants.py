@@ -2,32 +2,16 @@ NEW_REPO_NAME_FORMAT = (
     'unicore-cms-content-'
     '%(app_type)s-%(country)s%(suffix)s')
 
-SPRINGBOARD_MARATHON_CMD = (
-    "/var/praekelt/springboard-python/bin/uwsgi "
-    "--virtualenv /var/praekelt/springboard-python "
-    "--ini-paste %(config_path)s "
-    "--http $HOST:$PORT "
-    "--processes 1 "
-    "--threads 1"
-)
-
-SPRINGBOARD_STATIC_FILES_PATH = (
-    "/var/praekelt/springboard-%(app_type)s/springboard_%(app_type)s/static/"
-)
-
-UNICORE_CMS_STATIC_FILES_PATH = (
-    "/var/praekelt/unicore-cms-%(app_type)s/unicorecms%(app_type)s/static/"
-)
-
 # NOTE: It's probably better to move all unicore-cms apps to their own
 # virtual env.
-UNICORECMS_MARATHON_CMD = (
-    "/var/praekelt/python/bin/uwsgi "
-    "--virtualenv /var/praekelt/python "
-    "--ini-paste %(config_path)s "
-    "--http $HOST:$PORT "
+MARATHON_CMD = (
+    "/usr/local/bin/uwsgi "
+    "--pypy-home /usr/local/bin/ "
+    "--pypy-ini-paste %(config_path)s "
+    "--http :5656 "
     "--processes 1 "
-    "--threads 1"
+    "--threads 1 "
+    "--static-map /static=/var/app/static"
 )
 
 LANGUAGES = {
