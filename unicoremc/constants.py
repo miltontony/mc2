@@ -11,7 +11,7 @@ MARATHON_CMD = (
     "--http $HOST:$PORT "
     "--processes 1 "
     "--threads 1 "
-    "--static-map /static=/var/unicore-cms/static"
+    "--static-map /static=/var/app/static"
 )
 
 LANGUAGES = {
