@@ -5,7 +5,7 @@ from south.v2 import DataMigration
 from django.db import models
 
 import os.path
-from unicoremc import constants
+from unicoremc import constants, utils
 
 
 class Migration(DataMigration):
@@ -13,27 +13,10 @@ class Migration(DataMigration):
     def forwards(self, orm):
         for project in orm.Project.objects.all():
             if project.application_type:
-                if project.application_type.project_type == 'springboard':
-                    ini = os.path.join(
-                        '/var/unicore-configs/',
-                        'springboard_settings/%s_%s.ini' % (
-                            project.application_type.name,
-                            project.country.lower())
-                        )
-                    project.docker_cmd = constants.MARATHON_CMD % {
-                        'config_path': ini}
-                    project.save()
-
-                elif project.application_type.project_type == 'unicore-cms':
-                    ini = os.path.join(
-                        '/var/unicore-configs/',
-                        'frontend_settings/%s_%s.ini' % (
-                            project.application_type.name,
-                            project.country.lower())
-                        )
-                    project.docker_cmd = constants.MARATHON_CMD % {
-                        'config_path': ini}
-                    project.save()
+                project.docker_cmd = utils.get_default_docker_cmd(
+                    project.application_type, project.country
+                )
+                project.save()
 
     def backwards(self, orm):
         pass

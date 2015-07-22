@@ -127,13 +127,19 @@ def start_new_project(request, *args, **kwargs):
         access_token = request.POST.get('access_token')
         user_id = request.POST.get('user_id')
         team_id = request.POST.get('team_id')
+        docker_cmd = request.POST.get('docker_cmd')
 
         user = User.objects.get(pk=user_id)
         project, created = Project.objects.get_or_create(
             application_type=app_type,
             country=country,
-            team_id=int(team_id),
-            owner=user)
+            defaults={
+                'team_id': int(team_id),
+                'owner': user,
+                'docker_cmd':
+                    docker_cmd or
+                    utils.get_default_docker_cmd(app_type, country)
+            })
         project.external_repos.add(*project_repos)
         if base_repo:
             ProjectRepo.objects.get_or_create(

@@ -11,6 +11,7 @@ from oauth2client import client
 from elasticgit.storage import StorageException
 
 from unicore.hub.client import AppClient
+from unicoremc import constants
 
 
 def remove_if_exists(path):
@@ -96,3 +97,28 @@ def get_hub_app_client():
         return client
     except KeyError as e:
         raise ImproperlyConfigured('%s is missing in HUBCLIENT_SETTINGS' % e)
+
+
+def get_default_docker_cmd(application_type, country):
+    docker_cmd = ''
+    if application_type:
+        if application_type.project_type == 'springboard':
+            ini = os.path.join(
+                '/var/unicore-configs/',
+                'springboard_settings/%s_%s.ini' % (
+                    application_type.name,
+                    country.lower())
+                )
+            docker_cmd = constants.MARATHON_CMD % {
+                'config_path': ini}
+
+        elif application_type.project_type == 'unicore-cms':
+            ini = os.path.join(
+                '/var/unicore-configs/',
+                'frontend_settings/%s_%s.ini' % (
+                    application_type.name,
+                    country.lower())
+                )
+            docker_cmd = constants.MARATHON_CMD % {
+                'config_path': ini}
+    return docker_cmd
