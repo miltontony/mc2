@@ -584,7 +584,7 @@ class Project(models.Model):
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": self.docker_image,
+                    "image": self.application_type.docker_image,
                     "forcePullImage": True,
                     "network": "BRIDGE",
                     "portMappings": [{"containerPort": 5656, "hostPort": 0}],
