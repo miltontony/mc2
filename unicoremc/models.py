@@ -183,6 +183,7 @@ class Project(models.Model):
         default=settings.MESOS_DEFAULT_INSTANCES)
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
+    docker_cmd = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ('application_type__title', 'country')
@@ -239,6 +240,7 @@ class Project(models.Model):
             'frontend_custom_domain': self.frontend_custom_domain or '',
             'cms_custom_domain': self.cms_custom_domain or '',
             'hub_app_id': self.hub_app_id or '',
+            'docker_cmd': self.docker_cmd or '',
         }
 
     def frontend_url(self):
@@ -572,7 +574,7 @@ class Project(models.Model):
                 'country': self.country.lower(),
                 'id': self.id,
             },
-            "cmd": cmd,
+            "cmd": self.docker_cmd,
             "cpus": self.marathon_cpus,
             "mem": self.marathon_mem,
             "instances": self.marathon_instances,
