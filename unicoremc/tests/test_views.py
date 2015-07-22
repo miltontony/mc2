@@ -48,7 +48,9 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_unicore_distribute_repo()
         self.mock_create_marathon_app()
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'springboard')
+        app_type = AppType._for(
+            'ffl', 'Facts for Life', 'springboard',
+            'universalcore/unicore-cms-ffl')
 
         data = {
             'app_type': app_type.id,
@@ -122,7 +124,9 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.client.login(username='testuser2', password='test')
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
+        app_type = AppType._for(
+            'ffl', 'Facts for Life', 'unicore-cms',
+            'universalcore/unicore-cms-ffl')
 
         data = {
             'app_type': app_type.id,
@@ -161,7 +165,9 @@ class ViewsTestCase(UnicoremcTestCase):
         english = Localisation._for('eng_UK')
         swahili = Localisation._for('swa_TZ')
 
-        app_type = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
+        app_type = AppType._for(
+            'ffl', 'Facts for Life', 'unicore-cms',
+            'universalcore/unicore-cms-ffl')
 
         data = {
             'app_type': app_type.id,

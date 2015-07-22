@@ -98,9 +98,12 @@ class AppType(models.Model):
         }
 
     @classmethod
-    def _for(cls, name, title, project_type):
+    def _for(cls, name, title, project_type, docker_image):
         application_type, _ = cls.objects.get_or_create(
-            name=name, title=title, project_type=project_type)
+            name=name,
+            title=title,
+            project_type=project_type,
+            docker_image=docker_image)
         return application_type
 
     def __unicode__(self):

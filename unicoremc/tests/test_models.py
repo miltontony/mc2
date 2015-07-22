@@ -19,11 +19,15 @@ class ModelsTestCase(UnicoremcTestCase):
         self.maxDiff = None
 
     def test_app_type_title(self):
-        app_type = AppType._for('gem', 'Girl Effect', 'unicore-cms')
+        app_type = AppType._for(
+            'gem', 'Girl Effect', 'unicore-cms',
+            'universalcore/unicore-cms-gem')
         self.assertEquals(str(app_type), 'Girl Effect (unicore-cms)')
 
     def test_project_app_type(self):
-        app_type = AppType._for('gem', 'Girl Effect', 'unicore-cms')
+        app_type = AppType._for(
+            'gem', 'Girl Effect', 'unicore-cms',
+            'universalcore/unicore-cms-gem')
 
         p = Project(
             country='ZA',
@@ -96,6 +100,7 @@ class ModelsTestCase(UnicoremcTestCase):
             'name': 'gem',
             'title': 'Girl Effect',
             'project_type': 'unicore-cms',
+            'docker_image': 'universalcore/unicore-cms-gem'
         }, project={
             'marathon_health_check_path': '/health/'
         })
@@ -149,7 +154,9 @@ class ModelsTestCase(UnicoremcTestCase):
             }],
         })
         p = self.mk_project(
-            app_type={'project_type': 'springboard'},
+            app_type={
+                'project_type': 'springboard',
+                'docker_image': 'universalcore/springboard-ffl'},
             project={
                 'country': 'TZ',
                 'marathon_health_check_path': '/health/',
@@ -207,11 +214,4 @@ class ModelsTestCase(UnicoremcTestCase):
         p = self.mk_project(project={'application_type': None})
 
         with self.assertRaises(exceptions.ProjectTypeRequiredException):
-            p.get_marathon_app_data()
-
-        p = self.mk_project(
-            app_type={'project_type': 'foo-bar'},
-            project={'country': 'TZ'})
-
-        with self.assertRaises(exceptions.ProjectTypeUnknownException):
             p.get_marathon_app_data()

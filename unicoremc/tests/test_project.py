@@ -433,7 +433,9 @@ class ProjectTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_create_or_update_hub_app(self):
-        ffl = AppType._for('ffl', 'Facts for Life', 'unicore-cms')
+        ffl = AppType._for(
+            'ffl', 'Facts for Life', 'unicore-cms',
+            'universalcore/unicore-cms-ffl')
         proj = self.mk_project(
             repo={'base_url': self.base_repo_sm.repo.git_dir},
             app_type={'name': 'gem', 'title': 'Girl Effect Mobile',
