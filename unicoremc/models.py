@@ -78,6 +78,7 @@ class AppType(models.Model):
     )
 
     name = models.CharField(max_length=256, blank=True, null=True)
+    docker_image = models.CharField(max_length=256, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     project_type = models.CharField(
         choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
@@ -86,6 +87,7 @@ class AppType(models.Model):
         return {
             'name': self.name,
             'title': self.title,
+            'docker_image': self.docker_image,
             'project_type': self.project_type
         }
 
@@ -582,8 +584,7 @@ class Project(models.Model):
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "universalcore/%s"
-                        % self.application_type.get_qualified_name(),
+                    "image": self.docker_image,
                     "forcePullImage": True,
                     "network": "BRIDGE",
                     "portMappings": [{"containerPort": 5656, "hostPort": 0}],
