@@ -540,26 +540,6 @@ class Project(models.Model):
             raise exceptions.ProjectTypeRequiredException(
                 'project_type is required')
 
-        if self.application_type.project_type == AppType.SPRINGBOARD:
-            cmd = constants.MARATHON_CMD % {
-                'config_path': os.path.join(
-                    '/var/unicore-configs/',
-                    self.settings_manager.get_springboard_settings_path(
-                        self.app_type, self.country.lower())
-                    ),
-            }
-        elif self.application_type.project_type == AppType.UNICORE_CMS:
-            cmd = constants.MARATHON_CMD % {
-                'config_path': os.path.join(
-                    '/var/unicore-configs/',
-                    self.settings_manager.get_frontend_settings_path(
-                        self.app_type, self.country.lower())
-                    ),
-            }
-        else:
-            raise exceptions.ProjectTypeUnknownException(
-                'The provided project_type is unknown')
-
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
         domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io %(custom)s" % {
             'country': self.country.lower(),
