@@ -78,6 +78,7 @@ class AppType(models.Model):
     )
 
     name = models.CharField(max_length=256, blank=True, null=True)
+    docker_image = models.CharField(max_length=256, blank=True, null=True)
     title = models.TextField(blank=True, null=True)
     project_type = models.CharField(
         choices=PROJECT_TYPES, max_length=256, default=UNICORE_CMS)
@@ -86,6 +87,7 @@ class AppType(models.Model):
         return {
             'name': self.name,
             'title': self.title,
+            'docker_image': self.docker_image,
             'project_type': self.project_type
         }
 
@@ -96,9 +98,12 @@ class AppType(models.Model):
         }
 
     @classmethod
-    def _for(cls, name, title, project_type):
+    def _for(cls, name, title, project_type, docker_image):
         application_type, _ = cls.objects.get_or_create(
-            name=name, title=title, project_type=project_type)
+            name=name,
+            title=title,
+            project_type=project_type,
+            docker_image=docker_image)
         return application_type
 
     def __unicode__(self):
@@ -181,6 +186,7 @@ class Project(models.Model):
         default=settings.MESOS_DEFAULT_INSTANCES)
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
+    docker_cmd = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ('application_type__title', 'country')
@@ -237,6 +243,7 @@ class Project(models.Model):
             'frontend_custom_domain': self.frontend_custom_domain or '',
             'cms_custom_domain': self.cms_custom_domain or '',
             'hub_app_id': self.hub_app_id or '',
+            'docker_cmd': self.docker_cmd or '',
         }
 
     def frontend_url(self):
@@ -536,26 +543,6 @@ class Project(models.Model):
             raise exceptions.ProjectTypeRequiredException(
                 'project_type is required')
 
-        if self.application_type.project_type == AppType.SPRINGBOARD:
-            cmd = constants.MARATHON_CMD % {
-                'config_path': os.path.join(
-                    '/var/unicore-configs/',
-                    self.settings_manager.get_springboard_settings_path(
-                        self.app_type, self.country.lower())
-                    ),
-            }
-        elif self.application_type.project_type == AppType.UNICORE_CMS:
-            cmd = constants.MARATHON_CMD % {
-                'config_path': os.path.join(
-                    '/var/unicore-configs/',
-                    self.settings_manager.get_frontend_settings_path(
-                        self.app_type, self.country.lower())
-                    ),
-            }
-        else:
-            raise exceptions.ProjectTypeUnknownException(
-                'The provided project_type is unknown')
-
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
         domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io %(custom)s" % {
             'country': self.country.lower(),
@@ -570,7 +557,7 @@ class Project(models.Model):
                 'country': self.country.lower(),
                 'id': self.id,
             },
-            "cmd": cmd,
+            "cmd": self.docker_cmd,
             "cpus": self.marathon_cpus,
             "mem": self.marathon_mem,
             "instances": self.marathon_instances,
@@ -582,8 +569,7 @@ class Project(models.Model):
             "container": {
                 "type": "DOCKER",
                 "docker": {
-                    "image": "universalcore/%s"
-                        % self.application_type.get_qualified_name(),
+                    "image": self.application_type.docker_image,
                     "forcePullImage": True,
                     "network": "BRIDGE",
                     "portMappings": [{"containerPort": 5656, "hostPort": 0}],

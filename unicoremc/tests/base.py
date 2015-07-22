@@ -16,6 +16,7 @@ from elasticgit.storage import StorageManager
 
 from unicore.hub.client import App
 
+from unicoremc import utils
 from unicoremc.managers import NginxManager, SettingsManager
 from unicoremc.models import Project, ProjectRepo, AppType
 from unicore.content.models import (
@@ -105,7 +106,8 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
         app_type_defaults = {
             'name': 'ffl',
             'title': 'Facts for Life',
-            'project_type': 'unicore-cms'
+            'project_type': 'unicore-cms',
+            'docker_image': 'universalcore/unicore-cms-ffl'
         }
         app_type_defaults.update(app_type)
         app_type = AppType._for(**app_type_defaults)
@@ -113,7 +115,10 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
         project_defaults = {
             'owner': getattr(self, 'user', None),
             'country': 'ZA',
-            'application_type': app_type
+            'application_type': app_type,
+            'docker_cmd':
+                utils.get_default_docker_cmd(
+                    app_type, project.get('country', 'ZA'))
         }
         project_defaults.update(project)
         project = Project.objects.create(**project_defaults)
