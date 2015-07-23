@@ -21,6 +21,7 @@ class HubAppCreated(State):
 
 class PyramidSettingsCreated(State):
     verbose_name = 'Pyarmid settings created'
+    transitions = {'create_marathon_app': 'marathon_app_created'}
 
     def create_marathon_app(self, **kwargs):
         if self.instance:
