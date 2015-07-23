@@ -10,7 +10,6 @@ from django.db.models.signals import post_save
 from mock import patch
 
 from unicoremc.models import Project, publish_to_websocket
-from unicoremc.states import ProjectWorkflow
 from unicoremc.tests.base import UnicoremcTestCase
 
 
@@ -66,7 +65,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -97,7 +96,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.state, 'initial')
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.next(access_token='sample-token')
         self.assertEquals(p.state, 'repo_created')
 
@@ -117,7 +116,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.state, 'initial')
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.run_all(access_token='sample-token')
 
         self.assertEquals(p.state, 'done')
@@ -146,7 +145,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.state, 'initial')
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.run_all(access_token='sample-token')
 
         self.assertEquals(p.state, 'done')
@@ -214,7 +213,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.state, 'initial')
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.run_all(access_token='sample-token')
 
         self.assertEquals(p.state, 'done')
@@ -279,7 +278,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.assertEquals(p.state, 'initial')
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.run_all(access_token='sample-token')
 
         self.assertEquals(p.state, 'done')
@@ -336,7 +335,7 @@ class StatesTestCase(UnicoremcTestCase):
 
         self.mock_create_all()
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.run_all(access_token='sample-token')
 
         frontend_settings_path = os.path.join(

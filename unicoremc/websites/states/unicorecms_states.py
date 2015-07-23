@@ -1,4 +1,4 @@
-from ostinato.statemachine import State, StateMachine
+from ostinato.statemachine import State
 
 
 class Initial(State):
@@ -132,55 +132,3 @@ class DbInitialized(State):
 class MarathonAppCreated(State):
     verbose_name = 'Marathon app created'
     transitions = {'finish': 'done'}
-
-
-class Done(State):
-    verbose_name = 'Ready for use'
-    transitions = {'destroy': 'destroyed'}
-
-    def destroy(self, **kwargs):
-        if self.instance:
-            self.instance.destroy()
-
-
-class Destroyed(State):
-    verbose_name = 'Destroyed'
-    transitions = {}
-
-
-class ProjectWorkflow(StateMachine):
-    state_map = {
-        'initial': Initial,
-        'destroyed': Destroyed,
-        'repo_created': RepoCreated,
-        'repo_cloned': RepoCloned,
-        'remote_created': RemoteCreated,
-        'remote_merged': RemoteMerged,
-        'repo_pushed': RepoPushed,
-        'webhook_created': WebhookCreated,
-        'workspace_initialized': WorkspaceInitialized,
-        'nginx_created': NginxCreated,
-        'hub_app_created': HubAppCreated,
-        'pyramid_settings_created': PyramidSettingsCreated,
-        'cms_settings_created': CmsSettingsCreated,
-        'db_created': DbCreated,
-        'db_initialized': DbInitialized,
-        'marathon_app_created': MarathonAppCreated,
-        'done': Done,
-    }
-    initial_state = 'initial'
-
-    def next(self, **kwargs):
-        if self.instance:
-            for action in self.actions:
-                if self.has_next():
-                    self.take_action(action, **kwargs)
-                    self.instance.save()
-
-    def has_next(self):
-        return self.instance and 'done' not in self.instance.state and \
-            'destroyed' not in self.instance.state
-
-    def run_all(self, **kwargs):
-        while self.has_next():
-            self.next(**kwargs)

@@ -14,8 +14,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from unicoremc import constants, exceptions, mappings, states
+from unicoremc import constants, exceptions, mappings
 from unicoremc.managers import NginxManager, SettingsManager, DbManager
+from unicoremc.websites.managers import (
+    UnicoreCmsWebsiteManager, SpringboardWebsiteManager, IogtWebsiteManager)
 
 from git import Repo
 
@@ -72,9 +74,11 @@ class Localisation(models.Model):
 class AppType(models.Model):
     UNICORE_CMS = 'unicore-cms'
     SPRINGBOARD = 'springboard'
+    SPRINGBOARD_IOGT = 'springboard-iogt'
     PROJECT_TYPES = (
         (UNICORE_CMS, 'unicore-cms'),
         (SPRINGBOARD, 'springboard'),
+        (SPRINGBOARD_IOGT, 'springboard-iogt'),
     )
 
     name = models.CharField(max_length=256, blank=True, null=True)
@@ -226,7 +230,7 @@ class Project(models.Model):
         return external_repos
 
     def get_state_display(self):
-        return states.ProjectWorkflow(instance=self).get_state()
+        return self.get_website_manager().workflow.get_state()
 
     def get_generic_domain(self):
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
@@ -269,6 +273,23 @@ class Project(models.Model):
             'hub_app_id': self.hub_app_id or '',
             'docker_cmd': self.docker_cmd or '',
         }
+
+    def get_website_manager(self):
+        if not (self.application_type and self.application_type.project_type):
+            raise exceptions.ProjectTypeRequiredException(
+                'project_type is required')
+
+        if self.application_type.project_type == AppType.UNICORE_CMS:
+            return UnicoreCmsWebsiteManager(self)
+
+        if self.application_type.project_type == AppType.SPRINGBOARD:
+            return SpringboardWebsiteManager(self)
+
+        if self.application_type.project_type == AppType.SPRINGBOARD_IOGT:
+            return IogtWebsiteManager(self)
+
+        raise exceptions.ProjectTypeUnknownException(
+            'project_type is unknown')
 
     def frontend_url(self):
         return 'http://%s' % self.get_generic_domain()
