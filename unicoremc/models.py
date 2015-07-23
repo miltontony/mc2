@@ -263,18 +263,10 @@ class Project(models.Model):
         }
 
     def frontend_url(self):
-        return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-            'env': 'qa-' if settings.DEPLOY_ENVIRONMENT == 'qa' else ''
-        }
+        return 'http://%s' % self.get_generic_domain()
 
     def cms_url(self):
-        return 'http://cms.%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-            'env': 'qa-' if settings.DEPLOY_ENVIRONMENT == 'qa' else ''
-        }
+        return 'http://cms.%s' % self.get_generic_domain()
 
     def repo_path(self):
         repo_folder_name = '%(app_type)s-%(country)s' % {

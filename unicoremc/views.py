@@ -17,6 +17,7 @@ from django.views.generic import ListView
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
+from django.conf import settings
 
 from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.forms import ProjectForm
@@ -130,12 +131,21 @@ def start_new_project(request, *args, **kwargs):
         docker_cmd = request.POST.get('docker_cmd')
 
         user = User.objects.get(pk=user_id)
+
+        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
+        frontend_domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
+            'country': country.lower(),
+            'app_type': app_type.name,
+            'hub': hub
+        }
         project, created = Project.objects.get_or_create(
             application_type=app_type,
             country=country,
             defaults={
                 'team_id': int(team_id),
                 'owner': user,
+                'frontend_custom_domain': frontend_domain,
+                'cms_custom_domain': 'cms.%s' % frontend_domain,
                 'docker_cmd':
                     docker_cmd or
                     utils.get_default_docker_cmd(app_type, country)
