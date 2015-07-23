@@ -235,6 +235,14 @@ class Project(models.Model):
             'hub': hub
         }
 
+    def get_country_domain(self):
+        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
+        return "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
+            'country': self.country.lower(),
+            'app_type': self.app_type,
+            'hub': hub
+        }
+
     def to_dict(self):
         return {
             'id': self.id,

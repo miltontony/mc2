@@ -17,7 +17,6 @@ from django.views.generic import ListView
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
-from django.conf import settings
 
 from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.forms import ProjectForm
@@ -132,20 +131,12 @@ def start_new_project(request, *args, **kwargs):
 
         user = User.objects.get(pk=user_id)
 
-        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
-        country_domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
-            'country': country.lower(),
-            'app_type': app_type.name,
-            'hub': hub
-        }
         project, created = Project.objects.get_or_create(
             application_type=app_type,
             country=country,
             defaults={
                 'team_id': int(team_id),
                 'owner': user,
-                'frontend_custom_domain': country_domain,
-                'cms_custom_domain': 'cms.%s' % country_domain,
                 'docker_cmd':
                     docker_cmd or
                     utils.get_default_docker_cmd(app_type, country)
@@ -155,6 +146,12 @@ def start_new_project(request, *args, **kwargs):
             ProjectRepo.objects.get_or_create(
                 project=project,
                 defaults={'base_url': base_repo})
+
+        # For consistency with existing apps, all new apps will also have
+        # country domain urls in addition to the generic urls
+        project.frontend_custom_domain = project.get_country_domain()
+        project.cms_custom_domain = 'cms.%s' % project.get_country_domain()
+        project.save()
 
         if created:
             tasks.start_new_project.delay(project.id, access_token)
