@@ -1,7 +1,6 @@
 import shutil
 import os
 import pwd
-import functools
 import json
 
 os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]  # noqa
@@ -74,11 +73,9 @@ class Localisation(models.Model):
 class AppType(models.Model):
     UNICORE_CMS = 'unicore-cms'
     SPRINGBOARD = 'springboard'
-    SPRINGBOARD_IOGT = 'springboard-iogt'
     PROJECT_TYPES = (
         (UNICORE_CMS, 'unicore-cms'),
         (SPRINGBOARD, 'springboard'),
-        (SPRINGBOARD_IOGT, 'springboard-iogt'),
     )
 
     name = models.CharField(max_length=256, blank=True, null=True)
@@ -267,14 +264,15 @@ class Project(models.Model):
             raise exceptions.ProjectTypeRequiredException(
                 'project_type is required')
 
+        # For non-standalone apps, we use the IogtWebsiteManager
+        if not self.own_repo():
+            return IogtWebsiteManager(self)
+
         if self.application_type.project_type == AppType.UNICORE_CMS:
             return UnicoreCmsWebsiteManager(self)
 
         if self.application_type.project_type == AppType.SPRINGBOARD:
             return SpringboardWebsiteManager(self)
-
-        if self.application_type.project_type == AppType.SPRINGBOARD_IOGT:
-            return IogtWebsiteManager(self)
 
         raise exceptions.ProjectTypeUnknownException(
             'project_type is unknown')
@@ -470,8 +468,7 @@ class Project(models.Model):
                 self.hub_app(),
                 self.all_repos()[0].name()
             )
-        elif (self.application_type.project_type == AppType.SPRINGBOARD or
-              self.application_type.project_type == AppType.SPRINGBOARD_IOGT):
+        elif self.application_type.project_type == AppType.SPRINGBOARD:
             self.settings_manager.write_springboard_settings(
                 self.app_type,
                 self.country,
@@ -643,10 +640,6 @@ class Project(models.Model):
                 self.app_type, self.country)
 
         if self.application_type.project_type == AppType.SPRINGBOARD:
-            self.settings_manager.destroy_springboard_settings(
-                self.app_type, self.country)
-
-        if self.application_type.project_type == AppType.SPRINGBOARD_IOGT:
             self.settings_manager.destroy_springboard_settings(
                 self.app_type, self.country)
 

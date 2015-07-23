@@ -327,7 +327,7 @@ class StatesTestCase(UnicoremcTestCase):
     @responses.activate
     def test_non_standalone_project_workflow(self, mock_subprocess):
         existing_repo = self.mk_project().own_repo()
-        p = self.mk_project(app_type={'project_type': 'springboard-iogt'})
+        p = self.mk_project()
         p.own_repo().delete()
         p.external_repos.add(existing_repo)
         p = Project.objects.get(pk=p.pk)
@@ -338,8 +338,8 @@ class StatesTestCase(UnicoremcTestCase):
         pw = p.get_website_manager().workflow
         pw.run_all(access_token='sample-token')
 
-        springboard_settings_path = os.path.join(
-            settings.SPRINGBOARD_SETTINGS_OUTPUT_PATH,
+        frontend_settings_path = os.path.join(
+            settings.FRONTEND_SETTINGS_OUTPUT_PATH,
             'ffl_za.ini')
         cms_settings_path = os.path.join(
             settings.CMS_SETTINGS_OUTPUT_PATH,
@@ -355,7 +355,7 @@ class StatesTestCase(UnicoremcTestCase):
             'django_cms_ffl_za.db')
 
         # check that frontend pyramid and nginx configs were created
-        self.assertTrue(os.path.exists(springboard_settings_path))
+        self.assertTrue(os.path.exists(frontend_settings_path))
         # check that unicore.hub and marathon were set up for frontend
         self.assertTrue(p.hub_app_id)
         self.assertEqual(len(filter(
@@ -377,4 +377,4 @@ class StatesTestCase(UnicoremcTestCase):
             responses.calls))
 
         pw.take_action('destroy')
-        self.assertFalse(os.path.exists(springboard_settings_path))
+        self.assertFalse(os.path.exists(frontend_settings_path))
