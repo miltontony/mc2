@@ -9,6 +9,12 @@ from django.conf import settings
 class Migration(DataMigration):
 
     def forwards(self, orm):
+        # The default domain name for all apps will be the generic domain name
+        # using the same app-id we use in marathon.
+        # The 'courtry.app_type.hub.unicore.io' will just be an alias
+        # For backwards compatibility, this migration sets the country domains
+        # in the custom domain fields, preserving existing custom domain names
+
         for project in orm.Project.objects.all():
             hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
             frontend_domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
