@@ -133,7 +133,7 @@ def start_new_project(request, *args, **kwargs):
         user = User.objects.get(pk=user_id)
 
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
-        frontend_domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
+        country_domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
             'country': country.lower(),
             'app_type': app_type.name,
             'hub': hub
@@ -144,8 +144,8 @@ def start_new_project(request, *args, **kwargs):
             defaults={
                 'team_id': int(team_id),
                 'owner': user,
-                'frontend_custom_domain': frontend_domain,
-                'cms_custom_domain': 'cms.%s' % frontend_domain,
+                'frontend_custom_domain': country_domain,
+                'cms_custom_domain': 'cms.%s' % country_domain,
                 'docker_cmd':
                     docker_cmd or
                     utils.get_default_docker_cmd(app_type, country)
