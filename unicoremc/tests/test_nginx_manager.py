@@ -26,9 +26,7 @@ class NginxManagerTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: os.remove(cms_nginx_config_path))
 
-        self.assertTrue('cms.za.ffl.qa-hub.unicore.io' in data)
-        self.assertTrue(
-            'server_name cms.za.ffl.qa-hub.unicore.io cms.domain.com' in data)
+        self.assertTrue('server_name cms.domain.com' in data)
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
         self.assertTrue(cms_socket_path in data)
@@ -51,9 +49,7 @@ class NginxManagerTestCase(UnicoremcTestCase):
 
         self.addCleanup(lambda: os.remove(cms_nginx_config_path))
 
-        self.assertTrue('cms.za.ffl.hub.unicore.io' in data)
-        self.assertTrue(
-            'server_name cms.za.ffl.hub.unicore.io cms.domain.com' in data)
+        self.assertTrue('server_name cms.domain.com' in data)
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
         self.assertTrue(cms_socket_path in data)
