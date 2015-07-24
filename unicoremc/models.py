@@ -1,7 +1,6 @@
 import shutil
 import os
 import pwd
-import functools
 import json
 
 os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]  # noqa
@@ -14,8 +13,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from unicoremc import constants, exceptions, mappings, states
+from unicoremc import constants, exceptions, mappings
 from unicoremc.managers import NginxManager, SettingsManager, DbManager
+from unicoremc.websites.managers import (
+    UnicoreCmsWebsiteManager, SpringboardWebsiteManager,
+    AggregatorWebsiteManager)
 
 from git import Repo
 
@@ -142,18 +144,6 @@ class ProjectManager(models.Manager):
                 .prefetch_related('external_repos'))
 
 
-def standalone_only(method):
-    '''
-    A decorator for Project methods that should only be executed
-    when the project is standalone.
-    '''
-    @functools.wraps(method)
-    def wrapper(self, *args, **kwargs):
-        if self.own_repo():
-            return method(self, *args, **kwargs)
-    return wrapper
-
-
 class Project(models.Model):
     objects = ProjectManager()
 
@@ -226,7 +216,7 @@ class Project(models.Model):
         return external_repos
 
     def get_state_display(self):
-        return states.ProjectWorkflow(instance=self).get_state()
+        return self.get_website_manager().workflow.get_state()
 
     def get_generic_domain(self):
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
@@ -269,6 +259,23 @@ class Project(models.Model):
             'hub_app_id': self.hub_app_id or '',
             'docker_cmd': self.docker_cmd or '',
         }
+
+    def get_website_manager(self):
+        if not (self.application_type and self.application_type.project_type):
+            raise exceptions.ProjectTypeRequiredException(
+                'project_type is required')
+
+        if not self.own_repo():
+            return AggregatorWebsiteManager(self)
+
+        if self.application_type.project_type == AppType.UNICORE_CMS:
+            return UnicoreCmsWebsiteManager(self)
+
+        if self.application_type.project_type == AppType.SPRINGBOARD:
+            return SpringboardWebsiteManager(self)
+
+        raise exceptions.ProjectTypeUnknownException(
+            'project_type is unknown')
 
     def frontend_url(self):
         return 'http://%s' % self.get_generic_domain()
@@ -327,7 +334,6 @@ class Project(models.Model):
         self._hub_app = app
         return app
 
-    @standalone_only
     def create_repo(self, access_token):
         repo_db = self.own_repo()
         new_repo_name = repo_db.name()
@@ -362,7 +368,6 @@ class Project(models.Model):
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
 
-    @standalone_only
     def clone_repo(self):
         repo = Repo.clone_from(self.own_repo().url, self.repo_path())
         sm = StorageManager(repo)
@@ -380,12 +385,10 @@ class Project(models.Model):
             repo.index.commit('remove initial readme')
             os.remove(readme_path)
 
-    @standalone_only
     def create_remote(self):
         repo = Repo(self.repo_path())
         repo.create_remote('upstream', self.own_repo().base_url)
 
-    @standalone_only
     def merge_remote(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
@@ -395,13 +398,11 @@ class Project(models.Model):
         workspace = self.setup_workspace(self.repo_path(), index_prefix)
         workspace.fast_forward(remote_name='upstream')
 
-    @standalone_only
     def push_repo(self):
         repo = Repo(self.repo_path())
         origin = repo.remote(name='origin')
         origin.push()
 
-    @standalone_only
     def setup_workspace(self, repo_path, index_prefix):
         workspace = EG.workspace(
             repo_path, index_prefix=index_prefix,
@@ -422,7 +423,6 @@ class Project(models.Model):
                                        mappings.LocalisationMapping)
         return workspace
 
-    @standalone_only
     def sync_cms_index(self):
         index_prefix = 'unicore_cms_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
@@ -436,7 +436,6 @@ class Project(models.Model):
         workspace.sync(Page)
         workspace.sync(EGLocalisation)
 
-    @standalone_only
     def sync_frontend_index(self):
         index_prefix = 'unicore_frontend_%(app_type)s_%(country)s' % {
             'app_type': self.app_type,
@@ -448,12 +447,10 @@ class Project(models.Model):
         ws.sync(Page)
         ws.sync(EGLocalisation)
 
-    @standalone_only
     def init_workspace(self):
         self.sync_cms_index()
         self.create_unicore_distribute_repo()
 
-    @standalone_only
     def create_nginx(self):
         domain = 'cms.%s %s' % (
             self.get_generic_domain(), self.cms_custom_domain)
@@ -482,10 +479,9 @@ class Project(models.Model):
                 [repo.name() for repo in self.all_repos()]
             )
         else:
-            raise exceptions.ProjecTyeRequiredException(
+            raise exceptions.ProjectTypeRequiredException(
                 'project_type is required')
 
-    @standalone_only
     def create_cms_settings(self):
         self.settings_manager.write_cms_settings(
             self.app_type,
@@ -500,7 +496,6 @@ class Project(models.Model):
             self.repo_path()
         )
 
-    @standalone_only
     def create_webhook(self, access_token):
         repo_name = self.own_repo().name()
 
@@ -529,7 +524,6 @@ class Project(models.Model):
             raise exceptions.AccessTokenRequiredException(
                 'access_token is required')
 
-    @standalone_only
     def create_unicore_distribute_repo(self):
         post_data = {
             "repo_url": self.own_repo().git_url
@@ -544,11 +538,9 @@ class Project(models.Model):
                 'Clone repo failed with response: %s - %s' %
                 (resp.status_code, resp.json().get('errors')))
 
-    @standalone_only
     def create_db(self):
         self.db_manager.create_db(self.app_type, self.country)
 
-    @standalone_only
     def init_db(self):
         self.db_manager.init_db(
             self.app_type, self.country, push_to_git=True)

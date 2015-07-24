@@ -2,16 +2,13 @@ from celery import task
 
 from elasticgit import EG
 
-from unicoremc.states import ProjectWorkflow
-
 
 @task(serializer='json')
 def start_new_project(project_id, access_token):
     from unicoremc.models import Project
 
     project = Project.objects.get(pk=project_id)
-    workflow = ProjectWorkflow(instance=project)
-    workflow.run_all(access_token=access_token)
+    project.get_website_manager().build(access_token=access_token)
 
 
 @task(serializer='json')

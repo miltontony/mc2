@@ -9,14 +9,9 @@ from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
 
 from unicoremc.models import Project, Localisation, AppType
-from unicoremc.states import ProjectWorkflow
-
-from ostinato.statemachine.forms import sm_form_factory
 
 
 class ProjectAdmin(admin.ModelAdmin):
-    form = sm_form_factory(ProjectWorkflow)
-
     search_fields = (
         'state', 'country', 'application_type__name',
         'application_type__title', 'application_type__project_type')
@@ -25,7 +20,7 @@ class ProjectAdmin(admin.ModelAdmin):
         'application_type', 'country', 'state', 'base_repo_url_list',
         'repo_url_list')
     readonly_fields = (
-        'application_type', 'base_repo_url_list', 'country',
+        'state', 'application_type', 'base_repo_url_list', 'country',
         'repo_url_list', 'owner', 'available_languages')
 
     def base_repo_url_list(self, obj):

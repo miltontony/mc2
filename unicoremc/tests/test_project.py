@@ -16,7 +16,6 @@ import mock
 
 from unicoremc.models import (
     Project, Localisation, AppType, publish_to_websocket)
-from unicoremc.states import ProjectWorkflow
 from unicoremc import exceptions
 from unicoremc.tests.base import UnicoremcTestCase
 
@@ -39,7 +38,7 @@ class ProjectTestCase(UnicoremcTestCase):
         self.mock_create_webhook()
 
         p = self.mk_project()
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
 
         self.assertEquals(
@@ -55,7 +54,7 @@ class ProjectTestCase(UnicoremcTestCase):
         p = self.mk_project()
 
         with self.assertRaises(exceptions.AccessTokenRequiredException):
-            pw = ProjectWorkflow(instance=p)
+            pw = p.get_website_manager().workflow
             pw.take_action('create_repo')
 
         self.assertEquals(p.state, 'initial')
@@ -67,7 +66,7 @@ class ProjectTestCase(UnicoremcTestCase):
         p = self.mk_project()
 
         with self.assertRaises(exceptions.GithubApiException):
-            pw = ProjectWorkflow(instance=p)
+            pw = p.get_website_manager().workflow
             pw.take_action('create_repo', access_token='sample-token')
 
         self.assertEquals(p.state, 'initial')
@@ -79,7 +78,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = self.mk_project()
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
 
@@ -99,7 +98,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -124,7 +123,7 @@ class ProjectTestCase(UnicoremcTestCase):
             'base_url': 'git://github.com/universalcore/'
                         'unicore-cms-content-gem-tanzania.git'})
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -151,7 +150,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -187,7 +186,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -212,7 +211,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -267,7 +266,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -304,7 +303,7 @@ class ProjectTestCase(UnicoremcTestCase):
             project={'ga_profile_id': 'UA-some-profile-id'})
         p.available_languages.add(Localisation._for('eng_UK'))
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -354,7 +353,7 @@ class ProjectTestCase(UnicoremcTestCase):
         p.external_repos.add(other_repo)
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
@@ -486,7 +485,7 @@ class ProjectTestCase(UnicoremcTestCase):
         p.available_languages.add(Localisation._for('eng_GB'))
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
-        pw = ProjectWorkflow(instance=p)
+        pw = p.get_website_manager().workflow
         pw.take_action('create_repo', access_token='sample-token')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
