@@ -17,10 +17,11 @@ from django.views.generic import ListView
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
+from django.contrib import messages
 
 from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.forms import ProjectForm
-from unicoremc import constants
+from unicoremc import constants, exceptions
 from unicoremc import tasks, utils
 
 
@@ -97,7 +98,11 @@ class ProjectEditView(UpdateView):
         project.create_or_update_hub_app()
         project.create_pyramid_settings()
         project.create_nginx()
-        project.update_marathon_app()
+
+        try:
+            project.update_marathon_app()
+        except exceptions.MarathonApiException:
+            messages.info(self.request, 'Unable to update project in marathon')
         return response
 
 

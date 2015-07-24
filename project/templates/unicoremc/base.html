@@ -59,7 +59,17 @@
     </div>
 
     <div class="container">
-        <div id="notifications"></div><br/>
+        <div id="notifications">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-error">
+          <button type="button" class="close" data-dismiss="alert">×</button>
+          {{message}}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        </div><br/>
         {% block content %}
         {% endblock %}
     </div>
