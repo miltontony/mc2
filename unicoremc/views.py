@@ -130,6 +130,7 @@ def start_new_project(request, *args, **kwargs):
         docker_cmd = request.POST.get('docker_cmd')
 
         user = User.objects.get(pk=user_id)
+
         project, created = Project.objects.get_or_create(
             application_type=app_type,
             country=country,
@@ -145,6 +146,12 @@ def start_new_project(request, *args, **kwargs):
             ProjectRepo.objects.get_or_create(
                 project=project,
                 defaults={'base_url': base_repo})
+
+        # For consistency with existing apps, all new apps will also have
+        # country domain urls in addition to the generic urls
+        project.frontend_custom_domain = project.get_country_domain()
+        project.cms_custom_domain = 'cms.%s' % project.get_country_domain()
+        project.save()
 
         if created:
             tasks.start_new_project.delay(project.id, access_token)

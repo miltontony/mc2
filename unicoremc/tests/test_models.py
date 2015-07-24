@@ -121,7 +121,7 @@ class ModelsTestCase(UnicoremcTestCase):
             "mem": 100.0,
             "instances": 1,
             "labels": {
-                "domain": 'za.gem.qa-hub.unicore.io ',
+                "domain": 'gem-za-%s.qa-hub.unicore.io' % p.id,
                 "country": "South Africa",
                 "project_type": "unicore-cms",
             },
@@ -178,7 +178,7 @@ class ModelsTestCase(UnicoremcTestCase):
             "mem": 100.0,
             "instances": 1,
             "labels": {
-                "domain": u"tz.ffl.qa-hub.unicore.io ",
+                "domain": u"ffl-tz-%s.qa-hub.unicore.io" % p.id,
                 "country": u"Tanzania, United Republic of",
                 "project_type": "springboard",
             },

@@ -204,6 +204,14 @@ class Project(models.Model):
             return self.application_type.name
         return ''
 
+    @property
+    def app_id(self):
+        return "%(app_type)s-%(country)s-%(id)s" % {
+            'app_type': self.app_type,
+            'country': self.country.lower(),
+            'id': self.id,
+        }
+
     def own_repo(self):
         try:
             return self.repo
@@ -220,9 +228,25 @@ class Project(models.Model):
     def get_state_display(self):
         return states.ProjectWorkflow(instance=self).get_state()
 
+    def get_generic_domain(self):
+        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
+        return '%(app_id)s.%(hub)s.unicore.io' % {
+            'app_id': self.app_id,
+            'hub': hub
+        }
+
+    def get_country_domain(self):
+        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
+        return "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
+            'country': self.country.lower(),
+            'app_type': self.app_type,
+            'hub': hub
+        }
+
     def to_dict(self):
         return {
             'id': self.id,
+            'app_id': self.app_id,
             'app_type': self.app_type,
             'application_type': self.application_type.to_dict()
             if self.application_type else None,
@@ -247,18 +271,10 @@ class Project(models.Model):
         }
 
     def frontend_url(self):
-        return 'http://%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-            'env': 'qa-' if settings.DEPLOY_ENVIRONMENT == 'qa' else ''
-        }
+        return 'http://%s' % self.get_generic_domain()
 
     def cms_url(self):
-        return 'http://cms.%(country)s.%(app_type)s.%(env)shub.unicore.io' % {
-            'app_type': self.app_type,
-            'country': self.country.lower(),
-            'env': 'qa-' if settings.DEPLOY_ENVIRONMENT == 'qa' else ''
-        }
+        return 'http://cms.%s' % self.get_generic_domain()
 
     def repo_path(self):
         repo_folder_name = '%(app_type)s-%(country)s' % {
@@ -439,8 +455,10 @@ class Project(models.Model):
 
     @standalone_only
     def create_nginx(self):
+        domain = 'cms.%s %s' % (
+            self.get_generic_domain(), self.cms_custom_domain)
         self.nginx_manager.write_cms_nginx(
-            self.app_type, self.country, self.cms_custom_domain)
+            self.app_type, self.country, domain.strip())
 
     def create_pyramid_settings(self):
         if self.application_type.project_type == AppType.UNICORE_CMS:
@@ -543,26 +561,19 @@ class Project(models.Model):
             raise exceptions.ProjectTypeRequiredException(
                 'project_type is required')
 
-        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
-        domain = "%(country)s.%(app_type)s.%(hub)s.unicore.io %(custom)s" % {
-            'country': self.country.lower(),
-            'app_type': self.app_type,
-            'hub': hub,
+        domain = "%(generic_domain)s %(custom)s" % {
+            'generic_domain': self.get_generic_domain(),
             'custom': self.frontend_custom_domain
         }
 
         app_data = {
-            "id": "%(app_type)s-%(country)s-%(id)s" % {
-                'app_type': self.app_type,
-                'country': self.country.lower(),
-                'id': self.id,
-            },
+            "id": self.app_id,
             "cmd": self.docker_cmd,
             "cpus": self.marathon_cpus,
             "mem": self.marathon_mem,
             "instances": self.marathon_instances,
             "labels": {
-                "domain": domain,
+                "domain": domain.strip(),
                 "country": self.get_country_display(),
                 "project_type": self.application_type.project_type
             },

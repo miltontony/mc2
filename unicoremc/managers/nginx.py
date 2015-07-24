@@ -11,7 +11,6 @@ from unicoremc.utils import git_remove_if_exists
 
 class NginxManager(object):
     def __init__(self):
-        self.deploy_environment = settings.DEPLOY_ENVIRONMENT
         self.nginx_dir = 'nginx/'
         self.cms_sockets_dir = settings.CMS_SOCKETS_PATH
         self.workspace = EG.workspace(settings.CONFIGS_REPO_PATH)
@@ -41,13 +40,12 @@ class NginxManager(object):
                 % (app_type, country)).encode('utf-8'))
         push_to_git.delay(self.workspace.working_dir)
 
-    def write_cms_nginx(self, app_type, country, cms_custom_domain):
+    def write_cms_nginx(self, app_type, country, domain):
         cms_nginx_content = render_to_string(
             'configs/cms.nginx.conf', {
-                'deploy_environment': self.deploy_environment,
                 'app_type': app_type,
                 'country': country.lower(),
-                'cms_custom_domain': cms_custom_domain,
+                'domain': domain,
                 'socket_path': os.path.join(
                     self.cms_sockets_dir,
                     '%s.socket' % (self.get_deploy_name(app_type, country),))
