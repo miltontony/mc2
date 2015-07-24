@@ -48,7 +48,7 @@ class SpringboardWorkflow(UnicoreCmsWorkflow):
     pass
 
 
-class IogtWorkflow(BaseWorkflow):
+class AggregatorWorkflow(BaseWorkflow):
     state_map = {
         'initial': iogt_states.Initial,
         'hub_app_created': iogt_states.HubAppCreated,

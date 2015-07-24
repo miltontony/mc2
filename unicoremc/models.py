@@ -16,7 +16,8 @@ from django.dispatch import receiver
 from unicoremc import constants, exceptions, mappings
 from unicoremc.managers import NginxManager, SettingsManager, DbManager
 from unicoremc.websites.managers import (
-    UnicoreCmsWebsiteManager, SpringboardWebsiteManager, IogtWebsiteManager)
+    UnicoreCmsWebsiteManager, SpringboardWebsiteManager,
+    AggregatorWebsiteManager)
 
 from git import Repo
 
@@ -264,9 +265,8 @@ class Project(models.Model):
             raise exceptions.ProjectTypeRequiredException(
                 'project_type is required')
 
-        # For non-standalone apps, we use the IogtWebsiteManager
         if not self.own_repo():
-            return IogtWebsiteManager(self)
+            return AggregatorWebsiteManager(self)
 
         if self.application_type.project_type == AppType.UNICORE_CMS:
             return UnicoreCmsWebsiteManager(self)

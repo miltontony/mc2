@@ -1,5 +1,5 @@
 from unicoremc.websites.workflows import (
-    UnicoreCmsWorkflow, SpringboardWorkflow, IogtWorkflow)
+    UnicoreCmsWorkflow, SpringboardWorkflow, AggregatorWorkflow)
 
 
 class WebsiteManager(object):
@@ -31,11 +31,11 @@ class SpringboardWebsiteManager(WebsiteManager):
         self.workflow.run_all(**kwargs)
 
 
-class IogtWebsiteManager(WebsiteManager):
+class AggregatorWebsiteManager(WebsiteManager):
 
     def __init__(self, project):
-        super(IogtWebsiteManager, self).__init__(project)
-        self.workflow = IogtWorkflow(instance=project)
+        super(AggregatorWebsiteManager, self).__init__(project)
+        self.workflow = AggregatorWorkflow(instance=project)
 
     def build(self, **kwargs):
         self.workflow.run_all()
