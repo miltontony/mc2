@@ -8,8 +8,16 @@ class Organization(models.Model):
         get_user_model(),
         through='OrganizationUserRelation')
 
+    def __unicode__(self):
+        return self.name
+
 
 class OrganizationUserRelation(models.Model):
     organization = models.ForeignKey(Organization)
     user = models.ForeignKey(get_user_model())
     is_admin = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return u'%s%s' % (
+            self.user.get_short_name() or self.user.email,
+            ' (admin)' if self.is_admin else '')
