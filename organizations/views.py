@@ -1,58 +1,48 @@
-from django.views.generic.base import TemplateView
+from django.views.generic.base import View
 from django.views.generic.edit import UpdateView
+from django.views.generic.detail import DetailView
+from django.views.generic.list import ListView
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
 from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
 
 from organizations.models import Organization
 
 
-class OrganizationView(TemplateView):
+class OrganizationAdminMixin(View):
 
     @classmethod
     def as_view(cls):
-        view = super(OrganizationView, cls).as_view()
+        view = super(OrganizationAdminMixin, cls).as_view()
         return login_required(view)
 
+    def get_queryset(self):
+        return Organization.objects.for_admin_user(self.request.user)
 
-class SelectOrganizationView(OrganizationView):
+
+class SelectOrganizationView(OrganizationAdminMixin, ListView):
     template_name = 'organizations/organization_select.html'
+    context_object_name = 'organizations'
+    allow_empty = False
 
     def dispatch(self, *args, **kwargs):
         try:
-            [organization] = Organization.objects.for_admin_user(
-                self.request.user)
+            [organization] = self.get_queryset()
             return redirect('organizations:admin', organization.slug)
         except ValueError:
             return super(SelectOrganizationView, self).dispatch(
                 *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super(OrganizationView, self).get_context_data(**kwargs)
-        context['organizations'] = self.request.user.organization_set.all()
-        return context
 
-
-class OrganizationAdminView(OrganizationView):
-
-    def dispatch(self, *args, **kwargs):
-        try:
-            self.organization = Organization.objects.for_admin_user(
-                self.request.user).get(slug=kwargs['slug'])
-        except Organization.DoesNotExist:
-            raise Http404
-        return super(OrganizationAdminView, self).dispatch(*args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(OrganizationAdminView, self).get_context_data(**kwargs)
-        context['organization'] = self.organization
-        return context
-
-
-class OrganizationActionsView(OrganizationAdminView):
+class OrganizationActionsView(OrganizationAdminMixin, DetailView):
     template_name = 'organizations/organization_admin.html'
+    context_object_name = 'organization'
 
 
-class OrganizationEditView(UpdateView, OrganizationView):
+class OrganizationEditView(OrganizationAdminMixin, UpdateView):
     template_name = 'organizations/organization_detail.html'
-    model = Organization
+    context_object_name = 'organization'
+    fields = ('name', )
+
+    def get_success_url(self):
+        return reverse('organizations:admin', args=(self.object.slug, ))
