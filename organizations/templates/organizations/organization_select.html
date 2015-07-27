@@ -1,0 +1,14 @@
+{% extends "unicoremc/base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<h2>{% trans "Select an organization" %}</h2>
+
+<ul>
+{% for org in organizations %}
+    <li><a href="{% url 'organizations:admin' org.slug %}">{{ org.name }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

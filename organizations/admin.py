@@ -13,6 +13,7 @@ class OrganizationUserRelationInline(admin.StackedInline):
 class OrganizationAdmin(admin.ModelAdmin):
     list_display = ('name', 'user_count')
     inlines = (OrganizationUserRelationInline, )
+    prepopulated_fields = {'slug': ('name',)}
 
     def user_count(self, obj):
         return obj.users.count()

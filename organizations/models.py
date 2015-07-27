@@ -2,8 +2,21 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 
+class OrganizationManager(models.Manager):
+    use_for_related_fields = True
+
+    def for_admin_user(self, user):
+        qs = self.get_queryset()
+        return qs.filter(
+            organizationuserrelation__user=user,
+            organizationuserrelation__is_admin=True)
+
+
 class Organization(models.Model):
+    objects = OrganizationManager()
+
     name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255)
     users = models.ManyToManyField(
         get_user_model(),
         through='OrganizationUserRelation')
