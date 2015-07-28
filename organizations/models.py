@@ -2,11 +2,22 @@ from django.db import models
 from django.contrib.auth import get_user_model
 
 
+ORGANIZATION_SESSION_KEY = 'org_id'
+
+
 class OrganizationManager(models.Manager):
     use_for_related_fields = True
 
+    def for_user(self, user):
+        qs = self.get_queryset()
+        if not user.is_active:
+            return qs.none()
+        return qs.filter(users=user)
+
     def for_admin_user(self, user):
         qs = self.get_queryset()
+        if not user.is_active:
+            return qs.none()
         return qs.filter(
             organizationuserrelation__user=user,
             organizationuserrelation__is_admin=True)
