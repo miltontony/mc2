@@ -39,20 +39,6 @@ class SelectActiveOrganizationView(OrganizationAdminMixin, RedirectView):
         return redirect_url
 
 
-class SelectOrganizationView(OrganizationAdminMixin, ListView):
-    template_name = 'organizations/organization_select.html'
-    context_object_name = 'organizations'
-    allow_empty = False
-
-    def dispatch(self, *args, **kwargs):
-        try:
-            [organization] = self.get_queryset()
-            return redirect('organizations:edit', organization.slug)
-        except ValueError:
-            return super(SelectOrganizationView, self).dispatch(
-                *args, **kwargs)
-
-
 class EditOrganizationView(OrganizationAdminMixin, UpdateView):
     template_name = 'organizations/organization_detail.html'
     context_object_name = 'organization'
