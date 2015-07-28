@@ -30,6 +30,9 @@ class OrganizationUserRelation(models.Model):
     user = models.ForeignKey(get_user_model())
     is_admin = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = (('organization', 'user'),)
+
     def __unicode__(self):
         return u'%s%s' % (
             self.user.get_short_name() or self.user.email,

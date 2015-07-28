@@ -25,8 +25,14 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'organizations', ['OrganizationUserRelation'])
 
+        # Adding unique constraint on 'OrganizationUserRelation', fields ['organization', 'user']
+        db.create_unique(u'organizations_organizationuserrelation', ['organization_id', 'user_id'])
+
 
     def backwards(self, orm):
+        # Removing unique constraint on 'OrganizationUserRelation', fields ['organization', 'user']
+        db.delete_unique(u'organizations_organizationuserrelation', ['organization_id', 'user_id'])
+
         # Deleting model 'Organization'
         db.delete_table(u'organizations_organization')
 
@@ -79,7 +85,7 @@ class Migration(SchemaMigration):
             'users': ('django.db.models.fields.related.ManyToManyField', [], {'to': u"orm['auth.User']", 'through': u"orm['organizations.OrganizationUserRelation']", 'symmetrical': 'False'})
         },
         u'organizations.organizationuserrelation': {
-            'Meta': {'object_name': 'OrganizationUserRelation'},
+            'Meta': {'unique_together': "(('organization', 'user'),)", 'object_name': 'OrganizationUserRelation'},
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_admin': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'organization': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['organizations.Organization']"}),
