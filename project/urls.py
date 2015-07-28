@@ -6,6 +6,9 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^', include('unicoremc.urls')),
+    url(
+        r'^organizations/',
+        include('organizations.urls', namespace='organizations')),
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(

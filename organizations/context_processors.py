@@ -1,4 +1,4 @@
-from organization.models import Organization
+from organizations.models import Organization
 from organizations.utils import active_organization
 
 

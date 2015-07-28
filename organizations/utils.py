@@ -1,4 +1,4 @@
-from organization.models import Organization, ORGANIZATION_SESSION_KEY
+from organizations.models import Organization, ORGANIZATION_SESSION_KEY
 
 
 def active_organization(request):
