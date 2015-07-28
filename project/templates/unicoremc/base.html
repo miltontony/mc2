@@ -42,6 +42,7 @@
        </a>
        <a class="brand" href="/">UC Mission Control</a>
        <div class="nav-collapse" id="main-menu">
+
         {% block navbar %}
         <ul class="nav" id="main-menu-left">
         <li class="active"><a href="{% url 'home' %}">Home</a></li>
@@ -55,6 +56,7 @@
             {% endblock %}
         </form>
         {% endblock %}
+
         <div class="dropdown pull-right">
             <button class="btn btn-default dropdown-toggle" type="button" id="org-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {% if active_organization %}
@@ -67,11 +69,16 @@
             <ul class="dropdown-menu" aria-labelledby="org-dropdown">
                 {% for org in organizations %}
                     {% if org != active_organization %}
-                    <li><a href="{% url 'organizations:select-active' org.slug %}?next={{ request.path|urlencode }}">{{ org.name }}</a></li>
+                    <li><a href="{% url 'organizations:select-active' org.slug %}?next={{ request.path|urlencode }}">{% blocktrans with org_name=org.name %}Switch to {{ org_name }}{% endblocktrans %}</a></li>
                     {% endif %}
                 {% endfor %}
+                {% if is_active_organization_admin %}
+                    <li role="separator" class="divider"></li>
+                    <li><a href="{% url 'organizations:edit' active_organization.slug %}">{% blocktrans with org_name=active_organization.name %}Manage {{ org_name }}{% endblocktrans %}</a></li>
+                {% endif %}
             </ul>
         </div>
+
        </div>
      </div>
     </div>

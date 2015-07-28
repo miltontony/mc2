@@ -35,6 +35,10 @@ class Organization(models.Model):
     def __unicode__(self):
         return self.name
 
+    def has_admin(self, user):
+        return self.__class__.objects.for_admin_user(
+            user).filter(pk=self.pk).exists()
+
 
 class OrganizationUserRelation(models.Model):
     organization = models.ForeignKey(Organization)

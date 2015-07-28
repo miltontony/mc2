@@ -1,9 +1,7 @@
 from django.http import Http404
 from django.views.generic.base import View, RedirectView
-from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
 from django.core.urlresolvers import reverse
 from django.utils.http import is_safe_url
 

@@ -6,10 +6,13 @@ def org(request):
     if not request.user.is_authenticated():
         return {
             'organizations': [],
-            'active_organization': None
+            'active_organization': None,
+            'is_active_organization_admin': False
         }
 
+    active_org = active_organization(request)
     return {
         'organizations': Organization.objects.for_user(request.user),
-        'active_organization': active_organization(request)
+        'active_organization': active_org,
+        'is_active_organization_admin': active_org.has_admin(request.user)
     }
