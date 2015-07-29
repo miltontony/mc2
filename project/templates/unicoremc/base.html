@@ -73,7 +73,7 @@
                     {% endif %}
                 {% endfor %}
                 {% if is_active_organization_admin %}
-                    <li role="separator" class="divider"></li>
+                    {% if organizations|length > 1 %}<li role="separator" class="divider"></li>{% endif %}
                     <li><a href="{% url 'organizations:edit' active_organization.slug %}">{% blocktrans with org_name=active_organization.name %}Manage {{ org_name }}{% endblocktrans %}</a></li>
                 {% endif %}
             </ul>

@@ -42,7 +42,8 @@ NewUserInlineFormSet = inlineformset_factory(
     Organization,
     Organization.users.through,
     form=NewUserForm,
-    extra=1)
+    extra=1,
+    can_delete=False)
 
 
 class OrganizationFormHelper(object):
