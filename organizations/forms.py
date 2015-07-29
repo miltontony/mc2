@@ -1,16 +1,12 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.forms.models import inlineformset_factory
+from django.forms.models import inlineformset_factory, modelform_factory
 from django.utils.translation import ugettext as _
 
 from organizations.models import Organization
 
 
-class OrganizationForm(forms.ModelForm):
-
-    class Meta:
-        model = Organization
-        fields = ('name', )
+OrganizationForm = modelform_factory(Organization, fields=('name',))
 
 
 class NewUserForm(forms.ModelForm):
@@ -24,7 +20,7 @@ class NewUserForm(forms.ModelForm):
                 email=self.cleaned_data['email'])
         except User.DoesNotExist:
             raise forms.ValidationError(
-                _('A user with this email does not exist'),
+                _('A user with this email does not exist.'),
                 code='user_does_not_exist')
         return self.cleaned_data['email']
 
@@ -70,13 +66,7 @@ class OrganizationFormHelper(object):
         yield self.new_users_formset
 
     def is_valid(self):
-        return all([
-            self.organization_form.is_valid(),
-            self.users_formset.is_valid(),
-            self.new_users_formset.is_valid()])
+        return all(form.is_valid() for form in self)
 
     def save(self):
-        return (
-            self.organization_form.save(),
-            self.users_formset.save(),
-            self.new_users_formset.save())
+        return [form.save() for form in self]

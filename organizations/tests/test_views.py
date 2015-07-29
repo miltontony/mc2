@@ -3,6 +3,7 @@ from django.utils.http import urlencode, urlquote
 
 from organizations.tests.base import OrganizationTestCase
 from organizations.models import ORGANIZATION_SESSION_KEY
+from organizations.forms import OrganizationFormHelper
 
 
 class TestViews(OrganizationTestCase):
@@ -10,6 +11,7 @@ class TestViews(OrganizationTestCase):
     def setUp(self):
         self.user = self.mk_user()
         self.organization = self.mk_organization(users=[self.user])
+        self.client.login(username=self.user.username, password='password')
 
     def assertLoginRequired(self, url):
         self.client.logout()
@@ -43,4 +45,20 @@ class TestViews(OrganizationTestCase):
 
         self.organization.organizationuserrelation_set.filter(
             user=self.user).delete()
+        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_edit_organization(self):
+        url = reverse('organizations:edit', args=(self.organization.slug,))
+        response = self.client.get(url)
+        form = response.context['form']
+        self.assertContains(response, self.user.email)
+        self.assertIsInstance(form, OrganizationFormHelper)
+        self.assertEqual(
+            form.organization_form.initial, {'name': self.organization.name})
+        self.assertEqual(
+            form.users_formset[0].initial, {'is_admin': True})
+
+    def test_edit_organization_no_admin_permission(self):
+        url = reverse('organizations:edit', args=(self.organization.slug,))
+        self.organization.organizationuserrelation_set.update(is_admin=False)
         self.assertEqual(self.client.get(url).status_code, 404)
