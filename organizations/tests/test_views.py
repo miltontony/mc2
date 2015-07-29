@@ -56,7 +56,8 @@ class TestViews(OrganizationTestCase):
         self.assertEqual(
             form.organization_form.initial, {'name': self.organization.name})
         self.assertEqual(
-            form.users_formset[0].initial, {'is_admin': True})
+            form.users_formset[0].initial,
+            {'is_admin': True, 'organization': self.organization.pk})
 
     def test_edit_organization_no_admin_permission(self):
         url = reverse('organizations:edit', args=(self.organization.slug,))

@@ -1,6 +1,5 @@
 from organizations.tests.base import OrganizationTestCase
 from organizations.forms import OrganizationFormHelper
-from organizations.models import Organization
 
 
 class TestForms(OrganizationTestCase):
