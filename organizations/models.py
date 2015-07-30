@@ -44,6 +44,7 @@ class OrganizationUserRelation(models.Model):
     organization = models.ForeignKey(Organization)
     user = models.ForeignKey(get_user_model())
     is_admin = models.BooleanField(default=False)
+    # TODO: add groups, permissions and auth_token
 
     class Meta:
         unique_together = (('organization', 'user'),)
