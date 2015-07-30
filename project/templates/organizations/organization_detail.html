@@ -1,26 +1,46 @@
 {% extends "unicoremc/base.html" %}
 {% load i18n %}
 
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+    <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+    <li class="active"><a href="#">{% blocktrans with org_name=organization.name %}Manage {{ org_name }}{% endblocktrans %}</a></li>
+</ul>
+{% endblock %}
+
 {% block content %}
+<div>
+    <form class="form-horizontal" role="form" method="post" action="">
+        <legend>{{ organization.name }}</legend>
+        {% csrf_token %}
+        <fieldset>
+        <legend></legend>
+        {% include "form.html" with form=form.organization_form %}
+        </fieldset>
 
-<h1>{{ organization.name }}</h1>
+        <br><br>
+        <legend>{% trans "Manage users" %}</legend>
+        {{ form.users_formset.management_form }}
+        {% for user_form in form.users_formset %}
+            <fieldset>
+            {% with user=user_form.instance.user %}
+            <legend><strong>{{ user.full_name|default:user.username }} ({{ user.email }})</strong></legend>
+            {% endwith %}
+            {% include "form.html" with form=user_form %}
+            </fieldset>
+        {% endfor %}
 
-<form method="post" action="">
-    {% csrf_token %}
-    <fieldset>{{ form.organization_form.as_p }}</fieldset>
-    <fieldset>
-    {{ form.users_formset.management_form }}
-    {% for user_form in form.users_formset %}
-        {% with user=user_form.instance.user %}
-        <h4>{{ user.full_name|default:user.username }} ({{ user.email }})</h4>
-        {% endwith %}
-        {{ user_form.as_p }}
-    {% endfor %}
-    </fieldset>
-    <fieldset>
-    {{ form.new_users_formset.as_p }}
-    </fieldset>
-    <input type="submit" value="{% trans "Save" %}" />
-</form>
+        {{ form.new_users_formset.management_form }}
+        {% for new_user_form in form.new_users_formset %}
+            <fieldset>
+            <legend><strong>{% blocktrans with org_name=organization.name %}Add a user to {{ org_name }}{% endblocktrans %}</strong></legend>
+            {% include "form.html" with form=new_user_form %}
+            </fieldset>
+        {% endfor %}
 
+        <p>
+            <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        </p>
+    </form>
+</div>
 {% endblock %}
