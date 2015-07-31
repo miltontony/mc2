@@ -1,12 +1,15 @@
-from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import PermissionDenied
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser, Permission
+from django.contrib.contenttypes.models import ContentType
 
-from mock import patch
+from mock import patch, Mock
 
 from organizations import context_processors
 from organizations.tests.base import OrganizationTestCase
-from organizations.utils import active_organization
+from organizations.utils import active_organization, org_permission_required
 from organizations.models import (
-    ORGANIZATION_SESSION_KEY, OrganizationUserRelation)
+    ORGANIZATION_SESSION_KEY, OrganizationUserRelation, Organization)
 
 
 class TestUtils(OrganizationTestCase):
@@ -59,3 +62,41 @@ class TestUtils(OrganizationTestCase):
         self.assertEqual(context['active_organization'], None)
         self.assertEqual(context['organizations'], [])
         self.assertFalse(context['is_active_organization_admin'])
+
+    def test_org_permission_required(self):
+        view_func = Mock(return_value='success')
+        request = self.mk_request('get', '/')
+        user = self.mk_user()
+        request.user = user
+
+        wrapped_view_func = org_permission_required(
+            perm='organizations.change_organization',
+            login_url='/login/')(view_func)
+        response = wrapped_view_func(request)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/login/?next=http%3A//testserver/')
+
+        wrapped_view_func = org_permission_required(
+            perm='organizations.change_organization',
+            raise_exception=True)(view_func)
+        self.assertRaises(PermissionDenied, wrapped_view_func, request)
+
+        perm = Permission.objects.get(
+            codename='change_organization',
+            content_type=ContentType.objects.get_for_model(Organization))
+        user.user_permissions.add(perm)
+        User = get_user_model()
+        request.user = User.objects.get(id=user.pk)
+        self.assertEqual(wrapped_view_func(request), 'success')
+
+        user.user_permissions.remove(perm)
+        request.user = User.objects.get(id=user.pk)
+        organization = self.mk_organization(users=[user])
+        self.assertRaises(PermissionDenied, wrapped_view_func, request)
+
+        request.session[ORGANIZATION_SESSION_KEY] = organization.pk
+        self.assertEqual(wrapped_view_func(request), 'success')
+
+        organization.organizationuserrelation_set.filter(
+            user=user).update(is_admin=False)
+        self.assertRaises(PermissionDenied, wrapped_view_func, request)

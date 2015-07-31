@@ -3,6 +3,7 @@ from functools import wraps
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import redirect_to_login
 from django.utils.decorators import available_attrs
+from django.shortcuts import resolve_url
 
 from organizations.models import Organization, ORGANIZATION_SESSION_KEY
 
@@ -34,7 +35,7 @@ def active_organization(request):
 def org_permission_required(perm, login_url=None, raise_exception=False):
     '''
     Decorator for views that checks that a user has the given permission
-    for the active organization, redirecting to the log-in page if
+    for the active organization, redirecting to the login page if
     necessary.
 
     :params list or string perm:
