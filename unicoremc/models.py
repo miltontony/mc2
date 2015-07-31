@@ -140,7 +140,7 @@ class ProjectManager(models.Manager):
     def get_queryset(self):
         qs = super(ProjectManager, self).get_queryset()
         return (qs
-                .select_related('application_type', 'repo')
+                .select_related('application_type', 'repo', 'organization')
                 .prefetch_related('external_repos'))
 
 
@@ -153,8 +153,6 @@ class Project(models.Model):
     external_repos = models.ManyToManyField(
         ProjectRepo, blank=True, null=True, related_name='external_projects')
     state = models.CharField(max_length=50, default='initial')
-    owner = models.ForeignKey('auth.User')
-    team_id = models.IntegerField(blank=True, null=True)
     project_version = models.PositiveIntegerField(default=0)
     available_languages = models.ManyToManyField(
         Localisation, blank=True, null=True)
@@ -177,6 +175,12 @@ class Project(models.Model):
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
     docker_cmd = models.TextField(blank=True, null=True)
+
+    # Ownership and auth fields
+    owner = models.ForeignKey('auth.User')
+    team_id = models.IntegerField(blank=True, null=True)
+    organization = models.ForeignKey(
+        'organizations.Organization', blank=True, null=True)
 
     class Meta:
         ordering = ('application_type__title', 'country')
