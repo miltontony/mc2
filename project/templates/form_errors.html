@@ -1,0 +1,5 @@
+{% if errors|length > 0 %}
+<ul class="errors unstyled">
+    {% for error in errors %}<li>{{ error|safe }}</li>{% endfor %}
+</ul>
+{% endif %}

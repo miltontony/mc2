@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils.translation import ugettext as _
 
 
 ORGANIZATION_SESSION_KEY = 'org_id'
@@ -43,7 +44,10 @@ class Organization(models.Model):
 class OrganizationUserRelation(models.Model):
     organization = models.ForeignKey(Organization)
     user = models.ForeignKey(get_user_model())
-    is_admin = models.BooleanField(default=False)
+    is_admin = models.BooleanField(
+        default=False,
+        help_text=_('This allows the user to manage the'
+                    ' organization and its users.'))
     # TODO: add groups, permissions and auth_token
 
     class Meta:
