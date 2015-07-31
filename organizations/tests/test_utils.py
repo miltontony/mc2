@@ -69,6 +69,7 @@ class TestUtils(OrganizationTestCase):
         user = self.mk_user()
         request.user = user
 
+        # test login redirect
         wrapped_view_func = org_permission_required(
             perm='organizations.change_organization',
             login_url='/login/')(view_func)
@@ -76,6 +77,14 @@ class TestUtils(OrganizationTestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/login/?next=http%3A//testserver/')
 
+        # test that we can pass a list of perms
+        wrapped_view_func = org_permission_required(
+            perm=['organizations.change_organization',
+                  'organizations.add_organization'],
+            raise_exception=True)(view_func)
+        self.assertRaises(PermissionDenied, wrapped_view_func, request)
+
+        # test exception is raised
         wrapped_view_func = org_permission_required(
             perm='organizations.change_organization',
             raise_exception=True)(view_func)

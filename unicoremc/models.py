@@ -656,6 +656,7 @@ def publish_to_websocket(sender, instance, created, **kwargs):
     Broadcasts the state of a project when it is saved.
     broadcast channel: progress
     '''
+    # TODO: apply permissions here?
     data = instance.to_dict()
     data.update({'is_created': created})
     redis_publisher = RedisPublisher(facility='progress', broadcast=True)

@@ -1,6 +1,9 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required
+
+from organizations.utils import org_permission_required
+
 from unicoremc import views
 
 
@@ -39,7 +42,7 @@ urlpatterns = patterns(
     ),
     url(
         r'^advanced/(?P<project_id>\d+)/$',
-        permission_required('project.can_change')(
+        org_permission_required('unicoremc.change_project')(
             login_required(views.ProjectEditView.as_view())),
         name='advanced'),
     url(

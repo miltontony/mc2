@@ -10,7 +10,7 @@ from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
     HttpResponseForbidden)
 from django.contrib.auth.decorators import (
-    login_required, permission_required, user_passes_test)
+    login_required, user_passes_test)
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView
@@ -18,6 +18,8 @@ from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.contrib import messages
+
+from organizations.utils import org_permission_required, active_organization
 
 from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.forms import ProjectForm
@@ -55,7 +57,7 @@ def get_all_repos(request):
 
 
 @login_required
-@permission_required('project.can_change')
+@org_permission_required('unicoremc.add_project')
 @user_passes_test(
     lambda u: u.social_auth.filter(provider='github').exists(),
     login_url='/social/login/github/')
@@ -66,15 +68,20 @@ def new_project_view(request, *args, **kwargs):
         'countries': constants.COUNTRY_CHOICES,
         'languages': Localisation.objects.all(),
         'app_types': AppType.objects.all(),
-        'project_repos': ProjectRepo.objects.filter(project__state='done'),
+        'project_repos': ProjectRepo.objects.filter(
+            project__state='done',
+            project__organization=active_organization(request)),
         'access_token': access_token,
     }
     return render(request, 'unicoremc/new_project.html', context)
 
 
 class HomepageView(ListView):
-    model = Project
     template_name = 'unicoremc/home.html'
+
+    def get_queryset(self):
+        return Project.objects.filter(
+            organization=active_organization(self.request))
 
 
 class ProjectEditView(UpdateView):
@@ -86,7 +93,10 @@ class ProjectEditView(UpdateView):
         return reverse("home")
 
     def get_object(self, queryset=None):
-        return get_object_or_404(Project, pk=self.kwargs['project_id'])
+        return get_object_or_404(
+            Project,
+            pk=self.kwargs['project_id'],
+            organization=active_organization(self.request))
 
     def form_valid(self, form):
         response = super(ProjectEditView, self).form_valid(form)
@@ -108,7 +118,7 @@ class ProjectEditView(UpdateView):
 
 @csrf_exempt
 @login_required
-@permission_required('project.can_change')
+@org_permission_required('unicoremc.add_project')
 @user_passes_test(
     lambda u: u.social_auth.filter(provider='github').exists(),
     login_url='/social/login/github/')
@@ -142,6 +152,7 @@ def start_new_project(request, *args, **kwargs):
             defaults={
                 'team_id': int(team_id),
                 'owner': user,
+                'organization': active_organization(request),
                 'docker_cmd':
                     docker_cmd or
                     utils.get_default_docker_cmd(app_type, country)
@@ -166,7 +177,7 @@ def start_new_project(request, *args, **kwargs):
 
 
 @login_required
-@permission_required('project.can_change')
+@org_permission_required('unicoremc.change_project')
 @user_passes_test(
     lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
     login_url='/social/login/google-oauth2/')
@@ -180,7 +191,9 @@ def manage_ga_view(request, *args, **kwargs):
         return redirect('/social/login/google-oauth2/')
 
     context = {
-        'projects': Project.objects.filter(state='done'),
+        'projects': Project.objects.filter(
+            state='done',
+            organization=active_organization(request)),
         'access_token': access_token,
         'accounts': [
             {'id': a.get('id'), 'name': a.get('name')} for a in accounts],
@@ -190,7 +203,7 @@ def manage_ga_view(request, *args, **kwargs):
 
 @csrf_exempt
 @login_required
-@permission_required('project.can_change')
+@org_permission_required('unicoremc.change_project')
 @user_passes_test(
     lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
     login_url='/social/login/google-oauth2/')
@@ -200,7 +213,10 @@ def manage_ga_new(request, *args, **kwargs):
         project_id = request.POST.get('project_id')
         account_id = request.POST.get('account_id')
         access_token = request.POST.get('access_token')
-        project = get_object_or_404(Project, pk=project_id)
+        project = get_object_or_404(
+            Project,
+            pk=project_id,
+            organization=active_organization(request))
 
         if not project.ga_profile_id:
             try:
@@ -226,9 +242,12 @@ def manage_ga_new(request, *args, **kwargs):
 
 
 @login_required
-@permission_required('project.can_change')
+@org_permission_required('unicoremc.change_project')
 def reset_hub_app_key(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
+    project = get_object_or_404(
+        Project,
+        pk=project_id,
+        organization=active_organization(request))
 
     app = project.hub_app()
     if app is not None:
