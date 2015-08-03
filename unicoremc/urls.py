@@ -1,8 +1,5 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
-from django.contrib.auth.decorators import login_required
-
-from organizations.utils import org_permission_required
 
 from unicoremc import views
 
@@ -11,8 +8,7 @@ urlpatterns = patterns(
     '',
     url(
         r'^$',
-        login_required(
-            views.HomepageView.as_view()),
+        views.HomepageView.as_view(),
         name='home'
     ),
     url(
@@ -42,8 +38,7 @@ urlpatterns = patterns(
     ),
     url(
         r'^advanced/(?P<project_id>\d+)/$',
-        org_permission_required('unicoremc.change_project')(
-            login_required(views.ProjectEditView.as_view())),
+        views.ProjectEditView.as_view(),
         name='advanced'),
     url(
         r'^advanced/(?P<project_id>\d+)/reset_hub_app_key/$',

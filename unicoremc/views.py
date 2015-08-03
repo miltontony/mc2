@@ -13,6 +13,7 @@ from django.contrib.auth.decorators import (
     login_required, user_passes_test)
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import View
 from django.views.generic import ListView
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse
@@ -56,6 +57,29 @@ def get_all_repos(request):
     return HttpResponse(json.dumps(repos), content_type='application/json')
 
 
+class ProjectViewMixin(View):
+    permissions = []
+    user_test_args = []
+
+    @classmethod
+    def as_view(cls):
+        view = super(ProjectViewMixin, cls).as_view()
+        for args in cls.user_test_args:
+            view = user_passes_test(*args)(view)
+        if cls.permissions:
+            view = org_permission_required(cls.permissions)(view)
+        return login_required(view)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.organization = active_organization(request)
+        return super(ProjectViewMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if self.organization is None:
+            return Project.objects.none()
+        return Project.objects.filter(organization=self.organization)
+
+
 @login_required
 @org_permission_required('unicoremc.add_project')
 @user_passes_test(
@@ -76,27 +100,21 @@ def new_project_view(request, *args, **kwargs):
     return render(request, 'unicoremc/new_project.html', context)
 
 
-class HomepageView(ListView):
+class HomepageView(ProjectViewMixin, ListView):
     template_name = 'unicoremc/home.html'
 
-    def get_queryset(self):
-        return Project.objects.filter(
-            organization=active_organization(self.request))
 
-
-class ProjectEditView(UpdateView):
-    model = Project
+class ProjectEditView(ProjectViewMixin, UpdateView):
     form_class = ProjectForm
     template_name = 'unicoremc/advanced.html'
+    permissions = ['unicoremc.change_project']
 
     def get_success_url(self):
         return reverse("home")
 
     def get_object(self, queryset=None):
         return get_object_or_404(
-            Project,
-            pk=self.kwargs['project_id'],
-            organization=active_organization(self.request))
+            self.get_queryset(), pk=self.kwargs['project_id'])
 
     def form_valid(self, form):
         response = super(ProjectEditView, self).form_valid(form)
