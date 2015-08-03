@@ -1,5 +1,7 @@
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext as _
 
 
@@ -40,6 +42,14 @@ class Organization(models.Model):
         return self.__class__.objects.for_admin_user(
             user).filter(pk=self.pk).exists()
 
+    def has_perms(self, user, perm_list, obj=None):
+        try:
+            relation = self.organizationuserrelation_set.get(user=user)
+            return relation.has_perms(perm_list, obj=obj)
+        except self.users.through.DoesNotExist:
+            # user permissions supersede user-organization permissions
+            return user.has_perms(perm_list, obj=obj)
+
 
 class OrganizationUserRelation(models.Model):
     organization = models.ForeignKey(Organization)
@@ -48,7 +58,9 @@ class OrganizationUserRelation(models.Model):
         default=False,
         help_text=_('This allows the user to manage the'
                     ' organization and its users.'))
-    # TODO: add groups, permissions and auth_token
+    groups = models.ManyToManyField('auth.Group', blank=True)
+    user_permissions = models.ManyToManyField('auth.Permission', blank=True)
+    # TODO: add auth token
 
     class Meta:
         unique_together = (('organization', 'user'),)
@@ -57,3 +69,25 @@ class OrganizationUserRelation(models.Model):
         return u'%s%s' % (
             self.user.get_short_name() or self.user.email,
             ' (admin)' if self.is_admin else '')
+
+    def all_permissions(self):
+        permissions = Permission.objects.filter(
+            Q(group__organizationuserrelation=self) |
+            Q(organizationuserrelation=self)).values_list(
+            'content_type__app_label',
+            'codename')
+        return ['%s.%s' % (ct, codename) for ct, codename in permissions]
+
+    def has_perms(self, perm_list, obj=None):
+        if not self.user.is_active:
+            return False
+        # user permissions supersede user-organization permissions
+        if self.user.has_perms(perm_list, obj=obj):
+            return True
+        if obj and getattr(obj, 'organization', None) != self.organization:
+            return False
+        if self.is_admin:
+            return True
+        if set(perm_list) <= set(self.all_permissions()):
+            return True
+        return False

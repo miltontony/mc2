@@ -3,7 +3,6 @@ from functools import wraps
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import redirect_to_login
 from django.utils.decorators import available_attrs
-from django.shortcuts import resolve_url
 
 from organizations.models import Organization, ORGANIZATION_SESSION_KEY
 
@@ -54,14 +53,8 @@ def org_permission_required(perm, login_url=None, raise_exception=False):
             else:
                 perms = perm
 
-            user = request.user
-            # user permissions supersede user-organization permissions
-            if user.has_perms(perms):
-                return view_func(request, *args, **kwargs)
-
-            org = active_organization(request)
-            # TODO: change to org.has_perms(user, perms)
-            if org and org.has_admin(user):
+            organization = active_organization(request)
+            if organization and organization.has_perms(request.user, perms):
                 return view_func(request, *args, **kwargs)
 
             if raise_exception:
