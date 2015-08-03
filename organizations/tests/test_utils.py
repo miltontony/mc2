@@ -1,7 +1,6 @@
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser, Permission
-from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import AnonymousUser
 
 from mock import patch, Mock
 
@@ -9,7 +8,7 @@ from organizations import context_processors
 from organizations.tests.base import OrganizationTestCase
 from organizations.utils import active_organization, org_permission_required
 from organizations.models import (
-    ORGANIZATION_SESSION_KEY, OrganizationUserRelation, Organization)
+    ORGANIZATION_SESSION_KEY, OrganizationUserRelation)
 
 
 class TestUtils(OrganizationTestCase):
@@ -90,15 +89,12 @@ class TestUtils(OrganizationTestCase):
             raise_exception=True)(view_func)
         self.assertRaises(PermissionDenied, wrapped_view_func, request)
 
-        perm = Permission.objects.get(
-            codename='change_organization',
-            content_type=ContentType.objects.get_for_model(Organization))
-        user.user_permissions.add(perm)
+        self.grant_perms(user, 'organizations.change_organization')
         User = get_user_model()
         request.user = User.objects.get(id=user.pk)
         self.assertEqual(wrapped_view_func(request), 'success')
 
-        user.user_permissions.remove(perm)
+        self.revoke_perms(user, 'organizations.change_organization')
         request.user = User.objects.get(id=user.pk)
         organization = self.mk_organization(users=[user])
         self.assertRaises(PermissionDenied, wrapped_view_func, request)

@@ -70,7 +70,7 @@ class OrganizationUserRelation(models.Model):
             self.user.get_short_name() or self.user.email,
             ' (admin)' if self.is_admin else '')
 
-    def all_permissions(self):
+    def permissions(self):
         permissions = Permission.objects.filter(
             Q(group__organizationuserrelation=self) |
             Q(organizationuserrelation=self)).values_list(
@@ -88,6 +88,6 @@ class OrganizationUserRelation(models.Model):
             return False
         if self.is_admin:
             return True
-        if set(perm_list) <= set(self.all_permissions()):
+        if set(perm_list) <= set(self.permissions()):
             return True
         return False

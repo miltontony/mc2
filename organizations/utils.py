@@ -53,8 +53,11 @@ def org_permission_required(perm, login_url=None, raise_exception=False):
             else:
                 perms = perm
 
+            user = request.user
             organization = active_organization(request)
-            if organization and organization.has_perms(request.user, perms):
+            if organization and organization.has_perms(user, perms):
+                return view_func(request, *args, **kwargs)
+            elif not organization and user.has_perms(perms):
                 return view_func(request, *args, **kwargs)
 
             if raise_exception:
