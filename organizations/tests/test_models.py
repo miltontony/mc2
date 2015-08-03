@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group
 
-from mock import patch, Mock
+from mock import Mock
 
 from organizations.tests.base import OrganizationTestCase
 from organizations.models import Organization, OrganizationUserRelation

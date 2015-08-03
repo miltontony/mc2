@@ -11,6 +11,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+from organizations.models import Organization
+
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import (
     Project, Localisation, AppType, ProjectRepo, publish_to_websocket)
@@ -26,7 +28,8 @@ from pycountry import languages
 
 @pytest.mark.django_db
 class ViewsTestCase(UnicoremcTestCase):
-    fixtures = ['test_users.json', 'test_social_auth.json']
+    fixtures = [
+        'test_users.json', 'test_social_auth.json', 'test_organizations.json']
 
     def setUp(self):
         self.client = Client()
@@ -41,6 +44,8 @@ class ViewsTestCase(UnicoremcTestCase):
         existing_project = self.mk_project()
 
         self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_repo()
         self.mock_create_webhook()
@@ -86,6 +91,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(project.external_repos.count(), 1)
         self.assertTrue(project.own_repo())
         self.assertEqual(len(project.all_repos()), 2)
+        self.assertEqual(project.organization.slug, 'foo-org')
 
         workspace = self.mk_workspace(
             working_dir=settings.CMS_REPO_PATH,
@@ -161,6 +167,8 @@ class ViewsTestCase(UnicoremcTestCase):
     @responses.activate
     def test_advanced_page(self):
         self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_repo()
         self.mock_create_webhook()
@@ -364,9 +372,13 @@ class ViewsTestCase(UnicoremcTestCase):
     def test_reset_hub_app_key(self):
         self.mock_create_hub_app()
         self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
 
-        proj = self.mk_project(
-            project={'owner': User.objects.get(pk=2), 'state': 'done'})
+        proj = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'organization': Organization.objects.get(slug='foo-org')})
         proj.create_or_update_hub_app()
         app_data = proj.hub_app().data
         app_data_with_new_key = app_data.copy()

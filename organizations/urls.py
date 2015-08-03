@@ -6,12 +6,12 @@ from organizations import views
 urlpatterns = patterns(
     '',
     url(
-        r'^(?P<slug>\w+)/select/$',
+        r'^(?P<slug>[\w-]+)/select/$',
         views.SelectActiveOrganizationView.as_view(),
         name='select-active',
     ),
     url(
-        r'^(?P<slug>\w+)/$',
+        r'^(?P<slug>[\w-]+)/$',
         views.EditOrganizationView.as_view(),
         name='edit',
     ),
