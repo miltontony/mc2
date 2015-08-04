@@ -91,6 +91,7 @@ class ProjectViewMixin(View):
 
 
 class NewProjectView(ProjectViewMixin, TemplateView):
+    # TODO: base this on CreateView instead of TemplateView
     template_name = 'unicoremc/new_project.html'
     permissions = ['unicoremc.add_project']
     social_auth = 'github'
@@ -111,6 +112,57 @@ class NewProjectView(ProjectViewMixin, TemplateView):
             'access_token': access_token,
         })
         return context
+
+    def post(self, request, *args, **kwargs):
+        app_type = request.POST.get('app_type')
+        app_type = AppType.objects.get(pk=int(app_type))
+        base_repo = request.POST.get('base_repo')
+        project_repos = request.POST.getlist('project_repos[]')
+        repo_count = len(project_repos) + (1 if base_repo else 0)
+
+        # validate base repos and app type
+        if not repo_count:
+            return HttpResponseBadRequest('No repo selected')
+        if (repo_count > 1 and app_type.project_type == AppType.UNICORE_CMS):
+            return HttpResponseBadRequest(
+                '%s does not support multiple repos' % (AppType.UNICORE_CMS,))
+
+        country = request.POST.get('country')
+        access_token = request.POST.get('access_token')
+        user_id = request.POST.get('user_id')
+        team_id = request.POST.get('team_id')
+        docker_cmd = request.POST.get('docker_cmd')
+
+        user = User.objects.get(pk=user_id)
+
+        project, created = Project.objects.get_or_create(
+            application_type=app_type,
+            country=country,
+            defaults={
+                'team_id': int(team_id),
+                'owner': user,
+                'organization': self.organization,
+                'docker_cmd':
+                    docker_cmd or
+                    utils.get_default_docker_cmd(app_type, country)
+            })
+        project.external_repos.add(*project_repos)
+        if base_repo:
+            ProjectRepo.objects.get_or_create(
+                project=project,
+                defaults={'base_url': base_repo})
+
+        # For consistency with existing apps, all new apps will also have
+        # country domain urls in addition to the generic urls
+        project.frontend_custom_domain = project.get_country_domain()
+        project.cms_custom_domain = 'cms.%s' % project.get_country_domain()
+        project.save()
+
+        if created:
+            tasks.start_new_project.delay(project.id, access_token)
+
+        return HttpResponse(json.dumps({'success': True}),
+                            content_type='application/json')
 
 
 class HomepageView(ProjectViewMixin, ListView):
@@ -141,66 +193,6 @@ class ProjectEditView(ProjectViewMixin, UpdateView):
         except exceptions.MarathonApiException:
             messages.info(self.request, 'Unable to update project in marathon')
         return response
-
-
-@csrf_exempt
-@login_required
-@org_permission_required('unicoremc.add_project')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='github').exists(),
-    login_url='/social/login/github/')
-def start_new_project(request, *args, **kwargs):
-    if request.method == 'POST':
-
-        app_type = request.POST.get('app_type')
-        app_type = AppType.objects.get(pk=int(app_type))
-        base_repo = request.POST.get('base_repo')
-        project_repos = request.POST.getlist('project_repos[]')
-        repo_count = len(project_repos) + (1 if base_repo else 0)
-
-        # validate base repos and app type
-        if not repo_count:
-            return HttpResponseBadRequest('No repo selected')
-        if (repo_count > 1 and app_type.project_type == AppType.UNICORE_CMS):
-            return HttpResponseBadRequest(
-                '%s does not support multiple repos' % (AppType.UNICORE_CMS,))
-
-        country = request.POST.get('country')
-        access_token = request.POST.get('access_token')
-        user_id = request.POST.get('user_id')
-        team_id = request.POST.get('team_id')
-        docker_cmd = request.POST.get('docker_cmd')
-
-        user = User.objects.get(pk=user_id)
-
-        project, created = Project.objects.get_or_create(
-            application_type=app_type,
-            country=country,
-            defaults={
-                'team_id': int(team_id),
-                'owner': user,
-                'organization': active_organization(request),
-                'docker_cmd':
-                    docker_cmd or
-                    utils.get_default_docker_cmd(app_type, country)
-            })
-        project.external_repos.add(*project_repos)
-        if base_repo:
-            ProjectRepo.objects.get_or_create(
-                project=project,
-                defaults={'base_url': base_repo})
-
-        # For consistency with existing apps, all new apps will also have
-        # country domain urls in addition to the generic urls
-        project.frontend_custom_domain = project.get_country_domain()
-        project.cms_custom_domain = 'cms.%s' % project.get_country_domain()
-        project.save()
-
-        if created:
-            tasks.start_new_project.delay(project.id, access_token)
-
-    return HttpResponse(json.dumps({'success': True}),
-                        content_type='application/json')
 
 
 @login_required

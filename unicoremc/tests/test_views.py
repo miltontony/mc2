@@ -69,7 +69,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
             mock_subprocess.return_value = None
-            response = self.client.post(reverse('start_new_project'), data)
+            response = self.client.post(reverse('new_project'), data)
 
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(json.loads(response.content), {
@@ -147,7 +147,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'user_id': 1,
             'team_id': 1
         }
-        response = self.client.post(reverse('start_new_project'), data)
+        response = self.client.post(reverse('new_project'), data)
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, 'No repo selected')
@@ -156,7 +156,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         data['base_repo'] = self.base_repo_sm.repo.git_dir,
         data['project_repos[]'] = existing_project.own_repo().pk,
-        response = self.client.post(reverse('start_new_project'), data)
+        response = self.client.post(reverse('new_project'), data)
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
@@ -195,7 +195,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
             mock_subprocess.return_value = None
-            self.client.post(reverse('start_new_project'), data)
+            self.client.post(reverse('new_project'), data)
 
         project = Project.objects.all().last()
         project.hub_app_id = None
@@ -284,7 +284,7 @@ class ViewsTestCase(UnicoremcTestCase):
         resp = self.client.get(reverse('new_project'))
         self.assertEqual(resp.status_code, 302)
 
-        resp = self.client.get(reverse('start_new_project'))
+        resp = self.client.post(reverse('new_project'), {})
         self.assertEqual(resp.status_code, 302)
 
         resp = self.client.get(reverse('advanced', args=[1]))

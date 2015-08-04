@@ -32,11 +32,6 @@ urlpatterns = patterns(
         name='manage_ga_new'
     ),
     url(
-        r'^new/create/$',
-        'unicoremc.views.start_new_project',
-        name='start_new_project'
-    ),
-    url(
         r'^advanced/(?P<project_id>\d+)/$',
         views.ProjectEditView.as_view(),
         name='advanced'),
