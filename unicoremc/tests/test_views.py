@@ -167,8 +167,6 @@ class ViewsTestCase(UnicoremcTestCase):
     @responses.activate
     def test_advanced_page(self):
         self.client.login(username='testuser2', password='test')
-        self.client.get(
-            reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_repo()
         self.mock_create_webhook()
@@ -372,13 +370,10 @@ class ViewsTestCase(UnicoremcTestCase):
     def test_reset_hub_app_key(self):
         self.mock_create_hub_app()
         self.client.login(username='testuser2', password='test')
-        self.client.get(
-            reverse('organizations:select-active', args=('foo-org',)))
 
         proj = self.mk_project(project={
             'owner': User.objects.get(pk=2),
-            'state': 'done',
-            'organization': Organization.objects.get(slug='foo-org')})
+            'state': 'done'})
         proj.create_or_update_hub_app()
         app_data = proj.hub_app().data
         app_data_with_new_key = app_data.copy()

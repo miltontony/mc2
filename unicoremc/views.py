@@ -14,7 +14,8 @@ from django.contrib.auth.decorators import (
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
-from django.views.generic import ListView, TemplateView
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic import ListView, TemplateView, RedirectView
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.cache import cache
@@ -260,17 +261,15 @@ def manage_ga_new(request, *args, **kwargs):
     return HttpResponseBadRequest("You can only call this using a POST")
 
 
-@login_required
-@org_permission_required('unicoremc.change_project')
-def reset_hub_app_key(request, project_id):
-    project = get_object_or_404(
-        Project,
-        pk=project_id,
-        organization=active_organization(request))
+class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
+    permissions = ['unicoremc.change_project']
+    permanent = False
+    pattern_name = 'advanced'
 
-    app = project.hub_app()
-    if app is not None:
-        app.reset_key()
-        project.create_pyramid_settings()
-
-    return redirect(reverse('advanced', args=(project_id, )))
+    def get(self, request, *args, **kwargs):
+        project = self.get_object()
+        app = project.hub_app()
+        if app is not None:
+            app.reset_key()
+            project.create_pyramid_settings()
+        return super(ResetHubAppKeyView, self).get(request, *args, **kwargs)

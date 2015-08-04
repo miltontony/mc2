@@ -37,7 +37,7 @@ urlpatterns = patterns(
         name='advanced'),
     url(
         r'^advanced/(?P<project_id>\d+)/reset_hub_app_key/$',
-        'unicoremc.views.reset_hub_app_key',
+        views.ResetHubAppKeyView.as_view(),
         name='reset-hub-app-key'),
     url(
         r'^logout/$',
