@@ -15,12 +15,16 @@ class OrganizationManager(models.Manager):
         qs = self.get_queryset()
         if not user.is_active:
             return qs.none()
+        if user.is_superuser:
+            return qs
         return qs.filter(users=user)
 
     def for_admin_user(self, user):
         qs = self.get_queryset()
         if not user.is_active:
             return qs.none()
+        if user.is_superuser:
+            return qs
         return qs.filter(
             organizationuserrelation__user=user,
             organizationuserrelation__is_admin=True)

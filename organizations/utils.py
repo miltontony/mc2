@@ -58,6 +58,7 @@ def org_permission_required(perm, login_url=None, raise_exception=False):
             if organization and organization.has_perms(user, perms):
                 return view_func(request, *args, **kwargs)
             elif not organization and user.has_perms(perms):
+                # user permissions supersede user-organization permissions
                 return view_func(request, *args, **kwargs)
 
             if raise_exception:

@@ -35,6 +35,12 @@ class TestOrganizationManager(OrganizationTestCase):
         self.assertEqual(
             Organization.objects.for_admin_user(self.user1).count(), 0)
 
+    def test_for_admin_user_is_superuser(self):
+        self.user1.is_superuser = True
+        OrganizationUserRelation.objects.filter(user=self.user1).delete()
+        self.assertEqual(set(Organization.objects.for_admin_user(self.user1)),
+                         {self.organization1, self.organization2})
+
     def test_for_user(self):
         OrganizationUserRelation.objects.update(is_admin=False)
         self.assertEqual(set(Organization.objects.for_user(self.user1)),
@@ -48,6 +54,12 @@ class TestOrganizationManager(OrganizationTestCase):
         self.organization1.organizationuserrelation_set.filter(
             user=self.user1).delete()
         self.assertEqual(Organization.objects.for_user(self.user1).count(), 0)
+
+    def test_for_user_is_superuser(self):
+        self.user1.is_superuser = True
+        OrganizationUserRelation.objects.filter(user=self.user1).delete()
+        self.assertEqual(set(Organization.objects.for_user(self.user1)),
+                         {self.organization1, self.organization2})
 
     def test_for_user_inactive(self):
         self.user1.is_active = False
