@@ -11,6 +11,11 @@ urlpatterns = patterns(
         name='select-active',
     ),
     url(
+        r'^deselect/$',
+        views.DeselectActiveOrganizationView.as_view(),
+        name='deselect-active',
+    ),
+    url(
         r'^(?P<slug>[\w-]+)/$',
         views.EditOrganizationView.as_view(),
         name='edit',
