@@ -5,14 +5,13 @@ from apiclient import errors
 from oauth2client.client import AccessTokenCredentialsError
 
 from django.db.models import F
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
     HttpResponseForbidden)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, TemplateView, RedirectView
@@ -72,7 +71,7 @@ class ProjectViewMixin(View):
                 lambda u: u.social_auth.filter(
                     provider=cls.social_auth).exists(),
                 login_url=reverse_lazy(
-                    'social:socialauth_begin', args=(cls.social_auth,)))(view)
+                    'social:begin', args=(cls.social_auth,)))(view)
 
         if cls.permissions:
             view = org_permission_required(cls.permissions)(view)
@@ -196,47 +195,37 @@ class ProjectEditView(ProjectViewMixin, UpdateView):
         return response
 
 
-@login_required
-@org_permission_required('unicoremc.change_project')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
-    login_url='/social/login/google-oauth2/')
-def manage_ga_view(request, *args, **kwargs):
-    social = request.user.social_auth.get(provider='google-oauth2')
-    access_token = social.extra_data['access_token']
+class ManageGAView(ProjectViewMixin, TemplateView):
+    # TODO: base this on UpdateView instead of TemplateView
+    template_name = 'unicoremc/manage_ga.html'
+    permissions = ['unicoremc.change_project']
+    social_auth = 'google-oauth2'
 
-    try:
+    def get_context_data(self):
+        social = self.request.user.social_auth.get(provider='google-oauth2')
+        access_token = social.extra_data['access_token']
         accounts = utils.get_ga_accounts(access_token)
-    except AccessTokenCredentialsError:
-        return redirect('/social/login/google-oauth2/')
 
-    context = {
-        'projects': Project.objects.filter(
-            state='done',
-            organization=active_organization(request)),
-        'access_token': access_token,
-        'accounts': [
-            {'id': a.get('id'), 'name': a.get('name')} for a in accounts],
-    }
-    return render(request, 'unicoremc/manage_ga.html', context)
+        context = super(ManageGAView, self).get_context_data()
+        context.update({
+            'projects': self.get_queryset().filter(state='done'),
+            'access_token': access_token,
+            'accounts': [
+                {'id': a.get('id'), 'name': a.get('name')} for a in accounts],
+        })
+        return context
 
+    def get(self, request, *args, **kwargs):
+        try:
+            return super(ManageGAView, self).get(request, *args, **kwargs)
+        except AccessTokenCredentialsError:
+            return redirect('social:begin', 'google-oauth2')
 
-@csrf_exempt
-@login_required
-@org_permission_required('unicoremc.change_project')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
-    login_url='/social/login/google-oauth2/')
-def manage_ga_new(request, *args, **kwargs):
-    if request.method == 'POST':
-
+    def post(self, request, *args, **kwargs):
         project_id = request.POST.get('project_id')
         account_id = request.POST.get('account_id')
         access_token = request.POST.get('access_token')
-        project = get_object_or_404(
-            Project,
-            pk=project_id,
-            organization=active_organization(request))
+        project = get_object_or_404(self.get_queryset(), pk=project_id)
 
         if not project.ga_profile_id:
             try:
@@ -257,8 +246,6 @@ def manage_ga_new(request, *args, **kwargs):
                 return HttpResponseServerError("Unable to create new profile")
 
         return HttpResponseForbidden("Project already has a profile")
-
-    return HttpResponseBadRequest("You can only call this using a POST")
 
 
 class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):

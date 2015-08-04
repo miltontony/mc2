@@ -344,7 +344,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'project_id': p.id,
             'access_token': 'some-access-token',
         }
-        resp = self.client.post(reverse('manage_ga_new'), data)
+        resp = self.client.post(reverse('manage_ga'), data)
         self.assertEqual(resp['Content-Type'], 'application/json')
         self.assertEqual(json.loads(resp.content), {
             'ga_profile_id': 'UA-some-new-profile-id'
@@ -353,11 +353,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(p.ga_profile_id, 'UA-some-new-profile-id')
         self.assertEqual(p.ga_account_id, 'some-account-id')
 
-        resp = self.client.get(reverse('manage_ga_new'), data)
-        self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content, "You can only call this using a POST")
-
-        resp = self.client.post(reverse('manage_ga_new'), data)
+        resp = self.client.post(reverse('manage_ga'), data)
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.content, "Project already has a profile")
 

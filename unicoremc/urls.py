@@ -23,13 +23,8 @@ urlpatterns = patterns(
     ),
     url(
         r'^googleanalytics/$',
-        'unicoremc.views.manage_ga_view',
+        views.ManageGAView.as_view(),
         name='manage_ga'
-    ),
-    url(
-        r'^googleanalytics/new/$',
-        'unicoremc.views.manage_ga_new',
-        name='manage_ga_new'
     ),
     url(
         r'^advanced/(?P<project_id>\d+)/$',
