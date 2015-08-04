@@ -14,9 +14,9 @@ from django.contrib.auth.decorators import (
 from django.contrib.auth.models import User
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
-from django.views.generic import ListView
+from django.views.generic import ListView, TemplateView
 from django.views.generic.edit import UpdateView
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.cache import cache
 from django.contrib import messages
 
@@ -58,16 +58,24 @@ def get_all_repos(request):
 
 
 class ProjectViewMixin(View):
+    pk_url_kwarg = 'project_id'
     permissions = []
-    user_test_args = []
+    social_auth = None
 
     @classmethod
     def as_view(cls):
         view = super(ProjectViewMixin, cls).as_view()
-        for args in cls.user_test_args:
-            view = user_passes_test(*args)(view)
+
+        if cls.social_auth:
+            view = user_passes_test(
+                lambda u: u.social_auth.filter(
+                    provider=cls.social_auth).exists(),
+                login_url=reverse_lazy(
+                    'social:socialauth_begin', args=(cls.social_auth,)))(view)
+
         if cls.permissions:
             view = org_permission_required(cls.permissions)(view)
+
         return login_required(view)
 
     def dispatch(self, request, *args, **kwargs):
@@ -82,24 +90,27 @@ class ProjectViewMixin(View):
         return Project.objects.filter(organization=self.organization)
 
 
-@login_required
-@org_permission_required('unicoremc.add_project')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='github').exists(),
-    login_url='/social/login/github/')
-def new_project_view(request, *args, **kwargs):
-    social = request.user.social_auth.get(provider='github')
-    access_token = social.extra_data['access_token']
-    context = {
-        'countries': constants.COUNTRY_CHOICES,
-        'languages': Localisation.objects.all(),
-        'app_types': AppType.objects.all(),
-        'project_repos': ProjectRepo.objects.filter(
-            project__state='done',
-            project__organization=active_organization(request)),
-        'access_token': access_token,
-    }
-    return render(request, 'unicoremc/new_project.html', context)
+class NewProjectView(ProjectViewMixin, TemplateView):
+    template_name = 'unicoremc/new_project.html'
+    permissions = ['unicoremc.add_project']
+    social_auth = 'github'
+
+    def get_context_data(self):
+        social = self.request.user.social_auth.get(provider='github')
+        access_token = social.extra_data['access_token']
+        project_pks = self.get_queryset().values_list('pk', flat=True)
+
+        context = super(NewProjectView, self).get_context_data()
+        context.update({
+            'countries': constants.COUNTRY_CHOICES,
+            'languages': Localisation.objects.all(),
+            'app_types': AppType.objects.all(),
+            'project_repos': ProjectRepo.objects.filter(
+                project__in=project_pks,
+                project__state='done'),
+            'access_token': access_token,
+        })
+        return context
 
 
 class HomepageView(ProjectViewMixin, ListView):
@@ -113,10 +124,6 @@ class ProjectEditView(ProjectViewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse("home")
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(
-            self.get_queryset(), pk=self.kwargs['project_id'])
 
     def form_valid(self, form):
         response = super(ProjectEditView, self).form_valid(form)

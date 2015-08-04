@@ -18,7 +18,7 @@ urlpatterns = patterns(
     ),
     url(
         r'^new/$',
-        'unicoremc.views.new_project_view',
+        views.NewProjectView.as_view(),
         name='new_project'
     ),
     url(
