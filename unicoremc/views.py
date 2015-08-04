@@ -76,6 +76,8 @@ class ProjectViewMixin(View):
 
     def get_queryset(self):
         if self.organization is None:
+            if self.request.user.is_superuser:
+                return Project.objects.all()
             return Project.objects.none()
         return Project.objects.filter(organization=self.organization)
 
