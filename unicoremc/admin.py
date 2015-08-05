@@ -1,5 +1,5 @@
 # ensure celery autodiscovery runs
-from djcelery import admin as celery_admin
+from djcelery import admin as celery_admin  # noqa
 
 from djcelery.models import (
     TaskState, WorkerState, PeriodicTask, IntervalSchedule, CrontabSchedule)
@@ -15,10 +15,11 @@ class ProjectAdmin(admin.ModelAdmin):
     search_fields = (
         'state', 'country', 'application_type__name',
         'application_type__title', 'application_type__project_type')
-    list_filter = ('state', 'application_type')
+    list_filter = ('state', 'application_type', 'organization')
     list_display = (
         'application_type', 'country', 'state', 'base_repo_url_list',
-        'repo_url_list')
+        'repo_url_list', 'organization')
+    list_editable = ('organization',)
     readonly_fields = (
         'state', 'application_type', 'base_repo_url_list', 'country',
         'repo_url_list', 'owner', 'available_languages')

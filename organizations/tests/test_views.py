@@ -47,6 +47,30 @@ class TestViews(OrganizationTestCase):
             user=self.user).delete()
         self.assertEqual(self.client.get(url).status_code, 404)
 
+    def test_deselect_active_organization(self):
+        redirect_url = reverse(
+            'organizations:edit', args=(self.organization.slug,))
+        url = '%s?%s' % (
+            reverse('organizations:deselect-active'),
+            urlencode({'next': redirect_url}))
+
+        self.client.login(username=self.user.username, password='password')
+        self.client.get(reverse(
+            'organizations:select-active', args=(self.organization.slug,)))
+        self.assertIn(ORGANIZATION_SESSION_KEY, self.client.session)
+
+        response = self.client.get(url)
+        self.assertRedirects(response, redirect_url)
+        self.assertNotIn(ORGANIZATION_SESSION_KEY, self.client.session)
+
+        # check redirect for missing next param and external redirect
+        url = reverse('organizations:deselect-active')
+        self.assertRedirects(self.client.get(url), reverse('home'))
+        url = '%s?%s' % (reverse(
+            'organizations:deselect-active'),
+            urlencode({'next': 'http://google.com'}))
+        self.assertRedirects(self.client.get(url), reverse('home'))
+
     def test_edit_organization(self):
         url = reverse('organizations:edit', args=(self.organization.slug,))
         response = self.client.get(url)

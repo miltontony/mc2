@@ -1,1 +1,1 @@
-rm -rf project/.test_* && py.test
+rm -rf project/.test_* && py.test $@

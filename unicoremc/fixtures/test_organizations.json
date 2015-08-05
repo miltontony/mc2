@@ -1,0 +1,28 @@
+[
+    {
+        "pk": 1,
+        "model": "organizations.Organization",
+        "fields": {
+            "name": "Foo Org",
+            "slug": "foo-org"
+        }
+    },
+    {
+        "pk": 1,
+        "model": "organizations.OrganizationUserRelation",
+        "fields": {
+            "user": 1,
+            "organization": 1,
+            "is_admin": false
+        }
+    },
+    {
+        "pk": 2,
+        "model": "organizations.OrganizationUserRelation",
+        "fields": {
+            "user": 2,
+            "organization": 1,
+            "is_admin": true
+        }
+    }
+]

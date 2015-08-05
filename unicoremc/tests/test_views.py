@@ -11,6 +11,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+from organizations.models import Organization
+
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import (
     Project, Localisation, AppType, ProjectRepo, publish_to_websocket)
@@ -26,7 +28,8 @@ from pycountry import languages
 
 @pytest.mark.django_db
 class ViewsTestCase(UnicoremcTestCase):
-    fixtures = ['test_users.json', 'test_social_auth.json']
+    fixtures = [
+        'test_users.json', 'test_social_auth.json', 'test_organizations.json']
 
     def setUp(self):
         self.client = Client()
@@ -41,6 +44,8 @@ class ViewsTestCase(UnicoremcTestCase):
         existing_project = self.mk_project()
 
         self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_repo()
         self.mock_create_webhook()
@@ -64,7 +69,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
             mock_subprocess.return_value = None
-            response = self.client.post(reverse('start_new_project'), data)
+            response = self.client.post(reverse('new_project'), data)
 
         self.assertEqual(response['Content-Type'], 'application/json')
         self.assertEqual(json.loads(response.content), {
@@ -86,6 +91,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(project.external_repos.count(), 1)
         self.assertTrue(project.own_repo())
         self.assertEqual(len(project.all_repos()), 2)
+        self.assertEqual(project.organization.slug, 'foo-org')
 
         workspace = self.mk_workspace(
             working_dir=settings.CMS_REPO_PATH,
@@ -141,7 +147,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'user_id': 1,
             'team_id': 1
         }
-        response = self.client.post(reverse('start_new_project'), data)
+        response = self.client.post(reverse('new_project'), data)
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.content, 'No repo selected')
@@ -150,7 +156,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         data['base_repo'] = self.base_repo_sm.repo.git_dir,
         data['project_repos[]'] = existing_project.own_repo().pk,
-        response = self.client.post(reverse('start_new_project'), data)
+        response = self.client.post(reverse('new_project'), data)
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(
@@ -187,7 +193,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
             mock_subprocess.return_value = None
-            self.client.post(reverse('start_new_project'), data)
+            self.client.post(reverse('new_project'), data)
 
         project = Project.objects.all().last()
         project.hub_app_id = None
@@ -276,7 +282,7 @@ class ViewsTestCase(UnicoremcTestCase):
         resp = self.client.get(reverse('new_project'))
         self.assertEqual(resp.status_code, 302)
 
-        resp = self.client.get(reverse('start_new_project'))
+        resp = self.client.post(reverse('new_project'), {})
         self.assertEqual(resp.status_code, 302)
 
         resp = self.client.get(reverse('advanced', args=[1]))
@@ -338,7 +344,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'project_id': p.id,
             'access_token': 'some-access-token',
         }
-        resp = self.client.post(reverse('manage_ga_new'), data)
+        resp = self.client.post(reverse('manage_ga'), data)
         self.assertEqual(resp['Content-Type'], 'application/json')
         self.assertEqual(json.loads(resp.content), {
             'ga_profile_id': 'UA-some-new-profile-id'
@@ -347,11 +353,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(p.ga_profile_id, 'UA-some-new-profile-id')
         self.assertEqual(p.ga_account_id, 'some-account-id')
 
-        resp = self.client.get(reverse('manage_ga_new'), data)
-        self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content, "You can only call this using a POST")
-
-        resp = self.client.post(reverse('manage_ga_new'), data)
+        resp = self.client.post(reverse('manage_ga'), data)
         self.assertEqual(resp.status_code, 403)
         self.assertEqual(resp.content, "Project already has a profile")
 
@@ -365,8 +367,9 @@ class ViewsTestCase(UnicoremcTestCase):
         self.mock_create_hub_app()
         self.client.login(username='testuser2', password='test')
 
-        proj = self.mk_project(
-            project={'owner': User.objects.get(pk=2), 'state': 'done'})
+        proj = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
         proj.create_or_update_hub_app()
         app_data = proj.hub_app().data
         app_data_with_new_key = app_data.copy()

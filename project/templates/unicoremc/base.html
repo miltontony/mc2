@@ -72,6 +72,10 @@
                     <li><a href="{% url 'organizations:select-active' org.slug %}?next={{ request.path|urlencode }}">{% blocktrans with org_name=org.name %}Switch to {{ org_name }}{% endblocktrans %}</a></li>
                     {% endif %}
                 {% endfor %}
+                {% if user.is_superuser and active_organization %}
+                    {% if organizations|length > 1 %}<li role="separator" class="divider"></li>{% endif %}
+                    <li><a href="{% url 'organizations:deselect-active' %}">{% trans "Show all organizations" %}</a></li>
+                {% endif %}
                 {% if is_active_organization_admin %}
                     {% if organizations|length > 1 %}<li role="separator" class="divider"></li>{% endif %}
                     <li><a href="{% url 'organizations:edit' active_organization.slug %}">{% blocktrans with org_name=active_organization.name %}Manage {{ org_name }}{% endblocktrans %}</a></li>

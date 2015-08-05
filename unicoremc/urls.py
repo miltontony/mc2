@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
-from django.contrib.auth.decorators import login_required, permission_required
+
 from unicoremc import views
 
 
@@ -8,8 +8,7 @@ urlpatterns = patterns(
     '',
     url(
         r'^$',
-        login_required(
-            views.HomepageView.as_view()),
+        views.HomepageView.as_view(),
         name='home'
     ),
     url(
@@ -19,32 +18,21 @@ urlpatterns = patterns(
     ),
     url(
         r'^new/$',
-        'unicoremc.views.new_project_view',
+        views.NewProjectView.as_view(),
         name='new_project'
     ),
     url(
         r'^googleanalytics/$',
-        'unicoremc.views.manage_ga_view',
+        views.ManageGAView.as_view(),
         name='manage_ga'
     ),
     url(
-        r'^googleanalytics/new/$',
-        'unicoremc.views.manage_ga_new',
-        name='manage_ga_new'
-    ),
-    url(
-        r'^new/create/$',
-        'unicoremc.views.start_new_project',
-        name='start_new_project'
-    ),
-    url(
         r'^advanced/(?P<project_id>\d+)/$',
-        permission_required('project.can_change')(
-            login_required(views.ProjectEditView.as_view())),
+        views.ProjectEditView.as_view(),
         name='advanced'),
     url(
         r'^advanced/(?P<project_id>\d+)/reset_hub_app_key/$',
-        'unicoremc.views.reset_hub_app_key',
+        views.ResetHubAppKeyView.as_view(),
         name='reset-hub-app-key'),
     url(
         r'^logout/$',

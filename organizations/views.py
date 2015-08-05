@@ -37,6 +37,18 @@ class SelectActiveOrganizationView(OrganizationAdminMixin, RedirectView):
         return redirect_url
 
 
+class DeselectActiveOrganizationView(RedirectView):
+    permanent = False
+
+    def get_redirect_url(self, *args, **kwargs):
+        self.request.session.pop(ORGANIZATION_SESSION_KEY, None)
+
+        redirect_url = self.request.GET.get('next', None)
+        if redirect_url is None or not is_safe_url(redirect_url):
+            return reverse('home')
+        return redirect_url
+
+
 class EditOrganizationView(OrganizationAdminMixin, UpdateView):
     template_name = 'organizations/organization_detail.html'
     context_object_name = 'organization'

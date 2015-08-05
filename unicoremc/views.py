@@ -5,19 +5,22 @@ from apiclient import errors
 from oauth2client.client import AccessTokenCredentialsError
 
 from django.db.models import F
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
     HttpResponseForbidden)
 from django.contrib.auth.decorators import (
-    login_required, permission_required, user_passes_test)
+    login_required, user_passes_test)
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView
+from django.views.generic.base import View
+from django.views.generic.detail import SingleObjectMixin
+from django.views.generic import ListView, TemplateView, RedirectView
 from django.views.generic.edit import UpdateView
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.cache import cache
 from django.contrib import messages
+
+from organizations.utils import org_permission_required, active_organization
 
 from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.forms import ProjectForm
@@ -54,67 +57,63 @@ def get_all_repos(request):
     return HttpResponse(json.dumps(repos), content_type='application/json')
 
 
-@login_required
-@permission_required('project.can_change')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='github').exists(),
-    login_url='/social/login/github/')
-def new_project_view(request, *args, **kwargs):
-    social = request.user.social_auth.get(provider='github')
-    access_token = social.extra_data['access_token']
-    context = {
-        'countries': constants.COUNTRY_CHOICES,
-        'languages': Localisation.objects.all(),
-        'app_types': AppType.objects.all(),
-        'project_repos': ProjectRepo.objects.filter(project__state='done'),
-        'access_token': access_token,
-    }
-    return render(request, 'unicoremc/new_project.html', context)
+class ProjectViewMixin(View):
+    pk_url_kwarg = 'project_id'
+    permissions = []
+    social_auth = None
+
+    @classmethod
+    def as_view(cls):
+        view = super(ProjectViewMixin, cls).as_view()
+
+        if cls.social_auth:
+            view = user_passes_test(
+                lambda u: u.social_auth.filter(
+                    provider=cls.social_auth).exists(),
+                login_url=reverse_lazy(
+                    'social:begin', args=(cls.social_auth,)))(view)
+
+        if cls.permissions:
+            view = org_permission_required(cls.permissions)(view)
+
+        return login_required(view)
+
+    def dispatch(self, request, *args, **kwargs):
+        self.organization = active_organization(request)
+        return super(ProjectViewMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        if self.organization is None:
+            if self.request.user.is_superuser:
+                return Project.objects.all()
+            return Project.objects.none()
+        return Project.objects.filter(organization=self.organization)
 
 
-class HomepageView(ListView):
-    model = Project
-    template_name = 'unicoremc/home.html'
+class NewProjectView(ProjectViewMixin, TemplateView):
+    # TODO: base this on CreateView instead of TemplateView
+    template_name = 'unicoremc/new_project.html'
+    permissions = ['unicoremc.add_project']
+    social_auth = 'github'
 
+    def get_context_data(self):
+        social = self.request.user.social_auth.get(provider='github')
+        access_token = social.extra_data['access_token']
+        project_pks = self.get_queryset().values_list('pk', flat=True)
 
-class ProjectEditView(UpdateView):
-    model = Project
-    form_class = ProjectForm
-    template_name = 'unicoremc/advanced.html'
+        context = super(NewProjectView, self).get_context_data()
+        context.update({
+            'countries': constants.COUNTRY_CHOICES,
+            'languages': Localisation.objects.all(),
+            'app_types': AppType.objects.all(),
+            'project_repos': ProjectRepo.objects.filter(
+                project__in=project_pks,
+                project__state='done'),
+            'access_token': access_token,
+        })
+        return context
 
-    def get_success_url(self):
-        return reverse("home")
-
-    def get_object(self, queryset=None):
-        return get_object_or_404(Project, pk=self.kwargs['project_id'])
-
-    def form_valid(self, form):
-        response = super(ProjectEditView, self).form_valid(form)
-        project = self.get_object()
-        Project.objects.filter(
-            pk=project.pk).update(project_version=F('project_version') + 1)
-
-        project = self.get_object()
-        project.create_or_update_hub_app()
-        project.create_pyramid_settings()
-        project.create_nginx()
-
-        try:
-            project.update_marathon_app()
-        except exceptions.MarathonApiException:
-            messages.info(self.request, 'Unable to update project in marathon')
-        return response
-
-
-@csrf_exempt
-@login_required
-@permission_required('project.can_change')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='github').exists(),
-    login_url='/social/login/github/')
-def start_new_project(request, *args, **kwargs):
-    if request.method == 'POST':
-
+    def post(self, request, *args, **kwargs):
         app_type = request.POST.get('app_type')
         app_type = AppType.objects.get(pk=int(app_type))
         base_repo = request.POST.get('base_repo')
@@ -142,6 +141,7 @@ def start_new_project(request, *args, **kwargs):
             defaults={
                 'team_id': int(team_id),
                 'owner': user,
+                'organization': self.organization,
                 'docker_cmd':
                     docker_cmd or
                     utils.get_default_docker_cmd(app_type, country)
@@ -161,46 +161,71 @@ def start_new_project(request, *args, **kwargs):
         if created:
             tasks.start_new_project.delay(project.id, access_token)
 
-    return HttpResponse(json.dumps({'success': True}),
-                        content_type='application/json')
+        return HttpResponse(json.dumps({'success': True}),
+                            content_type='application/json')
 
 
-@login_required
-@permission_required('project.can_change')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
-    login_url='/social/login/google-oauth2/')
-def manage_ga_view(request, *args, **kwargs):
-    social = request.user.social_auth.get(provider='google-oauth2')
-    access_token = social.extra_data['access_token']
+class HomepageView(ProjectViewMixin, ListView):
+    template_name = 'unicoremc/home.html'
 
-    try:
+
+class ProjectEditView(ProjectViewMixin, UpdateView):
+    form_class = ProjectForm
+    template_name = 'unicoremc/advanced.html'
+    permissions = ['unicoremc.change_project']
+
+    def get_success_url(self):
+        return reverse("home")
+
+    def form_valid(self, form):
+        response = super(ProjectEditView, self).form_valid(form)
+        project = self.get_object()
+        Project.objects.filter(
+            pk=project.pk).update(project_version=F('project_version') + 1)
+
+        project = self.get_object()
+        project.create_or_update_hub_app()
+        project.create_pyramid_settings()
+        project.create_nginx()
+
+        try:
+            project.update_marathon_app()
+        except exceptions.MarathonApiException:
+            messages.info(self.request, 'Unable to update project in marathon')
+        return response
+
+
+class ManageGAView(ProjectViewMixin, TemplateView):
+    # TODO: base this on UpdateView instead of TemplateView
+    template_name = 'unicoremc/manage_ga.html'
+    permissions = ['unicoremc.change_project']
+    social_auth = 'google-oauth2'
+
+    def get_context_data(self):
+        social = self.request.user.social_auth.get(provider='google-oauth2')
+        access_token = social.extra_data['access_token']
         accounts = utils.get_ga_accounts(access_token)
-    except AccessTokenCredentialsError:
-        return redirect('/social/login/google-oauth2/')
 
-    context = {
-        'projects': Project.objects.filter(state='done'),
-        'access_token': access_token,
-        'accounts': [
-            {'id': a.get('id'), 'name': a.get('name')} for a in accounts],
-    }
-    return render(request, 'unicoremc/manage_ga.html', context)
+        context = super(ManageGAView, self).get_context_data()
+        context.update({
+            'projects': self.get_queryset().filter(state='done'),
+            'access_token': access_token,
+            'accounts': [
+                {'id': a.get('id'), 'name': a.get('name')} for a in accounts],
+        })
+        return context
 
+    def get(self, request, *args, **kwargs):
+        try:
+            return super(ManageGAView, self).get(request, *args, **kwargs)
+        except AccessTokenCredentialsError:
+            return redirect('social:begin', 'google-oauth2')
 
-@csrf_exempt
-@login_required
-@permission_required('project.can_change')
-@user_passes_test(
-    lambda u: u.social_auth.filter(provider='google-oauth2').exists(),
-    login_url='/social/login/google-oauth2/')
-def manage_ga_new(request, *args, **kwargs):
-    if request.method == 'POST':
-
+    def post(self, request, *args, **kwargs):
         project_id = request.POST.get('project_id')
         account_id = request.POST.get('account_id')
         access_token = request.POST.get('access_token')
-        project = get_object_or_404(Project, pk=project_id)
+        project = get_object_or_404(self.get_queryset(), pk=project_id)
 
         if not project.ga_profile_id:
             try:
@@ -222,17 +247,16 @@ def manage_ga_new(request, *args, **kwargs):
 
         return HttpResponseForbidden("Project already has a profile")
 
-    return HttpResponseBadRequest("You can only call this using a POST")
 
+class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
+    permissions = ['unicoremc.change_project']
+    permanent = False
+    pattern_name = 'advanced'
 
-@login_required
-@permission_required('project.can_change')
-def reset_hub_app_key(request, project_id):
-    project = get_object_or_404(Project, pk=project_id)
-
-    app = project.hub_app()
-    if app is not None:
-        app.reset_key()
-        project.create_pyramid_settings()
-
-    return redirect(reverse('advanced', args=(project_id, )))
+    def get(self, request, *args, **kwargs):
+        project = self.get_object()
+        app = project.hub_app()
+        if app is not None:
+            app.reset_key()
+            project.create_pyramid_settings()
+        return super(ResetHubAppKeyView, self).get(request, *args, **kwargs)
