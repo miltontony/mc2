@@ -2,6 +2,7 @@ import shutil
 import os
 import pwd
 import json
+from urlparse import urljoin
 
 os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]  # noqa
 
@@ -353,24 +354,19 @@ class Project(models.Model):
             "team_id": self.team_id,
         }
 
-        if access_token:
-            headers = {'Authorization': 'token %s' % access_token}
-            resp = requests.post(
-                settings.GITHUB_API + 'repos',
-                json=post_data,
-                headers=headers)
+        resp = requests.post(
+            urljoin(settings.GITHUB_API, 'repos'),
+            json=post_data,
+            auth=(settings.GITHUB_USERNAME, settings.GITHUB_TOKEN))
 
-            if resp.status_code != 201:
-                raise exceptions.GithubApiException(
-                    'Create repo failed with response: %s - %s' %
-                    (resp.status_code, resp.json().get('message')))
+        if resp.status_code != 201:
+            raise exceptions.GithubApiException(
+                'Create repo failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('message')))
 
-            repo_db.url = resp.json().get('clone_url')
-            repo_db.git_url = resp.json().get('git_url')
-            repo_db.save()
-        else:
-            raise exceptions.AccessTokenRequiredException(
-                'access_token is required')
+        repo_db.url = resp.json().get('clone_url')
+        repo_db.git_url = resp.json().get('git_url')
+        repo_db.save()
 
     def clone_repo(self):
         repo = Repo.clone_from(self.own_repo().url, self.repo_path())
@@ -513,20 +509,15 @@ class Project(models.Model):
             }
         }
 
-        if access_token:
-            headers = {'Authorization': 'token %s' % access_token}
-            resp = requests.post(
-                settings.GITHUB_HOOKS_API % {'repo': repo_name},
-                json=post_data,
-                headers=headers)
+        resp = requests.post(
+            settings.GITHUB_HOOKS_API % {'repo': repo_name},
+            json=post_data,
+            auth=(settings.GITHUB_USERNAME, settings.GITHUB_TOKEN))
 
-            if resp.status_code != 201:
-                raise exceptions.GithubApiException(
-                    'Create hooks failed with response: %s - %s' %
-                    (resp.status_code, resp.json().get('message')))
-        else:
-            raise exceptions.AccessTokenRequiredException(
-                'access_token is required')
+        if resp.status_code != 201:
+            raise exceptions.GithubApiException(
+                'Create hooks failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('message')))
 
     def create_unicore_distribute_repo(self):
         post_data = {

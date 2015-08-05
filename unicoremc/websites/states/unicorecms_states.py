@@ -6,9 +6,8 @@ class Initial(State):
     transitions = {'create_repo': 'repo_created'}
 
     def create_repo(self, **kwargs):
-        access_token = kwargs.get('access_token')
         if self.instance:
-            self.instance.create_repo(access_token)
+            self.instance.create_repo()
 
 
 class RepoCreated(State):
@@ -52,9 +51,8 @@ class RepoPushed(State):
     transitions = {'create_webhook': 'webhook_created'}
 
     def create_webhook(self, **kwargs):
-        access_token = kwargs.get('access_token')
         if self.instance:
-            self.instance.create_webhook(access_token)
+            self.instance.create_webhook()
 
 
 class WebhookCreated(State):

@@ -1,5 +1,4 @@
 import json
-import requests
 
 from apiclient import errors
 from oauth2client.client import AccessTokenCredentialsError
@@ -17,7 +16,6 @@ from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import ListView, TemplateView, RedirectView
 from django.views.generic.edit import UpdateView
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.core.cache import cache
 from django.contrib import messages
 
 from organizations.utils import org_permission_required, active_organization
@@ -28,33 +26,18 @@ from unicoremc import constants, exceptions
 from unicoremc import tasks, utils
 
 
-def get_repos(refresh):
-    if not refresh:
-        return cache.get('repos')
-    url = ('https://api.github.com/orgs/universalcore/'
-           'repos?type=public&per_page=100&page=%s')
-    pageNum = 1
-    repos = []
-    while True:
-        response = requests.get(url % pageNum)
-        data = response.json()
-        if not data:
-            break
-        repos.extend(data)
-        pageNum += 1
-    repos = [{
-        'name': r.get('name'),
-        'git_url': r.get('git_url'),
-        'clone_url': r.get('clone_url')
-    } for r in repos]
-    cache.set('repos', repos)
-    return repos
-
-
-def get_all_repos(request):
+def repos_json(request):
+    # no login_required because repos are public
     refresh = request.GET.get('refresh', 'false') == 'true'
-    repos = get_repos(refresh)
+    repos = utils.get_repos(refresh)
     return HttpResponse(json.dumps(repos), content_type='application/json')
+
+
+@login_required
+def teams_json(request):
+    # login_required because teams aren't public
+    teams = utils.get_teams()
+    return HttpResponse(json.dumps(teams), content_type='application/json')
 
 
 class ProjectViewMixin(View):
@@ -94,11 +77,8 @@ class NewProjectView(ProjectViewMixin, TemplateView):
     # TODO: base this on CreateView instead of TemplateView
     template_name = 'unicoremc/new_project.html'
     permissions = ['unicoremc.add_project']
-    social_auth = 'github'
 
     def get_context_data(self):
-        social = self.request.user.social_auth.get(provider='github')
-        access_token = social.extra_data['access_token']
         project_pks = self.get_queryset().values_list('pk', flat=True)
 
         context = super(NewProjectView, self).get_context_data()
@@ -109,7 +89,6 @@ class NewProjectView(ProjectViewMixin, TemplateView):
             'project_repos': ProjectRepo.objects.filter(
                 project__in=project_pks,
                 project__state='done'),
-            'access_token': access_token,
         })
         return context
 
@@ -128,7 +107,6 @@ class NewProjectView(ProjectViewMixin, TemplateView):
                 '%s does not support multiple repos' % (AppType.UNICORE_CMS,))
 
         country = request.POST.get('country')
-        access_token = request.POST.get('access_token')
         user_id = request.POST.get('user_id')
         team_id = request.POST.get('team_id')
         docker_cmd = request.POST.get('docker_cmd')
@@ -159,7 +137,7 @@ class NewProjectView(ProjectViewMixin, TemplateView):
         project.save()
 
         if created:
-            tasks.start_new_project.delay(project.id, access_token)
+            tasks.start_new_project.delay(project.id)
 
         return HttpResponse(json.dumps({'success': True}),
                             content_type='application/json')
@@ -203,13 +181,11 @@ class ManageGAView(ProjectViewMixin, TemplateView):
 
     def get_context_data(self):
         social = self.request.user.social_auth.get(provider='google-oauth2')
-        access_token = social.extra_data['access_token']
-        accounts = utils.get_ga_accounts(access_token)
+        accounts = utils.get_ga_accounts(social.extra_data['access_token'])
 
         context = super(ManageGAView, self).get_context_data()
         context.update({
             'projects': self.get_queryset().filter(state='done'),
-            'access_token': access_token,
             'accounts': [
                 {'id': a.get('id'), 'name': a.get('name')} for a in accounts],
         })
@@ -224,7 +200,8 @@ class ManageGAView(ProjectViewMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         project_id = request.POST.get('project_id')
         account_id = request.POST.get('account_id')
-        access_token = request.POST.get('access_token')
+        social = request.user.social_auth.get(provider='google-oauth2')
+        access_token = social.extra_data['access_token']
         project = get_object_or_404(self.get_queryset(), pk=project_id)
 
         if not project.ga_profile_id:

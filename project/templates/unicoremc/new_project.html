@@ -99,7 +99,7 @@ if (typeof String.prototype.startsWith != 'function') {
 (function($) {
     function load_content_repos(app_name, refresh){
         //javascript goes here
-       $.get('/repos/', {refresh: refresh})
+       $.get('{% url "repos_json" %}', {refresh: refresh})
             .done(function(data){
                 if (data != null){
                   var options = new Array();
@@ -119,7 +119,7 @@ if (typeof String.prototype.startsWith != 'function') {
                 }
             });
 
-        $.get('https://api.github.com/orgs/universalcore/teams?access_token={{access_token}}')
+        $.get('{% url "teams_json" %}')
             .done(function(data){
                 var options = new Array();
                 options.push($('<option>').val('').text('---------'));
@@ -152,7 +152,6 @@ if (typeof String.prototype.startsWith != 'function') {
             'docker_cmd': $('#docker_cmd').val(),
             'team_id': $('#repo_team').val(),
             'user_id': '{{request.user.id}}',
-            'access_token': '{{access_token}}',
             'csrfmiddlewaretoken': $("input[name=csrfmiddlewaretoken]").val()
         }
         $.post('.', data)
