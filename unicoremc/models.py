@@ -339,7 +339,7 @@ class Project(models.Model):
         self._hub_app = app
         return app
 
-    def create_repo(self, access_token):
+    def create_repo(self):
         repo_db = self.own_repo()
         new_repo_name = repo_db.name()
 
@@ -496,7 +496,7 @@ class Project(models.Model):
             self.repo_path()
         )
 
-    def create_webhook(self, access_token):
+    def create_webhook(self):
         repo_name = self.own_repo().name()
 
         post_data = {

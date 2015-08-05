@@ -39,25 +39,12 @@ class ProjectTestCase(UnicoremcTestCase):
 
         p = self.mk_project()
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
 
         self.assertEquals(
             p.own_repo().url,
             self.source_repo_sm.repo.git_dir)
         self.assertEquals(p.state, 'repo_created')
-
-    @responses.activate
-    def test_create_repo_missing_access_token(self):
-        self.mock_create_repo()
-        self.mock_create_webhook()
-
-        p = self.mk_project()
-
-        with self.assertRaises(exceptions.AccessTokenRequiredException):
-            pw = p.get_website_manager().workflow
-            pw.take_action('create_repo')
-
-        self.assertEquals(p.state, 'initial')
 
     @responses.activate
     def test_create_repo_bad_response(self):
@@ -67,7 +54,7 @@ class ProjectTestCase(UnicoremcTestCase):
 
         with self.assertRaises(exceptions.GithubApiException):
             pw = p.get_website_manager().workflow
-            pw.take_action('create_repo', access_token='sample-token')
+            pw.take_action('create_repo')
 
         self.assertEquals(p.state, 'initial')
 
@@ -79,7 +66,7 @@ class ProjectTestCase(UnicoremcTestCase):
         p = self.mk_project()
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
 
         self.assertEquals(p.state, 'repo_cloned')
@@ -99,7 +86,7 @@ class ProjectTestCase(UnicoremcTestCase):
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
 
@@ -124,7 +111,7 @@ class ProjectTestCase(UnicoremcTestCase):
                         'unicore-cms-content-gem-tanzania.git'})
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
@@ -151,7 +138,7 @@ class ProjectTestCase(UnicoremcTestCase):
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
@@ -187,7 +174,7 @@ class ProjectTestCase(UnicoremcTestCase):
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
@@ -212,12 +199,12 @@ class ProjectTestCase(UnicoremcTestCase):
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
-        pw.take_action('create_webhook', access_token='sample-token')
+        pw.take_action('create_webhook')
         pw.take_action('init_workspace')
 
         self.assertEquals(p.state, 'workspace_initialized')
@@ -267,12 +254,12 @@ class ProjectTestCase(UnicoremcTestCase):
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
-        pw.take_action('create_webhook', access_token='sample-token')
+        pw.take_action('create_webhook')
         pw.take_action('init_workspace')
         pw.take_action('create_nginx')
 
@@ -304,12 +291,12 @@ class ProjectTestCase(UnicoremcTestCase):
         p.available_languages.add(Localisation._for('eng_UK'))
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
-        pw.take_action('create_webhook', access_token='sample-token')
+        pw.take_action('create_webhook')
         pw.take_action('init_workspace')
         pw.take_action('create_nginx')
         pw.take_action('create_hub_app')
@@ -354,12 +341,12 @@ class ProjectTestCase(UnicoremcTestCase):
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
-        pw.take_action('create_webhook', access_token='sample-token')
+        pw.take_action('create_webhook')
         pw.take_action('init_workspace')
         pw.take_action('create_nginx')
         pw.take_action('create_hub_app')
@@ -486,12 +473,12 @@ class ProjectTestCase(UnicoremcTestCase):
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
-        pw.take_action('create_webhook', access_token='sample-token')
+        pw.take_action('create_webhook')
         pw.take_action('init_workspace')
         pw.take_action('create_nginx')
         pw.take_action('create_hub_app')

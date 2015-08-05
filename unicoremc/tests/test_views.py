@@ -62,7 +62,6 @@ class ViewsTestCase(UnicoremcTestCase):
             'base_repo': self.base_repo_sm.repo.git_dir,
             'project_repos[]': existing_project.own_repo().pk,
             'country': 'ZA',
-            'access_token': 'some-access-token',
             'user_id': 1,
             'team_id': 1
         }
@@ -143,7 +142,6 @@ class ViewsTestCase(UnicoremcTestCase):
         data = {
             'app_type': app_type.id,
             'country': 'ZA',
-            'access_token': 'some-access-token',
             'user_id': 1,
             'team_id': 1
         }
@@ -186,7 +184,6 @@ class ViewsTestCase(UnicoremcTestCase):
             'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
-            'access_token': 'some-access-token',
             'user_id': 1,
             'team_id': 1
         }
@@ -299,7 +296,7 @@ class ViewsTestCase(UnicoremcTestCase):
 
         self.mock_list_repos(repos)
 
-        resp = self.client.get(reverse('get_all_repos'), {'refresh': 'true'})
+        resp = self.client.get(reverse('repos_json'), {'refresh': 'true'})
         resp_json = json.loads(resp.content)
         self.assertEquals(
             resp_json[0], {
@@ -314,7 +311,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.client.login(username='testuser2', password='test')
         self.mock_list_repos()
 
-        self.client.get(reverse('get_all_repos'))
+        self.client.get(reverse('repos_json'))
 
     @patch('unicoremc.utils.create_ga_profile')
     @patch('unicoremc.utils.get_ga_accounts')
@@ -342,7 +339,6 @@ class ViewsTestCase(UnicoremcTestCase):
         data = {
             'account_id': 'some-account-id',
             'project_id': p.id,
-            'access_token': 'some-access-token',
         }
         resp = self.client.post(reverse('manage_ga'), data)
         self.assertEqual(resp['Content-Type'], 'application/json')
