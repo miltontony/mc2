@@ -128,7 +128,7 @@ def get_default_docker_cmd(application_type, country):
     return docker_cmd
 
 
-def get_repos(refresh):
+def get_repos(refresh=False):
     """
     Fetches and returns a list of public repos from Github. Caches
     the result.
@@ -164,8 +164,7 @@ def get_teams():
     if teams is not None:
         return teams
 
-    url = urljoin(
-        settings.GITHUB_API, 'teams')
+    url = urljoin(settings.GITHUB_API, 'teams')
     response = requests.get(
         url, auth=(settings.GITHUB_USERNAME, settings.GITHUB_TOKEN))
     teams = response.json()

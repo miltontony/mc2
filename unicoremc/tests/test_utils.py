@@ -1,19 +1,24 @@
+import os
+import json
 import errno
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
-from django.test import TestCase
+from django.core.cache import get_cache
 from django.test.utils import override_settings
 
+import responses
 from mock import patch, Mock
 
 from elasticgit.storage import StorageException
 
+from unicoremc.tests.base import UnicoremcTestCase
 from unicoremc.utils import (
-    get_hub_app_client, remove_if_exists, git_remove_if_exists)
+    get_hub_app_client, remove_if_exists, git_remove_if_exists,
+    get_repos, get_teams)
 
 
-class UtilsTestCase(TestCase):
+class UtilsTestCase(UnicoremcTestCase):
 
     @override_settings(HUBCLIENT_SETTINGS={})
     def test_get_hub_app_client(self):
@@ -60,3 +65,50 @@ class UtilsTestCase(TestCase):
         self.assertRaises(
             StorageException, git_remove_if_exists,
             mocked_workspace, '/', 'foo')
+
+    @responses.activate
+    def test_get_repos(self):
+        cur_dir = os.path.dirname(os.path.abspath(__file__))
+        test_repos_path = os.path.join(cur_dir, 'repos.json')
+
+        with open(test_repos_path, "r") as repos_file:
+            data = repos_file.read()
+        repos = json.loads(data)
+
+        self.mock_list_repos(repos)
+
+        with patch(
+                'unicoremc.utils.cache',
+                new=get_cache('django.core.cache.backends.locmem.LocMemCache')
+                ):
+            data = get_repos(refresh=True)
+            self.assertEquals(
+                data[0], {
+                    'clone_url':
+                        'https://github.com/universalcore/unicore-cms.git',
+                    'git_url': 'git://github.com/universalcore/unicore-cms.git',
+                    'name': 'unicore-cms'}
+            )
+            self.assertTrue(get_repos())
+            self.assertEqual(len(responses.calls), 1)
+
+    @responses.activate
+    def test_get_repos_no_repos(self):
+        self.mock_list_repos()
+        data = get_repos()
+        self.assertIs(data, None)
+
+    @responses.activate
+    def test_get_teams(self):
+        self.mock_get_teams()
+        with patch(
+                'unicoremc.utils.cache',
+                new=get_cache('django.core.cache.backends.locmem.LocMemCache')
+                ):
+            data = get_teams()
+            self.assertEqual(data[0]['slug'], 'foo')
+            data = get_teams()
+            self.assertEqual(data[0]['slug'], 'foo')
+
+        self.assertEqual(len(responses.calls), 1)
+        self.assertIn('Authorization', responses.calls[0].request.headers)

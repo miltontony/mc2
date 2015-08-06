@@ -11,8 +11,6 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
-from organizations.models import Organization
-
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import (
     Project, Localisation, AppType, ProjectRepo, publish_to_websocket)
