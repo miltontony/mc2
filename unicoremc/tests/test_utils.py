@@ -85,6 +85,8 @@ class UtilsTestCase(UnicoremcTestCase):
             self.assertEqual(get_repos(), data)
 
         self.assertEqual(len(responses.calls), 2)  # 2 requests for 2 pages
+        self.assertIn('Authorization', responses.calls[0].request.headers)
+        self.assertIn('Authorization', responses.calls[1].request.headers)
 
     @responses.activate
     def test_get_repos_no_repos(self):

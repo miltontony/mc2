@@ -137,10 +137,12 @@ def get_repos(refresh=False):
         return cache.get('repos')
     url = urljoin(
         settings.GITHUB_API, 'repos?type=public&per_page=100&page=%s')
+    r_session = requests.Session()
+    r_session.auth = (settings.GITHUB_USERNAME, settings.GITHUB_TOKEN)
     pageNum = 1
     repos = []
     while True:
-        response = requests.get(url % pageNum)
+        response = r_session.get(url % pageNum)
         data = response.json()
         if not data:
             break
