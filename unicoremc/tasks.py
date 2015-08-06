@@ -4,11 +4,11 @@ from elasticgit import EG
 
 
 @task(serializer='json')
-def start_new_project(project_id, access_token):
+def start_new_project(project_id):
     from unicoremc.models import Project
 
     project = Project.objects.get(pk=project_id)
-    project.get_website_manager().build(access_token=access_token)
+    project.get_website_manager().build()
 
 
 @task(serializer='json')

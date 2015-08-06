@@ -145,7 +145,14 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
-    def mock_list_repos(self, data=[]):
+    def mock_list_repos(self, data=None):
+        if data is None:
+            cur_dir = os.path.dirname(os.path.abspath(__file__))
+            test_repos_path = os.path.join(cur_dir, 'repos.json')
+            with open(test_repos_path, "r") as repos_file:
+                data = repos_file.read()
+            data = json.loads(data)
+
         responses.add(
             responses.GET, settings.GITHUB_API +
             'repos?type=public&per_page=100&page=1',
@@ -160,6 +167,24 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=200,
             match_querystring=True)
+
+    def mock_get_teams(self, data=None):
+        if data is None:
+            data = [{
+                'repositories_url': 'https://api.github.com/teams/1/repos',
+                'members_url':
+                    'https://api.github.com/teams/1/members{/member}',
+                'description': '',
+                'permission': 'push',
+                'url': 'https://api.github.com/teams/1',
+                'id': 1,
+                'slug': 'foo',
+                'name': 'Foo'}]
+        responses.add(
+            responses.GET, urljoin(settings.GITHUB_API, 'teams'),
+            body=json.dumps(data),
+            content_type="application/json",
+            status=200)
 
     def mock_create_webhook(
             self, status=201, repo='unicore-cms-content-ffl-za'):

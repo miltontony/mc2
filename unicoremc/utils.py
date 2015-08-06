@@ -1,9 +1,13 @@
 import os
 import errno
 import httplib2
+from urlparse import urljoin
+
+import requests
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
+from django.core.cache import cache
 
 from apiclient import discovery
 from oauth2client import client
@@ -122,3 +126,49 @@ def get_default_docker_cmd(application_type, country):
             docker_cmd = constants.MARATHON_CMD % {
                 'config_path': ini}
     return docker_cmd
+
+
+def get_repos(refresh=False):
+    """
+    Fetches and returns a list of public repos from Github. Caches
+    the result.
+    """
+    if not refresh:
+        return cache.get('repos')
+    url = urljoin(
+        settings.GITHUB_API, 'repos?type=public&per_page=100&page=%s')
+    r_session = requests.Session()
+    r_session.auth = (settings.GITHUB_USERNAME, settings.GITHUB_TOKEN)
+    pageNum = 1
+    repos = []
+    while True:
+        response = r_session.get(url % pageNum)
+        data = response.json()
+        if not data:
+            break
+        repos.extend(data)
+        pageNum += 1
+    repos = [{
+        'name': r.get('name'),
+        'git_url': r.get('git_url'),
+        'clone_url': r.get('clone_url')
+    } for r in repos]
+    cache.set('repos', repos)
+    return repos
+
+
+def get_teams():
+    """
+    Fetches and returns a list of organization teams from Github. Caches
+    the result.
+    """
+    teams = cache.get('teams')
+    if teams is not None:
+        return teams
+
+    url = urljoin(settings.GITHUB_API, 'teams')
+    response = requests.get(
+        url, auth=(settings.GITHUB_USERNAME, settings.GITHUB_TOKEN))
+    teams = response.json()
+    cache.set('teams', teams, timeout=60*30)
+    return teams

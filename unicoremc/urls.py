@@ -41,7 +41,12 @@ urlpatterns = patterns(
     ),
     url(
         r'^repos/$',
-        'unicoremc.views.get_all_repos',
-        name='get_all_repos'
+        'unicoremc.views.repos_json',
+        name='repos_json'
     ),
+    url(
+        r'^teams/$',
+        'unicoremc.views.teams_json',
+        name='teams_json'
+    )
 )

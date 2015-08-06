@@ -1,26 +1,6 @@
 [
     {
-        "pk": 1,
-        "model": "default.usersocialauth",
-        "fields": {
-            "uid": "test@email.com",
-            "extra_data": "{\"access_token\": \"some-token\"}",
-            "user": 1,
-            "provider": "github"
-        }
-    },
-    {
-        "pk": 2,
-        "model": "default.usersocialauth",
-        "fields": {
-            "uid": "test2@test2.com",
-            "extra_data": "{\"access_token\": \"some-other-token\"}",
-            "user": 2,
-            "provider": "github"
-        }
-    },
-    {
-       "pk": 3,
+       "pk": 1,
        "model": "default.usersocialauth",
        "fields": {
           "uid": "test2@test2.com",

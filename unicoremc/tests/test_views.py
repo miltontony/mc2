@@ -11,8 +11,6 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
-from organizations.models import Organization
-
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import (
     Project, Localisation, AppType, ProjectRepo, publish_to_websocket)
@@ -62,7 +60,6 @@ class ViewsTestCase(UnicoremcTestCase):
             'base_repo': self.base_repo_sm.repo.git_dir,
             'project_repos[]': existing_project.own_repo().pk,
             'country': 'ZA',
-            'access_token': 'some-access-token',
             'user_id': 1,
             'team_id': 1
         }
@@ -143,7 +140,6 @@ class ViewsTestCase(UnicoremcTestCase):
         data = {
             'app_type': app_type.id,
             'country': 'ZA',
-            'access_token': 'some-access-token',
             'user_id': 1,
             'team_id': 1
         }
@@ -186,7 +182,6 @@ class ViewsTestCase(UnicoremcTestCase):
             'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
-            'access_token': 'some-access-token',
             'user_id': 1,
             'team_id': 1
         }
@@ -289,17 +284,9 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(resp.status_code, 302)
 
     @responses.activate
-    def test_cleanup_get_repos(self):
-        cur_dir = os.path.dirname(os.path.abspath(__file__))
-        test_repos_path = os.path.join(cur_dir, 'repos.json')
-
-        with open(test_repos_path, "r") as repos_file:
-            data = repos_file.read()
-        repos = json.loads(data)
-
-        self.mock_list_repos(repos)
-
-        resp = self.client.get(reverse('get_all_repos'), {'refresh': 'true'})
+    def test_get_repos(self):
+        self.mock_list_repos()
+        resp = self.client.get(reverse('repos_json'), {'refresh': 'true'})
         resp_json = json.loads(resp.content)
         self.assertEquals(
             resp_json[0], {
@@ -308,13 +295,33 @@ class ViewsTestCase(UnicoremcTestCase):
                 'git_url': 'git://github.com/universalcore/unicore-cms.git',
                 'name': 'unicore-cms'}
         )
+        self.assertEqual(resp['Content-Type'], 'application/json')
 
     @responses.activate
-    def test_no_repos(self):
-        self.client.login(username='testuser2', password='test')
-        self.mock_list_repos()
+    def test_get_repos_no_repos(self):
+        self.mock_list_repos(data=[])
+        resp = self.client.get(reverse('repos_json'))
+        resp_json = json.loads(resp.content)
+        self.assertIs(resp_json, None)
+        self.assertEqual(resp['Content-Type'], 'application/json')
 
-        self.client.get(reverse('get_all_repos'))
+    @responses.activate
+    def test_get_teams(self):
+        self.mock_get_teams()
+        resp = self.client.get(reverse('teams_json'))
+        resp_json = json.loads(resp.content)
+        self.assertEqual(resp_json, [{
+            'repositories_url': 'https://api.github.com/teams/1/repos',
+            'members_url':
+                'https://api.github.com/teams/1/members{/member}',
+            'description': '',
+            'permission': 'push',
+            'url': 'https://api.github.com/teams/1',
+            'id': 1,
+            'slug': 'foo',
+            'name': 'Foo'
+        }])
+        self.assertEqual(resp['Content-Type'], 'application/json')
 
     @patch('unicoremc.utils.create_ga_profile')
     @patch('unicoremc.utils.get_ga_accounts')
@@ -342,7 +349,6 @@ class ViewsTestCase(UnicoremcTestCase):
         data = {
             'account_id': 'some-account-id',
             'project_id': p.id,
-            'access_token': 'some-access-token',
         }
         resp = self.client.post(reverse('manage_ga'), data)
         self.assertEqual(resp['Content-Type'], 'application/json')

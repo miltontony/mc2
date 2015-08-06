@@ -131,7 +131,6 @@ MIDDLEWARE_CLASSES = (
 
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
-    'social.backends.github.GithubOAuth2',
     'social.backends.google.GoogleOAuth2',
 )
 
@@ -285,7 +284,6 @@ UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
 UNICORE_CONFIGS_INSTALL_DIR = '/path/to/unicore-configs'
 
 SOCIAL_AUTH_SESSION_EXPIRATION = True
-SOCIAL_AUTH_GITHUB_SCOPE = ['user', 'public_repo']
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/analytics.edit',
     'https://www.googleapis.com/auth/analytics.provision']
@@ -293,6 +291,8 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
     'access_type': 'offline',
     'approval_prompt': 'auto'
 }
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
@@ -311,6 +311,8 @@ SOCIAL_AUTH_PIPELINE = (
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
 GITHUB_HOOKS_API = 'https://api.github.com/repos/universalcore/%(repo)s/hooks'
 GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
+GITHUB_USERNAME = ''
+GITHUB_TOKEN = ''
 
 RAVEN_DSN_FRONTEND_QA = ''
 RAVEN_DSN_FRONTEND_PROD = ''

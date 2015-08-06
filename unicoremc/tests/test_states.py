@@ -66,12 +66,12 @@ class StatesTestCase(UnicoremcTestCase):
         self.addCleanup(lambda: shutil.rmtree(p.repo_path()))
 
         pw = p.get_website_manager().workflow
-        pw.take_action('create_repo', access_token='sample-token')
+        pw.take_action('create_repo')
         pw.take_action('clone_repo')
         pw.take_action('create_remote')
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
-        pw.take_action('create_webhook', access_token='sample-token')
+        pw.take_action('create_webhook')
         pw.take_action('init_workspace')
         pw.take_action('create_nginx')
         pw.take_action('create_hub_app')
@@ -97,7 +97,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertEquals(p.state, 'initial')
 
         pw = p.get_website_manager().workflow
-        pw.next(access_token='sample-token')
+        pw.next()
         self.assertEquals(p.state, 'repo_created')
 
     @responses.activate
@@ -117,7 +117,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertEquals(p.state, 'initial')
 
         pw = p.get_website_manager().workflow
-        pw.run_all(access_token='sample-token')
+        pw.run_all()
 
         self.assertEquals(p.state, 'done')
         self.assertEquals(
@@ -146,7 +146,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertEquals(p.state, 'initial')
 
         pw = p.get_website_manager().workflow
-        pw.run_all(access_token='sample-token')
+        pw.run_all()
 
         self.assertEquals(p.state, 'done')
 
@@ -214,7 +214,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertEquals(p.state, 'initial')
 
         pw = p.get_website_manager().workflow
-        pw.run_all(access_token='sample-token')
+        pw.run_all()
 
         self.assertEquals(p.state, 'done')
 
@@ -279,7 +279,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.assertEquals(p.state, 'initial')
 
         pw = p.get_website_manager().workflow
-        pw.run_all(access_token='sample-token')
+        pw.run_all()
 
         self.assertEquals(p.state, 'done')
 
@@ -336,7 +336,7 @@ class StatesTestCase(UnicoremcTestCase):
         self.mock_create_all()
 
         pw = p.get_website_manager().workflow
-        pw.run_all(access_token='sample-token')
+        pw.run_all()
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,

@@ -57,6 +57,7 @@
         </form>
         {% endblock %}
 
+        {% if request.user.is_authenticated %}
         <div class="dropdown pull-right">
             <button class="btn btn-default dropdown-toggle" type="button" id="org-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
                 {% if active_organization %}
@@ -82,6 +83,7 @@
                 {% endif %}
             </ul>
         </div>
+        {% endif %}
 
        </div>
      </div>
