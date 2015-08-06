@@ -35,7 +35,6 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_repo_state(self):
         self.mock_create_repo()
-        self.mock_create_webhook()
 
         p = self.mk_project()
         pw = p.get_website_manager().workflow
@@ -45,6 +44,8 @@ class ProjectTestCase(UnicoremcTestCase):
             p.own_repo().url,
             self.source_repo_sm.repo.git_dir)
         self.assertEquals(p.state, 'repo_created')
+        self.assertEqual(len(responses.calls), 1)
+        self.assertIn('Authorization', responses.calls[0].request.headers)
 
     @responses.activate
     def test_create_repo_bad_response(self):
@@ -61,7 +62,6 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_clone_repo(self):
         self.mock_create_repo()
-        self.mock_create_webhook()
 
         p = self.mk_project()
 
@@ -81,7 +81,6 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_create_remotes_repo(self):
         self.mock_create_repo()
-        self.mock_create_webhook()
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
@@ -104,7 +103,6 @@ class ProjectTestCase(UnicoremcTestCase):
     @skip("slow test that connects to github")
     def test_create_remotes_repo_from_github(self):  # pragma: no cover
         self.mock_create_repo()
-        self.mock_create_webhook()
 
         p = self.mk_project(repo={
             'base_url': 'git://github.com/universalcore/'
@@ -133,7 +131,6 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_merge_remote_repo(self):
         self.mock_create_repo()
-        self.mock_create_webhook()
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
@@ -169,7 +166,6 @@ class ProjectTestCase(UnicoremcTestCase):
     @responses.activate
     def test_push_repo(self):
         self.mock_create_repo()
-        self.mock_create_webhook()
 
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
@@ -205,6 +201,10 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('merge_remote')
         pw.take_action('push_repo')
         pw.take_action('create_webhook')
+
+        self.assertEqual(len(responses.calls), 2)
+        self.assertIn('Authorization', responses.calls[-1].request.headers)
+
         pw.take_action('init_workspace')
 
         self.assertEquals(p.state, 'workspace_initialized')
