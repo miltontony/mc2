@@ -68,15 +68,7 @@ class UtilsTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_get_repos(self):
-        cur_dir = os.path.dirname(os.path.abspath(__file__))
-        test_repos_path = os.path.join(cur_dir, 'repos.json')
-
-        with open(test_repos_path, "r") as repos_file:
-            data = repos_file.read()
-        repos = json.loads(data)
-
-        self.mock_list_repos(repos)
-
+        self.mock_list_repos()
         with patch(
                 'unicoremc.utils.cache',
                 new=get_cache('django.core.cache.backends.locmem.LocMemCache')
@@ -86,15 +78,17 @@ class UtilsTestCase(UnicoremcTestCase):
                 data[0], {
                     'clone_url':
                         'https://github.com/universalcore/unicore-cms.git',
-                    'git_url': 'git://github.com/universalcore/unicore-cms.git',
+                    'git_url':
+                        'git://github.com/universalcore/unicore-cms.git',
                     'name': 'unicore-cms'}
             )
-            self.assertTrue(get_repos())
-            self.assertEqual(len(responses.calls), 1)
+            self.assertEqual(get_repos(), data)
+
+        self.assertEqual(len(responses.calls), 2)  # 2 requests for 2 pages
 
     @responses.activate
     def test_get_repos_no_repos(self):
-        self.mock_list_repos()
+        self.mock_list_repos(data=[])
         data = get_repos()
         self.assertIs(data, None)
 
@@ -106,9 +100,19 @@ class UtilsTestCase(UnicoremcTestCase):
                 new=get_cache('django.core.cache.backends.locmem.LocMemCache')
                 ):
             data = get_teams()
-            self.assertEqual(data[0]['slug'], 'foo')
-            data = get_teams()
-            self.assertEqual(data[0]['slug'], 'foo')
+            self.assertEqual(data, [{
+                'repositories_url': 'https://api.github.com/teams/1/repos',
+                'members_url':
+                    'https://api.github.com/teams/1/members{/member}',
+                'description': '',
+                'permission': 'push',
+                'url': 'https://api.github.com/teams/1',
+                'id': 1,
+                'slug': 'foo',
+                'name': 'Foo'
+            }])
+            data2 = get_teams()
+            self.assertEqual(data, data2)
 
         self.assertEqual(len(responses.calls), 1)
         self.assertIn('Authorization', responses.calls[0].request.headers)

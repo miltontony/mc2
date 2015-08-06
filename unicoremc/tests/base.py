@@ -145,7 +145,14 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
-    def mock_list_repos(self, data=[]):
+    def mock_list_repos(self, data=None):
+        if data is None:
+            cur_dir = os.path.dirname(os.path.abspath(__file__))
+            test_repos_path = os.path.join(cur_dir, 'repos.json')
+            with open(test_repos_path, "r") as repos_file:
+                data = repos_file.read()
+            data = json.loads(data)
+
         responses.add(
             responses.GET, settings.GITHUB_API +
             'repos?type=public&per_page=100&page=1',

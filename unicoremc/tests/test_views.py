@@ -284,16 +284,8 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(resp.status_code, 302)
 
     @responses.activate
-    def test_cleanup_get_repos(self):
-        cur_dir = os.path.dirname(os.path.abspath(__file__))
-        test_repos_path = os.path.join(cur_dir, 'repos.json')
-
-        with open(test_repos_path, "r") as repos_file:
-            data = repos_file.read()
-        repos = json.loads(data)
-
-        self.mock_list_repos(repos)
-
+    def test_get_repos(self):
+        self.mock_list_repos()
         resp = self.client.get(reverse('repos_json'), {'refresh': 'true'})
         resp_json = json.loads(resp.content)
         self.assertEquals(
@@ -303,13 +295,33 @@ class ViewsTestCase(UnicoremcTestCase):
                 'git_url': 'git://github.com/universalcore/unicore-cms.git',
                 'name': 'unicore-cms'}
         )
+        self.assertEqual(resp['Content-Type'], 'application/json')
 
     @responses.activate
-    def test_no_repos(self):
-        self.client.login(username='testuser2', password='test')
-        self.mock_list_repos()
+    def test_get_repos_no_repos(self):
+        self.mock_list_repos(data=[])
+        resp = self.client.get(reverse('repos_json'))
+        resp_json = json.loads(resp.content)
+        self.assertIs(resp_json, None)
+        self.assertEqual(resp['Content-Type'], 'application/json')
 
-        self.client.get(reverse('repos_json'))
+    @responses.activate
+    def test_get_teams(self):
+        self.mock_get_teams()
+        resp = self.client.get(reverse('teams_json'))
+        resp_json = json.loads(resp.content)
+        self.assertEqual(resp_json, [{
+            'repositories_url': 'https://api.github.com/teams/1/repos',
+            'members_url':
+                'https://api.github.com/teams/1/members{/member}',
+            'description': '',
+            'permission': 'push',
+            'url': 'https://api.github.com/teams/1',
+            'id': 1,
+            'slug': 'foo',
+            'name': 'Foo'
+        }])
+        self.assertEqual(resp['Content-Type'], 'application/json')
 
     @patch('unicoremc.utils.create_ga_profile')
     @patch('unicoremc.utils.get_ga_accounts')
