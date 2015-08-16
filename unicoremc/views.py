@@ -237,3 +237,9 @@ class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
             app.reset_key()
             project.create_pyramid_settings()
         return super(ResetHubAppKeyView, self).get(request, *args, **kwargs)
+
+
+class AppLogView(ProjectViewMixin, TemplateView):
+    template_name = 'unicoremc/app_logs.html'
+    permissions = []
+    # social_auth = 'google-oauth2'

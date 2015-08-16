@@ -1,0 +1,18 @@
+{% extends "unicoremc/base.html" %}
+{% load i18n admin_urls admin_static %}
+
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="#">Logs</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<link href="{{STATIC_URL}}css/app_logs.css" rel="stylesheet">
+<script src="{{STATIC_URL}}js/app_logs.js"></script>
+<div id="content-main" class="new-project">
+    <div id="logs">
+    </div>
+</div>
+{% endblock %}

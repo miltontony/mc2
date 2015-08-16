@@ -31,6 +31,10 @@ urlpatterns = patterns(
         views.ProjectEditView.as_view(),
         name='advanced'),
     url(
+        r'^logs/(?P<project_id>\d+)/$',
+        views.AppLogView.as_view(),
+        name='logs'),
+    url(
         r'^advanced/(?P<project_id>\d+)/reset_hub_app_key/$',
         views.ResetHubAppKeyView.as_view(),
         name='reset-hub-app-key'),
