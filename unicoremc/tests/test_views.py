@@ -11,7 +11,6 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-from django.http import Http404
 
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import (
