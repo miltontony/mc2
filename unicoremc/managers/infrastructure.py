@@ -77,6 +77,11 @@ class ProjectInfrastructureManager(GeneralInfrastructureManager):
         return super(ProjectInfrastructureManager, self).get_marathon_app(
             self.project.app_id)
 
+    def get_project_marathon_tasks(self):
+        return super(
+            ProjectInfrastructureManager, self).get_marathon_app_tasks(
+                self.project.app_id)
+
     def get_project_log_urls(self):
         return super(ProjectInfrastructureManager, self).get_app_log_urls(
             self.project.app_id)

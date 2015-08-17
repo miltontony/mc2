@@ -417,6 +417,23 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertIn('unicorehub.app_key = iamanewkey', data)
 
     @responses.activate
+    def test_applog_view(self):
+        self.client.login(username='testuser2', password='test')
+        project = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
+        setup_responses_for_logdriver(project)
+        response = self.client.get(reverse('logs', kwargs={
+            'project_id': project.pk,
+        }))
+        [task] = response.context['tasks']
+        self.assertEqual(task['id'], '%s.the-task-id' % (project.app_id,))
+        [task_id] = response.context['task_ids']
+        self.assertEqual(task_id, 'the-task-id')
+        print response
+        assert False
+
+    @responses.activate
     def test_event_source_response_stdout(self):
         project = self.mk_project()
         setup_responses_for_logdriver(project)

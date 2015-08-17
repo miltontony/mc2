@@ -242,6 +242,18 @@ class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
 class AppLogView(ProjectViewMixin, TemplateView):
     template_name = 'unicoremc/app_logs.html'
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(AppLogView, self).get_context_data(*args, **kwargs)
+        project = get_object_or_404(self.get_queryset(),
+                                    pk=kwargs['project_id'])
+        tasks = project.infra_manager.get_project_marathon_tasks()
+        context.update({
+            'project': project,
+            'tasks': tasks,
+            'task_ids': [t['id'].split('.', 1)[1] for t in tasks],
+        })
+        return context
+
 
 class AppEventSourceView(ProjectViewMixin, View):
 

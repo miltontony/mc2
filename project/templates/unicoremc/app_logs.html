@@ -12,6 +12,34 @@
 <link href="{{STATIC_URL}}css/app_logs.css" rel="stylesheet">
 <script src="{{STATIC_URL}}js/eventsource.min.js"></script>
 <script src="{{STATIC_URL}}js/app_logs.js"></script>
+<script>
+$(document).ready(function() {
+
+    var al, es;
+    var task_ids = [
+        {% for task_id in task_ids %}
+        '{{task_id}}',
+        {% endfor %}
+    ]
+
+    var paths = ['stdout', 'stderr'];
+
+    task_ids.forEach(function(task_id) {
+        paths.foreach(function(path) {
+            al = new AppLog('#logs', function(msg) {
+                $("<div class='entry " + path + "' />")
+                    .text(msg)
+                    .appendTo($('#logs'));
+            })
+
+            es = new EventSource('./' + task_id + '/' + path + '/');
+            es.addEventListener('message', function (event) {
+                al.log(event.data);
+            });
+        });
+    });
+});
+</script>
 <div id="content-main" class="new-project">
     <div id="logs">
     </div>
