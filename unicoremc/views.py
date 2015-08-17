@@ -3,12 +3,11 @@ import json
 from apiclient import errors
 from oauth2client.client import AccessTokenCredentialsError
 
-from django.conf import settings
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
-    HttpResponseForbidden)
+    HttpResponseForbidden, HttpResponseNotFound)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
 from django.contrib.auth.models import User
@@ -25,8 +24,6 @@ from unicoremc.models import Project, Localisation, AppType, ProjectRepo
 from unicoremc.forms import ProjectForm
 from unicoremc import constants, exceptions
 from unicoremc import tasks, utils
-
-from marathon import MarathonClient
 
 
 def repos_json(request):
@@ -248,12 +245,15 @@ class AppLogView(ProjectViewMixin, TemplateView):
 
 class AppEventSourceView(ProjectViewMixin, View):
 
-    def get(self, request, project_id, task_id):
+    def get(self, request, project_id, task_id, path):
         project = get_object_or_404(Project, pk=project_id)
-        log_urls = project.infra_manager.get_task_log_urls(task_id)
-        from datetime import datetime
-        return HttpResponse('data: %s\n\n' % (datetime.now().isoformat(),),
-                            content_type='text/event-stream')
-
-        #
-        # app = client.get_app()
+        urls = project.infra_manager.get_project_task_log_urls(
+            '%s.%s' % (project.app_id, task_id))
+        try:
+            [url] = filter(lambda url: url.endswith(path), urls)
+            response = HttpResponse()
+            response['X-Accel-Redirect'] = url
+            response['X-Accel-Buffering'] = 'no'
+            return response
+        except ValueError:
+            return HttpResponseNotFound('File not found.')

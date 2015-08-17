@@ -6,10 +6,12 @@ import responses
 from urlparse import urljoin
 
 from django.conf import settings
+from django.test import RequestFactory
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.http import Http404
 
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import (
@@ -18,6 +20,8 @@ from unicoremc.managers import DbManager
 from unicore.content.models import (
     Category, Page, Localisation as EGLocalisation)
 from unicoremc.tests.base import UnicoremcTestCase
+from unicoremc.tests.utils import setup_responses_for_logdriver
+from unicoremc.views import AppEventSourceView
 
 from mock import patch
 
@@ -412,3 +416,46 @@ class ViewsTestCase(UnicoremcTestCase):
             data = config_file.read()
 
         self.assertIn('unicorehub.app_key = iamanewkey', data)
+
+    @responses.activate
+    def test_event_source_response_stdout(self):
+        project = self.mk_project()
+        setup_responses_for_logdriver(project)
+        resp = self.client.get(reverse('logs_event_source', kwargs={
+            'project_id': project.pk,
+            'task_id': 'the-task-id',
+            'path': 'stdout',
+        }))
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            ('http://worker-machine-1:3333/tail/worker-machine-id'
+             '/frameworks/the-framework-id/executors'
+             '/ffl-za-1.the-task-id/runs/latest/stdout'))
+        self.assertEqual(resp['X-Accel-Buffering'], 'no')
+
+    @responses.activate
+    def test_event_source_response_stderr(self):
+        project = self.mk_project()
+        setup_responses_for_logdriver(project)
+        resp = self.client.get(reverse('logs_event_source', kwargs={
+            'project_id': project.pk,
+            'task_id': 'the-task-id',
+            'path': 'stderr',
+        }))
+        self.assertEqual(
+            resp['X-Accel-Redirect'],
+            ('http://worker-machine-1:3333/tail/worker-machine-id'
+             '/frameworks/the-framework-id/executors'
+             '/ffl-za-1.the-task-id/runs/latest/stderr'))
+        self.assertEqual(resp['X-Accel-Buffering'], 'no')
+
+    @responses.activate
+    def test_event_source_response_badpath(self):
+        project = self.mk_project()
+        setup_responses_for_logdriver(project)
+        # NOTE: bad path according to URL regex, hence the manual requesting
+        view = AppEventSourceView()
+        response = view.get(RequestFactory().get('/'), project.pk,
+                            'the-task-id', 'foo')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.content, 'File not found.')

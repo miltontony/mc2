@@ -1,5 +1,3 @@
-import json
-
 import responses
 
 from django.test import TestCase
@@ -9,11 +7,12 @@ from unicoremc.managers.infrastructure import (
     GeneralInfrastructureManager, InfrastructureError)
 from unicoremc.models import Project, AppType
 
+from unicoremc.tests.utils import setup_responses_for_logdriver
+
 
 class GeneralInfrastructureManagerTest(TestCase):
 
     def setUp(self):
-
         User = get_user_model()
         user = User.objects.create_user(
             'tester', 'test@example.org', 'tester')
@@ -23,49 +22,7 @@ class GeneralInfrastructureManagerTest(TestCase):
         self.project = Project(application_type=app_type,
                                country='ZA', owner=user)
         self.project.save()
-
-        responses.add(
-            responses.GET,
-            'http://testserver:8080/v2/apps/%s' % (self.project.app_id,),
-            status=200, content_type='application/json',
-            body=json.dumps({
-                "app": {
-                    "id": "/%s" % (self.project.app_id,),
-                }
-            }))
-
-        responses.add(
-            responses.GET,
-            'http://testserver:8080/v2/apps/%s/tasks' % (self.project.app_id,),
-            status=200, content_type='application/json',
-            body=json.dumps({
-                "tasks": [{
-                    "appId": "/%s" % (self.project.app_id,),
-                    "id": "%s.the-task-id" % (self.project.app_id,),
-                    "host": "worker-machine-1",
-                    "ports": [8898],
-                    "startedAt": "2015-08-10T16:09:43.561Z",
-                    "stagedAt": "2015-08-10T16:09:35.436Z",
-                    "version": "2015-07-31T15:41:42.894Z",
-                    "healthCheckResults": [],
-                }]
-            }))
-
-        responses.add(
-            responses.GET, 'http://testserver:8080/v2/info',
-            status=200, content_type='application/json',
-            body=json.dumps({
-                "name": "marathon",
-                "frameworkId": "the-framework-id",
-            }))
-
-        responses.add(
-            responses.GET, 'http://worker-machine-1:5555/state.json',
-            status=200, content_type='application/json',
-            body=json.dumps({
-                "id": "worker-machine-id",
-            })
-        )
+        setup_responses_for_logdriver(self.project)
         self.general_im = GeneralInfrastructureManager()
         self.project_im = self.project.infra_manager
 

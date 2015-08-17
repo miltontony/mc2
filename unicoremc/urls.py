@@ -35,11 +35,8 @@ urlpatterns = patterns(
         views.AppLogView.as_view(),
         name='logs'),
     url(
-        r'^logs/(?P<project_id>\d+)/stdout/$',
-        views.AppEventSourceView.as_view(), name='logs_stdout'),
-    url(
-        r'^logs/(?P<project_id>\d+)/stderr/$',
-        views.AppEventSourceView.as_view(), name='logs_stderr'),
+        r'^logs/(?P<project_id>\d+)/(?P<task_id>[\w\.\-]+)/(?P<path>(stderr|stdout))/$',  # noqa
+        views.AppEventSourceView.as_view(), name='logs_event_source'),
     url(
         r'^advanced/(?P<project_id>\d+)/reset_hub_app_key/$',
         views.ResetHubAppKeyView.as_view(),
