@@ -430,8 +430,6 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(task['id'], '%s.the-task-id' % (project.app_id,))
         [task_id] = response.context['task_ids']
         self.assertEqual(task_id, 'the-task-id')
-        print response
-        assert False
 
     @responses.activate
     def test_event_source_response_stdout(self):
