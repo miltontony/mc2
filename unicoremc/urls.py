@@ -31,6 +31,13 @@ urlpatterns = patterns(
         views.ProjectEditView.as_view(),
         name='advanced'),
     url(
+        r'^logs/(?P<project_id>\d+)/$',
+        views.AppLogView.as_view(),
+        name='logs'),
+    url(
+        r'^logs/(?P<project_id>\d+)/(?P<task_id>[\w\.\-]+)/(?P<path>(stderr|stdout))/$',  # noqa
+        views.AppEventSourceView.as_view(), name='logs_event_source'),
+    url(
         r'^advanced/(?P<project_id>\d+)/reset_hub_app_key/$',
         views.ResetHubAppKeyView.as_view(),
         name='reset-hub-app-key'),

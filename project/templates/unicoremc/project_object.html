@@ -42,4 +42,5 @@
   {% if user.is_superuser %}
   <td class="advanced"><a href="{% url 'advanced' project.id %}">edit</a></td>
   {% endif %}
+  <td class="logs"><a href="{% url 'logs' project.id %}">logs</a></td>
 </tr>

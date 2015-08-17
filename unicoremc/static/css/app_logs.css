@@ -1,0 +1,32 @@
+#logs {
+    color: #999;
+    background: black;
+    font-family: monospace;
+    padding: 20px 0;
+    height: 600px;
+    width: 100%;
+    overflow: hidden;
+    counter-reset: line;
+}
+
+#logs .entry {
+    padding: 0 20px;
+}
+
+#logs .entry:before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  border-right: 1px solid #ddd;
+  padding: 0 .5em;
+  margin-right: .5em;
+  color: #888
+}
+
+#logs .entry:nth-child(odd) {
+    background: #222;
+}
+
+#logs .entry.stderr {
+  color: rgb(228, 114, 114);
+}

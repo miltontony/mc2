@@ -7,7 +7,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
-    HttpResponseForbidden)
+    HttpResponseForbidden, HttpResponseNotFound)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
 from django.contrib.auth.models import User
@@ -237,3 +237,37 @@ class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
             app.reset_key()
             project.create_pyramid_settings()
         return super(ResetHubAppKeyView, self).get(request, *args, **kwargs)
+
+
+class AppLogView(ProjectViewMixin, TemplateView):
+    template_name = 'unicoremc/app_logs.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(AppLogView, self).get_context_data(*args, **kwargs)
+        project = get_object_or_404(self.get_queryset(),
+                                    pk=kwargs['project_id'])
+        tasks = project.infra_manager.get_project_marathon_tasks()
+        context.update({
+            'project': project,
+            'tasks': tasks,
+            'task_ids': [t['id'].split('.', 1)[1] for t in tasks],
+        })
+        return context
+
+
+class AppEventSourceView(ProjectViewMixin, View):
+
+    def get(self, request, project_id, task_id, path):
+        project = get_object_or_404(Project, pk=project_id)
+        # NOTE: I'm piecing together the app_id and task_id here
+        #       so as to not need to expose both in the templates.
+        urls = project.infra_manager.get_project_task_log_urls(
+            '%s.%s' % (project.app_id, task_id))
+        try:
+            [url] = filter(lambda url: url.endswith(path), urls)
+            response = HttpResponse()
+            response['X-Accel-Redirect'] = url
+            response['X-Accel-Buffering'] = 'no'
+            return response
+        except ValueError:
+            return HttpResponseNotFound('File not found.')

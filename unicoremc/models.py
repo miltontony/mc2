@@ -15,7 +15,8 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from unicoremc import constants, exceptions, mappings
-from unicoremc.managers import NginxManager, SettingsManager, DbManager
+from unicoremc.managers import (
+    NginxManager, SettingsManager, DbManager, ProjectInfrastructureManager)
 from unicoremc.websites.managers import (
     UnicoreCmsWebsiteManager, SpringboardWebsiteManager,
     AggregatorWebsiteManager)
@@ -192,6 +193,7 @@ class Project(models.Model):
         self.nginx_manager = NginxManager()
         self.settings_manager = SettingsManager()
         self.db_manager = DbManager()
+        self.infra_manager = ProjectInfrastructureManager(self)
 
     @property
     def app_type(self):
