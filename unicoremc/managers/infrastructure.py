@@ -1,5 +1,11 @@
 from django.conf import settings
+from django.http import Http404
+
 import requests
+
+
+class InfrastructureError(Exception):
+    pass
 
 
 class GeneralInfrastructureManager(object):
@@ -32,25 +38,34 @@ class GeneralInfrastructureManager(object):
             headers=self.headers
         ).json()
 
-    def get_log_urls(self, app_id):
+    def get_app_log_urls(self, app_id):
         marathon_info = self.get_marathon_info()
+        urls = []
         for task in self.get_marathon_app_tasks(app_id):
             task_id = task['id']
             task_host = task['host']
-            framework_id = marathon_info['frameworkId']
-            follower_id = self.get_worker_info(task_host)['id']
-            for path in ["stdout", "stderr"]:
-                yield (
-                    "http://%(task_host)s:%(logdriver_port)s/tail"
-                    "/%(follower_id)s/frameworks/%(framework_id)s/executors"
-                    "/%(task_id)s/runs/latest/%(path)s" % {
-                        'task_host': task_host,
-                        'logdriver_port': settings.LOGDRIVER_PORT,
-                        'follower_id': follower_id,
-                        'framework_id': framework_id,
-                        'task_id': task_id,
-                        'path': path,
-                    })
+            urls.extend(self.get_task_log_urls(
+                app_id, task_id, task_host, marathon_info=marathon_info
+            ))
+        return urls
+
+    def get_task_log_urls(self, app_id, task_id, task_host,
+                          marathon_info=None):
+        marathon_info = marathon_info or self.get_marathon_info()
+        framework_id = marathon_info['frameworkId']
+        follower_id = self.get_worker_info(task_host)['id']
+        for path in ["stdout", "stderr"]:
+            yield (
+                "http://%(task_host)s:%(logdriver_port)s/tail"
+                "/%(follower_id)s/frameworks/%(framework_id)s/executors"
+                "/%(task_id)s/runs/latest/%(path)s" % {
+                    'task_host': task_host,
+                    'logdriver_port': settings.LOGDRIVER_PORT,
+                    'follower_id': follower_id,
+                    'framework_id': framework_id,
+                    'task_id': task_id,
+                    'path': path,
+                })
 
 
 class ProjectInfrastructureManager(GeneralInfrastructureManager):
@@ -63,5 +78,14 @@ class ProjectInfrastructureManager(GeneralInfrastructureManager):
             self.project.app_id)
 
     def get_project_log_urls(self):
-        return super(ProjectInfrastructureManager, self).get_log_urls(
+        return super(ProjectInfrastructureManager, self).get_app_log_urls(
             self.project.app_id)
+
+    def get_project_task_log_urls(self, task_id):
+        tasks = self.get_marathon_app_tasks(self.project.app_id)
+        try:
+            [task] = filter(lambda t: t['id'] == task_id, tasks)
+            return super(ProjectInfrastructureManager, self).get_task_log_urls(
+                self.project.app_id, task['id'], task['host'])
+        except ValueError:
+            raise InfrastructureError('Task not found.')

@@ -248,13 +248,9 @@ class AppLogView(ProjectViewMixin, TemplateView):
 
 class AppEventSourceView(ProjectViewMixin, View):
 
-    def get(self, request, project_id):
+    def get(self, request, project_id, task_id):
         project = get_object_or_404(Project, pk=project_id)
-        client = MarathonClient([settings.MESOS_MARATHON_HOST])
-        app = client.get_app('aponjon-bd-47')
-        # NOTE: We're assuming a single task per app, this is wrong.
-        [task] = app.tasks
-
+        log_urls = project.infra_manager.get_task_log_urls(task_id)
         from datetime import datetime
         return HttpResponse('data: %s\n\n' % (datetime.now().isoformat(),),
                             content_type='text/event-stream')
