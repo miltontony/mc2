@@ -259,6 +259,8 @@ class AppEventSourceView(ProjectViewMixin, View):
 
     def get(self, request, project_id, task_id, path):
         project = get_object_or_404(Project, pk=project_id)
+        # NOTE: I'm piecing together the app_id and task_id here
+        #       so as to not need to expose both in the templates.
         urls = project.infra_manager.get_project_task_log_urls(
             '%s.%s' % (project.app_id, task_id))
         try:
