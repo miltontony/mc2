@@ -3,6 +3,7 @@ import json
 from apiclient import errors
 from oauth2client.client import AccessTokenCredentialsError
 
+from django.conf import settings
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
@@ -248,9 +249,15 @@ class AppLogView(ProjectViewMixin, TemplateView):
 class AppEventSourceView(ProjectViewMixin, View):
 
     def get(self, request, project_id):
+        project = get_object_or_404(Project, pk=project_id)
+        client = MarathonClient([settings.MESOS_MARATHON_HOST])
+        app = client.get_app('aponjon-bd-47')
+        # NOTE: We're assuming a single task per app, this is wrong.
+        [task] = app.tasks
+
         from datetime import datetime
         return HttpResponse('data: %s\n\n' % (datetime.now().isoformat(),),
                             content_type='text/event-stream')
 
-        # client = MarathonClient([settings.MESOS_MARATHON_HOST])
+        #
         # app = client.get_app()
