@@ -1,7 +1,15 @@
+from datetime import datetime
+
 from django.conf.urls import patterns, url
+from django.http import HttpResponse
 from django.views.generic.base import TemplateView
 
 from unicoremc import views
+
+
+def fake_sse(request):
+    return HttpResponse('data: %s\n\n' % (datetime.now().isoformat(),),
+                        content_type='text/event-stream')
 
 
 urlpatterns = patterns(
@@ -34,6 +42,9 @@ urlpatterns = patterns(
         r'^logs/(?P<project_id>\d+)/$',
         views.AppLogView.as_view(),
         name='logs'),
+    url(
+        r'^es/$',
+        fake_sse, name='sse'),
     url(
         r'^advanced/(?P<project_id>\d+)/reset_hub_app_key/$',
         views.ResetHubAppKeyView.as_view(),

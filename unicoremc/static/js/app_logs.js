@@ -1,11 +1,21 @@
 $(document).ready(function() {
-    var al = new AppLog('#logs', function (msg) {
-        $("<div class='entry'/>").text(msg).appendTo(this.target);
+    var stdout = new AppLog('#logs', function (msg) {
+        $("<div class='entry stdout'/>").text(msg).appendTo(this.target);
     });
 
-    window.setInterval(function () {
-        al.log(new Date());
-    }, 500);
+    stdout_es = new EventSource('/es/');
+    stdout_es.addEventListener("message", function (event) {
+        stdout.log(event.data);
+    });
+
+    var stderr = new AppLog('#logs', function (msg) {
+        $("<div class='entry stderr'/>").text(msg).appendTo(this.target);
+    });
+
+    stderr_es = new EventSource('/es/');
+    stderr_es.addEventListener("message", function (event) {
+        stderr.log(event.data);
+    });
 });
 
 var AppLog = function (target, cb) {
