@@ -25,7 +25,7 @@ $(document).ready(function() {
     var paths = ['stdout', 'stderr'];
 
     task_ids.forEach(function(task_id) {
-        paths.foreach(function(path) {
+        paths.forEach(function(path) {
             al = new AppLog('#logs', function(msg) {
                 $("<div class='entry " + path + "' />")
                     .text(msg)
