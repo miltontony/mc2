@@ -25,6 +25,8 @@ from unicoremc.forms import ProjectForm
 from unicoremc import constants, exceptions
 from unicoremc import tasks, utils
 
+from marathon import MarathonClient
+
 
 def repos_json(request):
     # no login_required because repos are public
@@ -241,5 +243,14 @@ class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
 
 class AppLogView(ProjectViewMixin, TemplateView):
     template_name = 'unicoremc/app_logs.html'
-    permissions = []
-    # social_auth = 'google-oauth2'
+
+
+class AppEventSourceView(ProjectViewMixin, View):
+
+    def get(self, request, project_id):
+        from datetime import datetime
+        return HttpResponse('data: %s\n\n' % (datetime.now().isoformat(),),
+                            content_type='text/event-stream')
+
+        # client = MarathonClient([settings.MESOS_MARATHON_HOST])
+        # app = client.get_app()

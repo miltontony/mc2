@@ -3,7 +3,7 @@ $(document).ready(function() {
         $("<div class='entry stdout'/>").text(msg).appendTo(this.target);
     });
 
-    stdout_es = new EventSource('/es/');
+    stdout_es = new EventSource('./stdout/');
     stdout_es.addEventListener("message", function (event) {
         stdout.log(event.data);
     });
@@ -12,7 +12,7 @@ $(document).ready(function() {
         $("<div class='entry stderr'/>").text(msg).appendTo(this.target);
     });
 
-    stderr_es = new EventSource('/es/');
+    stderr_es = new EventSource('./stderr/');
     stderr_es.addEventListener("message", function (event) {
         stderr.log(event.data);
     });
