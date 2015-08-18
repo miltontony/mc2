@@ -260,7 +260,7 @@ class AppLogView(ProjectViewMixin, TemplateView):
 class AppEventSourceView(ProjectViewMixin, View):
 
     def get(self, request, project_id, task_id, path):
-        project = get_object_or_404(Project, pk=project_id)
+        project = get_object_or_404(self.get_queryset(), pk=project_id)
         if path not in ['stdout', 'stderr']:
             return HttpResponseNotFound('File not found.')
 
