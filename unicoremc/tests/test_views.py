@@ -447,7 +447,7 @@ class ViewsTestCase(UnicoremcTestCase):
             resp['X-Accel-Redirect'],
             os.path.join(
                 settings.LOGDRIVER_PATH,
-                ('/worker-machine-id'
+                ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
                  '/ffl-za-1.the-task-id/runs/latest/stdout')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
@@ -468,7 +468,7 @@ class ViewsTestCase(UnicoremcTestCase):
             resp['X-Accel-Redirect'],
             os.path.join(
                 settings.LOGDRIVER_PATH,
-                ('/worker-machine-id'
+                ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
                  '/ffl-za-1.the-task-id/runs/latest/stderr')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')

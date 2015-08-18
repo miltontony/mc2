@@ -96,7 +96,7 @@ class GeneralInfrastructureManager(object):
             'task_id': task_id,
             'task_host': task_host,
             'task_dir': (
-                "/%(follower_id)s/frameworks/%(framework_id)s/executors"
+                "%(follower_id)s/frameworks/%(framework_id)s/executors"
                 "/%(task_id)s/runs/latest") % {
                     'follower_id': follower_id,
                     'framework_id': framework_id,
