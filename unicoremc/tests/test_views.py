@@ -442,9 +442,11 @@ class ViewsTestCase(UnicoremcTestCase):
         }))
         self.assertEqual(
             resp['X-Accel-Redirect'],
-            ('http://worker-machine-1:3333/tail/worker-machine-id'
-             '/frameworks/the-framework-id/executors'
-             '/ffl-za-1.the-task-id/runs/latest/stdout'))
+            os.path.join(
+                settings.LOGDRIVER_PATH,
+                ('/worker-machine-id'
+                 '/frameworks/the-framework-id/executors'
+                 '/ffl-za-1.the-task-id/runs/latest/stdout')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -458,9 +460,11 @@ class ViewsTestCase(UnicoremcTestCase):
         }))
         self.assertEqual(
             resp['X-Accel-Redirect'],
-            ('http://worker-machine-1:3333/tail/worker-machine-id'
-             '/frameworks/the-framework-id/executors'
-             '/ffl-za-1.the-task-id/runs/latest/stderr'))
+            os.path.join(
+                settings.LOGDRIVER_PATH,
+                ('/worker-machine-id'
+                 '/frameworks/the-framework-id/executors'
+                 '/ffl-za-1.the-task-id/runs/latest/stderr')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate

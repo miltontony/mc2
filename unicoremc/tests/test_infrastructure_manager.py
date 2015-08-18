@@ -58,37 +58,37 @@ class GeneralInfrastructureManagerTest(TestCase):
         self.assertEqual(worker['id'], 'worker-machine-id')
 
     @responses.activate
-    def test_get_app_log_urls(self):
-        urls = list(self.general_im.get_app_log_urls(self.project.app_id))
+    def test_get_app_log_info(self):
+        [info] = self.general_im.get_app_log_info(self.project.app_id)
         self.assertEqual(
-            urls,
-            [('http://worker-machine-1:3333/tail'
-              '/worker-machine-id/frameworks/the-framework-id'
-              '/executors/%s.the-task-id/runs/latest/stdout') % (
-                self.project.app_id,),
-             ('http://worker-machine-1:3333/tail'
-              '/worker-machine-id/frameworks/the-framework-id'
-              '/executors/%s.the-task-id/runs/latest/stderr') % (
-                self.project.app_id,),
-             ])
+            info,
+            {
+                'task_host': 'worker-machine-1',
+                'task_id': '%s.the-task-id' % (self.project.app_id,),
+                'task_dir': (
+                    '/worker-machine-id/frameworks/the-framework-id'
+                    '/executors/%s.the-task-id/runs/latest') % (
+                        self.project.app_id,),
+            }
+        )
 
     @responses.activate
-    def test_get_task_log_urls(self):
-        urls = list(self.general_im.get_task_log_urls(
+    def test_get_task_log_info(self):
+        info = self.general_im.get_task_log_info(
             self.project.app_id,
             '%s.the-task-id' % (self.project.app_id,),
-            'worker-machine-1'))
+            'worker-machine-1')
         self.assertEqual(
-            urls,
-            [('http://worker-machine-1:3333/tail'
-              '/worker-machine-id/frameworks/the-framework-id'
-              '/executors/%s.the-task-id/runs/latest/stdout') % (
-                self.project.app_id,),
-             ('http://worker-machine-1:3333/tail'
-              '/worker-machine-id/frameworks/the-framework-id'
-              '/executors/%s.the-task-id/runs/latest/stderr') % (
-                self.project.app_id,),
-             ])
+            info,
+            {
+                'task_host': 'worker-machine-1',
+                'task_id': '%s.the-task-id' % (self.project.app_id,),
+                'task_dir': (
+                    '/worker-machine-id/frameworks/the-framework-id'
+                    '/executors/%s.the-task-id/runs/latest') % (
+                        self.project.app_id,),
+            }
+        )
 
     @responses.activate
     def test_project_infra_manager_get_marathon_app(self):
@@ -96,38 +96,38 @@ class GeneralInfrastructureManagerTest(TestCase):
         self.assertEqual(app['id'], '/%s' % (self.project.app_id,))
 
     @responses.activate
-    def test_project_infra_manager_get_project_log_urls(self):
-        urls = self.project_im.get_project_log_urls()
+    def test_project_infra_manager_get_project_log_info(self):
+        [info] = self.project_im.get_project_log_info()
         self.assertEqual(
-            list(urls),
-            [('http://worker-machine-1:3333/tail'
-              '/worker-machine-id/frameworks/the-framework-id'
-              '/executors/%s.the-task-id/runs/latest/stdout') % (
-                self.project.app_id,),
-             ('http://worker-machine-1:3333/tail'
-              '/worker-machine-id/frameworks/the-framework-id'
-              '/executors/%s.the-task-id/runs/latest/stderr') % (
-                self.project.app_id,),
-             ])
+            info,
+            {
+                'task_host': 'worker-machine-1',
+                'task_id': '%s.the-task-id' % (self.project.app_id,),
+                'task_dir': (
+                    '/worker-machine-id/frameworks/the-framework-id'
+                    '/executors/%s.the-task-id/runs/latest') % (
+                        self.project.app_id,),
+            }
+        )
 
     @responses.activate
-    def test_project_infra_manager_get_project_task_log_urls(self):
-        urls = self.project_im.get_project_task_log_urls(
+    def test_project_infra_manager_get_project_task_log_info(self):
+        info = self.project_im.get_project_task_log_info(
             '%s.the-task-id' % (self.project.app_id,))
         self.assertEqual(
-            list(urls),
-            [('http://worker-machine-1:3333/tail'
-              '/worker-machine-id/frameworks/the-framework-id'
-              '/executors/%s.the-task-id/runs/latest/stdout') % (
-                self.project.app_id,),
-             ('http://worker-machine-1:3333/tail'
-              '/worker-machine-id/frameworks/the-framework-id'
-              '/executors/%s.the-task-id/runs/latest/stderr') % (
-                self.project.app_id,),
-             ])
+            info,
+            {
+                'task_host': 'worker-machine-1',
+                'task_id': '%s.the-task-id' % (self.project.app_id,),
+                'task_dir': (
+                    '/worker-machine-id/frameworks/the-framework-id'
+                    '/executors/%s.the-task-id/runs/latest') % (
+                        self.project.app_id,),
+            }
+        )
 
     @responses.activate
     def test_project_infra_manager_get_project_non_existent(self):
         self.assertRaises(
             InfrastructureError,
-            self.project_im.get_project_task_log_urls, 'non-existing-task-id')
+            self.project_im.get_project_task_log_info, 'non-existing-task-id')
