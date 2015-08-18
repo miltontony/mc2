@@ -433,7 +433,10 @@ class ViewsTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_event_source_response_stdout(self):
-        project = self.mk_project()
+        self.client.login(username='testuser2', password='test')
+        project = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
         setup_responses_for_logdriver(project)
         resp = self.client.get(reverse('logs_event_source', kwargs={
             'project_id': project.pk,
@@ -451,7 +454,10 @@ class ViewsTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_event_source_response_stderr(self):
-        project = self.mk_project()
+        self.client.login(username='testuser2', password='test')
+        project = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
         setup_responses_for_logdriver(project)
         resp = self.client.get(reverse('logs_event_source', kwargs={
             'project_id': project.pk,
@@ -469,7 +475,10 @@ class ViewsTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_event_source_response_badpath(self):
-        project = self.mk_project()
+        self.client.login(username='testuser2', password='test')
+        project = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
         setup_responses_for_logdriver(project)
         # NOTE: bad path according to URL regex, hence the manual requesting
         view = AppEventSourceView()

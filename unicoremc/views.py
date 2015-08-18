@@ -243,6 +243,7 @@ class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
 
 class AppLogView(ProjectViewMixin, TemplateView):
     template_name = 'unicoremc/app_logs.html'
+    social_auth = 'google-oauth2'
 
     def get_context_data(self, *args, **kwargs):
         context = super(AppLogView, self).get_context_data(*args, **kwargs)
@@ -258,9 +259,10 @@ class AppLogView(ProjectViewMixin, TemplateView):
 
 
 class AppEventSourceView(ProjectViewMixin, View):
+    social_auth = 'google-oauth2'
 
     def get(self, request, project_id, task_id, path):
-        project = get_object_or_404(self.get_queryset(), pk=project_id)
+        project = get_object_or_404(Project, pk=project_id)
         if path not in ['stdout', 'stderr']:
             return HttpResponseNotFound('File not found.')
 
