@@ -433,7 +433,10 @@ class ViewsTestCase(UnicoremcTestCase):
 
     @responses.activate
     def test_event_source_response_stdout(self):
-        project = self.mk_project()
+        self.client.login(username='testuser2', password='test')
+        project = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
         setup_responses_for_logdriver(project)
         resp = self.client.get(reverse('logs_event_source', kwargs={
             'project_id': project.pk,
@@ -442,14 +445,19 @@ class ViewsTestCase(UnicoremcTestCase):
         }))
         self.assertEqual(
             resp['X-Accel-Redirect'],
-            ('http://worker-machine-1:3333/tail/worker-machine-id'
-             '/frameworks/the-framework-id/executors'
-             '/ffl-za-1.the-task-id/runs/latest/stdout'))
+            os.path.join(
+                settings.LOGDRIVER_PATH,
+                ('/worker-machine-id'
+                 '/frameworks/the-framework-id/executors'
+                 '/ffl-za-1.the-task-id/runs/latest/stdout')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
     def test_event_source_response_stderr(self):
-        project = self.mk_project()
+        self.client.login(username='testuser2', password='test')
+        project = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
         setup_responses_for_logdriver(project)
         resp = self.client.get(reverse('logs_event_source', kwargs={
             'project_id': project.pk,
@@ -458,14 +466,19 @@ class ViewsTestCase(UnicoremcTestCase):
         }))
         self.assertEqual(
             resp['X-Accel-Redirect'],
-            ('http://worker-machine-1:3333/tail/worker-machine-id'
-             '/frameworks/the-framework-id/executors'
-             '/ffl-za-1.the-task-id/runs/latest/stderr'))
+            os.path.join(
+                settings.LOGDRIVER_PATH,
+                ('/worker-machine-id'
+                 '/frameworks/the-framework-id/executors'
+                 '/ffl-za-1.the-task-id/runs/latest/stderr')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
     def test_event_source_response_badpath(self):
-        project = self.mk_project()
+        self.client.login(username='testuser2', password='test')
+        project = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
         setup_responses_for_logdriver(project)
         # NOTE: bad path according to URL regex, hence the manual requesting
         view = AppEventSourceView()

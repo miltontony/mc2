@@ -1,8 +1,10 @@
 import json
+import os.path
 
 from apiclient import errors
 from oauth2client.client import AccessTokenCredentialsError
 
+from django.conf import settings
 from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
@@ -241,6 +243,7 @@ class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
 
 class AppLogView(ProjectViewMixin, TemplateView):
     template_name = 'unicoremc/app_logs.html'
+    social_auth = 'google-oauth2'
 
     def get_context_data(self, *args, **kwargs):
         context = super(AppLogView, self).get_context_data(*args, **kwargs)
@@ -256,18 +259,21 @@ class AppLogView(ProjectViewMixin, TemplateView):
 
 
 class AppEventSourceView(ProjectViewMixin, View):
+    social_auth = 'google-oauth2'
 
     def get(self, request, project_id, task_id, path):
         project = get_object_or_404(Project, pk=project_id)
+        if path not in ['stdout', 'stderr']:
+            return HttpResponseNotFound('File not found.')
+
         # NOTE: I'm piecing together the app_id and task_id here
         #       so as to not need to expose both in the templates.
-        urls = project.infra_manager.get_project_task_log_urls(
+        task = project.infra_manager.get_project_task_log_info(
             '%s.%s' % (project.app_id, task_id))
-        try:
-            [url] = filter(lambda url: url.endswith(path), urls)
-            response = HttpResponse()
-            response['X-Accel-Redirect'] = url
-            response['X-Accel-Buffering'] = 'no'
-            return response
-        except ValueError:
-            return HttpResponseNotFound('File not found.')
+
+        response = HttpResponse()
+        response['X-Accel-Redirect'] = os.path.join(
+            settings.LOGDRIVER_PATH, task['task_host'],
+            task['task_dir'], path)
+        response['X-Accel-Buffering'] = 'no'
+        return response

@@ -49,7 +49,7 @@ RAVEN_DSN_CMS_PROD = 'raven-cms-prod'
 ELASTICSEARCH_HOST = 'http://localhost:9200'
 UNICORE_DISTRIBUTE_HOST = 'http://testserver:6543'
 MESOS_MARATHON_HOST = 'http://testserver:8080'
-LOGDRIVER_PORT = 3333
+LOGDRIVER_PATH = '/logdriver-testing/'
 MESOS_HTTP_PORT = 5555
 
 THUMBOR_SECURITY_KEY = 'some-key'

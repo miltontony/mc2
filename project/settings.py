@@ -326,7 +326,8 @@ ELASTICSEARCH_HOST = 'http://localhost:9200'
 UNICORE_DISTRIBUTE_HOST = 'http://localhost:6543'
 SERVICE_HOST_IP = '127.0.0.1'
 
-LOGDRIVER_PORT = 3000
+# Configured at Nginx for internal redirect
+LOGDRIVER_PATH = '/logdriver/'
 
 MESOS_HTTP_PORT = 5051
 MESOS_MARATHON_HOST = 'http://localhost:8080'

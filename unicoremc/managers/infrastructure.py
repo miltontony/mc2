@@ -59,50 +59,50 @@ class GeneralInfrastructureManager(object):
             headers=self.headers
         ).json()
 
-    def get_app_log_urls(self, app_id):
+    def get_app_log_info(self, app_id):
         """
-        Returns a list of log URLs for logdriver for the given app_id
+        Returns a list of task info dicts for logdriver for the given app_id
 
         :param app_id str: The application id
         :returns: list
         """
         marathon_info = self.get_marathon_info()
-        urls = []
+        tasks = []
         for task in self.get_marathon_app_tasks(app_id):
             task_id = task['id']
             task_host = task['host']
-            urls.extend(self.get_task_log_urls(
+            tasks.append(self.get_task_log_info(
                 app_id, task_id, task_host, marathon_info=marathon_info
             ))
-        return urls
+        return tasks
 
-    def get_task_log_urls(self, app_id, task_id, task_host,
+    def get_task_log_info(self, app_id, task_id, task_host,
                           marathon_info=None):
         """
-        Returns a list of log URLs for logdriver for the given task_id
+        Returns a dictionary with the task_host and task_dir for logdriver
+        logs for the given task_id
 
         :param app_id str: the application id
         :param task_id str: the task id
         :param task_host str: the host where the task is running
         :param marathon_info dict:
             info dictionary returned from get_marathon_info, optional
-        :returns: generator
+        :returns: dict
         """
         marathon_info = marathon_info or self.get_marathon_info()
         framework_id = marathon_info['frameworkId']
         follower_id = self.get_worker_info(task_host)['id']
-        for path in ["stdout", "stderr"]:
-            yield (
-                "http://%(task_host)s:%(logdriver_port)s/tail"
+        return {
+            'task_id': task_id,
+            'task_host': task_host,
+            'task_dir': (
                 "/%(follower_id)s/frameworks/%(framework_id)s/executors"
-                "/%(task_id)s/runs/latest/%(path)s" % {
-                    'task_host': task_host,
-                    'logdriver_port': settings.LOGDRIVER_PORT,
+                "/%(task_id)s/runs/latest") % {
                     'follower_id': follower_id,
                     'framework_id': framework_id,
                     'task_id': task_id,
-                    'path': path,
-                })
+                }
+        }
 
 
 class ProjectInfrastructureManager(GeneralInfrastructureManager):
@@ -134,16 +134,16 @@ class ProjectInfrastructureManager(GeneralInfrastructureManager):
             ProjectInfrastructureManager, self).get_marathon_app_tasks(
                 self.project.app_id)
 
-    def get_project_log_urls(self):
+    def get_project_log_info(self):
         """
         Returns all the tasks log URLs for the current project's app_id
 
         :returns: list
         """
-        return super(ProjectInfrastructureManager, self).get_app_log_urls(
+        return super(ProjectInfrastructureManager, self).get_app_log_info(
             self.project.app_id)
 
-    def get_project_task_log_urls(self, task_id):
+    def get_project_task_log_info(self, task_id):
         """
         Returns the log URLs for a given task for the current project's app_id.
         Raises an InfrastructureError if task for task_id not found.
@@ -154,7 +154,7 @@ class ProjectInfrastructureManager(GeneralInfrastructureManager):
         tasks = self.get_marathon_app_tasks(self.project.app_id)
         try:
             [task] = filter(lambda t: t['id'] == task_id, tasks)
-            return super(ProjectInfrastructureManager, self).get_task_log_urls(
+            return super(ProjectInfrastructureManager, self).get_task_log_info(
                 self.project.app_id, task['id'], task['host'])
         except ValueError:
             raise InfrastructureError('Task not found.')
