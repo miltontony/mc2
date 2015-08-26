@@ -240,6 +240,14 @@ class Project(models.Model):
             'hub': hub
         }
 
+    def get_frontent_custom_domain_list(self):
+        return self.frontend_custom_domain.split(' ') \
+            if self.frontend_custom_domain else []
+
+    def get_cms_custom_domain_list(self):
+        return self.cms_custom_domain.split(' ') \
+            if self.cms_custom_domain else []
+
     def to_dict(self):
         return {
             'id': self.id,

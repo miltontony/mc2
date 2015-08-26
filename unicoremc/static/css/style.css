@@ -1,7 +1,7 @@
 #projects_progress {font-size: 0.9em;}
-  #projects_progress tbody tr td,tbody tr th{background-color:#FCF8E3 !important}
-  #projects_progress tbody tr.done td,tbody tr.done th{background-color:#DFF0D8 !important}
-  #projects_progress .languages a.active{font-weight: bold;}
+  #projects_progress .main{background-color:#FCF8E3 !important}
+  #projects_progress .done{background-color:#DFF0D8 !important}
+  #projects_progress a.active{font-weight: bold;}
 .new-project{}
   .new-project .help-block{
       display: inline-block;
@@ -370,3 +370,20 @@ body .one .bsa_it_p {
     width: 1168px; /* 2px less to account for left/right borders being removed when in fixed mode */
   }
 }
+
+div.heading{width: 310px; font-weight: bold; float: left; border-bottom: 1px solid #ccc;}
+
+.additional-info{display: none; width: 100%}
+.additional-info fieldset{
+    float: left;
+    width: 300px;
+    margin-right: 50px;
+    border-radius: 0;
+    border-right: 0;
+    border-left: 0;
+    border-bottom: 0;
+}
+
+.info-hint {border: 1px dotted #cecefe;}
+.main {padding: 10px; width: 100%; float: left; cursor: pointer;}
+    .main .title,.main .country,.main .state {width: 300px; float: left;}
