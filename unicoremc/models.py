@@ -240,7 +240,7 @@ class Project(models.Model):
             'hub': hub
         }
 
-    def get_frontent_custom_domain_list(self):
+    def get_frontend_custom_domain_list(self):
         return self.frontend_custom_domain.split(' ') \
             if self.frontend_custom_domain else []
 
