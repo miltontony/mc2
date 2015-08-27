@@ -429,6 +429,7 @@ class ViewsTestCase(UnicoremcTestCase):
         [task] = response.context['tasks']
         self.assertEqual(task['id'], '%s.the-task-id' % (project.app_id,))
         [task_id] = response.context['task_ids']
+        print response
         self.assertEqual(task_id, 'the-task-id')
 
     @responses.activate
@@ -449,7 +450,7 @@ class ViewsTestCase(UnicoremcTestCase):
                 settings.LOGDRIVER_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
-                 '/ffl-za-1.the-task-id/runs/latest/stdout')))
+                 '/ffl-za-1.the-task-id/runs/latest/stdout?n=100')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -470,7 +471,7 @@ class ViewsTestCase(UnicoremcTestCase):
                 settings.LOGDRIVER_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
-                 '/ffl-za-1.the-task-id/runs/latest/stderr')))
+                 '/ffl-za-1.the-task-id/runs/latest/stderr?n=100')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate

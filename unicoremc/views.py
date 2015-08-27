@@ -254,6 +254,8 @@ class AppLogView(ProjectViewMixin, TemplateView):
             'project': project,
             'tasks': tasks,
             'task_ids': [t['id'].split('.', 1)[1] for t in tasks],
+            'scroll_backlog': (
+                self.request.GET.get('n') or settings.LOGDRIVER_BACKLOG)
         })
         return context
 
@@ -263,6 +265,7 @@ class AppEventSourceView(ProjectViewMixin, View):
 
     def get(self, request, project_id, task_id, path):
         project = get_object_or_404(Project, pk=project_id)
+        n = request.GET.get('n') or settings.LOGDRIVER_BACKLOG
         if path not in ['stdout', 'stderr']:
             return HttpResponseNotFound('File not found.')
 
@@ -272,8 +275,8 @@ class AppEventSourceView(ProjectViewMixin, View):
             '%s.%s' % (project.app_id, task_id))
 
         response = HttpResponse()
-        response['X-Accel-Redirect'] = os.path.join(
+        response['X-Accel-Redirect'] = '%s?n=%s' % (os.path.join(
             settings.LOGDRIVER_PATH, task['task_host'],
-            task['task_dir'], path)
+            task['task_dir'], path), n)
         response['X-Accel-Buffering'] = 'no'
         return response
