@@ -66,7 +66,7 @@ class GeneralInfrastructureManagerTest(TestCase):
                 'task_host': 'worker-machine-1',
                 'task_id': '%s.the-task-id' % (self.project.app_id,),
                 'task_dir': (
-                    '/worker-machine-id/frameworks/the-framework-id'
+                    'worker-machine-id/frameworks/the-framework-id'
                     '/executors/%s.the-task-id/runs/latest') % (
                         self.project.app_id,),
             }
@@ -84,7 +84,7 @@ class GeneralInfrastructureManagerTest(TestCase):
                 'task_host': 'worker-machine-1',
                 'task_id': '%s.the-task-id' % (self.project.app_id,),
                 'task_dir': (
-                    '/worker-machine-id/frameworks/the-framework-id'
+                    'worker-machine-id/frameworks/the-framework-id'
                     '/executors/%s.the-task-id/runs/latest') % (
                         self.project.app_id,),
             }
@@ -104,7 +104,7 @@ class GeneralInfrastructureManagerTest(TestCase):
                 'task_host': 'worker-machine-1',
                 'task_id': '%s.the-task-id' % (self.project.app_id,),
                 'task_dir': (
-                    '/worker-machine-id/frameworks/the-framework-id'
+                    'worker-machine-id/frameworks/the-framework-id'
                     '/executors/%s.the-task-id/runs/latest') % (
                         self.project.app_id,),
             }
@@ -120,7 +120,7 @@ class GeneralInfrastructureManagerTest(TestCase):
                 'task_host': 'worker-machine-1',
                 'task_id': '%s.the-task-id' % (self.project.app_id,),
                 'task_dir': (
-                    '/worker-machine-id/frameworks/the-framework-id'
+                    'worker-machine-id/frameworks/the-framework-id'
                     '/executors/%s.the-task-id/runs/latest') % (
                         self.project.app_id,),
             }
