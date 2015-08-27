@@ -429,7 +429,6 @@ class ViewsTestCase(UnicoremcTestCase):
         [task] = response.context['tasks']
         self.assertEqual(task['id'], '%s.the-task-id' % (project.app_id,))
         [task_id] = response.context['task_ids']
-        print response
         self.assertEqual(task_id, 'the-task-id')
 
     @responses.activate
