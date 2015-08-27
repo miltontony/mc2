@@ -328,6 +328,7 @@ SERVICE_HOST_IP = '127.0.0.1'
 
 # Configured at Nginx for internal redirect
 LOGDRIVER_PATH = '/logdriver/'
+LOGDRIVER_BACKLOG = 100
 
 MESOS_HTTP_PORT = 5051
 MESOS_MARATHON_HOST = 'http://localhost:8080'

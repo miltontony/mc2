@@ -449,7 +449,7 @@ class ViewsTestCase(UnicoremcTestCase):
                 settings.LOGDRIVER_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
-                 '/ffl-za-1.the-task-id/runs/latest/stdout')))
+                 '/ffl-za-1.the-task-id/runs/latest/stdout?n=100')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -470,7 +470,7 @@ class ViewsTestCase(UnicoremcTestCase):
                 settings.LOGDRIVER_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
-                 '/ffl-za-1.the-task-id/runs/latest/stderr')))
+                 '/ffl-za-1.the-task-id/runs/latest/stderr?n=100')))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
