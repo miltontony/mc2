@@ -241,12 +241,18 @@ class Project(models.Model):
         }
 
     def get_frontend_custom_domain_list(self):
-        return self.frontend_custom_domain.split(' ') \
-            if self.frontend_custom_domain else []
+        return [
+            'http://%s' % url
+            for url in (self.frontend_custom_domain.split(' ')
+                        if self.frontend_custom_domain else [])
+        ]
 
     def get_cms_custom_domain_list(self):
-        return self.cms_custom_domain.split(' ') \
-            if self.cms_custom_domain else []
+        return [
+            'http://%s' % url
+            for url in (self.cms_custom_domain.split(' ')
+                        if self.cms_custom_domain else [])
+        ]
 
     def to_dict(self):
         return {
