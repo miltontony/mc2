@@ -232,7 +232,7 @@ class Project(models.Model):
             'hub': hub
         }
 
-    def get_generic_cms_domain(self):
+    def get_generic_content_domain(self):
         hub = 'qa-content' \
             if settings.DEPLOY_ENVIRONMENT == 'qa' else 'content'
         return '%(app_id)s.%(hub)s.unicore.io' % {
@@ -494,7 +494,7 @@ class Project(models.Model):
 
     def create_nginx(self):
         domain = ' '.join([
-            self.get_generic_cms_domain(), self.cms_custom_domain])
+            self.get_generic_content_domain(), self.cms_custom_domain])
         self.nginx_manager.write_cms_nginx(
             self.app_type, self.country, domain.strip())
 
