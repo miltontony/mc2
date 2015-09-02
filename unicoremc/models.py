@@ -227,14 +227,14 @@ class Project(models.Model):
 
     def get_generic_domain(self):
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
-        return '%(app_id)s-%(hub)s.unicore.io' % {
+        return '%(app_id)s.%(hub)s.unicore.io' % {
             'app_id': self.app_id,
             'hub': hub
         }
 
     def get_country_domain(self):
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
-        return "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
+        return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
             'country': self.country.lower(),
             'app_type': self.app_type,
             'hub': hub

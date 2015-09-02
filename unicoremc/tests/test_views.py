@@ -82,18 +82,20 @@ class ViewsTestCase(UnicoremcTestCase):
             project.frontend_url(),
             'http://ffl-za-%s.qa-hub.unicore.io' % project.id)
         self.assertEqual(
-            project.frontend_custom_domain, 'za.ffl.qa-hub.unicore.io')
+            project.frontend_custom_domain,
+            'za-ffl.qa-hub.unicore.io za-ffl.qa-apollo.unicore.io')
         self.assertEqual(
-            project.get_frontend_custom_domain_list(),
-            ['http://za.ffl.qa-hub.unicore.io'])
+            project.get_frontend_custom_domain_list(), [
+                'http://za-ffl.qa-hub.unicore.io',
+                'http://za-ffl.qa-apollo.unicore.io'])
         self.assertEqual(
             project.cms_url(),
             'http://cms.ffl-za-%s.qa-hub.unicore.io' % project.id)
         self.assertEqual(
-            project.cms_custom_domain, 'cms.za.ffl.qa-hub.unicore.io')
+            project.cms_custom_domain, 'za-ffl.qa-content.unicore.io')
         self.assertEqual(
             project.get_cms_custom_domain_list(),
-            ['http://cms.za.ffl.qa-hub.unicore.io'])
+            ['http://za-ffl.qa-content.unicore.io'])
         self.assertEqual(project.external_repos.count(), 1)
         self.assertTrue(project.own_repo())
         self.assertEqual(len(project.all_repos()), 2)
