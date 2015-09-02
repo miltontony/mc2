@@ -305,14 +305,6 @@ class Project(models.Model):
     def frontend_url(self):
         return 'http://%s' % self.get_generic_domain()
 
-    def apollo_frontend_url(self):
-        hub = 'qa-apollo' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'apollo'
-        return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
-            'country': self.country.lower(),
-            'app_type': self.app_type,
-            'hub': hub
-        }
-
     def content_url(self):
         return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
             'country': self.country.lower(),
@@ -531,10 +523,7 @@ class Project(models.Model):
             self.repo_path()
         )
 
-    def create_webhook(self, url=None):
-        if not url:
-            url = self.frontend_url()
-
+    def create_webhook(self):
         repo_name = self.own_repo().name()
 
         post_data = {
@@ -542,7 +531,7 @@ class Project(models.Model):
             "active": True,
             "events": ["push"],
             "config": {
-                "url": "%s/api/notify/" % url,
+                "url": "%s/api/notify/" % self.frontend_url(),
                 "content_type": "json"
             }
         }

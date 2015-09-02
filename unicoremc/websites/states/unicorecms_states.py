@@ -53,8 +53,6 @@ class RepoPushed(State):
     def create_webhook(self, **kwargs):
         if self.instance:
             self.instance.create_webhook()
-            self.instance.create_webhook(
-                self.instance.apollo_frontend_url())
 
 
 class WebhookCreated(State):

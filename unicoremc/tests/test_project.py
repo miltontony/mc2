@@ -202,7 +202,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('push_repo')
         pw.take_action('create_webhook')
 
-        self.assertEqual(len(responses.calls), 3)
+        self.assertEqual(len(responses.calls), 2)
         self.assertIn('Authorization', responses.calls[-1].request.headers)
 
         pw.take_action('init_workspace')

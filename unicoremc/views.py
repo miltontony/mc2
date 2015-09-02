@@ -134,11 +134,7 @@ class NewProjectView(ProjectViewMixin, TemplateView):
 
         # For consistency with existing apps, all new apps will also have
         # country domain urls in addition to the generic urls
-        frontend_domains = [
-            project.get_country_domain(),
-            project.apollo_frontend_url()
-        ]
-        project.frontend_custom_domain = ' '.join(frontend_domains)
+        project.frontend_custom_domain = project.get_country_domain()
         project.cms_custom_domain = project.content_url()
         project.save()
 
