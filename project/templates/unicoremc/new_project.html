@@ -41,7 +41,7 @@
         <div class="form-group">
                 <label class="col-sm-2 control-label" style="text-align:left">Existing content repos</label>
                 <div class="col-sm-10">
-                    <select class="form-control" id="project_repo" name="project_repo" multiple="multiple" disabled="disabled">
+                    <select class="form-control" id="project_repo" name="project_repo" multiple="multiple" disabled="disabled" style="width: 320px">
                         {% for repo in project_repos %}
                             <option value="{{repo.pk}}">{{repo}}</option>
                         {% endfor %}
