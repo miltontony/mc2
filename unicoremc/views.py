@@ -171,7 +171,7 @@ class ProjectEditView(ProjectViewMixin, UpdateView):
         try:
             project.update_marathon_app()
         except exceptions.MarathonApiException:
-            messages.info(self.request, 'Unable to update project in marathon')
+            messages.error(self.request, 'Unable to update project in marathon')
         return response
 
 
@@ -280,3 +280,16 @@ class AppEventSourceView(ProjectViewMixin, View):
             task['task_dir'], path), n)
         response['X-Accel-Buffering'] = 'no'
         return response
+
+
+class ProjectRestartView(ProjectViewMixin, View):
+
+    def get(self, request, project_id):
+        project = get_object_or_404(Project, pk=project_id)
+        try:
+            project.marathon_restart_app()
+            messages.info(self.request, 'App restart sent.')
+        except exceptions.MarathonApiException:
+            messages.error(
+                self.request, 'App restart failed. Please try again.')
+        return redirect('home')
