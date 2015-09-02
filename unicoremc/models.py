@@ -226,18 +226,22 @@ class Project(models.Model):
         return self.get_website_manager().workflow.get_state()
 
     def get_generic_domain(self):
-        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
         return '%(app_id)s.%(hub)s.unicore.io' % {
             'app_id': self.app_id,
-            'hub': hub
+            'hub': settings.HUB_SUBDOMAIN
+        }
+
+    def get_generic_content_domain(self):
+        return '%(app_id)s.%(hub)s.unicore.io' % {
+            'app_id': self.app_id,
+            'hub': settings.CMS_SUBDOMAIN
         }
 
     def get_country_domain(self):
-        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
-        return "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
+        return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
             'country': self.country.lower(),
             'app_type': self.app_type,
-            'hub': hub
+            'hub': settings.HUB_SUBDOMAIN
         }
 
     def get_frontend_custom_domain_list(self):
@@ -300,6 +304,13 @@ class Project(models.Model):
 
     def frontend_url(self):
         return 'http://%s' % self.get_generic_domain()
+
+    def content_url(self):
+        return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
+            'country': self.country.lower(),
+            'app_type': self.app_type,
+            'hub': settings.CMS_SUBDOMAIN
+        }
 
     def cms_url(self):
         return 'http://cms.%s' % self.get_generic_domain()
@@ -468,8 +479,8 @@ class Project(models.Model):
         self.create_unicore_distribute_repo()
 
     def create_nginx(self):
-        domain = 'cms.%s %s' % (
-            self.get_generic_domain(), self.cms_custom_domain)
+        domain = ' '.join([
+            self.get_generic_content_domain(), self.cms_custom_domain])
         self.nginx_manager.write_cms_nginx(
             self.app_type, self.country, domain.strip())
 

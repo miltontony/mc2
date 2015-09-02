@@ -265,6 +265,9 @@ RAVEN_CONFIG = {
 # Used to distinguish between QA and PROD in naming
 DEPLOY_ENVIRONMENT = 'qa'
 
+CMS_SUBDOMAIN = 'qa-content'
+HUB_SUBDOMAIN = 'qa-hub'
+
 # path to where repos will be located
 FRONTEND_REPO_PATH = abspath('repos', 'frontend')
 CMS_REPO_PATH = abspath('repos', 'cms')

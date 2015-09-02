@@ -11,6 +11,7 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from django.test.utils import override_settings
 
 from unicoremc.constants import LANGUAGES
 from unicoremc.models import (
@@ -82,18 +83,117 @@ class ViewsTestCase(UnicoremcTestCase):
             project.frontend_url(),
             'http://ffl-za-%s.qa-hub.unicore.io' % project.id)
         self.assertEqual(
-            project.frontend_custom_domain, 'za.ffl.qa-hub.unicore.io')
+            project.frontend_custom_domain,
+            'za-ffl.qa-hub.unicore.io')
         self.assertEqual(
             project.get_frontend_custom_domain_list(),
-            ['http://za.ffl.qa-hub.unicore.io'])
+            ['http://za-ffl.qa-hub.unicore.io'])
         self.assertEqual(
             project.cms_url(),
             'http://cms.ffl-za-%s.qa-hub.unicore.io' % project.id)
         self.assertEqual(
-            project.cms_custom_domain, 'cms.za.ffl.qa-hub.unicore.io')
+            project.cms_custom_domain, 'za-ffl.qa-content.unicore.io')
         self.assertEqual(
             project.get_cms_custom_domain_list(),
-            ['http://cms.za.ffl.qa-hub.unicore.io'])
+            ['http://za-ffl.qa-content.unicore.io'])
+        self.assertEqual(project.external_repos.count(), 1)
+        self.assertTrue(project.own_repo())
+        self.assertEqual(len(project.all_repos()), 2)
+        self.assertEqual(project.organization.slug, 'foo-org')
+
+        workspace = self.mk_workspace(
+            working_dir=settings.CMS_REPO_PATH,
+            name='ffl-za',
+            index_prefix='unicore_cms_ffl_za')
+
+        self.assertEqual(workspace.S(Category).count(), 1)
+        self.assertEqual(workspace.S(Page).count(), 1)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 1)
+
+        cat = Category({
+            'title': 'Some title',
+            'slug': 'some-slug'
+        })
+        workspace.save(cat, 'Saving a Category')
+
+        page = Page({
+            'title': 'Some page title',
+            'slug': 'some-page-slug'
+        })
+        workspace.save(page, 'Saving a Page')
+
+        loc = EGLocalisation({
+            'locale': 'spa_ES',
+            'image': 'some-image-uuid',
+            'image_host': 'http://some.site.com',
+        })
+        workspace.save(loc, 'Saving a Localisation')
+
+        workspace.refresh_index()
+
+        self.assertEqual(workspace.S(Category).count(), 2)
+        self.assertEqual(workspace.S(Page).count(), 2)
+        self.assertEqual(workspace.S(EGLocalisation).count(), 2)
+
+        self.addCleanup(lambda: shutil.rmtree(
+            os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))
+
+    @responses.activate
+    @override_settings(HUB_SUBDOMAIN='qa-apollo')
+    def test_create_new_project_for_apollo(self):
+        existing_project = self.mk_project()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_repo()
+        self.mock_create_webhook()
+        self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
+
+        app_type = AppType._for(
+            'ffl', 'Facts for Life', 'springboard',
+            'universalcore/unicore-cms-ffl')
+
+        data = {
+            'app_type': app_type.id,
+            'base_repo': self.base_repo_sm.repo.git_dir,
+            'project_repos[]': existing_project.own_repo().pk,
+            'country': 'ZA',
+            'user_id': 1,
+            'team_id': 1
+        }
+
+        with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
+            mock_subprocess.return_value = None
+            response = self.client.post(reverse('new_project'), data)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(json.loads(response.content), {
+            'success': True
+        })
+
+        project = Project.objects.exclude(pk=existing_project.pk).get()
+        self.assertEqual(project.state, 'done')
+        self.assertEqual(
+            project.frontend_url(),
+            'http://ffl-za-%s.qa-apollo.unicore.io' % project.id)
+        self.assertEqual(
+            project.frontend_custom_domain,
+            'za-ffl.qa-apollo.unicore.io')
+        self.assertEqual(
+            project.get_frontend_custom_domain_list(),
+            ['http://za-ffl.qa-apollo.unicore.io'])
+        self.assertEqual(
+            project.cms_url(),
+            'http://cms.ffl-za-%s.qa-apollo.unicore.io' % project.id)
+        self.assertEqual(
+            project.cms_custom_domain, 'za-ffl.qa-content.unicore.io')
+        self.assertEqual(
+            project.get_cms_custom_domain_list(),
+            ['http://za-ffl.qa-content.unicore.io'])
         self.assertEqual(project.external_repos.count(), 1)
         self.assertTrue(project.own_repo())
         self.assertEqual(len(project.all_repos()), 2)

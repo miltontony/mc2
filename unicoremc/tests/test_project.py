@@ -272,7 +272,7 @@ class ProjectTestCase(UnicoremcTestCase):
         with open(cms_nginx_config_path, "r") as config_file:
             data = config_file.read()
 
-        self.assertTrue('cms.ffl-za-%s.qa-hub.unicore.io' % p.id in data)
+        self.assertTrue('ffl-za-%s.qa-content.unicore.io' % p.id in data)
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
 
