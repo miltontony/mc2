@@ -302,17 +302,20 @@ class Project(models.Model):
         return 'http://%s' % self.get_generic_domain()
 
     def apollo_frontend_url(self):
+        hub = 'qa-apollo' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'apollo'
         return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
             'country': self.country.lower(),
             'app_type': self.app_type,
-            'hub': 'apollo'
+            'hub': hub
         }
 
     def content_url(self):
+        hub = 'qa-content' \
+            if settings.DEPLOY_ENVIRONMENT == 'qa' else 'content'
         return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
             'country': self.country.lower(),
             'app_type': self.app_type,
-            'hub': 'content'
+            'hub': hub
         }
 
     def cms_url(self):
