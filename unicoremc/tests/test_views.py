@@ -595,3 +595,14 @@ class ViewsTestCase(UnicoremcTestCase):
                             'the-task-id', 'foo')
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content, 'File not found.')
+
+    @responses.activate
+    def test_app_restart(self):
+        project = self.mk_project(project={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
+        self.mock_restart_marathon_app(project)
+
+        resp = self.client.get(reverse('restart', args=[project.id]))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(len(responses.calls), 1)

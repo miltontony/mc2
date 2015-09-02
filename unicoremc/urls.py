@@ -31,6 +31,10 @@ urlpatterns = patterns(
         views.ProjectEditView.as_view(),
         name='advanced'),
     url(
+        r'^restart/(?P<project_id>\d+)/$',
+        views.ProjectRestartView.as_view(),
+        name='restart'),
+    url(
         r'^logs/(?P<project_id>\d+)/$',
         views.AppLogView.as_view(),
         name='logs'),

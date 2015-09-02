@@ -56,7 +56,13 @@
       {% endif %}
 
       <!-- Logs Link -->
-      <a href="{% url 'logs' project.id %}" class="btn btn-small">logs</a><br/>
+      <a href="{% url 'logs' project.id %}" class="btn btn-small">logs</a>
+
+      <hr/>
+      <!-- Restart Link -->
+      <a href="{% url 'restart' project.id %}" class="btn btn-small btn-warning">restart</a>
+
+      <br/>
     </fieldset>
 
     <fieldset>

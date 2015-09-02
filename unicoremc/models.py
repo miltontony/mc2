@@ -652,6 +652,19 @@ class Project(models.Model):
                 'Update Marathon app failed with response: %s - %s' %
                 (resp.status_code, resp.json().get('message')))
 
+    def marathon_restart_app(self):
+        resp = requests.post(
+            '%(host)s/v2/apps/%(id)s/restart' % {
+                'host': settings.MESOS_MARATHON_HOST,
+                'id': self.app_id
+            },
+            json={})
+
+        if resp.status_code != 200:
+            raise exceptions.MarathonApiException(
+                'Restart Marathon app failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('message')))
+
     def destroy(self):
         shutil.rmtree(self.repo_path(), ignore_errors=True)
         self.nginx_manager.destroy(self.app_type, self.country)
