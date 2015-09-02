@@ -216,6 +216,14 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             content_type="application/json",
             status=status)
 
+    def mock_restart_marathon_app(self, project, status=200):
+        responses.add(
+            responses.POST, '%s/v2/apps/%s/restart' % (
+                settings.MESOS_MARATHON_HOST, project.app_id),
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
     def mock_create_hub_app(self, **fields):
 
         def make_response(request):
