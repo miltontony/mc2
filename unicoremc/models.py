@@ -232,6 +232,14 @@ class Project(models.Model):
             'hub': hub
         }
 
+    def get_generic_cms_domain(self):
+        hub = 'qa-content' \
+            if settings.DEPLOY_ENVIRONMENT == 'qa' else 'content'
+        return '%(app_id)s.%(hub)s.unicore.io' % {
+            'app_id': self.app_id,
+            'hub': hub
+        }
+
     def get_country_domain(self):
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
         return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
@@ -485,8 +493,8 @@ class Project(models.Model):
         self.create_unicore_distribute_repo()
 
     def create_nginx(self):
-        domain = 'cms.%s %s' % (
-            self.get_generic_domain(), self.cms_custom_domain)
+        domain = ' '.join([
+            self.get_generic_cms_domain(), self.cms_custom_domain])
         self.nginx_manager.write_cms_nginx(
             self.app_type, self.country, domain.strip())
 
