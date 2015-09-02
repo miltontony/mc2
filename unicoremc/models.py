@@ -227,7 +227,7 @@ class Project(models.Model):
 
     def get_generic_domain(self):
         hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
-        return '%(app_id)s.%(hub)s.unicore.io' % {
+        return '%(app_id)s-%(hub)s.unicore.io' % {
             'app_id': self.app_id,
             'hub': hub
         }
@@ -302,10 +302,17 @@ class Project(models.Model):
         return 'http://%s' % self.get_generic_domain()
 
     def apollo_frontend_url(self):
-        return "%(country)s.%(app_type)s.%(hub)s.unicore.io" % {
+        return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
             'country': self.country.lower(),
             'app_type': self.app_type,
             'hub': 'apollo'
+        }
+
+    def content_url(self):
+        return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
+            'country': self.country.lower(),
+            'app_type': self.app_type,
+            'hub': 'content'
         }
 
     def cms_url(self):
