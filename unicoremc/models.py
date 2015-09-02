@@ -226,26 +226,22 @@ class Project(models.Model):
         return self.get_website_manager().workflow.get_state()
 
     def get_generic_domain(self):
-        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
         return '%(app_id)s.%(hub)s.unicore.io' % {
             'app_id': self.app_id,
-            'hub': hub
+            'hub': settings.HUB_SUBDOMAIN
         }
 
     def get_generic_content_domain(self):
-        hub = 'qa-content' \
-            if settings.DEPLOY_ENVIRONMENT == 'qa' else 'content'
         return '%(app_id)s.%(hub)s.unicore.io' % {
             'app_id': self.app_id,
-            'hub': hub
+            'hub': settings.CMS_SUBDOMAIN
         }
 
     def get_country_domain(self):
-        hub = 'qa-hub' if settings.DEPLOY_ENVIRONMENT == 'qa' else 'hub'
         return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
             'country': self.country.lower(),
             'app_type': self.app_type,
-            'hub': hub
+            'hub': settings.HUB_SUBDOMAIN
         }
 
     def get_frontend_custom_domain_list(self):
@@ -318,12 +314,10 @@ class Project(models.Model):
         }
 
     def content_url(self):
-        hub = 'qa-content' \
-            if settings.DEPLOY_ENVIRONMENT == 'qa' else 'content'
         return "%(country)s-%(app_type)s.%(hub)s.unicore.io" % {
             'country': self.country.lower(),
             'app_type': self.app_type,
-            'hub': hub
+            'hub': settings.CMS_SUBDOMAIN
         }
 
     def cms_url(self):
