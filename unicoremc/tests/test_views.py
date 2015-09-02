@@ -96,6 +96,9 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(
             project.get_cms_custom_domain_list(),
             ['http://za-ffl.qa-content.unicore.io'])
+        self.assertEqual(
+            project.marathon_health_check_path,
+            '/health/')
         self.assertEqual(project.external_repos.count(), 1)
         self.assertTrue(project.own_repo())
         self.assertEqual(len(project.all_repos()), 2)

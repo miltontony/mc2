@@ -122,6 +122,7 @@ class NewProjectView(ProjectViewMixin, TemplateView):
                 'team_id': int(team_id),
                 'owner': user,
                 'organization': self.organization,
+                'marathon_health_check_path': '/health/',
                 'docker_cmd':
                     docker_cmd or
                     utils.get_default_docker_cmd(app_type, country)
