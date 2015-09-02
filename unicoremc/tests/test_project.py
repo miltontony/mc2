@@ -202,7 +202,7 @@ class ProjectTestCase(UnicoremcTestCase):
         pw.take_action('push_repo')
         pw.take_action('create_webhook')
 
-        self.assertEqual(len(responses.calls), 2)
+        self.assertEqual(len(responses.calls), 3)
         self.assertIn('Authorization', responses.calls[-1].request.headers)
 
         pw.take_action('init_workspace')
@@ -272,7 +272,7 @@ class ProjectTestCase(UnicoremcTestCase):
         with open(cms_nginx_config_path, "r") as config_file:
             data = config_file.read()
 
-        self.assertTrue('cms.ffl-za-%s.qa-hub.unicore.io' % p.id in data)
+        self.assertTrue('ffl-za-%s.qa-content.unicore.io' % p.id in data)
         self.assertTrue('unicore_cms_django_ffl_za-access.log' in data)
         self.assertTrue('unicore_cms_django_ffl_za-error.log' in data)
 
