@@ -6,8 +6,7 @@ NEW_REPO_NAME_FORMAT = (
 # virtual env.
 MARATHON_CMD = (
     "/usr/local/bin/uwsgi "
-    "--pypy-home /usr/local/bin/ "
-    "--pypy-ini-paste %(config_path)s "
+    "--ini-paste %(config_path)s "
     "--http :5656 "
     "--processes 1 "
     "--threads 1 "
