@@ -285,6 +285,7 @@ class Project(models.Model):
             'cms_custom_domain': self.cms_custom_domain or '',
             'hub_app_id': self.hub_app_id or '',
             'docker_cmd': self.docker_cmd or '',
+            'custom_frontend_settings': self.custom_frontend_settings or '',
         }
 
     def get_website_manager(self):
