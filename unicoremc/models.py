@@ -495,7 +495,8 @@ class Project(models.Model):
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app(),
-                self.all_repos()[0].name()
+                self.all_repos()[0].name(),
+                self.custom_frontend_settings
             )
         elif self.application_type.project_type == AppType.SPRINGBOARD:
             self.settings_manager.write_springboard_settings(
@@ -505,7 +506,8 @@ class Project(models.Model):
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app(),
-                [repo.name() for repo in self.all_repos()]
+                [repo.name() for repo in self.all_repos()],
+                self.custom_frontend_settings
             )
         else:
             raise exceptions.ProjectTypeRequiredException(

@@ -104,7 +104,8 @@ class SettingsManager(object):
 
     def write_frontend_settings(
             self, app_type, country, available_languages,
-            default_language, ga_profile_id, hub_app, repo_name):
+            default_language, ga_profile_id, hub_app, repo_name,
+            custom_settings=None):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
@@ -131,7 +132,8 @@ class SettingsManager(object):
                 'repo_name': repo_name,
                 'hub_app_id': hub_app_id,
                 'hub_app_key': hub_app_key,
-                'hub_settings': settings.HUBCLIENT_SETTINGS
+                'hub_settings': settings.HUBCLIENT_SETTINGS,
+                'custom_settings': custom_settings
             }
         )
 
@@ -145,7 +147,8 @@ class SettingsManager(object):
 
     def write_springboard_settings(
             self, app_type, country, available_languages,
-            default_language, ga_profile_id, hub_app, repo_names):
+            default_language, ga_profile_id, hub_app, repo_names,
+            custom_settings=None):
         if self.deploy_environment == 'qa':
             raven_dsn = settings.RAVEN_DSN_FRONTEND_QA
         else:
@@ -171,6 +174,7 @@ class SettingsManager(object):
                 'es_host': settings.ELASTICSEARCH_HOST,
                 'ucd_host': settings.UNICORE_DISTRIBUTE_HOST,
                 'repo_names': repo_names,
+                'custom_settings': custom_settings
             }
         )
 
