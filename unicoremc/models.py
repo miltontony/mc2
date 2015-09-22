@@ -178,6 +178,8 @@ class Project(models.Model):
         max_length=255, blank=True, null=True)
     docker_cmd = models.TextField(blank=True, null=True)
 
+    custom_frontend_settings = models.TextField(blank=True, null=True)
+
     # Ownership and auth fields
     owner = models.ForeignKey('auth.User')
     team_id = models.IntegerField(blank=True, null=True)
