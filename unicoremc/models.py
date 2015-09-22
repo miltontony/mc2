@@ -178,6 +178,8 @@ class Project(models.Model):
         max_length=255, blank=True, null=True)
     docker_cmd = models.TextField(blank=True, null=True)
 
+    custom_frontend_settings = models.TextField(blank=True, null=True)
+
     # Ownership and auth fields
     owner = models.ForeignKey('auth.User')
     team_id = models.IntegerField(blank=True, null=True)
@@ -283,6 +285,7 @@ class Project(models.Model):
             'cms_custom_domain': self.cms_custom_domain or '',
             'hub_app_id': self.hub_app_id or '',
             'docker_cmd': self.docker_cmd or '',
+            'custom_frontend_settings': self.custom_frontend_settings or '',
         }
 
     def get_website_manager(self):
@@ -493,7 +496,8 @@ class Project(models.Model):
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app(),
-                self.all_repos()[0].name()
+                self.all_repos()[0].name(),
+                self.custom_frontend_settings
             )
         elif self.application_type.project_type == AppType.SPRINGBOARD:
             self.settings_manager.write_springboard_settings(
@@ -503,7 +507,8 @@ class Project(models.Model):
                 self.default_language or Localisation._for('eng_GB'),
                 self.ga_profile_id,
                 self.hub_app(),
-                [repo.name() for repo in self.all_repos()]
+                [repo.name() for repo in self.all_repos()],
+                self.custom_frontend_settings
             )
         else:
             raise exceptions.ProjectTypeRequiredException(

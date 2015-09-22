@@ -57,6 +57,32 @@ class SettingsManagerTestCase(UnicoremcTestCase):
         for key in ('host', 'app_id', 'app_key', 'redirect_to_https'):
             self.assertNotIn('unicorehub.%s' % key, data)
 
+    def test_write_frontend_settings_with_custom_settings(self):
+        english = Localisation._for('eng_GB')
+        swahili = Localisation._for('swa_TZ')
+        hub_app = self.mk_hub_app()
+        sm = self.get_settings_manager()
+        sm.write_frontend_settings(
+            'ffl', 'za', [english, swahili], english, 'UA-some-profile-id',
+            hub_app, 'unicore-cms-content-ffl-za', 'skype_on = true')
+
+        frontend_settings_path = os.path.join(
+            settings.CONFIGS_REPO_PATH,
+            sm.get_frontend_settings_path('ffl', 'za'))
+
+        self.assertTrue(os.path.exists(frontend_settings_path))
+
+        with open(frontend_settings_path, "r") as config_file:
+            data = config_file.read()
+
+        self.addCleanup(lambda: os.remove(frontend_settings_path))
+
+        self.assertTrue('egg:unicore-cms-ffl' in data)
+        self.assertTrue(
+            "[(u'eng_GB', u'English')"
+            ", (u'swa_TZ', u'Swahili')]" in data)
+        self.assertTrue('skype_on = true' in data)
+
     @override_settings(DEPLOY_ENVIRONMENT='prod')
     def test_write_frontend_settings_prod(self):
         english = Localisation._for('eng_GB')
@@ -408,3 +434,30 @@ class SettingsManagerTestCase(UnicoremcTestCase):
 
         for key in ('host', 'app_id', 'app_key', 'redirect_to_https'):
             self.assertNotIn('unicorehub.%s' % key, data)
+
+    def test_write_springboard_settings_with_custom_settings(self):
+        english = Localisation._for('eng_GB')
+        swahili = Localisation._for('swa_TZ')
+        hub_app = self.mk_hub_app()
+        sm = self.get_settings_manager()
+        sm.write_springboard_settings(
+            'ffl', 'za', [english, swahili], english,
+            'UA-some-profile-id', hub_app,
+            ['unicore-cms-content-ffl-za', 'unicore-cms-content-gem-uk'],
+            'skype_on = true')
+
+        springboard_settings_path = os.path.join(
+            settings.CONFIGS_REPO_PATH,
+            sm.get_springboard_settings_path('ffl', 'za'))
+
+        self.assertTrue(os.path.exists(springboard_settings_path))
+
+        with open(springboard_settings_path, "r") as config_file:
+            data = config_file.read()
+
+        self.addCleanup(lambda: os.remove(springboard_settings_path))
+
+        self.assertTrue('egg:springboard_ffl' in data)
+        self.assertTrue('pyramid.default_locale_name = eng_GB' in data)
+        self.assertTrue('swa_TZ' in data)
+        self.assertTrue('skype_on = true' in data)

@@ -172,7 +172,8 @@ class ProjectEditView(ProjectViewMixin, UpdateView):
         try:
             project.update_marathon_app()
         except exceptions.MarathonApiException:
-            messages.error(self.request, 'Unable to update project in marathon')
+            messages.error(
+                self.request, 'Unable to update project in marathon')
         return response
 
 

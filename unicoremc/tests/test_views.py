@@ -343,8 +343,9 @@ class ViewsTestCase(UnicoremcTestCase):
                 'marathon_mem': 100.0,
                 'marathon_instances': 2,
                 'marathon_health_check_path': '/health/',
-                'docker_cmd': '/path/to/exec some command'
-                })
+                'docker_cmd': '/path/to/exec some command',
+                'custom_frontend_settings': 'skype_on = true'
+            })
         project = Project.objects.get(pk=project.id)
         self.assertEqual(project.available_languages.count(), 2)
         self.assertEqual(project.default_language.get_code(), 'swa_TZ')
@@ -356,6 +357,7 @@ class ViewsTestCase(UnicoremcTestCase):
         self.assertEqual(project.marathon_health_check_path, '/health/')
         self.assertEqual(project.docker_cmd, '/path/to/exec some command')
         self.assertTrue(project.hub_app_id)
+        self.assertTrue(project.custom_frontend_settings, 'skype_on = true')
 
         frontend_settings_path = os.path.join(
             settings.FRONTEND_SETTINGS_OUTPUT_PATH,
@@ -369,6 +371,7 @@ class ViewsTestCase(UnicoremcTestCase):
             "(u'swa_TZ', u'Swahili')]" in data)
         self.assertTrue('pyramid.default_locale_name = swa_TZ' in data)
         self.assertTrue('ga.profile_id = UA-some-profile-id' in data)
+        self.assertTrue('skype_on = true' in data)
 
         self.addCleanup(lambda: shutil.rmtree(
             os.path.join(settings.CMS_REPO_PATH, 'ffl-za')))

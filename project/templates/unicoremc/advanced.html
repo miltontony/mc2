@@ -63,6 +63,15 @@
         </div>
 
         <fieldset class="input-xxlarge">
+            <legend>Expert Settings*</legend>
+          <div class="form-group">
+              <strong>Custom Frontend Settings</strong>
+              <div>Specify additional settings to be included</div>
+              <div>{{form.custom_frontend_settings}}</div>
+          </div>
+        </fieldset>
+
+        <fieldset class="input-xxlarge">
             <legend>Marathon</legend>
             <dl class="dl-horizontal">
               <dt>CPUs Limit</dt><dd>{{form.marathon_cpus}}</dd>

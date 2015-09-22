@@ -41,4 +41,4 @@ class ProjectForm(forms.ModelForm):
             'available_languages', 'default_language', 'ga_profile_id',
             'frontend_custom_domain', 'cms_custom_domain', 'marathon_cpus',
             'marathon_mem', 'marathon_instances', 'marathon_health_check_path',
-            'docker_cmd')
+            'docker_cmd', 'custom_frontend_settings')
