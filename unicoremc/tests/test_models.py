@@ -86,8 +86,7 @@ class ModelsTestCase(UnicoremcTestCase):
             "id": "gem-za-%s" % p.id,
             "cmd": (
                 "/usr/local/bin/uwsgi "
-                "--pypy-home /usr/local/bin/ "
-                "--pypy-ini-paste /var/unicore-configs/"
+                "--ini-paste /var/unicore-configs/"
                 "frontend_settings/gem_za.ini "
                 "--http :5656 "
                 "--processes 1 "
@@ -95,7 +94,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 "--static-map /static=/var/app/static"
             ),
             "cpus": 0.1,
-            "mem": 100.0,
+            "mem": 128.0,
             "instances": 1,
             "labels": {
                 "domain": 'gem-za-%s.qa-hub.unicore.io' % p.id,
@@ -143,8 +142,7 @@ class ModelsTestCase(UnicoremcTestCase):
             "id": "ffl-tz-%s" % p.id,
             "cmd": (
                 "/usr/local/bin/uwsgi "
-                "--pypy-home /usr/local/bin/ "
-                "--pypy-ini-paste /var/unicore-configs/"
+                "--ini-paste /var/unicore-configs/"
                 "springboard_settings/ffl_tz.ini "
                 "--http :5656 "
                 "--processes 1 "
@@ -152,7 +150,7 @@ class ModelsTestCase(UnicoremcTestCase):
                 "--static-map /static=/var/app/static"
             ),
             "cpus": 0.1,
-            "mem": 100.0,
+            "mem": 128.0,
             "instances": 1,
             "labels": {
                 "domain": u"ffl-tz-%s.qa-hub.unicore.io" % p.id,
