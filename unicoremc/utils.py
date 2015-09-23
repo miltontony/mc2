@@ -112,7 +112,7 @@ def get_default_docker_cmd(application_type, country):
                 'springboard_settings/%s_%s.ini' % (
                     application_type.name,
                     country.lower())
-                )
+            )
             docker_cmd = constants.MARATHON_CMD % {
                 'config_path': ini}
 
@@ -122,7 +122,7 @@ def get_default_docker_cmd(application_type, country):
                 'frontend_settings/%s_%s.ini' % (
                     application_type.name,
                     country.lower())
-                )
+            )
             docker_cmd = constants.MARATHON_CMD % {
                 'config_path': ini}
     return docker_cmd
@@ -170,5 +170,5 @@ def get_teams():
     response = requests.get(
         url, auth=(settings.GITHUB_USERNAME, settings.GITHUB_TOKEN))
     teams = response.json()
-    cache.set('teams', teams, timeout=60*30)
+    cache.set('teams', teams, timeout=60 * 30)
     return teams
