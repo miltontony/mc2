@@ -80,8 +80,10 @@ jQuery(document).ready(function($) {
     .on("mouseleave", function(){
       $(this).removeClass("info-hint");
     })
-    .on("click", function(){
-      $(this).find(".additional-info").toggle(400);
+    .on("click", function(e){
+      if(!$(e.target).is("a")){
+        $(this).find(".additional-info").toggle(400);
+      }
     });
 
     $('#filter').keyup(function(){
