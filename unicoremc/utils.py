@@ -139,21 +139,21 @@ def get_repos(refresh=False):
         settings.GITHUB_API, 'repos?type=public&per_page=100&page=%s')
     r_session = requests.Session()
     r_session.auth = (settings.GITHUB_USERNAME, settings.GITHUB_TOKEN)
-    pageNum = 1
+    page_num = 1
     repos = []
     while True:
-        response = r_session.get(url % pageNum)
+        response = r_session.get(url % page_num)
         data = response.json()
         if not data:
             break
         repos.extend(data)
-        pageNum += 1
+        page_num += 1
     repos = [{
         'name': r.get('name'),
         'git_url': r.get('git_url'),
         'clone_url': r.get('clone_url')
     } for r in repos]
-    cache.set('repos', repos)
+    cache.set('repos', repos, timeout=None)
     return repos
 
 

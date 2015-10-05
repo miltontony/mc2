@@ -29,7 +29,7 @@
         <div class="form-group">
                 <label class="col-sm-2 control-label" style="text-align:left">Base content repo</label>
                 <div class="col-sm-10">
-                    <select class="form-control" id="base_repo" name="base_repo" disabled="disabled">
+                    <select class="form-control" id="base_repo" name="base_repo" disabled="disabled" style="width: 320px">
                         <option value="">---------</option>
                     </select>
                     <button class="btn btn-success btn-small" id="refresh_repos"><i class="icon-refresh"></i> refresh repos</button>
@@ -219,6 +219,9 @@ if (typeof String.prototype.startsWith != 'function') {
             $(this).attr('disabled', 'disabled');
             launch();
         });
+
+        $('#base_repo').select2();
+        $('#project_repo').select2();
     });
 })($);
 </script>
