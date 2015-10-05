@@ -33,7 +33,7 @@ $(document).ready(function() {
             })
 
             es = new EventSource('./' + task_id + '/' + path + '/?n={{scroll_backlog}}');
-            es.addEventListener('message', function (event) {
+            es.addEventListener('log', function (event) {
                 al.log(event.data);
             });
         });
