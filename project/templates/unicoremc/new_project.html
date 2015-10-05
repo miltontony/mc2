@@ -219,6 +219,9 @@ if (typeof String.prototype.startsWith != 'function') {
             $(this).attr('disabled', 'disabled');
             launch();
         });
+
+        $('#base_repo').select2();
+        $('#project_repo').select2();
     });
 })($);
 </script>

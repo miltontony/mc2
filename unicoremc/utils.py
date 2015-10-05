@@ -153,7 +153,7 @@ def get_repos(refresh=False):
         'git_url': r.get('git_url'),
         'clone_url': r.get('clone_url')
     } for r in repos]
-    cache.set('repos', repos)
+    cache.set('repos', repos, timeout=3600)
     return repos
 
 

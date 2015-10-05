@@ -90,7 +90,8 @@ class NewProjectView(ProjectViewMixin, TemplateView):
             'app_types': AppType.objects.all(),
             'project_repos': ProjectRepo.objects.filter(
                 project__in=project_pks,
-                project__state='done'),
+                project__state='done'
+            ).order_by('project'),
         })
         return context
 
