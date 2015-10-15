@@ -4,6 +4,7 @@ from django.forms import widgets
 
 
 class ProjectForm(forms.ModelForm):
+    name = forms.CharField(required=True)
     ga_profile_id = forms.CharField(required=False)
     frontend_custom_domain = forms.CharField(
         required=False,
@@ -38,7 +39,7 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = (
-            'available_languages', 'default_language', 'ga_profile_id',
+            'name', 'available_languages', 'default_language', 'ga_profile_id',
             'frontend_custom_domain', 'cms_custom_domain', 'marathon_cpus',
             'marathon_mem', 'marathon_instances', 'marathon_health_check_path',
             'docker_cmd', 'custom_frontend_settings')

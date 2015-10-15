@@ -150,6 +150,8 @@ class Project(models.Model):
     objects = ProjectManager()
 
     application_type = models.ForeignKey(AppType, blank=True, null=True)
+    name = models.CharField(
+        max_length=255, blank=True, null=True)
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES,
         max_length=256,
