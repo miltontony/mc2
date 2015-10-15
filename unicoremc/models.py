@@ -151,7 +151,9 @@ class Project(models.Model):
 
     application_type = models.ForeignKey(AppType, blank=True, null=True)
     country = models.CharField(
-        choices=constants.COUNTRY_CHOICES, max_length=256)
+        choices=constants.COUNTRY_CHOICES,
+        max_length=256,
+        blank=True, null=True)
     external_repos = models.ManyToManyField(
         ProjectRepo, blank=True, null=True, related_name='external_projects')
     state = models.CharField(max_length=50, default='initial')
