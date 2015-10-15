@@ -155,20 +155,3 @@ def get_repos(refresh=False):
     } for r in repos]
     cache.set('repos', repos, timeout=None)
     return repos
-
-
-def get_teams():
-    """
-    Fetches and returns a list of organization teams from Github. Caches
-    the result.
-    """
-    teams = cache.get('teams')
-    if teams is not None:
-        return teams
-
-    url = urljoin(settings.GITHUB_API, 'teams')
-    response = requests.get(
-        url, auth=(settings.GITHUB_USERNAME, settings.GITHUB_TOKEN))
-    teams = response.json()
-    cache.set('teams', teams, timeout=60 * 30)
-    return teams

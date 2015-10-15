@@ -65,7 +65,6 @@ class ViewsTestCase(UnicoremcTestCase):
             'project_repos[]': existing_project.own_repo().pk,
             'country': 'ZA',
             'user_id': 1,
-            'team_id': 1
         }
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
@@ -166,7 +165,6 @@ class ViewsTestCase(UnicoremcTestCase):
             'project_repos[]': existing_project.own_repo().pk,
             'country': 'ZA',
             'user_id': 1,
-            'team_id': 1
         }
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
@@ -253,7 +251,6 @@ class ViewsTestCase(UnicoremcTestCase):
             'app_type': app_type.id,
             'country': 'ZA',
             'user_id': 1,
-            'team_id': 1
         }
         response = self.client.post(reverse('new_project'), data)
 
@@ -295,7 +292,6 @@ class ViewsTestCase(UnicoremcTestCase):
             'base_repo': self.base_repo_sm.repo.git_dir,
             'country': 'ZA',
             'user_id': 1,
-            'team_id': 1
         }
 
         with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
@@ -418,24 +414,6 @@ class ViewsTestCase(UnicoremcTestCase):
         resp = self.client.get(reverse('repos_json'))
         resp_json = json.loads(resp.content)
         self.assertIs(resp_json, None)
-        self.assertEqual(resp['Content-Type'], 'application/json')
-
-    @responses.activate
-    def test_get_teams(self):
-        self.mock_get_teams()
-        resp = self.client.get(reverse('teams_json'))
-        resp_json = json.loads(resp.content)
-        self.assertEqual(resp_json, [{
-            'repositories_url': 'https://api.github.com/teams/1/repos',
-            'members_url':
-                'https://api.github.com/teams/1/members{/member}',
-            'description': '',
-            'permission': 'push',
-            'url': 'https://api.github.com/teams/1',
-            'id': 1,
-            'slug': 'foo',
-            'name': 'Foo'
-        }])
         self.assertEqual(resp['Content-Type'], 'application/json')
 
     @patch('unicoremc.utils.create_ga_profile')

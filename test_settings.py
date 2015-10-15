@@ -60,3 +60,5 @@ HUBCLIENT_SETTINGS = {
     'app_key': '',
     'redirect_to_https': False,
 }
+
+GITHUB_TEAM_ID = 1

@@ -186,7 +186,6 @@ class Project(models.Model):
 
     # Ownership and auth fields
     owner = models.ForeignKey('auth.User')
-    team_id = models.IntegerField(blank=True, null=True)
     organization = models.ForeignKey(
         'organizations.Organization', blank=True, null=True)
 
@@ -278,7 +277,6 @@ class Project(models.Model):
             'state_display': self.get_state_display(),
             'repo_urls': [r.url for r in self.all_repos()],
             'repo_git_urls': [r.git_url for r in self.all_repos()],
-            'team_id': self.team_id,
             'available_languages': [
                 lang.get_code() for lang in self.available_languages.all()],
             'default_language': self.default_language.get_code()
@@ -385,7 +383,7 @@ class Project(models.Model):
             "private": False,
             "has_issues": True,
             "auto_init": True,
-            "team_id": self.team_id,
+            "team_id": settings.GITHUB_TEAM_ID,
         }
 
         resp = requests.post(

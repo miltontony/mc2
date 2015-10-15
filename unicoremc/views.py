@@ -35,13 +35,6 @@ def repos_json(request):
     return HttpResponse(json.dumps(repos), content_type='application/json')
 
 
-@login_required
-def teams_json(request):
-    # login_required because teams aren't public
-    teams = utils.get_teams()
-    return HttpResponse(json.dumps(teams), content_type='application/json')
-
-
 class ProjectViewMixin(View):
     pk_url_kwarg = 'project_id'
     permissions = []
