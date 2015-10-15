@@ -168,24 +168,6 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
             status=200,
             match_querystring=True)
 
-    def mock_get_teams(self, data=None):
-        if data is None:
-            data = [{
-                'repositories_url': 'https://api.github.com/teams/1/repos',
-                'members_url':
-                    'https://api.github.com/teams/1/members{/member}',
-                'description': '',
-                'permission': 'push',
-                'url': 'https://api.github.com/teams/1',
-                'id': 1,
-                'slug': 'foo',
-                'name': 'Foo'}]
-        responses.add(
-            responses.GET, urljoin(settings.GITHUB_API, 'teams'),
-            body=json.dumps(data),
-            content_type="application/json",
-            status=200)
-
     def mock_create_webhook(
             self, status=201, repo='unicore-cms-content-ffl-za'):
         responses.add(

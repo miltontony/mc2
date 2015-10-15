@@ -1,5 +1,3 @@
-import os
-import json
 import errno
 
 from django.conf import settings
@@ -15,7 +13,7 @@ from elasticgit.storage import StorageException
 from unicoremc.tests.base import UnicoremcTestCase
 from unicoremc.utils import (
     get_hub_app_client, remove_if_exists, git_remove_if_exists,
-    get_repos, get_teams)
+    get_repos)
 
 
 class UtilsTestCase(UnicoremcTestCase):
@@ -93,28 +91,3 @@ class UtilsTestCase(UnicoremcTestCase):
         self.mock_list_repos(data=[])
         data = get_repos()
         self.assertIs(data, None)
-
-    @responses.activate
-    def test_get_teams(self):
-        self.mock_get_teams()
-        with patch(
-                'unicoremc.utils.cache',
-                new=get_cache('django.core.cache.backends.locmem.LocMemCache')
-                ):
-            data = get_teams()
-            self.assertEqual(data, [{
-                'repositories_url': 'https://api.github.com/teams/1/repos',
-                'members_url':
-                    'https://api.github.com/teams/1/members{/member}',
-                'description': '',
-                'permission': 'push',
-                'url': 'https://api.github.com/teams/1',
-                'id': 1,
-                'slug': 'foo',
-                'name': 'Foo'
-            }])
-            data2 = get_teams()
-            self.assertEqual(data, data2)
-
-        self.assertEqual(len(responses.calls), 1)
-        self.assertIn('Authorization', responses.calls[0].request.headers)
