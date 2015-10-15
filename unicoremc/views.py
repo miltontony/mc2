@@ -102,6 +102,7 @@ class NewProjectView(ProjectViewMixin, TemplateView):
             return HttpResponseBadRequest(
                 '%s does not support multiple repos' % (AppType.UNICORE_CMS,))
 
+        name = request.POST.get('name')
         country = request.POST.get('country')
         user_id = request.POST.get('user_id')
         docker_cmd = request.POST.get('docker_cmd')
@@ -109,13 +110,13 @@ class NewProjectView(ProjectViewMixin, TemplateView):
         user = User.objects.get(pk=user_id)
 
         project, created = Project.objects.get_or_create(
+            name=name,
             application_type=app_type,
-            country=country,
             defaults={
-                'team_id': settings.GITHUB_TEAM_ID,
                 'owner': user,
                 'organization': self.organization,
                 'marathon_health_check_path': '/health/',
+                'country': country,
                 'docker_cmd':
                     docker_cmd or
                     utils.get_default_docker_cmd(app_type, country)
@@ -128,7 +129,8 @@ class NewProjectView(ProjectViewMixin, TemplateView):
 
         # For consistency with existing apps, all new apps will also have
         # country domain urls in addition to the generic urls
-        project.frontend_custom_domain = project.get_country_domain()
+        if country:
+            project.frontend_custom_domain = project.get_country_domain()
         project.cms_custom_domain = project.content_url()
         project.save()
 

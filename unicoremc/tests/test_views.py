@@ -60,6 +60,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'universalcore/unicore-cms-ffl')
 
         data = {
+            'name': 'FFL Test Project',
             'app_type': app_type.id,
             'base_repo': self.base_repo_sm.repo.git_dir,
             'project_repos[]': existing_project.own_repo().pk,
@@ -160,6 +161,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'universalcore/unicore-cms-ffl')
 
         data = {
+            'name': 'FFL Test Project',
             'app_type': app_type.id,
             'base_repo': self.base_repo_sm.repo.git_dir,
             'project_repos[]': existing_project.own_repo().pk,
@@ -248,6 +250,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'universalcore/unicore-cms-ffl')
 
         data = {
+            'name': 'FFL Test Project',
             'app_type': app_type.id,
             'country': 'ZA',
             'user_id': 1,
@@ -287,6 +290,7 @@ class ViewsTestCase(UnicoremcTestCase):
             'universalcore/unicore-cms-ffl')
 
         data = {
+            'name': 'FFL Test Project',
             'app_type': app_type.id,
             'project_type': 'unicore-cms',
             'base_repo': self.base_repo_sm.repo.git_dir,
@@ -332,6 +336,7 @@ class ViewsTestCase(UnicoremcTestCase):
             reverse('advanced', args=[project.id]), {
                 'available_languages': [english.id, swahili.id],
                 'default_language': [Localisation._for('swa_TZ').pk],
+                'name': 'FFL Test Project',
                 'ga_profile_id': 'UA-some-profile-id',
                 'frontend_custom_domain': 'some.domain.com',
                 'cms_custom_domain': 'cms.some.domain.com',
@@ -342,6 +347,7 @@ class ViewsTestCase(UnicoremcTestCase):
                 'docker_cmd': '/path/to/exec some command',
                 'custom_frontend_settings': 'skype_on = true'
             })
+
         project = Project.objects.get(pk=project.id)
         self.assertEqual(project.available_languages.count(), 2)
         self.assertEqual(project.default_language.get_code(), 'swa_TZ')
@@ -587,3 +593,46 @@ class ViewsTestCase(UnicoremcTestCase):
         resp = self.client.get(reverse('restart', args=[project.id]))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(len(responses.calls), 1)
+
+    @responses.activate
+    def test_create_new_project_optional_country(self):
+        existing_project = self.mk_project()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_repo()
+        self.mock_create_webhook()
+        self.mock_create_hub_app()
+        self.mock_create_unicore_distribute_repo()
+        self.mock_create_marathon_app()
+
+        app_type = AppType._for(
+            'ffl', 'Facts for Life', 'springboard',
+            'universalcore/unicore-cms-ffl')
+
+        data = {
+            'name': 'FFL Test Project',
+            'app_type': app_type.id,
+            'base_repo': self.base_repo_sm.repo.git_dir,
+            'project_repos[]': existing_project.own_repo().pk,
+            'country': '',
+            'user_id': 1,
+        }
+
+        with patch.object(DbManager, 'call_subprocess') as mock_subprocess:
+            mock_subprocess.return_value = None
+            response = self.client.post(reverse('new_project'), data)
+
+        self.assertEqual(response['Content-Type'], 'application/json')
+        self.assertEqual(json.loads(response.content), {
+            'success': True
+        })
+
+        project = Project.objects.exclude(pk=existing_project.pk).get()
+        self.assertEqual(project.state, 'done')
+        self.assertFalse(
+            project.frontend_url(),
+            'http://ffl-za-%s.qa-apollo.unicore.io' % project.id)
+        self.assertFalse(project.frontend_custom_domain)

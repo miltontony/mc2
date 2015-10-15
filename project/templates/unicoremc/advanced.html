@@ -12,12 +12,24 @@
 <div id="content-main" class="new-project">
     <div>
     <form class="form-horizontal" role="form" method="POST">
-        <legend>{{project.application_type.title}} - {{project.get_country_display}}</legend>
+        <legend>Edit - {{project.name}}</legend>
         {% if form.non_field_errors %}
             <div class="alert alert-error">
                 {{ form.non_field_errors|join:", " }}
             </div>
         {% endif %}
+
+        <div style="clear:both"></div>
+        {% if form.name.errors %}
+            <div class="alert alert-error">
+                <strong>{{form.name.label}}</strong>
+                {{form.name.errors|join:", " }}
+            </div>
+        {% endif %}
+        <div class="form-group">
+            <strong>Name</strong>
+            <div>{{form.name}}</div>
+        </div>
 
         {% if form.available_languages.errors %}
             <div class="alert alert-error">

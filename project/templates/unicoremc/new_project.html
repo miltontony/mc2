@@ -136,6 +136,7 @@ if (typeof String.prototype.startsWith != 'function') {
     function launch(){
         // Trigger start new project via ajax
         data = {
+            'name': $('#name').val(),
             'app_type': $('#unicore_app').val(),
             'base_repo': $('#base_repo').val(),
             'project_repos': get_multi_selected('#project_repo'),
