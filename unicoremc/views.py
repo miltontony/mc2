@@ -111,7 +111,6 @@ class NewProjectView(ProjectViewMixin, TemplateView):
 
         country = request.POST.get('country')
         user_id = request.POST.get('user_id')
-        team_id = request.POST.get('team_id')
         docker_cmd = request.POST.get('docker_cmd')
 
         user = User.objects.get(pk=user_id)
@@ -120,7 +119,7 @@ class NewProjectView(ProjectViewMixin, TemplateView):
             application_type=app_type,
             country=country,
             defaults={
-                'team_id': int(team_id),
+                'team_id': settings.GITHUB_TEAM_ID,
                 'owner': user,
                 'organization': self.organization,
                 'marathon_health_check_path': '/health/',

@@ -316,6 +316,7 @@ GITHUB_HOOKS_API = 'https://api.github.com/repos/universalcore/%(repo)s/hooks'
 GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
 GITHUB_USERNAME = ''
 GITHUB_TOKEN = ''
+GITHUB_TEAM_ID = 0
 
 RAVEN_DSN_FRONTEND_QA = ''
 RAVEN_DSN_FRONTEND_PROD = ''
