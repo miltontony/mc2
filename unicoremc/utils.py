@@ -172,3 +172,13 @@ def get_teams():
     teams = response.json()
     cache.set('teams', teams, timeout=60 * 30)
     return teams
+
+
+def get_health(project):
+    """
+    Fetches and returns the health of an app via its health check url
+    """
+    url = 'http://%s%s' % (
+        project.get_generic_domain(),
+        project.marathon_health_check_path)
+    return requests.get(url)
