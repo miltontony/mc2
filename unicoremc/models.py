@@ -671,7 +671,7 @@ class Project(models.Model):
                 (resp.status_code, resp.json().get('message')))
 
     def exists_on_marathon(self):
-        resp = requests.post(
+        resp = requests.get(
             '%(host)s/v2/apps/%(id)s' % {
                 'host': settings.MESOS_MARATHON_HOST,
                 'id': self.app_id
