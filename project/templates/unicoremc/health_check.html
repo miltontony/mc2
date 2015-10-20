@@ -11,6 +11,12 @@
 {% block content %}
 <div id="content-main">
     <div>
+{% if user.is_superuser %}
+<p>
+<a href="#" class="btn btn-primary" id="update-marathon-exists">Update Marathon Status</a>
+</p>
+{% endif %}
+
         {% csrf_token %}
         <table id="result_list" cellspacing="0" class="table table-striped table-hover table-condensed">
             {% comment %}
@@ -30,10 +36,15 @@
             {% endcomment %}
             <tbody>
             {% for p in project_list %}
-            <tr id="{{p.id}}">
+            <tr id="{{p.id}}" class="{{p.state}}">
                 <td>{{p.application_type.title}} - {{p.get_country_display}}</td>
+
                 <td><a href="http://{{p.get_generic_domain}}{{p.marathon_health_check_path}}" target="_blank">{{p.marathon_health_check_path}}</td>
+                {% if p.state != 'done' %}
+                <td class="health"><span class="label label-inverse">{{p.state}}</span></td>
+                {% else %}
                 <td class="health"><span class="label">unknown</span></td>
+                {% endif %}
             </tr>
             {% endfor %}
             </tbody>
@@ -62,15 +73,50 @@
             });
     }
 
+    function update_marathon_exists(project_id){
+        $.get('/exists/' + project_id + '/')
+            .done(function(response){
+              $("#"+project_id).attr("class", response.state);
+
+              if (response.state == 'done'){
+                check_health(project_id);
+              }else{
+                $("#"+project_id+" .health .label")
+                  .html(response.state)
+                  .addClass("label-inverse")
+                  .removeClass("label-success")
+                  .removeClass("label-warning");
+              }
+            })
+            .fail(function(response){
+                console.log({
+                  'app': $("#"+project_id+" td:first").text(),
+                  'status': response.status,
+                  'message': response.responseText});
+            });
+    }
+
     function check_all_health(){
-      $('tr').each(function(index){
+      $('tr.done').each(function(index){
           var id = $(this).attr('id');
           check_health(id);
       });
     }
 
+    function update_all_marathon_exists(){
+      $('tr').each(function(index){
+          var id = $(this).attr('id');
+          update_marathon_exists(id);
+      });
+    }
+
     $(function(){
       check_all_health();
+
+      $('#update-marathon-exists').click(function(event){
+        event.preventDefault();
+        update_all_marathon_exists();
+      });
     });
 </script>
 {% endblock %}

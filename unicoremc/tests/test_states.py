@@ -378,3 +378,29 @@ class StatesTestCase(UnicoremcTestCase):
 
         pw.take_action('destroy')
         self.assertFalse(os.path.exists(frontend_settings_path))
+
+    @patch('unicoremc.managers.database.DbManager.call_subprocess')
+    @responses.activate
+    def test_missing_state(self, mock_subprocess):
+        self.mock_create_all()
+        p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
+
+        self.assertEquals(p.state, 'initial')
+
+        pw = p.get_website_manager().workflow
+        pw.run_all()
+
+        self.assertEquals(p.state, 'done')
+
+        # nothing should happen on next
+        pw.next()
+        self.assertEquals(p.state, 'done')
+
+        pw.take_action('missing')
+        self.assertEquals(p.state, 'missing')
+
+        pw.take_action('activate')
+        self.assertEquals(p.state, 'done')
+
+        pw.take_action('destroy')
+        self.assertEquals(p.state, 'destroyed')

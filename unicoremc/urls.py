@@ -69,5 +69,10 @@ urlpatterns = patterns(
         r'^health/(?P<project_id>\d+)/$',
         'unicoremc.views.health_json',
         name='health_json'
+    ),
+    url(
+        r'^exists/(?P<project_id>\d+)/$',
+        'unicoremc.views.update_marathon_exists_json',
+        name='update_marathon_exists_json'
     )
 )

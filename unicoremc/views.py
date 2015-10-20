@@ -59,6 +59,20 @@ def health_json(request, project_id):
         (response.status_code, response.content))
 
 
+@login_required
+def update_marathon_exists_json(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    workflow = project.get_website_manager().workflow
+    if project.state == 'done' and not project.exists_on_marathon():
+            workflow.take_action('missing')
+    elif project.state == 'missing' and project.exists_on_marathon():
+        workflow.take_action('activate')
+
+    return HttpResponse(
+        json.dumps({'state': project.state}), content_type='application/json')
+
+
 class ProjectViewMixin(View):
     pk_url_kwarg = 'project_id'
     permissions = []

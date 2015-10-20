@@ -1,5 +1,5 @@
 from ostinato.statemachine import StateMachine
-from unicoremc.websites.states.base import Done, Destroyed
+from unicoremc.websites.states.base import Done, Destroyed, Missing
 from unicoremc.websites.states import unicorecms_states, iogt_states
 
 
@@ -40,6 +40,7 @@ class UnicoreCmsWorkflow(BaseWorkflow):
         'db_initialized': unicorecms_states.DbInitialized,
         'marathon_app_created': unicorecms_states.MarathonAppCreated,
         'done': Done,
+        'missing': Missing,
         'destroyed': Destroyed,
     }
 
@@ -55,5 +56,6 @@ class AggregatorWorkflow(BaseWorkflow):
         'pyramid_settings_created': iogt_states.PyramidSettingsCreated,
         'marathon_app_created': iogt_states.MarathonAppCreated,
         'done': Done,
+        'missing': Missing,
         'destroyed': Destroyed,
     }
