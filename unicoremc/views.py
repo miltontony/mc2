@@ -65,9 +65,11 @@ def update_marathon_exists_json(request, project_id):
 
     workflow = project.get_website_manager().workflow
     if project.state == 'done' and not project.exists_on_marathon():
-            workflow.take_action('missing')
+        workflow.take_action('missing')
+        project.save()
     elif project.state == 'missing' and project.exists_on_marathon():
         workflow.take_action('activate')
+        project.save()
 
     return HttpResponse(
         json.dumps({'state': project.state}), content_type='application/json')
