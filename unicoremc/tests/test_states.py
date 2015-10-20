@@ -381,7 +381,7 @@ class StatesTestCase(UnicoremcTestCase):
 
     @patch('unicoremc.managers.database.DbManager.call_subprocess')
     @responses.activate
-    def test_suspended_state(self, mock_subprocess):
+    def test_missing_state(self, mock_subprocess):
         self.mock_create_all()
         p = self.mk_project(repo={'base_url': self.base_repo_sm.repo.git_dir})
 
@@ -396,8 +396,11 @@ class StatesTestCase(UnicoremcTestCase):
         pw.next()
         self.assertEquals(p.state, 'done')
 
-        pw.take_action('suspend')
-        self.assertEquals(p.state, 'suspended')
+        pw.take_action('missing')
+        self.assertEquals(p.state, 'missing')
 
         pw.take_action('activate')
         self.assertEquals(p.state, 'done')
+
+        pw.take_action('destroy')
+        self.assertEquals(p.state, 'destroyed')
