@@ -50,7 +50,10 @@
                   .removeClass("label-warning");
             })
             .fail(function(response){
-                console.log(response.status);
+                console.log({
+                  'app': $("#"+project_id+" td:first").text(),
+                  'status': response.status,
+                  'message': response.responseText});
                 var msg = response.status == 400? 'unknown' : 'site down';
                 var state = response.status == 400? 'label label-warning' : ' label label-important';
                 $("#"+project_id+" .health .label")

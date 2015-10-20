@@ -54,7 +54,9 @@ def health_json(request, project_id):
         return HttpResponse(
             json.dumps({'success': True}), content_type='application/json')
 
-    return HttpResponseServerError('Health check failed')
+    return HttpResponseServerError(
+        'Health check failed: %d. %s' %
+        (response.status_code, response.content))
 
 
 class ProjectViewMixin(View):
