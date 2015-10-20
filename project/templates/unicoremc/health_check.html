@@ -41,14 +41,6 @@
     </div>
 </div>
 <script type="text/javascript">
-    var timeout = null;
-    function refresh(){
-        clearTimeout(timeout);
-        timeout = setTimeout("refresh()", 3000);
-        check_all_health();
-    }
-    refresh();
-
     function check_health(project_id){
         $.get('/health/' + project_id + '/')
             .done(function(response){
