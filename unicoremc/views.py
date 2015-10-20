@@ -42,6 +42,21 @@ def teams_json(request):
     return HttpResponse(json.dumps(teams), content_type='application/json')
 
 
+def health_json(request, project_id):
+    project = get_object_or_404(Project, pk=project_id)
+
+    if not project.marathon_health_check_path:
+        return HttpResponseBadRequest('Health check not configured.')
+
+    response = utils.get_health(project)
+
+    if response.status_code == 200:
+        return HttpResponse(
+            json.dumps({'success': True}), content_type='application/json')
+
+    return HttpResponseServerError('Health check failed')
+
+
 class ProjectViewMixin(View):
     pk_url_kwarg = 'project_id'
     permissions = []
@@ -261,6 +276,11 @@ class AppLogView(ProjectViewMixin, TemplateView):
                 self.request.GET.get('n') or settings.LOGDRIVER_BACKLOG)
         })
         return context
+
+
+class HealthCheckView(ProjectViewMixin, ListView):
+    template_name = 'unicoremc/health_check.html'
+    permissions = ['unicoremc.change_project']
 
 
 class AppEventSourceView(ProjectViewMixin, View):

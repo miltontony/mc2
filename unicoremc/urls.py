@@ -22,6 +22,11 @@ urlpatterns = patterns(
         name='new_project'
     ),
     url(
+        r'^health/$',
+        views.HealthCheckView.as_view(),
+        name='health_check'
+    ),
+    url(
         r'^googleanalytics/$',
         views.ManageGAView.as_view(),
         name='manage_ga'
@@ -59,5 +64,10 @@ urlpatterns = patterns(
         r'^teams/$',
         'unicoremc.views.teams_json',
         name='teams_json'
+    ),
+    url(
+        r'^health/(?P<project_id>\d+)/$',
+        'unicoremc.views.health_json',
+        name='health_json'
     )
 )
