@@ -27,7 +27,8 @@ class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
 
     @classmethod
     def tearDownClass(cls):
-        shutil.rmtree(settings.SCRATCHPATH)
+        if os.path.isdir(settings.SCRATCHPATH):
+            shutil.rmtree(settings.SCRATCHPATH)
 
     def get_nginx_manager(self):
         nm = NginxManager()
