@@ -594,7 +594,10 @@ class ViewsTestCase(UnicoremcTestCase):
         setup_responses_for_logdriver(project)
         # NOTE: bad path according to URL regex, hence the manual requesting
         view = AppEventSourceView()
-        response = view.get(RequestFactory().get('/'), project.pk,
+        request = RequestFactory().get('/')
+        request.user = project.owner
+        request.session = {}
+        response = view.get(request, project.pk,
                             'the-task-id', 'foo')
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content, 'File not found.')
