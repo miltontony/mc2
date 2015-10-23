@@ -25,6 +25,11 @@ from unicore.content.models import (
 
 class UnicoremcTestCase(TransactionTestCase, ModelBaseTest):
 
+    @classmethod
+    def tearDownClass(cls):
+        if os.path.isdir(settings.SCRATCHPATH):
+            shutil.rmtree(settings.SCRATCHPATH)
+
     def get_nginx_manager(self):
         nm = NginxManager()
         self.addCleanup(lambda: [shutil.rmtree(dir_) for dir_ in nm.dirs])
