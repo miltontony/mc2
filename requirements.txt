@@ -1,5 +1,4 @@
-Django<1.7
-South
+Django>=1.8
 python-memcached
 raven==5.0.0
 nose
