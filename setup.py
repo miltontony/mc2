@@ -10,7 +10,7 @@ with open(os.path.join(here, 'requirements.txt')) as f:
     requires = filter(None, f.readlines())
 
 setup(
-    name='unicore-mc',
+    name='mc2',
     version='0.0.1',
     description=(
         'Universal Core Mission Control - allows for easy launching'),

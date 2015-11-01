@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Q
-from django.contrib.auth import get_user_model
+from django.conf import settings
 from django.contrib.auth.models import Permission
 from django.utils.translation import ugettext as _
 
@@ -36,7 +36,7 @@ class Organization(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255)
     users = models.ManyToManyField(
-        get_user_model(),
+        settings.AUTH_USER_MODEL,
         through='OrganizationUserRelation')
 
     def __unicode__(self):
@@ -57,7 +57,7 @@ class Organization(models.Model):
 
 class OrganizationUserRelation(models.Model):
     organization = models.ForeignKey(Organization)
-    user = models.ForeignKey(get_user_model())
+    user = models.ForeignKey(settings.AUTH_USER_MODEL)
     is_admin = models.BooleanField(
         default=False,
         help_text=_('This allows the user to manage the'
