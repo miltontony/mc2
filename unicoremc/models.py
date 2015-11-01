@@ -153,11 +153,10 @@ class Project(models.Model):
     country = models.CharField(
         choices=constants.COUNTRY_CHOICES, max_length=256)
     external_repos = models.ManyToManyField(
-        ProjectRepo, blank=True, null=True, related_name='external_projects')
+        ProjectRepo, blank=True, related_name='external_projects')
     state = models.CharField(max_length=50, default='initial')
     project_version = models.PositiveIntegerField(default=0)
-    available_languages = models.ManyToManyField(
-        Localisation, blank=True, null=True)
+    available_languages = models.ManyToManyField(Localisation, blank=True)
     default_language = models.ForeignKey(
         Localisation, blank=True, null=True,
         related_name='default_language')

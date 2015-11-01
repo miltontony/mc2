@@ -25,10 +25,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': 'unicoremc.db',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
     }
 }
 
@@ -90,7 +86,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'django.contrib.staticfiles.finders.FileSystemFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -101,7 +96,6 @@ SECRET_KEY = 'please-change-me'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -146,9 +140,6 @@ ROOT_URLCONF = 'project.urls'
 WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
     abspath('puppet_templates'),
     abspath('templates'),
 )
@@ -164,7 +155,6 @@ INSTALLED_APPS = (
     'django.contrib.admin',
 
     'redis_cache',
-    'south',
     'django_nose',
     'raven.contrib.django.raven_compat',
     'djcelery',
@@ -246,15 +236,6 @@ DEBUG_TOOLBAR_CONFIG = {
     'ENABLE_STACKTRACES': True,
 }
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
-
-# South configuration variables
-TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
-SKIP_SOUTH_TESTS = True     # Do not run the south tests as part of our
-                            # test suite.
-SOUTH_TESTS_MIGRATE = False  # Do not run the migrations for our tests.
-                             # We are assuming that our models.py are correct
-                             # for the tests and as such nothing needs to be
-                             # migrated.
 
 # Sentry configuration
 RAVEN_CONFIG = {
