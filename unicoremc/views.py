@@ -5,7 +5,6 @@ from apiclient import errors
 from oauth2client.client import AccessTokenCredentialsError
 
 from django.conf import settings
-from django.db.models import F
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
@@ -202,8 +201,6 @@ class ProjectEditView(ProjectViewMixin, UpdateView):
     def form_valid(self, form):
         response = super(ProjectEditView, self).form_valid(form)
         project = self.get_object()
-        Project.objects.filter(
-            pk=project.pk).update(project_version=F('project_version') + 1)
 
         project = self.get_object()
         project.create_or_update_hub_app()
