@@ -11,6 +11,7 @@ install:
   - pip install -e . --download-cache $HOME/.cache/pip
   - pip install coveralls --download-cache $HOME/.cache/pip
 script:
+  - flake8
   - py.test
 services:
   - elasticsearch
