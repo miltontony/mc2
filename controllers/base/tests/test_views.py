@@ -221,3 +221,54 @@ class ViewsTestCase(ControllerBaseTestCase):
         resp = self.client.get(reverse('base:restart', args=[controller.id]))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(len(responses.calls), 1)
+
+    @responses.activate
+    def test_update_marathon_exists(self):
+        self.client.login(username='testuser2', password='test')
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2)})
+
+        self.mock_create_marathon_app()
+        controller.get_builder().build()
+
+        self.mock_exists_on_marathon(controller.app_id)
+        self.client.get(reverse(
+            'base:update_marathon_exists_json', kwargs={
+                'controller_pk': controller.pk,
+            }))
+
+        controller = Controller.objects.get(pk=controller.pk)
+        self.assertEqual(controller.state, 'done')
+
+        # change state to missing
+        controller.get_builder().workflow.take_action('missing')
+        controller.save()
+        controller = Controller.objects.get(pk=controller.pk)
+        self.assertEqual(controller.state, 'missing')
+
+        # ensure state is updated after marathon call
+        self.client.get(reverse(
+            'base:update_marathon_exists_json', kwargs={
+                'controller_pk': controller.pk,
+            }))
+
+        controller = Controller.objects.get(pk=controller.pk)
+        self.assertEqual(controller.state, 'done')
+
+    @responses.activate
+    def test_update_marathon_missing(self):
+        self.client.login(username='testuser2', password='test')
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2)})
+
+        self.mock_create_marathon_app()
+        controller.get_builder().build()
+
+        self.mock_exists_on_marathon(controller.app_id, 404)
+        self.client.get(reverse(
+            'base:update_marathon_exists_json', kwargs={
+                'controller_pk': controller.pk,
+            }))
+
+        controller = Controller.objects.get(pk=controller.pk)
+        self.assertEqual(controller.state, 'missing')

@@ -25,7 +25,7 @@ from unicoremc import tasks
 def update_marathon_exists_json(request, controller_pk):
     controller = get_object_or_404(Controller, pk=controller_pk)
 
-    workflow = controller.get_website_manager().workflow
+    workflow = controller.get_builder().workflow
     if controller.state == 'done' and not controller.exists_on_marathon():
         workflow.take_action('missing')
         controller.save()
