@@ -3,9 +3,7 @@ import os.path
 
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
-from django.http import (
-    HttpResponse, HttpResponseBadRequest, HttpResponseServerError,
-    HttpResponseNotFound)
+from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
 from django.views.generic.base import View
@@ -20,24 +18,7 @@ from controllers.base.models import Controller
 from controllers.base.forms import ControllerForm
 from controllers.base import exceptions
 
-from unicoremc import tasks, utils
-
-
-def health_json(request, controller_pk):
-    controller = get_object_or_404(Controller, pk=controller_pk)
-
-    if not controller.marathon_health_check_path:
-        return HttpResponseBadRequest('Health check not configured.')
-
-    response = utils.get_health(controller)
-
-    if response.status_code == 200:
-        return HttpResponse(
-            json.dumps({'success': True}), content_type='application/json')
-
-    return HttpResponseServerError(
-        'Health check failed: %d. %s' %
-        (response.status_code, response.content))
+from unicoremc import tasks
 
 
 @login_required
