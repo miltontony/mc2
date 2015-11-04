@@ -140,7 +140,7 @@ class AppLogView(ControllerViewMixin, TemplateView):
         controller = get_object_or_404(
             self.get_controllers_queryset(self.request),
             pk=kwargs['controller_pk'])
-        tasks = controller.infra_manager.get_marathon_tasks()
+        tasks = controller.infra_manager.get_controller_marathon_tasks()
         context.update({
             'controller': controller,
             'tasks': tasks,
@@ -164,7 +164,7 @@ class AppEventSourceView(ControllerViewMixin, View):
 
         # NOTE: I'm piecing together the app_id and task_id here
         #       so as to not need to expose both in the templates.
-        task = controller.infra_manager.get_task_log_info(
+        task = controller.infra_manager.get_controller_task_log_info(
             '%s.%s' % (controller.app_id, task_id))
 
         response = HttpResponse()

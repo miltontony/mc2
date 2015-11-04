@@ -3,25 +3,25 @@ import json
 import responses
 
 
-def setup_responses_for_logdriver(project):
+def setup_responses_for_logdriver(controller):
     responses.add(
         responses.GET,
-        'http://testserver:8080/v2/apps/%s' % (project.app_id,),
+        'http://testserver:8080/v2/apps/%s' % (controller.app_id,),
         status=200, content_type='application/json',
         body=json.dumps({
             "app": {
-                "id": "/%s" % (project.app_id,),
+                "id": "/%s" % (controller.app_id,),
             }
         }))
 
     responses.add(
         responses.GET,
-        'http://testserver:8080/v2/apps/%s/tasks' % (project.app_id,),
+        'http://testserver:8080/v2/apps/%s/tasks' % (controller.app_id,),
         status=200, content_type='application/json',
         body=json.dumps({
             "tasks": [{
-                "appId": "/%s" % (project.app_id,),
-                "id": "%s.the-task-id" % (project.app_id,),
+                "appId": "/%s" % (controller.app_id,),
+                "id": "%s.the-task-id" % (controller.app_id,),
                 "host": "worker-machine-1",
                 "ports": [8898],
                 "startedAt": "2015-08-10T16:09:43.561Z",

@@ -4,8 +4,20 @@ import responses
 from django.test import TransactionTestCase
 from django.conf import settings
 
+from controllers.base.models import Controller
+
 
 class ControllerBaseTestCase(TransactionTestCase):
+
+    def mk_controller(self, controller={}):
+        controller_defaults = {
+            'owner': getattr(self, 'user', None),
+            'name': 'Test App',
+            'marathon_cmd': 'ping'
+        }
+
+        controller_defaults.update(controller)
+        return Controller.objects.create(**controller_defaults)
 
     def mock_create_marathon_app(self, status=201):
         responses.add(
@@ -14,10 +26,10 @@ class ControllerBaseTestCase(TransactionTestCase):
             content_type="application/json",
             status=status)
 
-    def mock_update_marathon_app(self, app_type, country, app_id, status=200):
+    def mock_update_marathon_app(self, app_id, status=200):
         responses.add(
-            responses.PUT, '%s/v2/apps/%s-%s-%s' % (
-                settings.MESOS_MARATHON_HOST, app_type, country, app_id),
+            responses.PUT, '%s/v2/apps/%s' % (
+                settings.MESOS_MARATHON_HOST, app_id),
             body=json.dumps({}),
             content_type="application/json",
             status=status)
