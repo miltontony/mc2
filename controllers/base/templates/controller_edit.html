@@ -1,0 +1,56 @@
+{% extends "unicoremc/base.html" %}
+ {% load i18n admin_urls admin_static %}
+
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="#">New</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div id="content-main" class="new-project">
+    <div>
+    <form class="form-horizontal" role="form" method="POST">
+        {% if form.errors %}
+            <div class="alert alert-error">
+                Please correct the errors below
+            </div>
+        {% endif %}
+        {% if form.non_field_errors %}
+            <div class="alert alert-error">
+                {{ form.non_field_errors|join:", " }}
+            </div>
+        {% endif %}
+
+        {% include "form_field.html" with field=form.name %}
+        <div style="clear:both"></div>
+
+        <fieldset class="input-xxlarge">
+            <legend>Marathon</legend>
+            <dl class="dl-horizontal">
+              <dt><div class="control-group {% if form.marathon_cmd.errors %}error{%else%}warning{%endif%}">Marathon CMD</div></dt>
+              <dd>
+              <div class="control-group {% if form.marathon_cmd.errors %}error{%else%}warning{%endif%}">
+              {{form.marathon_cmd}}</div></dd>
+              {% include "form_errors.html" with errors=form.marathon_cmd.errors %}
+
+              <dt>CPUs Limit</dt><dd>{{form.marathon_cpus}} (optional)</dd>
+              {% include "form_errors.html" with errors=form.marathon_cpus.errors %}
+
+              <dt>MEM Limit</dt><dd>{{form.marathon_mem}} (optional)</dd>
+              {% include "form_errors.html" with errors=form.marathon_mem.errors %}
+
+              <dt>Number of instances</dt><dd>{{form.marathon_instances}} (optional)</dd>
+              {% include "form_errors.html" with errors=form.marathon_cmd.errors %}
+
+            </dl>
+        </fieldset>
+
+        {% csrf_token %}
+        <br/>
+        <p><input type="submit" value="Submit" class="btn btn-primary"/></p>
+    </form>
+    </div>
+</div>
+{% endblock %}

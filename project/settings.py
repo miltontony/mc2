@@ -163,6 +163,8 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
     'unicoremc',
     'organizations',
+    'controllers',
+    'controllers.base',
     'ws4redis',
 )
 

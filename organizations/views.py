@@ -50,7 +50,7 @@ class DeselectActiveOrganizationView(RedirectView):
 
 
 class EditOrganizationView(OrganizationAdminMixin, UpdateView):
-    template_name = 'organizations/organization_detail.html'
+    template_name = 'organization_detail.html'
     context_object_name = 'organization'
     form_class = OrganizationFormHelper
 

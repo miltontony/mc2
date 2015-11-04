@@ -1,0 +1,2 @@
+class MarathonApiException(Exception):
+    pass

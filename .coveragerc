@@ -1,2 +1,2 @@
 [run]
-omit = unicoremc/migrations/*,ve/*
+omit = controllers/base/migrations/*,organizations/migrations/*,ve/*
