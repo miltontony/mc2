@@ -385,5 +385,5 @@ div.heading{width: 310px; font-weight: bold; float: left; border-bottom: 1px sol
 }
 
 .main {padding: 10px; width: 100%; float: left; cursor: pointer;}
-    .main .title,.main .country,.main .state {width: 300px; float: left;}
+    .main .title,.main .appid,.main .state {width: 300px; float: left;}
 .info-hint {border: 1px dotted #cecefe; width: 100.4% !important; margin-left: -4px; padding-left: 14px !important}

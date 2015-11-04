@@ -5,7 +5,7 @@
 
 {% block results_count %}
 <div class="pull-left results-count">
-<code id="results_count">{{project_list.count}}</code>
+<code id="results_count">{{controller_list.count}}</code>
 <span>results</span>
 </div>
 {% endblock %}
@@ -14,21 +14,23 @@
 {% block content %}
 
 {% if user.is_superuser %}
-<a href="{% url 'new_project' %}" class="btn btn-primary">Start new project</a>
+<a href="{% url 'base:add' %}" class="btn btn-primary">Start new project</a>
+{% comment %}
 <a href="{% url 'manage_ga' %}" class="btn btn-primary">Manage GA Profiles</a>
 <a href="{% url 'health_check' %}" class="btn btn-primary">Health Checks</a>
+{% endcomment %}
 {% endif %}
 
 <div id="projects_progress">
     <section id="grp-changelist">
     <div>
       <div class="heading">App Type</div>
-      <div class="heading">Country</div>
+      <div class="heading">App ID</div>
       <div class="heading">Status</div>
       <br style="clear:both"/>
       <div id="result_list">
-      {% for project in project_list %}
-      {% include 'unicoremc/project_object.html' %}
+      {% for controller in controller_list %}
+      {% include 'controller_object.html' %}
       {% endfor %}
       </div>
     </div>
@@ -59,19 +61,6 @@ jQuery(document).ready(function($) {
 
       $('#'+data.id).attr('class', 'main '+ data.state);
       $('#'+data.id+' .state').html(data.state_display);
-
-      var languages = new Array();
-      $.each(data.available_languages, function(){
-        var lang_link = $('<a/>')
-          .attr('target', '_blank')
-          .attr('href', data.frontend_url+'/locale/' + this + '/')
-          .html(this + ',&nbsp;');
-        if (this == data.default_language){
-          lang_link.addClass('active');
-        }
-        languages.push(lang_link);
-      });
-      $('#'+data.id+' .languages').html(languages);
     }
 
     $("#result_list .main")
@@ -90,9 +79,9 @@ jQuery(document).ready(function($) {
     $('#filter').keyup(function(){
         var valThis = $(this).val().toLowerCase().split(" ");
         $('#result_list .main').each(function(){
-            var text = $(this).attr('country') + ' ' +
-                       $(this).attr('apptype') + ' ' +
-                       $(this).attr('projecttype');
+            var text = $(this).attr('name') + ' ' +
+                       $(this).attr('appid') + ' ' +
+                       $(this).attr('state');
             valThis.every(function(a){return text.toLowerCase().indexOf(a) != -1}) ? $(this).show() : $(this).hide();
         });
         $("#results_count").html($('#result_list .main:visible').length);

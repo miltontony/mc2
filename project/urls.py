@@ -6,6 +6,7 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
     url(r'^', include('unicoremc.urls')),
+    url(r'^', include('controllers.urls')),
     url(
         r'^organizations/',
         include('organizations.urls', namespace='organizations')),

@@ -100,61 +100,63 @@ class GeneralInfrastructureManager(object):
                 "/%(task_id)s/runs/latest") % {
                     'follower_id': follower_id,
                     'framework_id': framework_id,
-                    'task_id': task_id,
-                }
+                    'task_id': task_id}
         }
 
 
-class ProjectInfrastructureManager(GeneralInfrastructureManager):
+class ControllerInfrastructureManager(GeneralInfrastructureManager):
 
-    def __init__(self, project):
+    def __init__(self, controller):
         """
-        A helper manager to get to a project's marathon app entries
+        A helper manager to get to a controller's marathon app entries
 
-        :param project Project: A Project model instance
+        :param controller Controller: A Controller model instance
         """
-        self.project = project
+        self.controller = controller
 
-    def get_project_marathon_app(self):
+    def get_marathon_app(self):
         """
-        Returns the data dictionary for the current project's app_id.
+        Returns the data dictionary for the current controller's app_id.
 
         :returns: dict
         """
-        return super(ProjectInfrastructureManager, self).get_marathon_app(
-            self.project.app_id)
+        return super(ControllerInfrastructureManager, self).get_marathon_app(
+            self.controller.app_id)
 
-    def get_project_marathon_tasks(self):
+    def get_marathon_tasks(self):
         """
-        Returns the task list for the current project's app_id
+        Returns the task list for the current controller's app_id
 
         :returns: list
         """
         return super(
-            ProjectInfrastructureManager, self).get_marathon_app_tasks(
-                self.project.app_id)
+            ControllerInfrastructureManager, self).get_marathon_app_tasks(
+                self.controller.app_id)
 
-    def get_project_log_info(self):
+    def get_log_info(self):
         """
-        Returns all the tasks log URLs for the current project's app_id
+        Returns all the tasks log URLs for the current controller's app_id
 
         :returns: list
         """
-        return super(ProjectInfrastructureManager, self).get_app_log_info(
-            self.project.app_id)
+        return super(ControllerInfrastructureManager, self).get_app_log_info(
+            self.controller.app_id)
 
-    def get_project_task_log_info(self, task_id):
+    def get_task_log_info(self, task_id):
         """
-        Returns the log URLs for a given task for the current project's app_id.
+        Returns the log URLs for a given task for the current controller's
+        app_id.
         Raises an InfrastructureError if task for task_id not found.
 
         :param task_id str: the task id
         :returns: list
         """
-        tasks = self.get_marathon_app_tasks(self.project.app_id)
+        tasks = self.get_marathon_app_tasks(self.controller.app_id)
         try:
             [task] = filter(lambda t: t['id'] == task_id, tasks)
-            return super(ProjectInfrastructureManager, self).get_task_log_info(
-                self.project.app_id, task['id'], task['host'])
+            return super(ControllerInfrastructureManager, self).\
+                get_task_log_info(
+                    self.controller.app_id, task['id'],
+                    task['host'])
         except ValueError:
             raise InfrastructureError('Task not found.')
