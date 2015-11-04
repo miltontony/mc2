@@ -55,3 +55,20 @@ class ModelsTestCase(ControllerBaseTestCase):
 
         self.mock_exists_on_marathon(controller.app_id, 404)
         self.assertFalse(controller.exists_on_marathon())
+
+    @responses.activate
+    def test_get_state_display(self):
+        controller = self.mk_controller()
+        self.assertEquals(controller.get_state_display(), 'Initial')
+
+    @responses.activate
+    def test_to_dict(self):
+        controller = self.mk_controller()
+        self.assertEquals(controller.to_dict(), {
+            'id': controller.id,
+            'name': 'Test App',
+            'app_id': controller.app_id,
+            'state': 'initial',
+            'state_display': 'Initial',
+            'marathon_cmd': 'ping',
+        })
