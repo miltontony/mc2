@@ -124,7 +124,6 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
 
         try:
             self.object.update_marathon_app()
-            print 'we were here'
         except exceptions.MarathonApiException:
             messages.error(
                 self.request, 'Unable to update controller in marathon')
