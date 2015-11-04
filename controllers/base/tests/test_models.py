@@ -17,13 +17,11 @@ class ModelsTestCase(ControllerBaseTestCase):
         self.maxDiff = None
 
     def test_get_marathon_app_data(self):
-        p = self.mk_project()
-
-        self.assertEquals(p.get_marathon_app_data(), {
-            "id": p.app_id,
-            "cmd": "ping",
+        controller = self.mk_controller()
+        self.assertEquals(controller.get_marathon_app_data(), {
+            "id": controller.app_id,
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "ports": [0],
+            "cmd": "ping",
         })
