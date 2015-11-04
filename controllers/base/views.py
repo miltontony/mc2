@@ -113,7 +113,6 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
 
 class AppLogView(ControllerViewMixin, TemplateView):
     template_name = 'app_logs.html'
-    social_auth = 'google-oauth2'
 
     def get_context_data(self, *args, **kwargs):
         context = super(AppLogView, self).get_context_data(*args, **kwargs)
@@ -132,7 +131,6 @@ class AppLogView(ControllerViewMixin, TemplateView):
 
 
 class AppEventSourceView(ControllerViewMixin, View):
-    social_auth = 'google-oauth2'
 
     def get(self, request, controller_pk, task_id, path):
         controller = get_object_or_404(
