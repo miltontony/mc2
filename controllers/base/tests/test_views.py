@@ -81,8 +81,6 @@ class ViewsTestCase(ControllerBaseTestCase):
     @responses.activate
     def test_advanced_page(self):
         self.client.login(username='testuser2', password='test')
-
-        self.client.login(username='testuser2', password='test')
         self.client.get(
             reverse('organizations:select-active', args=('foo-org',)))
 
@@ -112,6 +110,42 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.marathon_mem, 100.0)
         self.assertEqual(controller.marathon_instances, 2)
         self.assertEqual(controller.marathon_cmd, '/path/to/exec some command')
+
+    @responses.activate
+    def test_advanced_page_marathon_error(self):
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.all().last()
+        self.mock_update_marathon_app(controller.app_id, 500)
+
+        self.client.post(
+            reverse('base:edit', args=[controller.id]), {
+                'name': 'A new name',
+                'marathon_cpus': 0.5,
+                'marathon_mem': 100.0,
+                'marathon_instances': 2,
+                'marathon_cmd': '/path/to/exec some command',
+            })
+        controller = Controller.objects.get(pk=controller.id)
+        self.assertEqual(controller.marathon_cpus, 0.5)
+        self.assertEqual(controller.marathon_mem, 100.0)
+        self.assertEqual(controller.marathon_instances, 2)
+        self.assertEqual(controller.marathon_cmd, '/path/to/exec some command')
+
+        resp = self.client.get(reverse('home'))
+        self.assertContains(resp, 'Unable to update controller in marathon')
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))
@@ -221,6 +255,23 @@ class ViewsTestCase(ControllerBaseTestCase):
         resp = self.client.get(reverse('base:restart', args=[controller.id]))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(len(responses.calls), 1)
+
+        resp = self.client.get(reverse('home'))
+        self.assertContains(resp, 'App restart sent.')
+
+    @responses.activate
+    def test_app_restart_error(self):
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
+        self.mock_restart_marathon_app(controller.app_id, 404)
+
+        resp = self.client.get(reverse('base:restart', args=[controller.id]))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(len(responses.calls), 1)
+
+        resp = self.client.get(reverse('home'))
+        self.assertContains(resp, 'App restart failed.')
 
     @responses.activate
     def test_update_marathon_exists(self):
