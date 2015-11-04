@@ -1,8 +1,5 @@
 buildscript: scripts/build.sh
 postinstall: scripts/postinstall.sh
-pip:
- - Django<1.7
- - gunicorn
 dependencies:
  - nginx
  - postgresql-server-dev-all
