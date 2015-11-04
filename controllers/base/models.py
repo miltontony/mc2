@@ -14,7 +14,7 @@ from django.dispatch import receiver
 
 from controllers.base import exceptions, namers
 from controllers.base.builders import Builder
-from unicoremc.managers import ControllerInfrastructureManager
+from controllers.base.managers import ControllerInfrastructureManager
 
 from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage

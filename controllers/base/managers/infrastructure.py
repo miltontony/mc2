@@ -114,7 +114,7 @@ class ControllerInfrastructureManager(GeneralInfrastructureManager):
         """
         self.controller = controller
 
-    def get_marathon_app(self):
+    def get_controller_marathon_app(self):
         """
         Returns the data dictionary for the current controller's app_id.
 
@@ -123,7 +123,7 @@ class ControllerInfrastructureManager(GeneralInfrastructureManager):
         return super(ControllerInfrastructureManager, self).get_marathon_app(
             self.controller.app_id)
 
-    def get_marathon_tasks(self):
+    def get_controller_marathon_tasks(self):
         """
         Returns the task list for the current controller's app_id
 
@@ -133,7 +133,7 @@ class ControllerInfrastructureManager(GeneralInfrastructureManager):
             ControllerInfrastructureManager, self).get_marathon_app_tasks(
                 self.controller.app_id)
 
-    def get_log_info(self):
+    def get_controller_log_info(self):
         """
         Returns all the tasks log URLs for the current controller's app_id
 
@@ -142,7 +142,7 @@ class ControllerInfrastructureManager(GeneralInfrastructureManager):
         return super(ControllerInfrastructureManager, self).get_app_log_info(
             self.controller.app_id)
 
-    def get_task_log_info(self, task_id):
+    def get_controller_task_log_info(self, task_id):
         """
         Returns the log URLs for a given task for the current controller's
         app_id.
@@ -156,7 +156,6 @@ class ControllerInfrastructureManager(GeneralInfrastructureManager):
             [task] = filter(lambda t: t['id'] == task_id, tasks)
             return super(ControllerInfrastructureManager, self).\
                 get_task_log_info(
-                    self.controller.app_id, task['id'],
-                    task['host'])
+                    self.controller.app_id, task['id'], task['host'])
         except ValueError:
             raise InfrastructureError('Task not found.')
