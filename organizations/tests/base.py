@@ -42,7 +42,7 @@ class OrganizationTestCase(TransactionTestCase):
             perms = perm
         perms = [p.split('.', 1) for p in perms]
         filter_clauses = [
-            Q(content_type__app_label=perm[0], codename=perm[1])
+            Q(content_type__app_label=p[0], codename=p[1])
             for p in perms]
         perms_qs = Permission.objects.filter(
             reduce(lambda x, y: x | y, filter_clauses))
