@@ -165,7 +165,6 @@ INSTALLED_APPS = (
     'organizations',
     'controllers',
     'controllers.base',
-    'controllers.unicore',
     'ws4redis',
 )
 
