@@ -216,7 +216,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        self.mock_restart_marathon_app(controller)
+        self.mock_restart_marathon_app(controller.app_id)
 
         resp = self.client.get(reverse('base:restart', args=[controller.id]))
         self.assertEqual(resp.status_code, 302)
