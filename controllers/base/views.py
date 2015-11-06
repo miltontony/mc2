@@ -23,7 +23,8 @@ from unicoremc import tasks
 
 @login_required
 def update_marathon_exists_json(request, controller_pk):
-    controller = get_object_or_404(Controller, pk=controller_pk)
+    controller = get_object_or_404(
+        Controller, pk=controller_pk).as_leaf_class()
 
     workflow = controller.get_builder().workflow
     if controller.state == 'done' and not controller.exists_on_marathon():
@@ -104,7 +105,7 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
         response = super(ControllerEditView, self).form_valid(form)
 
         try:
-            self.object.update_marathon_app()
+            self.object.as_leaf_class().update_marathon_app()
         except exceptions.MarathonApiException:
             messages.error(
                 self.request, 'Unable to update controller in marathon')
@@ -118,7 +119,7 @@ class AppLogView(ControllerViewMixin, TemplateView):
         context = super(AppLogView, self).get_context_data(*args, **kwargs)
         controller = get_object_or_404(
             self.get_controllers_queryset(self.request),
-            pk=kwargs['controller_pk'])
+            pk=kwargs['controller_pk']).as_leaf_class()
         tasks = controller.infra_manager.get_controller_marathon_tasks()
         context.update({
             'controller': controller,
@@ -135,7 +136,7 @@ class AppEventSourceView(ControllerViewMixin, View):
     def get(self, request, controller_pk, task_id, path):
         controller = get_object_or_404(
             self.get_controllers_queryset(request),
-            pk=controller_pk)
+            pk=controller_pk).as_leaf_class()
         n = request.GET.get('n') or settings.LOGDRIVER_BACKLOG
         if path not in ['stdout', 'stderr']:
             return HttpResponseNotFound('File not found.')
@@ -156,7 +157,8 @@ class AppEventSourceView(ControllerViewMixin, View):
 class ControllerRestartView(ControllerViewMixin, View):
 
     def get(self, request, controller_pk):
-        controller = get_object_or_404(Controller, pk=controller_pk)
+        controller = get_object_or_404(
+            Controller, pk=controller_pk).as_leaf_class()
         try:
             controller.marathon_restart_app()
             messages.info(self.request, 'App restart sent.')
