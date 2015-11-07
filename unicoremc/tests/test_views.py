@@ -12,6 +12,11 @@ from controllers.base.tests.base import ControllerBaseTestCase
 from controllers.docker.models import DockerController
 
 
+# Unknowm controller for testing the template tag default
+class UnknownController(Controller):
+            pass
+
+
 @pytest.mark.django_db
 class ViewsTestCase(ControllerBaseTestCase):
     fixtures = [
@@ -66,3 +71,23 @@ class ViewsTestCase(ControllerBaseTestCase):
             resp,
             '<a href="/docker/%s/" class="btn btn-small btn-primary">edit</a>'
             % controller.id)
+
+    @responses.activate
+    def test_template_tag_fallback(self):
+        controller = UnknownController.objects.create(
+            owner=self.user,
+            name='Test App',
+            marathon_cmd='ping'
+        )
+
+        self.client.login(username='testuser2', password='test')
+        resp = self.client.get(reverse('home'))
+
+        self.assertContains(resp, 'Test App')
+        self.assertContains(resp, 'Memory Share: 128.0')
+        self.assertContains(resp, 'CPU Share: 0.1')
+        self.assertContains(resp, 'Num Instances: 1')
+        self.assertContains(
+            resp,
+            '<a href="/base/%s/" class="btn btn-small btn-primary">edit</a>' %
+            controller.id)
