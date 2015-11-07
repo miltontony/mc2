@@ -9,7 +9,7 @@ from controllers.base.models import Controller, publish_to_websocket
 from controllers.base import exceptions
 
 
-# test models for as_leaf_class
+# test models for polymorphic
 
 class SubTypeA(Controller):
             pass
@@ -86,7 +86,6 @@ class ModelsTestCase(ControllerBaseTestCase):
     def test_leaf_class_helper(self):
         controller = self.mk_controller()
         self.assertTrue(isinstance(controller, Controller))
-        self.assertEquals(controller.class_name, 'Controller')
 
         suba = SubTypeA.objects.create(
             name='sub type a', marathon_cmd='pingA', owner=self.user)
@@ -96,16 +95,5 @@ class ModelsTestCase(ControllerBaseTestCase):
         base_suba = Controller.objects.get(pk=suba.pk)
         base_subb = Controller.objects.get(pk=subb.pk)
 
-        self.assertTrue(isinstance(base_suba, Controller))
-        self.assertTrue(isinstance(base_suba.as_leaf_class(), SubTypeA))
-
-        self.assertTrue(isinstance(base_suba, Controller))
-        self.assertTrue(isinstance(base_subb.as_leaf_class(), SubTypeB))
-
-        # Test when class_name is null
-        suba.class_name = None
-        suba.save()
-
-        self.assertTrue(isinstance(base_suba, Controller))
-        # always falls back to the base class
-        self.assertTrue(isinstance(base_suba.as_leaf_class(), Controller))
+        self.assertTrue(isinstance(base_suba, SubTypeA))
+        self.assertTrue(isinstance(base_subb, SubTypeB))

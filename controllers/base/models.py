@@ -12,6 +12,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from polymorphic import PolymorphicModel
+
 from controllers.base import exceptions, namers
 from controllers.base.builders import Builder
 from controllers.base.managers import ControllerInfrastructureManager
@@ -20,7 +22,7 @@ from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 
 
-class Controller(models.Model):
+class Controller(PolymorphicModel):
     # state
     marathon_cpus = models.FloatField(
         default=settings.MESOS_DEFAULT_CPU_SHARE)
@@ -63,12 +65,6 @@ class Controller(models.Model):
             'is automatically set each time the item is saved.')
     )
 
-    class_name = models.CharField(
-        max_length=255,
-        editable=False,
-        null=True
-    )
-
     class Meta:
         ordering = ('name', )
 
@@ -80,11 +76,6 @@ class Controller(models.Model):
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = namers.do_me_a_unique_slug(self.__class__, 'slug')
-
-        # set leaf class class name
-        if not self.class_name:
-            self.class_name = self.__class__.__name__
-
         super(Controller, self).save(*args, **kwargs)
 
     def get_state_display(self):
@@ -99,18 +90,6 @@ class Controller(models.Model):
             'state_display': self.get_state_display(),
             'marathon_cmd': self.marathon_cmd,
         }
-
-    def as_leaf_class(self):
-        """
-        Returns the leaf class no matter where the calling instance is in
-        the inheritance hierarchy.
-        Inspired by http://www.djangosnippets.org/snippets/1031/
-        """
-        try:
-            return self.__getattribute__(self.class_name.lower())
-        except:
-            pass
-        return self
 
     @property
     def app_id(self):
