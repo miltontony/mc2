@@ -16,10 +16,12 @@
       Memory Share: {{controller.marathon_mem|default:''}}<br/>
       CPU Share: {{controller.marathon_cpus|default:''}}<br/>
       Num Instances: {{controller.marathon_instances|default:''}}<br/>
+      Health Path: {{controller.marathon_health_check_path|default:''}}<br/>
     </fieldset>
 
     <fieldset>
       <legend>Command</legend>
+      Docker Image: {{controller.docker_image}}<br/>
       <pre>{{controller.marathon_cmd|default:''}}</pre><br/>
     </fieldset>
 
