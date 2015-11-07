@@ -10,5 +10,5 @@ urlpatterns = patterns(
         include('controllers.base.urls', namespace='base')),
     url(
         r'^docker/',
-        include('controllers.docker.urls', namespace='docker')),
+        include('controllers.docker.urls', namespace='controllers.docker')),
 )

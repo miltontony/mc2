@@ -16,6 +16,7 @@
       Memory Share: {{controller.marathon_mem|default:''}}<br/>
       CPU Share: {{controller.marathon_cpus|default:''}}<br/>
       Num Instances: {{controller.marathon_instances|default:''}}<br/>
+      Port: {{controller.port|default:''}}<br/>
       Health Path: {{controller.marathon_health_check_path|default:''}}<br/>
     </fieldset>
 
@@ -28,7 +29,7 @@
     <fieldset>
       <legend>Actions</legend>
       {% if user.is_superuser %}
-      <a href="{% url 'base:edit' controller.id %}" class="btn btn-small btn-primary">edit</a>
+      <a href="{% url 'controllers.docker:edit' controller.id %}" class="btn btn-small btn-primary">edit</a>
       {% endif %}
 
       <!-- Logs Link -->
