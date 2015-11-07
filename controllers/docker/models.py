@@ -46,3 +46,11 @@ class DockerController(Controller):
             })
 
         return app_data
+
+    def to_dict(self):
+        data = super(DockerController, self).to_dict()
+        data.update({
+            'port': self.port,
+            'marathon_health_check_path': self.marathon_health_check_path
+        })
+        return data
