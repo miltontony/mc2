@@ -23,6 +23,7 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 </head>
+{% block body %}
 <body class="hold-transition skin-black sidebar-mini">
 <div class="wrapper">
   {% include 'unicoremc/layout/header.html' %}
@@ -79,4 +80,5 @@
   {% block script %}
   {% endblock %}
 </body>
+{% endblock %}
 </html>
