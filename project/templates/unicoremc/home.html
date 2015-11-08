@@ -22,21 +22,13 @@
 <a href="{% url 'health_check' %}" class="btn btn-primary">Health Checks</a>
 {% endcomment %}
 {% endif %}
-
-<div id="projects_progress">
-    <section id="grp-changelist">
-    <div>
-      <div class="heading">App Type</div>
-      <div class="heading">App ID</div>
-      <div class="heading">Status</div>
-      <br style="clear:both"/>
-      <div id="result_list">
+<hr/>
+<div class="row" id="projects_progress">
+<div class="col-md-6" id="result_list">
       {% for controller in controller_list %}
       {% render_controller controller %}
       {% endfor %}
-      </div>
-    </div>
-    </section>
+</div>
 </div>
 {% endblock %}
 
