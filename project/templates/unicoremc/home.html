@@ -1,7 +1,7 @@
 {% extends "unicoremc/base.html" %}
 
 <!-- LOADING -->
-{% load i18n controller_base_tags %}
+{% load i18n controller_base_tags static %}
 
 {% block results_count %}
 <div class="pull-left results-count">
@@ -40,8 +40,7 @@
 {% endblock %}
 
 {% block script %}
-<script src="{{STATIC_URL}}js/jquery.min.js"></script>
-<script src="{{STATIC_URL}}js/ws4redis.min.js"></script>
+<script src="{% static 'js/ws4redis.min.js' %}"></script>
 <script type="text/javascript">
 
 jQuery(document).ready(function($) {
