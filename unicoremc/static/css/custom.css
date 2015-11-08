@@ -1,3 +1,7 @@
 .nav-tabs-custom.main{
     margin-bottom: 10px;
 }
+
+.progress-bar-green, .progress-bar-success {
+    background-color: #00A65A !important;
+}
