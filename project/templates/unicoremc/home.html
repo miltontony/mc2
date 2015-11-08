@@ -3,11 +3,12 @@
 <!-- LOADING -->
 {% load i18n controller_base_tags static %}
 
-{% block results_count %}
-<div class="pull-left results-count">
-<code id="results_count">{{controller_list.count}}</code>
-<span>results</span>
-</div>
+{% block page_header_title %}
+<h1>
+  Home
+  <small>Total: </small>
+  <small id="results_count">{{controller_list.count}}</small>
+</h1>
 {% endblock %}
 
 <!-- CONTENT -->
