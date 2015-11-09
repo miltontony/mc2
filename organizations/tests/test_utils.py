@@ -96,8 +96,10 @@ class TestUtils(OrganizationTestCase):
 
         self.revoke_perms(user, 'organizations.change_organization')
         request.user = User.objects.get(id=user.pk)
-        organization = self.mk_organization(users=[user])
         self.assertRaises(PermissionDenied, wrapped_view_func, request)
+
+        organization = self.mk_organization(users=[user])
+        self.assertEqual(wrapped_view_func(request), 'success')
 
         request.session[ORGANIZATION_SESSION_KEY] = organization.pk
         self.assertEqual(wrapped_view_func(request), 'success')
