@@ -1,7 +1,7 @@
 {% extends "unicoremc/base.html" %}
 
 <!-- LOADING -->
-{% load i18n %}
+{% load i18n controller_base_tags %}
 
 {% block results_count %}
 <div class="pull-left results-count">
@@ -14,7 +14,8 @@
 {% block content %}
 
 {% if user.is_superuser %}
-<a href="{% url 'base:add' %}" class="btn btn-primary">Start new controller</a>
+<a href="{% url 'base:add' %}" class="btn btn-primary">Start new base controller</a>
+<a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Start new docker controller</a>
 {% comment %}
 <a href="{% url 'manage_ga' %}" class="btn btn-primary">Manage GA Profiles</a>
 <a href="{% url 'health_check' %}" class="btn btn-primary">Health Checks</a>
@@ -30,7 +31,7 @@
       <br style="clear:both"/>
       <div id="result_list">
       {% for controller in controller_list %}
-      {% include 'controller_object.html' %}
+      {% render_controller controller %}
       {% endfor %}
       </div>
     </div>

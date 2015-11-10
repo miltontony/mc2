@@ -1,2 +1,2 @@
 [run]
-omit = controllers/base/migrations/*,organizations/migrations/*,ve/*
+omit = controllers/*/migrations/*,organizations/migrations/*,ve/*

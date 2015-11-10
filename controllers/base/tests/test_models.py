@@ -1,5 +1,8 @@
+import json
 import pytest
 import responses
+
+from mock import patch
 
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -8,9 +11,10 @@ from controllers.base.tests.base import ControllerBaseTestCase
 from controllers.base.models import Controller, publish_to_websocket
 from controllers.base import exceptions
 
+from ws4redis.publisher import RedisPublisher
+
 
 # test models for polymorphic
-
 class SubTypeA(Controller):
             pass
 
@@ -97,3 +101,20 @@ class ModelsTestCase(ControllerBaseTestCase):
 
         self.assertTrue(isinstance(base_suba, SubTypeA))
         self.assertTrue(isinstance(base_subb, SubTypeB))
+
+    def test_publish_to_websocket(self):
+        post_save.connect(publish_to_websocket, sender=Controller)
+        with patch.object(
+                RedisPublisher, 'publish_message', return_value=None
+        ) as mock_method:
+            controller = self.mk_controller()
+
+        kwargs = {
+            "is_created": True,
+            "name": "Test App",
+            "app_id": controller.app_id,
+            "state": "initial",
+            "state_display": "Initial",
+            "marathon_cmd": "ping",
+            "id": controller.id}
+        mock_method.assert_called_once_with(json.dumps(kwargs))

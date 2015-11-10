@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'organizations',
     'controllers',
     'controllers.base',
+    'controllers.docker',
     'ws4redis',
 )
 

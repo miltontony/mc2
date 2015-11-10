@@ -149,13 +149,13 @@ class ViewsTestCase(ControllerBaseTestCase):
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))
-        self.assertNotContains(resp, 'Start new controller')
+        self.assertNotContains(resp, 'Start new base controller')
         self.assertNotContains(resp, 'edit')
 
         self.client.login(username='testuser2', password='test')
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Start new controller')
+        self.assertContains(resp, 'Start new base controller')
 
     def test_staff_access_required(self):
         self.mk_controller(controller={'owner': User.objects.get(pk=2)})

@@ -1,0 +1,46 @@
+<div id="{{controller.id}}"
+    name="{{controller.name}}"
+    state="{{controller.state}}"
+    appid="{{controller.app_id}}"
+    class="{{controller.state}} main">
+    <div style="width:100%;">
+      <div class="title">{{controller.name}}</div>
+      <div class="appid">{{controller.app_id}}</div>
+      <div class="state">{{controller.get_state_display}}</div>
+      <br style="clear:both" />
+    </div>
+
+  <div class="additional-info">
+    <fieldset>
+      <legend>Settings</legend>
+      Memory Share: {{controller.marathon_mem|default:''}}<br/>
+      CPU Share: {{controller.marathon_cpus|default:''}}<br/>
+      Num Instances: {{controller.marathon_instances|default:''}}<br/>
+      Port: {{controller.port|default:''}}<br/>
+      Health Path: {{controller.marathon_health_check_path|default:''}}<br/>
+    </fieldset>
+
+    <fieldset>
+      <legend>Command</legend>
+      Docker Image: {{controller.docker_image}}<br/>
+      <pre>{{controller.marathon_cmd|default:''}}</pre><br/>
+    </fieldset>
+
+    <fieldset>
+      <legend>Actions</legend>
+      {% if user.is_superuser %}
+      <a href="{% url 'controllers.docker:edit' controller.id %}" class="btn btn-small btn-primary">edit</a>
+      {% endif %}
+
+      <!-- Logs Link -->
+      <a href="{% url 'base:logs' controller.id %}" class="btn btn-small">logs</a>
+
+      <hr/>
+      <!-- Restart Link -->
+      <a href="{% url 'base:restart' controller.id %}" class="btn btn-small btn-warning">restart</a>
+
+      <br/>
+    </fieldset>
+  </div>
+</div>
+
