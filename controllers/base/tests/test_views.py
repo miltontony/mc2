@@ -14,6 +14,8 @@ from controllers.base.tests.base import ControllerBaseTestCase
 from controllers.base.tests.utils import setup_responses_for_logdriver
 from controllers.base.views import AppEventSourceView
 
+from organizations.models import Organization, OrganizationUserRelation
+
 
 @pytest.mark.django_db
 class ViewsTestCase(ControllerBaseTestCase):
@@ -77,6 +79,34 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(
             response, 'This field is required')
         self.assertEqual(Controller.objects.count(), 0)
+
+    def test_normal_user_with_no_org_sees_nothing(self):
+        controller = self.mk_controller()
+
+        # admin user will see the Test App
+        self.client.logout()
+        self.client.login(username='testuser2', password='test')
+        resp = self.client.get(reverse('home'))
+        self.assertContains(resp, 'Test App')
+
+        # normal user with no org will not see the Test App
+        User.objects.create_user('joe', 'joe@email.com', '1234')
+        self.client.logout()
+        self.client.login(username='joe', password='1234')
+        resp = self.client.get(reverse('home'))
+        self.assertNotContains(resp, 'Test App')
+
+        # normal user with org will see the Test App
+        user = User.objects.create_user('joe2', 'joe2@email.com', '1234')
+        org = Organization.objects.get(pk=1)
+        OrganizationUserRelation.objects.create(user=user, organization=org)
+        controller.organization = org
+        controller.save()
+
+        self.client.logout()
+        self.client.login(username='joe2', password='1234')
+        resp = self.client.get(reverse('home'))
+        self.assertContains(resp, 'Test App')
 
     @responses.activate
     def test_advanced_page(self):
