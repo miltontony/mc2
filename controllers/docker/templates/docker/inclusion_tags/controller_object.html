@@ -18,4 +18,8 @@
     Docker Image: {{controller.docker_image}}<br/>
     <pre>{{controller.marathon_cmd|default:''}}</pre><br/>
   </fieldset>
+  <!-- Logs Link -->
+  <div>
+  <a href="{% url 'base:logs' controller.id %}" class="btn btn-sm btn-default">View logs</a>
+  </div>
 {% endblock %}
