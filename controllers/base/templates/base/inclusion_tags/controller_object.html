@@ -25,6 +25,7 @@
         <span class="label label-{% if controller.state == 'done' %}success{% else %}warning{% endif %}">
           {{controller.get_state_display}}
         </span>
+        <span class="label label-primary pull-right">{{controller.polymorphic_ctype.app_label}}</span>
       </div>
     {% endblock %}
     </div>
@@ -32,7 +33,7 @@
     {% block more_info_tab %}
       <fieldset>
         <legend>Settings</legend>
-        App ID: {{controller.app_id}}
+        App ID: {{controller.app_id}}<br/>
         Memory Share: {{controller.marathon_mem|default:''}}<br/>
         CPU Share: {{controller.marathon_cpus|default:''}}<br/>
         Num Instances: {{controller.marathon_instances|default:''}}<br/>

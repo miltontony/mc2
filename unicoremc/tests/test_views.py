@@ -42,7 +42,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Num Instances: 1')
         self.assertContains(
             resp,
-            '<a href="/base/%s/" class="btn btn-small btn-primary">edit</a>' %
+            '<a href="/base/%s/" class="text-muted">' %
             controller.id)
 
     @responses.activate
@@ -69,7 +69,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Docker Image: docker/image')
         self.assertContains(
             resp,
-            '<a href="/docker/%s/" class="btn btn-small btn-primary">edit</a>'
+            '<a href="/docker/%s/" class="text-muted">'
             % controller.id)
 
     @responses.activate
@@ -87,7 +87,6 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Memory Share: 128.0')
         self.assertContains(resp, 'CPU Share: 0.1')
         self.assertContains(resp, 'Num Instances: 1')
+
         self.assertContains(
-            resp,
-            '<a href="/base/%s/" class="btn btn-small btn-primary">edit</a>' %
-            controller.id)
+            resp, '<a href="/base/%s/" class="text-muted">' % controller.id)

@@ -23,6 +23,14 @@
     <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
+
+    <!-- jQuery 2.1.4 -->
+    <script src="{% static 'plugins/jQuery/jQuery-2.1.4.min.js' %}"></script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    {% compress js %}
+    <script src="{% static 'js/app.js' %}"></script>
+    {% endcompress %}
 </head>
 {% block body %}
 <body class="hold-transition skin-black sidebar-mini">
@@ -80,13 +88,6 @@
   {% include 'unicoremc/layout/footer.html' %}
   {% include 'unicoremc/layout/settings-sidebar.html' %}
 </div>
-  <!-- jQuery 2.1.4 -->
-  <script src="{% static 'plugins/jQuery/jQuery-2.1.4.min.js' %}"></script>
-  <!-- Bootstrap 3.3.5 -->
-  <script src="{% static 'js/bootstrap.min.js' %}"></script>
-  {% compress js %}
-  <script src="{% static 'js/app.js' %}"></script>
-  {% endcompress %}
   <script type="text/javascript">
   $(document).ready(function(){
       //javascript goes here
