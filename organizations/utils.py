@@ -22,10 +22,13 @@ def active_organization(request):
         return None
 
     org_id = request.session.get(ORGANIZATION_SESSION_KEY)
-    if org_id is None:
+
+    if org_id is None and request.user.is_superuser:
         return None
 
     try:
+        if org_id is None:
+            return Organization.objects.for_user(request.user).first()
         return Organization.objects.for_user(request.user).get(pk=org_id)
     except Organization.DoesNotExist:
         return None
