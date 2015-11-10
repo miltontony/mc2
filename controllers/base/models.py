@@ -12,6 +12,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from polymorphic import PolymorphicModel
+
 from controllers.base import exceptions, namers
 from controllers.base.builders import Builder
 from controllers.base.managers import ControllerInfrastructureManager
@@ -20,7 +22,7 @@ from ws4redis.publisher import RedisPublisher
 from ws4redis.redis_store import RedisMessage
 
 
-class Controller(models.Model):
+class Controller(PolymorphicModel):
     # state
     marathon_cpus = models.FloatField(
         default=settings.MESOS_DEFAULT_CPU_SHARE)

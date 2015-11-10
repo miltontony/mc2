@@ -9,6 +9,16 @@ from controllers.base.models import Controller, publish_to_websocket
 from controllers.base import exceptions
 
 
+# test models for polymorphic
+
+class SubTypeA(Controller):
+            pass
+
+
+class SubTypeB(Controller):
+    pass
+
+
 @pytest.mark.django_db
 class ModelsTestCase(ControllerBaseTestCase):
     fixtures = ['test_users.json', 'test_social_auth.json']
@@ -72,3 +82,18 @@ class ModelsTestCase(ControllerBaseTestCase):
             'state_display': 'Initial',
             'marathon_cmd': 'ping',
         })
+
+    def test_leaf_class_helper(self):
+        controller = self.mk_controller()
+        self.assertTrue(isinstance(controller, Controller))
+
+        suba = SubTypeA.objects.create(
+            name='sub type a', marathon_cmd='pingA', owner=self.user)
+        subb = SubTypeB.objects.create(
+            name='sub type b', marathon_cmd='pingB', owner=self.user)
+
+        base_suba = Controller.objects.get(pk=suba.pk)
+        base_subb = Controller.objects.get(pk=subb.pk)
+
+        self.assertTrue(isinstance(base_suba, SubTypeA))
+        self.assertTrue(isinstance(base_subb, SubTypeB))
