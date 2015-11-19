@@ -43,3 +43,6 @@ project/static/
 project/configs/
 project/.test_repo_dir/
 project/.test_config_dir/
+
+#Pycharm IDE files
+.idea/
