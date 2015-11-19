@@ -165,3 +165,19 @@ class ControllerRestartView(ControllerViewMixin, View):
             messages.error(
                 self.request, 'App restart failed. Please try again.')
         return redirect('home')
+
+
+class ControllerDeleteView(ControllerViewMixin, View):
+    # TODO: Check user permissions
+
+    def get(self, request, controller_pk):
+        controller = get_object_or_404(Controller, pk=controller_pk)
+        try:
+            controller.marathon_destroy_app()
+            messages.info(self.request, 'App deletion sent.')
+        except exceptions.MarathonApiException:
+            messages.error(
+                self.request, 'Failed to delete app: %(id)s. Please try again.'
+                              % {'id': controller.name}
+            )
+        return redirect('home')
