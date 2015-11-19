@@ -42,6 +42,14 @@ class ControllerBaseTestCase(TransactionTestCase):
             content_type="application/json",
             status=status)
 
+    def mock_delete_marathon_app(self, app_id, status=200):
+        responses.add(
+            responses.DELETE, '%s/v2/apps/%s' % (
+                settings.MESOS_MARATHON_HOST, app_id),
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
     def mock_exists_on_marathon(self, app_id, status=200):
         responses.add(
             responses.GET, '%s/v2/apps/%s' % (
