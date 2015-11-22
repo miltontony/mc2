@@ -1,43 +1,63 @@
-<div id="{{controller.id}}"
-    name="{{controller.name}}"
-    state="{{controller.state}}"
-    appid="{{controller.app_id}}"
-    class="{{controller.state}} main">
-    <div style="width:100%;">
-      <div class="title">{{controller.name}}</div>
-      <div class="appid">{{controller.app_id}}</div>
-      <div class="state">{{controller.get_state_display}}</div>
-      <br style="clear:both" />
+<!-- Custom Tabs -->
+<div class="nav-tabs-custom main"
+     id="{{controller.id}}"
+     name="{{controller.name}}"
+     state="{{controller.state}}"
+     appid="{{controller.app_id}}">
+  <ul class="nav nav-tabs">
+    <li class="active">
+      <a href="#tab_1_{{controller.id}}" data-toggle="tab">
+        <strong>{{controller.name}}</strong>
+      </a>
+    </li>
+    <li><a href="#tab_2_{{controller.id}}" data-toggle="tab">More info</a></li>
+    {% if user.is_superuser %}
+      <li><a href="#tab_3_{{controller.id}}" data-toggle="tab">Actions</a></li>
+      {% block edit_action %}
+      <li class="pull-right"><a href="{% url 'base:edit' controller.id %}" class="text-muted"><i class="fa fa-gear"></i></a></li>
+      {% endblock %}
+    {% endif %}
+  </ul>
+  <div class="tab-content">
+    <div class="tab-pane active" id="tab_1_{{controller.id}}">
+    {% block main_tab %}
+      <div>
+        <span class="label label-{% if controller.state == 'done' %}success{% else %}warning{% endif %}">
+          {{controller.get_state_display}}
+        </span>
+        <span class="label label-primary pull-right">{{controller.polymorphic_ctype.app_label}}</span>
+      </div>
+    {% endblock %}
     </div>
+    <div class="tab-pane" id="tab_2_{{controller.id}}">
+    {% block more_info_tab %}
+      <fieldset>
+        <legend>Settings</legend>
+        App ID: {{controller.app_id}}<br/>
+        Memory Share: {{controller.marathon_mem|default:''}}<br/>
+        CPU Share: {{controller.marathon_cpus|default:''}}<br/>
+        Num Instances: {{controller.marathon_instances|default:''}}<br/>
+      </fieldset>
 
-  <div class="additional-info">
-    <fieldset>
-      <legend>Settings</legend>
-      Memory Share: {{controller.marathon_mem|default:''}}<br/>
-      CPU Share: {{controller.marathon_cpus|default:''}}<br/>
-      Num Instances: {{controller.marathon_instances|default:''}}<br/>
-    </fieldset>
-
-    <fieldset>
-      <legend>Command</legend>
-      <pre>{{controller.marathon_cmd|default:''}}</pre><br/>
-    </fieldset>
-
-    <fieldset>
-      <legend>Actions</legend>
-      {% if user.is_superuser %}
-      <a href="{% url 'base:edit' controller.id %}" class="btn btn-small btn-primary">edit</a>
-      {% endif %}
+      <fieldset>
+        <legend>Command</legend>
+        <pre>{{controller.marathon_cmd|default:''}}</pre><br/>
+      </fieldset>
 
       <!-- Logs Link -->
-      <a href="{% url 'base:logs' controller.id %}" class="btn btn-small">logs</a>
-
-      <hr/>
+      <div>
+      <a href="{% url 'base:logs' controller.id %}" class="btn btn-sm btn-default">View logs</a>
+      </div>
+    {% endblock %}
+    </div>
+    <div class="tab-pane" id="tab_3_{{controller.id}}">
+    {% block actions_tab %}
       <!-- Restart Link -->
-      <a href="{% url 'base:restart' controller.id %}" class="btn btn-small btn-warning">restart</a>
-
-      <br/>
-    </fieldset>
+      <a href="{% url 'base:restart' controller.id %}" class="btn btn-sm btn-app bg-orange">
+      <i class="fa fa-repeat"></i> Restart</a>
+    {% endblock %}
+    </div>
   </div>
+  <!-- /.tab-content -->
 </div>
-
+<!-- nav-tabs-custom -->

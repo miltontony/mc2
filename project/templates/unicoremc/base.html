@@ -1,118 +1,100 @@
-{% load i18n %}
+{% load i18n static compress %}
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Unicore Mission Control</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mission Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <meta name="description" content="">
     <meta name="author" content="">
+    <link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico">
 
-    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/AdminLTE.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/font-awesome.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/ionicons.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/skins/skin-black.min.css' %}" rel="stylesheet">
+    {% compress css %}
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+    {% endcompress %}
+
     <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <!-- Le styles -->
-    <link href="{{STATIC_URL}}css/bootstrap.css" rel="stylesheet">
-    <link href="{{STATIC_URL}}css/select2.min.css" rel="stylesheet">
-    <link href="{{STATIC_URL}}css/style.css?v=20151005" rel="stylesheet">
-    <link href="{{STATIC_URL}}css/bootstrap-responsive.css" rel="stylesheet">
-    <link rel="shortcut icon" href="{{STATIC_URL}}img/favicon.ico">
-    <script src="{{STATIC_URL}}js/jquery.min.js"></script>
-    <script src="{{STATIC_URL}}js/select2.min.js"></script>
-    <script src="{{STATIC_URL}}js/bootstrap.min.js"></script>
-    <script type="text/javascript">
-        function show_error(msg){
-            $("#notifications").prepend('<div class="alert alert-error">'+
-                '<button type="button" class="close" data-dismiss="alert">×</button>'+
-                msg+'</div>');
-        }
-    </script>
+    <!-- jQuery 2.1.4 -->
+    <script src="{% static 'plugins/jQuery/jQuery-2.1.4.min.js' %}"></script>
+    <!-- Bootstrap 3.3.5 -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    {% compress js %}
+    <script src="{% static 'js/app.js' %}"></script>
+    {% endcompress %}
 </head>
-<body>
-    <!-- Navbar
-    ================================================== -->
-    <div class="navbar navbar-fixed-top">
-    <div class="navbar-inner">
-     <div class="container">
-       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-         <span class="icon-bar"></span>
-         <span class="icon-bar"></span>
-         <span class="icon-bar"></span>
-       </a>
-       <a class="brand" href="/">UC Mission Control</a>
-       <div class="nav-collapse" id="main-menu">
+{% block body %}
+<body class="hold-transition skin-black sidebar-mini">
+<div class="wrapper">
+  {% include 'unicoremc/layout/header.html' %}
+  {% include 'unicoremc/layout/left-sidebar.html' %}
 
-        {% block navbar %}
-        <ul class="nav" id="main-menu-left">
-        <li class="active"><a href="{% url 'home' %}">Home</a></li>
-        </ul>
-        <form class="navbar-form pull-left">
-            <div class="input-prepend">
-              <span class="add-on"><i class="icon-filter"></i></span>
-              <input class="span2" tabindex="1" type="text" id="filter" placeholder="search projects" autofocus/>
-            </div>
-            {% block results_count %}
-            {% endblock %}
-        </form>
-        {% endblock %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
 
-        {% if request.user.is_authenticated %}
-        <div class="dropdown pull-right">
-            <button class="btn btn-default dropdown-toggle" type="button" id="org-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-                {% if active_organization %}
-                {{ active_organization.name }}
-                {% else %}
-                {% trans "Select an organization" %}
-                {% endif %}
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" aria-labelledby="org-dropdown">
-                {% for org in organizations %}
-                    {% if org != active_organization %}
-                    <li><a href="{% url 'organizations:select-active' org.slug %}?next={{ request.path|urlencode }}">{% blocktrans with org_name=org.name %}Switch to {{ org_name }}{% endblocktrans %}</a></li>
-                    {% endif %}
-                {% endfor %}
-                {% if user.is_superuser and active_organization %}
-                    {% if organizations|length > 1 %}<li role="separator" class="divider"></li>{% endif %}
-                    <li><a href="{% url 'organizations:deselect-active' %}">{% trans "Show all organizations" %}</a></li>
-                {% endif %}
-                {% if is_active_organization_admin %}
-                    {% if organizations|length > 1 %}<li role="separator" class="divider"></li>{% endif %}
-                    <li><a href="{% url 'organizations:edit' active_organization.slug %}">{% blocktrans with org_name=active_organization.name %}Manage {{ org_name }}{% endblocktrans %}</a></li>
-                {% endif %}
-            </ul>
-        </div>
-        {% endif %}
-
-       </div>
-     </div>
-    </div>
-    </div>
-
-    <div class="container">
-        <div id="notifications">
-        {% if messages %}
+      {% if messages %}
+      <div class="row">
+        <div class="col-md-6">
         {% for message in messages %}
-        <div class="alert alert-{{message.tags}}">
-          <button type="button" class="close" data-dismiss="alert">×</button>
-          {{message}}
-        </div>
+          <div class="alert alert-{{message.tags}} alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            {{message}}
+          </div>
         {% endfor %}
-        {% endif %}
+        </div>
+      </div>
+      {% endif %}
 
-        </div><br/>
-        {% block content %}
-        {% endblock %}
-    </div>
-    <script type="text/javascript">
-    $(document).ready(function(){
-        //javascript goes here
-    });
-    </script>
-    {% block script %}
-    {% endblock %}
+      {% block page_header %}
+      {% block page_header_title %}
+      <!--
+      <h1>
+        Page Header
+        <small>Optional description</small>
+      </h1>
+      -->
+      {% endblock %}
+      {% block breadcrumbs %}
+      <!--
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+        <li class="active">Here</li>
+      </ol>
+      -->
+      {% endblock %}
+      {% endblock %}
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      {% block content %}
+      {% endblock %}
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% include 'unicoremc/layout/footer.html' %}
+  {% include 'unicoremc/layout/settings-sidebar.html' %}
+</div>
+  <script type="text/javascript">
+  $(document).ready(function(){
+      //javascript goes here
+  });
+  </script>
+  {% block script %}
+  {% endblock %}
 </body>
+{% endblock %}
 </html>

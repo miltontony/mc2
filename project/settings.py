@@ -86,6 +86,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
     'django.contrib.staticfiles.finders.FileSystemFinder',
+    'compressor.finders.CompressorFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -168,6 +169,8 @@ INSTALLED_APPS = (
     'controllers.base',
     'controllers.docker',
     'ws4redis',
+    'compressor',
+    'django_gravatar',
 )
 
 # A sample logging configuration. The only tangible logging

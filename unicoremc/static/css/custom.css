@@ -1,15 +1,7 @@
-.nginx-textarea{
-    height: 500px;
+.nav-tabs-custom.main{
+    margin-bottom: 10px;
 }
 
-.mc-add-project .grp-object-tools{
-    top: 0;
-}
-
-.new-project-progress .l-2c-fluid:not(.grp-cell).l-d-4 .c-1 {
-    width: 300px;
-}
-
-.text-success div label{
-    color: #5CB85C !important;
+.progress-bar-green, .progress-bar-success {
+    background-color: #00A65A !important;
 }

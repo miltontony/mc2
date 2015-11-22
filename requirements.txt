@@ -1,4 +1,4 @@
-Django>=1.8
+Django<1.9,>=1.8
 python-memcached
 raven==5.0.0
 nose
@@ -24,3 +24,5 @@ django-redis-cache
 django-websocket-redis
 gunicorn
 django-polymorphic
+django_compressor
+django-gravatar2

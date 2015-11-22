@@ -154,6 +154,7 @@ class AppEventSourceView(ControllerViewMixin, View):
 
 
 class ControllerRestartView(ControllerViewMixin, View):
+    # TODO: Check user permissions
 
     def get(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
