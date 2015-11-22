@@ -9,38 +9,41 @@
 {% endblock %}
 
 {% block content %}
-<div>
-    <form class="form-horizontal" role="form" method="post" action="">
-        <legend>{{ organization.name }}</legend>
+<div class="row">
+<div class="col-md-6">
+  <!-- general form elements -->
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ organization.name }}</h3>
+    </div>
+    <form role="form" method="post">
+    <div class="box-body">
         {% csrf_token %}
-        <fieldset>
-        <legend></legend>
         {% include "form.html" with form=form.organization_form %}
-        </fieldset>
 
         <br><br>
         <legend>{% trans "Manage users" %}</legend>
         {{ form.users_formset.management_form }}
         {% for user_form in form.users_formset %}
-            <fieldset>
             {% with user=user_form.instance.user %}
-            <legend><strong>{{ user.full_name|default:user.username }} ({{ user.email }})</strong></legend>
+            {{ user.full_name|default:user.username }} ({{ user.email }})
             {% endwith %}
             {% include "form.html" with form=user_form %}
-            </fieldset>
+            <hr/>
         {% endfor %}
 
         {{ form.new_users_formset.management_form }}
         {% for new_user_form in form.new_users_formset %}
-            <fieldset>
-            <legend><strong>{% blocktrans with org_name=organization.name %}Add a user to {{ org_name }}{% endblocktrans %}</strong></legend>
+            <legend>{% blocktrans with org_name=organization.name %}Add a user to {{ org_name }}{% endblocktrans %}</legend>
             {% include "form.html" with form=new_user_form %}
-            </fieldset>
         {% endfor %}
 
         <p>
-            <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
         </p>
+    </div>
     </form>
+    </div>
+  </div>
 </div>
 {% endblock %}
