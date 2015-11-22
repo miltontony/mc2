@@ -12,7 +12,7 @@ install:
   - pip install -e . --download-cache $HOME/.cache/pip
   - pip install coveralls --download-cache $HOME/.cache/pip
 script:
-  - ./run_tests.sh
+  - py.test
 services:
   - elasticsearch
 after_success:

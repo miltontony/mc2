@@ -1,3 +1,2 @@
 [run]
-omit = unicoremc/migrations/*
-source= unicoremc/
+omit = unicoremc/migrations/*,ve/*

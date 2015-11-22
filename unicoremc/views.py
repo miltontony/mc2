@@ -97,15 +97,15 @@ class ProjectViewMixin(View):
         return login_required(view)
 
     def dispatch(self, request, *args, **kwargs):
-        self.organization = active_organization(request)
         return super(ProjectViewMixin, self).dispatch(request, *args, **kwargs)
 
-    def get_queryset(self):
-        if self.organization is None:
-            if self.request.user.is_superuser:
+    def get_projects_queryset(self, request):
+        organization = active_organization(request)
+        if organization is None:
+            if request.user.is_superuser:
                 return Project.objects.all()
             return Project.objects.none()
-        return Project.objects.filter(organization=self.organization)
+        return Project.objects.filter(organization=organization)
 
 
 class NewProjectView(ProjectViewMixin, TemplateView):
@@ -114,7 +114,8 @@ class NewProjectView(ProjectViewMixin, TemplateView):
     permissions = ['unicoremc.add_project']
 
     def get_context_data(self):
-        project_pks = self.get_queryset().values_list('pk', flat=True)
+        projects = self.get_projects_queryset(self.request)
+        project_pks = projects.values_list('pk', flat=True)
 
         context = super(NewProjectView, self).get_context_data()
         context.update({
@@ -155,7 +156,7 @@ class NewProjectView(ProjectViewMixin, TemplateView):
             defaults={
                 'team_id': int(team_id),
                 'owner': user,
-                'organization': self.organization,
+                'organization': active_organization(self.request),
                 'marathon_health_check_path': '/health/',
                 'docker_cmd':
                     docker_cmd or
@@ -183,11 +184,17 @@ class NewProjectView(ProjectViewMixin, TemplateView):
 class HomepageView(ProjectViewMixin, ListView):
     template_name = 'unicoremc/home.html'
 
+    def get_queryset(self):
+        return self.get_projects_queryset(self.request)
+
 
 class ProjectEditView(ProjectViewMixin, UpdateView):
     form_class = ProjectForm
     template_name = 'unicoremc/advanced.html'
     permissions = ['unicoremc.change_project']
+
+    def get_queryset(self):
+        return self.get_projects_queryset(self.request)
 
     def get_success_url(self):
         return reverse("home")
@@ -220,10 +227,10 @@ class ManageGAView(ProjectViewMixin, TemplateView):
     def get_context_data(self):
         social = self.request.user.social_auth.get(provider='google-oauth2')
         accounts = utils.get_ga_accounts(social.extra_data['access_token'])
-
+        projects = self.get_projects_queryset(self.request)
         context = super(ManageGAView, self).get_context_data()
         context.update({
-            'projects': self.get_queryset().filter(state='done'),
+            'projects': projects.filter(state='done'),
             'accounts': [
                 {'id': a.get('id'), 'name': a.get('name')} for a in accounts],
         })
@@ -240,7 +247,8 @@ class ManageGAView(ProjectViewMixin, TemplateView):
         account_id = request.POST.get('account_id')
         social = request.user.social_auth.get(provider='google-oauth2')
         access_token = social.extra_data['access_token']
-        project = get_object_or_404(self.get_queryset(), pk=project_id)
+        project = get_object_or_404(
+            self.get_projects_queryset(self.request), pk=project_id)
 
         if not project.ga_profile_id:
             try:
@@ -268,6 +276,9 @@ class ResetHubAppKeyView(ProjectViewMixin, SingleObjectMixin, RedirectView):
     permanent = False
     pattern_name = 'advanced'
 
+    def get_queryset(self):
+        return self.get_projects_queryset(self.request)
+
     def get(self, request, *args, **kwargs):
         project = self.get_object()
         app = project.hub_app()
@@ -283,7 +294,7 @@ class AppLogView(ProjectViewMixin, TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super(AppLogView, self).get_context_data(*args, **kwargs)
-        project = get_object_or_404(self.get_queryset(),
+        project = get_object_or_404(self.get_projects_queryset(self.request),
                                     pk=kwargs['project_id'])
         tasks = project.infra_manager.get_project_marathon_tasks()
         context.update({
@@ -305,7 +316,8 @@ class AppEventSourceView(ProjectViewMixin, View):
     social_auth = 'google-oauth2'
 
     def get(self, request, project_id, task_id, path):
-        project = get_object_or_404(Project, pk=project_id)
+        project = get_object_or_404(self.get_projects_queryset(request),
+                                    pk=project_id)
         n = request.GET.get('n') or settings.LOGDRIVER_BACKLOG
         if path not in ['stdout', 'stderr']:
             return HttpResponseNotFound('File not found.')

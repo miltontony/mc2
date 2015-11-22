@@ -20,25 +20,31 @@ CACHES = {
 DEBUG = True
 CELERY_ALWAYS_EAGER = True
 
-UNICORE_CMS_INSTALL_DIR = abspath('.test_config_dir', 'unicore-cms-django')
+
+def scratchpath(*paths):
+    return abspath('.scratchpath', *paths)
+
+SCRATCHPATH = scratchpath()
+
+UNICORE_CMS_INSTALL_DIR = scratchpath('test_config_dir', 'unicore-cms-django')
 UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
 UNICORE_CONFIGS_INSTALL_DIR = '/path/to/unicore-configs'
 
-REPO_WORKSPACE = '.test_repo_dir'
-FRONTEND_REPO_PATH = abspath(REPO_WORKSPACE, 'frontend')
-CMS_REPO_PATH = abspath(REPO_WORKSPACE, 'cms')
+REPO_WORKSPACE = 'test_repo_dir'
+FRONTEND_REPO_PATH = scratchpath(REPO_WORKSPACE, 'frontend')
+CMS_REPO_PATH = scratchpath(REPO_WORKSPACE, 'cms')
 
-CONFIG_WORKSPACE = '.test_config_dir'
-CONFIGS_REPO_PATH = abspath('.test_config_repo_dir')
-NGINX_CONFIGS_PATH = abspath(CONFIGS_REPO_PATH, 'nginx')
-SPRINGBOARD_SETTINGS_OUTPUT_PATH = abspath(
+CONFIG_WORKSPACE = 'test_config_dir'
+CONFIGS_REPO_PATH = scratchpath('test_config_repo_dir')
+NGINX_CONFIGS_PATH = scratchpath(CONFIGS_REPO_PATH, 'nginx')
+SPRINGBOARD_SETTINGS_OUTPUT_PATH = scratchpath(
     CONFIGS_REPO_PATH, 'springboard_settings')
-FRONTEND_SETTINGS_OUTPUT_PATH = abspath(
+FRONTEND_SETTINGS_OUTPUT_PATH = scratchpath(
     CONFIGS_REPO_PATH, 'frontend_settings')
-CMS_SETTINGS_OUTPUT_PATH = abspath(CONFIG_WORKSPACE, 'cms_settings')
+CMS_SETTINGS_OUTPUT_PATH = scratchpath(CONFIG_WORKSPACE, 'cms_settings')
 
-FRONTEND_SOCKETS_PATH = abspath('.test_sockets_dir', 'frontend_sockets')
-CMS_SOCKETS_PATH = abspath('.test_sockets_dir', 'cms_sockets')
+FRONTEND_SOCKETS_PATH = scratchpath('test_sockets_dir', 'frontend_sockets')
+CMS_SOCKETS_PATH = scratchpath('test_sockets_dir', 'cms_sockets')
 
 RAVEN_DSN_FRONTEND_QA = 'raven-qa'
 RAVEN_DSN_FRONTEND_PROD = 'raven-prod'
