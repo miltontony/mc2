@@ -9,38 +9,66 @@
 {% endblock %}
 
 {% block content %}
-<div>
-    <form class="form-horizontal" role="form" method="post" action="">
-        <legend>{{ organization.name }}</legend>
+<div class="row">
+<div class="col-md-6">
+  <!-- general form elements -->
+  <form role="form" method="post">
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ organization.name }}</h3>
+    </div>
+    <div class="box-body">
         {% csrf_token %}
-        <fieldset>
-        <legend></legend>
         {% include "form.html" with form=form.organization_form %}
-        </fieldset>
 
-        <br><br>
-        <legend>{% trans "Manage users" %}</legend>
         {{ form.users_formset.management_form }}
+        <div class="box-body no-padding">
+        <table class="table table-condensed">
+          <tr>
+            <th style="width: 10px">#</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Is admin?</th>
+            <th>Remove?</th>
+          </tr>
         {% for user_form in form.users_formset %}
-            <fieldset>
+            {% for field in user_form.hidden_fields %}{{ field }}{% endfor %}
             {% with user=user_form.instance.user %}
-            <legend><strong>{{ user.full_name|default:user.username }} ({{ user.email }})</strong></legend>
+            <tr>
+              <td>{{forloop.counter}}.</td>
+              <td>{{ user.full_name|default:user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user_form.is_admin }}</td>
+              <td>{{ user_form.DELETE }}</td>
+            </tr>
             {% endwith %}
-            {% include "form.html" with form=user_form %}
-            </fieldset>
         {% endfor %}
-
-        {{ form.new_users_formset.management_form }}
-        {% for new_user_form in form.new_users_formset %}
-            <fieldset>
-            <legend><strong>{% blocktrans with org_name=organization.name %}Add a user to {{ org_name }}{% endblocktrans %}</strong></legend>
-            {% include "form.html" with form=new_user_form %}
-            </fieldset>
-        {% endfor %}
+        </table>
+        </div>
 
         <p>
-            <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
         </p>
-    </form>
+    </div>
+  </div>
+
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">{% blocktrans with org_name=organization.name %}Add a user to {{ org_name }}{% endblocktrans %}</h3>
+    </div>
+    <div class="box-body">
+      {% csrf_token %}
+      {{ form.new_users_formset.management_form }}
+      {% for new_user_form in form.new_users_formset %}
+          {% include "form.html" with form=new_user_form %}
+      {% endfor %}
+
+      <p>
+      <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+      </p>
+    </div>
+    </div>
+  </form>
+  </div>
 </div>
 {% endblock %}
