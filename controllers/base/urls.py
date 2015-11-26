@@ -19,6 +19,10 @@ urlpatterns = patterns(
         views.ControllerRestartView.as_view(),
         name='restart'),
     url(
+        r'^delete/(?P<controller_pk>\d+)/$',
+        views.ControllerDeleteView.as_view(),
+        name='delete'),
+    url(
         r'^logs/(?P<controller_pk>\d+)/$',
         views.AppLogView.as_view(),
         name='logs'),

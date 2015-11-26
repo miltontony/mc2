@@ -55,6 +55,9 @@
       <!-- Restart Link -->
       <a href="{% url 'base:restart' controller.id %}" class="btn btn-sm btn-app bg-orange">
       <i class="fa fa-repeat"></i> Restart</a>
+      <!-- Delete Link -->
+      <a href="{% url 'base:delete' controller.id %}" class="btn btn-sm btn-app bg-red">
+      <i class="fa fa-trash-o"></i>Delete App</a>
     {% endblock %}
     </div>
   </div>
