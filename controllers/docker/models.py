@@ -1,5 +1,4 @@
 from django.db import models
-
 from controllers.base.models import Controller
 
 
@@ -11,10 +10,10 @@ class DockerController(Controller):
 
     def get_marathon_app_data(self):
         docker_dict = {
-                    "image": self.docker_image,
-                    "forcePullImage": True,
-                    "network": "BRIDGE",
-                }
+            "image": self.docker_image,
+            "forcePullImage": True,
+            "network": "BRIDGE",
+        }
 
         if self.port:
             docker_dict.update({
@@ -32,8 +31,6 @@ class DockerController(Controller):
                 "docker": docker_dict
             }
         }
-
-
 
         if self.marathon_health_check_path:
             app_data.update({
