@@ -10,6 +10,17 @@ class DockerController(Controller):
     port = models.PositiveIntegerField(default=0)
 
     def get_marathon_app_data(self):
+        docker_dict = {
+                    "image": self.docker_image,
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                }
+
+        if self.port:
+            docker_dict.update({
+                "portMappings": [{"containerPort": self.port, "hostPort": 0}]
+            })
+
         app_data = {
             "id": self.app_id,
             "cmd": self.marathon_cmd,
@@ -18,18 +29,11 @@ class DockerController(Controller):
             "instances": self.marathon_instances,
             "container": {
                 "type": "DOCKER",
-                "docker": {
-                    "image": self.docker_image,
-                    "forcePullImage": True,
-                    "network": "BRIDGE",
-                }
+                "docker": docker_dict
             }
         }
 
-        if self.port:
-            app_data.update({
-                "portMappings": [{"containerPort": self.port, "hostPort": 0}]
-            })
+
 
         if self.marathon_health_check_path:
             app_data.update({
