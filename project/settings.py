@@ -168,6 +168,7 @@ INSTALLED_APPS = (
     'controllers',
     'controllers.base',
     'controllers.docker',
+    'controllers.freebasics',
     'ws4redis',
     'compressor',
     'django_gravatar',
