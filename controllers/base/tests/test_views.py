@@ -1,19 +1,16 @@
 import os
 import pytest
 import responses
-
 from django.conf import settings
 from django.test import RequestFactory
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-
 from controllers.base.models import Controller, publish_to_websocket
 from controllers.base.tests.base import ControllerBaseTestCase
 from controllers.base.tests.utils import setup_responses_for_logdriver
 from controllers.base.views import AppEventSourceView
-
 from organizations.models import Organization, OrganizationUserRelation
 
 
@@ -353,3 +350,31 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         controller = Controller.objects.get(pk=controller.pk)
         self.assertEqual(controller.state, 'missing')
+
+    @responses.activate
+    def test_app_delete(self):
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
+        self.mock_delete_marathon_app(controller.app_id)
+
+        resp = self.client.get(reverse('base:delete', args=[controller.id]))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(len(responses.calls), 1)
+
+        resp = self.client.get(reverse('home'))
+        self.assertContains(resp, 'App deletion sent.')
+
+    @responses.activate
+    def test_app_delete_error(self):
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
+        self.mock_delete_marathon_app(controller.app_id, 404)
+
+        resp = self.client.get(reverse('base:delete', args=[controller.id]))
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(len(responses.calls), 1)
+
+        resp = self.client.get(reverse('home'))
+        self.assertContains(resp, 'Failed to delete app: ')

@@ -57,6 +57,13 @@ class ModelsTestCase(ControllerBaseTestCase):
             controller.marathon_restart_app()
 
     @responses.activate
+    def test_delete_marathon_marathon_exception(self):
+        controller = self.mk_controller()
+        self.mock_delete_marathon_app(controller.app_id, 404)
+        with self.assertRaises(exceptions.MarathonApiException):
+            controller.marathon_destroy_app()
+
+    @responses.activate
     def test_marathon_app_exists(self):
         controller = self.mk_controller()
 

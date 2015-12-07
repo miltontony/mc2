@@ -152,6 +152,19 @@ class Controller(PolymorphicModel):
                 'Restart Marathon app failed with response: %s - %s' %
                 (resp.status_code, resp.json().get('message')))
 
+    def marathon_destroy_app(self):
+        resp = requests.delete(
+            '%(host)s/v2/apps/%(id)s' % {
+                'host': settings.MESOS_MARATHON_HOST,
+                'id': self.app_id
+            },
+            json={})
+
+        if resp.status_code != 200:
+            raise exceptions.MarathonApiException(
+                'Marathon app deletion failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('message')))
+
     def exists_on_marathon(self):
         resp = requests.get(
             '%(host)s/v2/apps/%(id)s' % {
