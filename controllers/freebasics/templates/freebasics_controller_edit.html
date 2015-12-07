@@ -1,0 +1,68 @@
+{% extends "unicoremc/base.html" %}
+ {% load i18n admin_urls admin_static %}
+
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="#">New</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-6">
+  <!-- general form elements -->
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">Edit your app</h3>
+    </div>
+
+    <form role="form" method="POST">
+    <div class="box-body">
+      {% if form.errors %}
+          <div class="alert alert-error">
+              Please correct the errors below
+          </div>
+      {% endif %}
+      {% if form.non_field_errors %}
+          <div class="alert alert-error">
+              {{ form.non_field_errors|join:", " }}
+          </div>
+      {% endif %}
+
+      {% include "form_field.html" with field=form.name %}
+      {% include "form_field.html" with field=form.docker_image %}
+      <div class="row">
+      </div>
+
+      <fieldset class="input-xxlarge">
+          <legend>Marathon</legend>
+          {% include "form_field.html" with field=form.marathon_cmd %}
+          <div class="row">
+          <div class="col-xs-3">
+          {% include "form_field.html" with field=form.marathon_cpus %}
+          </div>
+          <div class="col-xs-3">
+          {% include "form_field.html" with field=form.marathon_mem %}
+          </div>
+          <div class="col-xs-4">
+          {% include "form_field.html" with field=form.marathon_instances %}
+          </div>
+          </div>
+          <div class="row">
+          <div class="col-xs-6">
+          {% include "form_field.html" with field=form.marathon_health_check_path %}
+          </div>
+          </div>
+      </fieldset>
+
+      {% csrf_token %}
+      <br/>
+      <p><input type="submit" value="Submit" class="btn btn-primary"/></p>
+      </div>
+    </form>
+
+  </div>
+</div>
+</div>
+{% endblock %}
