@@ -56,9 +56,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "image": "docker/image",
                     "forcePullImage": True,
                     "network": "BRIDGE",
+                    "portMappings": [{"containerPort": 1234, "hostPort": 0}],
                 }
             },
-            "portMappings": [{"containerPort": 1234, "hostPort": 0}]
         })
 
         controller.marathon_health_check_path = '/health/path/'
@@ -76,9 +76,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "image": "docker/image",
                     "forcePullImage": True,
                     "network": "BRIDGE",
+                    "portMappings": [{"containerPort": 1234, "hostPort": 0}],
                 }
             },
-            "portMappings": [{"containerPort": 1234, "hostPort": 0}],
             "ports": [0],
             "healthChecks": [{
                 "gracePeriodSeconds": 3,
