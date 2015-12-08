@@ -13,5 +13,6 @@ urlpatterns = patterns(
         include('controllers.docker.urls', namespace='controllers.docker')),
     url(
         r'^freebasics/',
-        include('controllers.freebasics.urls', namespace='controllers.freebasics')),
+        include('controllers.freebasics.urls',
+                namespace='controllers.freebasics')),
 )
