@@ -1,7 +1,7 @@
 import pytest
 from controllers.base.models import publish_to_websocket
 from controllers.base.tests.base import ControllerBaseTestCase
-from controllers.freebasics.forms import FreeBasicsControllerForm, DEFAULT_PORT, \
+from controllers.freebasics.forms import FreeBasicsControllerForm, \
     TEMPLATE_CHOICES
 from controllers.freebasics.models import FreeBasicsController
 from django.contrib.auth.models import User
