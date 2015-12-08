@@ -1,8 +1,7 @@
 import pytest
 from controllers.base.models import publish_to_websocket
 from controllers.base.tests.base import ControllerBaseTestCase
-from controllers.freebasics.forms import FreeBasicsControllerForm, \
-    TEMPLATE_CHOICES
+from controllers.freebasics.forms import FreeBasicsControllerForm
 from controllers.freebasics.models import FreeBasicsController
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -37,7 +36,7 @@ class FreeBasicsControllerFormTestCase(ControllerBaseTestCase):
         self.assertRaises(KeyError, form._process_data, data)
 
     def test__get_docker_image_name(self):
-        for t in TEMPLATE_CHOICES:
+        for t in FreeBasicsController.TEMPLATE_CHOICES:
             controller = FreeBasicsController.objects.create(
                 name='Test App',
                 owner=self.user,
@@ -46,10 +45,11 @@ class FreeBasicsControllerFormTestCase(ControllerBaseTestCase):
             controller.save()
             form = FreeBasicsControllerForm(instance=controller)
             self.assertEqual(form._get_docker_image_name(t[0]),
-                             "universalcore/" + dict(TEMPLATE_CHOICES)[t[0]])
+                             "universalcore/" +
+                             dict(FreeBasicsController.TEMPLATE_CHOICES)[t[0]])
 
     def test__get_marathon_cmd(self):
-        for t in TEMPLATE_CHOICES:
+        for t in FreeBasicsController.TEMPLATE_CHOICES:
             controller = FreeBasicsController.objects.create(
                 name='Test App',
                 owner=self.user,
