@@ -65,8 +65,17 @@
     <script type="text/javascript">
         var imgTag = ".template-radio img";
 
+        $().ready(function(){
+           $(".template-radio input").filter(function(index){
+              if($(this).attr("checked")) {
+                  $(this).closest(".template-radio").addClass("template-selected-text")
+                          .find("img").removeClass("template-unselected")
+                          .addClass("template-selected");
+              }
+           });
+        });
+
         $(imgTag).click(function (evt){
-{#            alert($(".template-radio input:radio").button);#}
             $(imgTag).removeClass("template-selected")
                     .addClass("template-unselected")
                     .parent().removeClass("template-selected-text");
