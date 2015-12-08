@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class UserSettings(models.Model):
@@ -17,3 +19,10 @@ class UserSettings(models.Model):
         max_length=100,
         choices=SETTINGS_LEVEL_CHOICES,
         default=BASIC_SETTINGS_LEVEL)
+
+
+@receiver(post_save, sender=User)
+def user_profile_handler(sender, instance, created, **kwargs):
+    if created:
+        profile = UserSettings(user=instance)
+        profile.save()

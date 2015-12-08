@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url
+from django.contrib.auth.decorators import login_required
 from django.views.generic.base import TemplateView
 
 from unicoremc import views
@@ -19,5 +20,10 @@ urlpatterns = patterns(
         r'^logout/$',
         'django.contrib.auth.views.logout_then_login',
         name='logout'
-    )
+    ),
+    url(
+        r'^settings/update/$',
+        login_required(views.UserSettingsView.as_view()),
+        name='user_settings'
+    ),
 )
