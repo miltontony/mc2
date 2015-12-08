@@ -1,0 +1,4 @@
+{% extends 'base/inclusion_tags/controller_object.html' %}
+{% block edit_action %}
+<li class="pull-right"><a href="{% url 'controllers.freebasics:edit' controller.id %}" class="text-muted"><i class="fa fa-gear"></i></a></li>
+{% endblock %}
