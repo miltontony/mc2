@@ -10,15 +10,13 @@ TEMPLATE_CHOICES = (
 
 _TEMPLATE_MARATHON_CMD = {
     "option1": "./deploy/docker-entrypoint.sh tuneme tuneme.wsgi 8000",
-    "option2":
-    "./deploy/docker-entrypoint.sh bwise ndohyep.wsgi 8000"
+    "option2": "./deploy/docker-entrypoint.sh bwise ndohyep.wsgi 8000"
 }
 
 DEFAULT_PORT = 8000
 
 
 class FreeBasicsControllerForm(DockerControllerForm):
-    testing = "testing"
     selected_template = forms.ChoiceField(
         choices=TEMPLATE_CHOICES, widget=forms.RadioSelect)
 
@@ -32,10 +30,6 @@ class FreeBasicsControllerForm(DockerControllerForm):
                                                        label_suffix,
                                                        empty_permitted,
                                                        instance)
-
-    def is_valid(self):
-        print "$$$$$$ " + ("{} " * len(self.errors)).format(*self.errors)
-        return super(FreeBasicsControllerForm, self).is_valid()
 
     def _process_data(self, data):
         if data is not None:
