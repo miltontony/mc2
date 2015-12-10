@@ -15,6 +15,22 @@ def display_name(context):
     return full_name if full_name else user.username
 
 
+@register.simple_tag(takes_context=True)
+def load_skin(context):
+    user = context['request'].user
+
+    if not user.is_authenticated:
+        t = template.loader.get_template('skins/basic.html')
+        return t.render(context)
+
+    try:
+        t = template.loader.get_template(
+            'skins/%s.html' % user.settings.settings_level)
+    except template.TemplateDoesNotExist:
+        t = template.loader.get_template('skins/basic.html')
+    return t.render(context)
+
+
 @register.filter
 def multiply(value, factor):
     try:
