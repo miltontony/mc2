@@ -1,20 +1,18 @@
 import pytest
 import responses
-
+from controllers.freebasics.models import FreeBasicsController
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-
 from controllers.base.models import Controller, publish_to_websocket
 from controllers.base.tests.base import ControllerBaseTestCase
-
 from controllers.docker.models import DockerController
 
 
 # Unknowm controller for testing the template tag default
 class UnknownController(Controller):
-            pass
+    pass
 
 
 @pytest.mark.django_db
@@ -37,17 +35,21 @@ class ViewsTestCase(ControllerBaseTestCase):
         resp = self.client.get(reverse('home'))
 
         self.assertContains(resp, 'Test App')
-        self.assertContains(resp, 'Memory Share: 128.0')
-        self.assertContains(resp, 'CPU Share: 0.1')
-        self.assertContains(resp, 'Num Instances: 1')
+        self.assertContains(resp, 'Status')
+        self.assertContains(resp, 'Container')
+        self.assertContains(resp, 'Edit')
+        self.assertContains(resp, 'Delete')
+        self.assertContains(resp, 'class="icon-container-base')
+        self.assertContains(resp,
+                            'src="/static/img/basic-container-vector.svg"')
         self.assertContains(
             resp,
-            '<a href="/base/%s/" class="text-muted">' %
+            '<a class="link" href="/base/%s/">' %
             controller.id)
+        controller.delete()
 
     @responses.activate
     def test_homepage_with_docker_controller(self):
-        self.mk_controller()
         controller = DockerController.objects.create(
             name='Test Docker App',
             owner=self.user,
@@ -60,17 +62,37 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.login(username='testuser2', password='test')
         resp = self.client.get(reverse('home'))
 
-        self.assertContains(resp, 'Test App')
-        self.assertContains(resp, 'Memory Share: 128.0')
-        self.assertContains(resp, 'CPU Share: 0.1')
-        self.assertContains(resp, 'Num Instances: 1')
-        self.assertContains(resp, 'Port: 1234')
-        self.assertContains(resp, 'Health Path: /health/path/')
-        self.assertContains(resp, 'Docker Image: docker/image')
-        self.assertContains(
-            resp,
-            '<a href="/docker/%s/" class="text-muted">'
-            % controller.id)
+        self.assertContains(resp, 'Test Docker App')
+        self.assertContains(resp, 'Status')
+        self.assertContains(resp, 'Container')
+        self.assertContains(resp, 'Edit')
+        self.assertContains(resp, 'Delete')
+        self.assertContains(resp, 'class="icon-container-docker')
+        self.assertContains(resp,
+                            'src="/static/img/docker-container-vector.svg"')
+
+    @responses.activate
+    def test_homepage_with_free_basics_controller(self):
+        controller = FreeBasicsController.objects.create(
+            name='Test Free Basics App',
+            owner=self.user,
+            marathon_cmd='ping pong',
+            docker_image='docker/image',
+            port=1234,
+            marathon_health_check_path='/health/path/'
+        )
+
+        self.client.login(username='testuser2', password='test')
+        resp = self.client.get(reverse('home'))
+
+        self.assertContains(resp, 'Test Free Basics App')
+        self.assertContains(resp, 'Status')
+        self.assertContains(resp, 'Container')
+        self.assertContains(resp, 'Edit')
+        self.assertContains(resp, 'Delete')
+        self.assertContains(resp, 'class="icon-container-freebasics')
+        self.assertContains(resp,
+                            'src="/static/img/freebasics-container-vector.svg"')
 
     @responses.activate
     def test_template_tag_fallback(self):
@@ -83,10 +105,14 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.login(username='testuser2', password='test')
         resp = self.client.get(reverse('home'))
 
+        print "#########################"
+        print resp
+        print "#########################"
+
         self.assertContains(resp, 'Test App')
-        self.assertContains(resp, 'Memory Share: 128.0')
-        self.assertContains(resp, 'CPU Share: 0.1')
-        self.assertContains(resp, 'Num Instances: 1')
 
         self.assertContains(
-            resp, '<a href="/base/%s/" class="text-muted">' % controller.id)
+            resp, '<a class="link" href="/base/%s/">' % controller.id)
+
+        self.assertContains(
+            resp, '<a class="link" href="/base/delete/%s/">' % controller.id)
