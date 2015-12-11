@@ -1,0 +1,54 @@
+{% extends "skins/_home.html" %}
+
+{% load i18n controller_base_tags mc2_tags %}
+
+{% block title %}Mission Control - Free Basics{% endblock %}
+
+{% block page_header_title %}<h1>Home</h1>{% endblock %}
+
+{% block search %}{% endblock %}
+
+{% block content %}
+
+{% if user.is_superuser %}
+<a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">Start new free basics controller</a>
+{% endif %}
+<hr/>
+<div class="row" id="projects_progress">
+  <div class="col-md-6" id="result_list">
+        {% for controller in controller_list %}
+        {% render_controller controller %}
+        {% endfor %}
+  </div>
+  <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="info-box">
+      <span class="info-box-icon bg-green"><i class="fa fa-flag-o"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Applications</span>
+        <span class="info-box-number">{{controller_list.count}}</span>
+        <div class="progress">
+          <div class="progress-bar progress-bar-green" style="width: 100%"></div>
+        </div>
+        <span class="progress-description">
+          Unlimitted
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="info-box">
+      <span class="info-box-icon bg-yellow"><i class="fa fa-dollar"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Hosting</span>
+        <span class="info-box-number">${{controller_list.count|multiply:25}}</span>
+        <span class="progress-description">
+          $25 per app
+        </span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+    <!-- /.info-box -->
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "skins/base.html" %}
+
+<!-- LOADING -->
+{% load i18n controller_base_tags static mc2_tags %}
+
+{% block page_header_title %}
+<h1>
+  Home
+  <small>Total: </small>
+  <small id="results_count">{{controller_list.count}}</small>
+</h1>
+{% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+
+{% if user.is_superuser %}
+<a href="{% url 'base:add' %}" class="btn btn-primary">Start new base controller</a>
+<a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Start new docker controller</a>
+<a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">Start new free basics controller</a>
+{% comment %}
+<a href="{% url 'manage_ga' %}" class="btn btn-primary">Manage GA Profiles</a>
+<a href="{% url 'health_check' %}" class="btn btn-primary">Health Checks</a>
+{% endcomment %}
+{% endif %}
+<hr/>
+<div class="row" id="projects_progress">
+  <div class="col-md-6" id="result_list">
+        {% for controller in controller_list %}
+        {% render_controller controller %}
+        {% endfor %}
+  </div>
+  <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="info-box">
+      <span class="info-box-icon bg-green"><i class="fa fa-flag-o"></i></span>
+
+      <div class="info-box-content">
+        <span class="info-box-text">Applications</span>
+        <span class="info-box-number">{{controller_list.count}}</span>
+        <div class="progress">
+          <div class="progress-bar progress-bar-green" style="width: 100%"></div>
+        </div>
+        <span class="progress-description">
+          Unlimitted
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3 col-sm-6 col-xs-12">
+    <div class="info-box">
+      <span class="info-box-icon bg-yellow"><i class="fa fa-dollar"></i></span>
+      <div class="info-box-content">
+        <span class="info-box-text">Hosting</span>
+        <span class="info-box-number">${{controller_list.count|multiply:25}}</span>
+        <span class="progress-description">
+          $25 per app
+        </span>
+      </div>
+      <!-- /.info-box-content -->
+    </div>
+    <!-- /.info-box -->
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/ws4redis.min.js' %}"></script>
+<script type="text/javascript">
+
+jQuery(document).ready(function($) {
+    var ws4redis = WS4Redis({
+        uri: '{{ WEBSOCKET_URI }}progress?subscribe-broadcast',
+        receive_message: receiveMessage,
+        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+    });
+
+    // receive a message though the websocket from the server
+    function receiveMessage(msg) {
+      var data = JSON.parse(msg);
+      if (data.is_created && document.getElementById(data.id) == null){
+        //reload page when new project added
+        window.location.reload();
+        return
+      }
+
+      $('#'+data.id).attr('class', 'main '+ data.state);
+      $('#'+data.id+' .state').html(data.state_display);
+    }
+
+    $("#result_list .main")
+    .on("mouseenter", function(){
+      $(this).addClass("info-hint");
+    })
+    .on("mouseleave", function(){
+      $(this).removeClass("info-hint");
+    })
+    .on("click", function(e){
+      if(!$(e.target).is("a")){
+        $(this).find(".additional-info").toggle(400);
+      }
+    });
+
+    $('#filter').keyup(function(){
+        var valThis = $(this).val().toLowerCase().split(" ");
+        $('#result_list .main').each(function(){
+            var text = $(this).attr('name') + ' ' +
+                       $(this).attr('appid') + ' ' +
+                       $(this).attr('state');
+            valThis.every(function(a){return text.toLowerCase().indexOf(a) != -1}) ? $(this).show() : $(this).hide();
+        });
+        $("#results_count").html($('#result_list .main:visible').length);
+    });
+});
+</script>
+{% endblock %}
