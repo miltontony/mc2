@@ -50,7 +50,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
     @responses.activate
     def test_homepage_with_docker_controller(self):
-        controller = DockerController.objects.create(
+        DockerController.objects.create(
             name='Test Docker App',
             owner=self.user,
             marathon_cmd='ping pong',
@@ -73,7 +73,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
     @responses.activate
     def test_homepage_with_free_basics_controller(self):
-        controller = FreeBasicsController.objects.create(
+        FreeBasicsController.objects.create(
             name='Test Free Basics App',
             owner=self.user,
             marathon_cmd='ping pong',
@@ -91,8 +91,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Edit')
         self.assertContains(resp, 'Delete')
         self.assertContains(resp, 'class="icon-container-freebasics')
-        self.assertContains(resp,
-                            'src="/static/img/freebasics-container-vector.svg"')
+        self.assertContains(
+            resp, 'src="/static/img/freebasics-container-vector.svg"')
 
     @responses.activate
     def test_template_tag_fallback(self):
@@ -104,10 +104,6 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.client.login(username='testuser2', password='test')
         resp = self.client.get(reverse('home'))
-
-        print "#########################"
-        print resp
-        print "#########################"
 
         self.assertContains(resp, 'Test App')
 
