@@ -37,7 +37,9 @@
                         </div>
                     {% else %}
                         <div class="center-text">
-                            <span><i class="fa fa-times-circle fa-5x"></i></span><h3>You do not have permission to create a new website</h3>
+                            <a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">
+                                <span class="free-basics"><i>&ensp;&ensp;&ensp;&ensp;</i></span>Free Basics
+                            </a>
                         </div>
                     {% endif %}
                 </div>

@@ -6,3 +6,8 @@
 .progress-bar-green, .progress-bar-success {
     background-color: #00A65A !important;
 }
+
+#id_settings_level{
+    list-style: none;
+    padding: 0;
+}
