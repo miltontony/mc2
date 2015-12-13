@@ -184,7 +184,10 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.post(
             reverse('user_settings'), {'settings_level': 'expert'})
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Start new base controller')
+        self.assertContains(resp, 'Basic')
+        self.assertContains(resp, 'Docker')
+        self.assertContains(resp, 'Free Basics')
+        self.assertContains(resp, 'card-content new-site')
 
     def test_staff_access_required(self):
         self.mk_controller(controller={'owner': User.objects.get(pk=2)})
