@@ -1,25 +1,14 @@
 {% extends 'base/inclusion_tags/controller_object.html' %}
-{% block edit_action %}
-<li class="pull-right"><a href="{% url 'controllers.docker:edit' controller.id %}" class="text-muted"><i class="fa fa-gear"></i></a></li>
+{% block container_icon%}
+    {% load staticfiles %}
+    {% with "img/docker-container-vector.png" as icon_src %}
+        <img class="icon-container-docker" src="{% static icon_src %}"/>
+    {% endwith %}
 {% endblock %}
-{% block more_info_tab %}
-  <fieldset>
-    <legend>Settings</legend>
-    App ID: {{controller.app_id}}<br/>
-    Memory Share: {{controller.marathon_mem|default:''}}<br/>
-    CPU Share: {{controller.marathon_cpus|default:''}}<br/>
-    Num Instances: {{controller.marathon_instances|default:''}}<br/>
-    Port: {{controller.port|default:''}}<br/>
-    Health Path: {{controller.marathon_health_check_path|default:''}}<br/>
-  </fieldset>
 
-  <fieldset>
-    <legend>Command</legend>
-    Docker Image: {{controller.docker_image}}<br/>
-    <pre>{{controller.marathon_cmd|default:''}}</pre><br/>
-  </fieldset>
-  <!-- Logs Link -->
-  <div>
-  <a href="{% url 'base:logs' controller.id %}" class="btn btn-sm btn-default">View logs</a>
-  </div>
+{% block edit_action %}
+    <a class="link" href="{% url 'controllers.docker:edit' controller.id %}">
+        <span><i class="fa fa-gears info-box-icon icon-small"></i></span>
+        Edit
+    </a>
 {% endblock %}

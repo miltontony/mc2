@@ -1,5 +1,6 @@
 .nav-tabs-custom.main{
-    margin-bottom: 10px;
+    margin: 1%;
+    width: 48%;
 }
 
 .progress-bar-green, .progress-bar-success {

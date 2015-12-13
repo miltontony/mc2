@@ -3,6 +3,10 @@
 <!-- LOADING -->
 {% load i18n controller_base_tags static mc2_tags %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href= "{% static "css/home.css" %}"/>
+{% endblock %}
+
 {% block page_header_title %}
 <h1>
   Home
@@ -14,48 +18,70 @@
 <!-- CONTENT -->
 {% block content %}
 
-{% if user.is_superuser %}
-<a href="{% url 'base:add' %}" class="btn btn-primary">Start new base controller</a>
-<a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Start new docker controller</a>
-<a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">Start new free basics controller</a>
-{% comment %}
-<a href="{% url 'manage_ga' %}" class="btn btn-primary">Manage GA Profiles</a>
-<a href="{% url 'health_check' %}" class="btn btn-primary">Health Checks</a>
-{% endcomment %}
-{% endif %}
+{#{% if user.is_superuser %}#}
+{#<a href="{% url 'base:add' %}" class="btn btn-primary">Start new base controller</a>#}
+{#<a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Start new docker controller</a>#}
+{#<a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">Start new free basics controller</a>#}
+{#{% comment %}#}
+{#<a href="{% url 'manage_ga' %}" class="btn btn-primary">Manage GA Profiles</a>#}
+{#<a href="{% url 'health_check' %}" class="btn btn-primary">Health Checks</a>#}
+{#{% endcomment %}#}
+{#{% endif %}#}
 <hr/>
-<div class="row" id="projects_progress">
-  <div class="col-md-6" id="result_list">
+<div id="mc-overview">
+    <div class="mc-overview-item apps">
+        <span><i class="fa fa-play"></i></span>
+        Running Applications &ndash; {{ controller_list.count }}/Unlimited
+    </div>
+    <div class="mc-overview-item hosting">
+{#        <div style="width: 2%; margin:0 auto;">#}
+            <span><i class="fa fa-dollar"></i></span>
+{#        </div>#}
+        Hosting Costs &ndash; ${{controller_list.count|multiply:25}}
+    </div>
+</div>
+<div class="container" id="projects_progress">
+    <div class="row">
+        <div class="nav-tabs-custom main col-xs-2 card new-site">
+            <div class="card-content new-site">
+                <div id="overlay-content" class="card-content-overlay">
+                    {% if user.is_superuser %}
+                        <div>
+                            <h4>Choose website type</h4>
+                            <hr/>
+                            <a href="{% url 'base:add' %}" class="btn btn-primary">Basic</a>
+                            <a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Docker</a>
+                            <a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">
+                                <span class="free-basics"><i>&ensp;&ensp;&ensp;&ensp;</i></span>Free Basics
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="center-text">
+                            <span><i class="fa fa-times-circle fa-5x"></i></span><h3>You do not have permission to create a new website</h3>
+                        </div>
+                    {% endif %}
+                </div>
+                <div id="overlay-title" class="card-content-overlay">
+                    <div class="center-text">
+                        <h1>Create Mobi Site</h1>
+                        <hr/>
+                        <h3>Setup and create a new mobile site</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="nav-tabs-custom main col-xs-2 card hosting">
+            Hosting
+        </div>
+    </div>
+    <div class="row">
+        <h3 class="title-text">Manage your applications</h3>
+    </div>
+    <div class="row" id="result_list">
         {% for controller in controller_list %}
         {% render_controller controller %}
         {% endfor %}
-  </div>
-  <div class="col-md-3 col-sm-6 col-xs-12">
-    <div class="info-box">
-      <span class="info-box-icon bg-green"><i class="fa fa-flag-o"></i></span>
-
-      <div class="info-box-content">
-        <span class="info-box-text">Applications</span>
-        <span class="info-box-number">{{controller_list.count}}</span>
-        <div class="progress">
-          <div class="progress-bar progress-bar-green" style="width: 100%"></div>
-        </div>
-        <span class="progress-description">
-          Unlimitted
-        </span>
-      </div>
     </div>
-  </div>
-  <div class="col-md-3 col-sm-6 col-xs-12">
-    <div class="info-box">
-      <span class="info-box-icon bg-yellow"><i class="fa fa-dollar"></i></span>
-      <div class="info-box-content">
-        <span class="info-box-text">Hosting</span>
-        <span class="info-box-number">${{controller_list.count|multiply:25}}</span>
-        <span class="progress-description">
-          $25 per app
-        </span>
-      </div>
       <!-- /.info-box-content -->
     </div>
     <!-- /.info-box -->
@@ -110,6 +136,25 @@ jQuery(document).ready(function($) {
         });
         $("#results_count").html($('#result_list .main:visible').length);
     });
+
+    $("#overlay-title").click(function(evt){
+        var parentTag = $(evt.target).closest(".card-content-overlay");
+        if(parentTag.siblings().length > 0) {
+            parentTag.animate({opacity: 0}, 400, "linear", function () {
+                $(this).css("z-index", "1");
+                $(this).siblings().css("z-index", "3");
+                $(this).css('opacity', '1');
+            });
+        }
+    });
+
+    $("#overlay-content").click(function(evt){
+        $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
+            $(this).css("z-index", "2");
+            $(this).siblings().css("z-index", "3");
+            $(this).css('opacity', '1');
+        });
+    })
 });
 </script>
 {% endblock %}
