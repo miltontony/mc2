@@ -41,7 +41,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Delete')
         self.assertContains(resp, 'class="icon-container-base')
         self.assertContains(resp,
-                            'src="/static/img/basic-container-vector.svg"')
+                            'src="/static/img/basic-container-vector.png"')
         self.assertContains(
             resp,
             '<a class="link" href="/base/%s/">' %
@@ -69,7 +69,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Delete')
         self.assertContains(resp, 'class="icon-container-docker')
         self.assertContains(resp,
-                            'src="/static/img/docker-container-vector.svg"')
+                            'src="/static/img/docker-container-vector.png"')
 
     @responses.activate
     def test_homepage_with_free_basics_controller(self):
@@ -92,7 +92,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Delete')
         self.assertContains(resp, 'class="icon-container-freebasics')
         self.assertContains(
-            resp, 'src="/static/img/freebasics-container-vector.svg"')
+            resp, 'src="/static/img/freebasics-container-vector.png"')
 
     @responses.activate
     def test_template_tag_fallback(self):

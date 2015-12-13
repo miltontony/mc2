@@ -114,7 +114,8 @@
 }
 
 .free-basics{
-    background: url("../img/freebasics-container-vector.svg") no-repeat;
+    background: url("../img/freebasics-container-vector.png") no-repeat;
+    background-size: contain;
 }
 
 .title-text{
