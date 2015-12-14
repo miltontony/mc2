@@ -27,7 +27,7 @@
                 <div id="overlay-content" class="card-content-overlay">
                     {% if user.is_superuser %}
                         <div>
-                            <h4>Choose website type</h4>
+                            <h4>Choose app type</h4>
                             <hr/>
                             <a href="{% url 'base:add' %}" class="btn btn-primary">Basic</a>
                             <a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Docker</a>
@@ -45,9 +45,9 @@
                 </div>
                 <div id="overlay-title" class="card-content-overlay">
                     <div class="center-text">
-                        <h1>Create Mobi Site</h1>
+                        <h1>Create an app</h1>
                         <hr/>
-                        <h3>Setup and create a new mobile site</h3>
+                        <h3>Setup and create a new app</h3>
                     </div>
                 </div>
             </div>
