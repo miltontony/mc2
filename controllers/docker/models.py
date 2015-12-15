@@ -20,12 +20,17 @@ class DockerController(Controller):
                 "portMappings": [{"containerPort": self.port, "hostPort": 0}]
             })
 
+        service_labels = {
+            "domain": "{}.127.0.0.1.xip.io".format(self.app_id),
+        }
+
         app_data = {
             "id": self.app_id,
             "cmd": self.marathon_cmd,
             "cpus": self.marathon_cpus,
             "mem": self.marathon_mem,
             "instances": self.marathon_instances,
+            "labels": service_labels,
             "container": {
                 "type": "DOCKER",
                 "docker": docker_dict
