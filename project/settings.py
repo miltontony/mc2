@@ -256,7 +256,7 @@ RAVEN_CONFIG = {
 DEPLOY_ENVIRONMENT = 'qa'
 
 CMS_SUBDOMAIN = 'qa-content'
-HUB_SUBDOMAIN = 'qa-hub'
+HUB_DOMAIN = 'qa-hub.unicore.io'
 
 # path to where repos will be located
 FRONTEND_REPO_PATH = abspath('repos', 'frontend')

@@ -1,5 +1,6 @@
 from django.db import models
 from controllers.base.models import Controller
+from project import settings
 
 
 class DockerController(Controller):
@@ -7,6 +8,7 @@ class DockerController(Controller):
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
     port = models.PositiveIntegerField(default=0)
+    domain_urls = models.URLField(max_length=8000, default="")
 
     def get_marathon_app_data(self):
         docker_dict = {
@@ -20,8 +22,13 @@ class DockerController(Controller):
                 "portMappings": [{"containerPort": self.port, "hostPort": 0}]
             })
 
+        domains = "%(generic_domain)s %(custom)s" % {
+            'generic_domain': self.get_generic_domain(),
+            'custom': self.domain_urls
+        }
+
         service_labels = {
-            "domain": "{}.127.0.0.1.xip.io".format(self.app_id),
+            "domain": domains.strip(),
         }
 
         app_data = {
@@ -60,3 +67,9 @@ class DockerController(Controller):
             'marathon_health_check_path': self.marathon_health_check_path
         })
         return data
+
+    def get_generic_domain(self):
+        return '%(app_id)s.%(hub)s' % {
+            'app_id': self.app_id,
+            'hub': settings.HUB_DOMAIN
+        }
