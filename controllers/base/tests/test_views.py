@@ -181,6 +181,8 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.client.login(username='testuser2', password='test')
 
+        self.client.post(
+            reverse('user_settings'), {'settings_level': 'expert'})
         resp = self.client.get(reverse('home'))
         self.assertContains(resp, 'Basic')
         self.assertContains(resp, 'Docker')

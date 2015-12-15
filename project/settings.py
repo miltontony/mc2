@@ -95,8 +95,8 @@ SECRET_KEY = 'please-change-me'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
+    'django.template.loaders.filesystem.Loader',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (
@@ -111,7 +111,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
     'ws4redis.context_processors.default',
-    'organizations.context_processors.org'
+    'organizations.context_processors.org',
+    'unicoremc.context_processors.default_forms'
 )
 
 MIDDLEWARE_CLASSES = (
