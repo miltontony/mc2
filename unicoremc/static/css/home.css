@@ -101,6 +101,10 @@
     text-align: center;
 }
 
+.card-content-overlay.block{
+    display: block;
+}
+
 #overlay-title{
     /*z-index: 10;*/
 }
