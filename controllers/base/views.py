@@ -173,6 +173,7 @@ class ControllerDeleteView(ControllerViewMixin, View):
     def get(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
         try:
+            controller.delete()
             controller.marathon_destroy_app()
             messages.info(self.request, 'App deletion sent.')
         except exceptions.MarathonApiException:
