@@ -164,7 +164,7 @@ jQuery(document).ready(function($) {
     $(".app-delete-confirm-action").click(function (evt){
         var chosenOption = $(evt.target).closest(".app-delete-confirm-action").text().trim().toUpperCase();
         if(chosenOption == "YES") {
-            location.href = deleteLink;
+            $.post(deleteLink);
         }else if(chosenOption == "NO"){
             var parentTag = $(evt.target).closest(".card-content-overlay");
             if(parentTag.siblings().length > 0) {
