@@ -3,7 +3,6 @@ import responses
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-
 from controllers.base.tests.base import ControllerBaseTestCase
 from controllers.base.models import publish_to_websocket
 from controllers.docker.models import DockerController
@@ -25,6 +24,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             marathon_cmd='ping',
             docker_image='docker/image',
         )
+
+        custom_urls = "testing.com url.com"
+        controller.domain_urls += custom_urls
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -32,10 +34,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "instances": 1,
             "cmd": "ping",
             "labels": {
-                "domain": '%(app_id)s.%(hub)s' % {
-                    'app_id': controller.app_id,
-                    'hub': settings.HUB_DOMAIN
-                }
+                "domain": "{}.{} {}".format(controller.app_id,
+                                            settings.HUB_DOMAIN,
+                                            custom_urls)
             },
             "container": {
                 "type": "DOCKER",
@@ -57,10 +58,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "instances": 1,
             "cmd": "ping",
             "labels": {
-                "domain": '%(app_id)s.%(hub)s' % {
-                    'app_id': controller.app_id,
-                    'hub': settings.HUB_DOMAIN
-                }
+                "domain": "{}.{} {}".format(controller.app_id,
+                                            settings.HUB_DOMAIN,
+                                            custom_urls)
             },
             "container": {
                 "type": "DOCKER",
@@ -83,10 +83,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "instances": 1,
             "cmd": "ping",
             "labels": {
-                "domain": '%(app_id)s.%(hub)s' % {
-                    'app_id': controller.app_id,
-                    'hub': settings.HUB_DOMAIN
-                }
+                "domain": "{}.{} {}".format(controller.app_id,
+                                            settings.HUB_DOMAIN,
+                                            custom_urls)
             },
             "container": {
                 "type": "DOCKER",
