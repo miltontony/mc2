@@ -311,6 +311,9 @@ class HealthCheckView(ProjectViewMixin, ListView):
     template_name = 'unicoremc/health_check.html'
     permissions = ['unicoremc.change_project']
 
+    def get_queryset(self):
+        return self.get_projects_queryset(self.request)
+
 
 class AppEventSourceView(ProjectViewMixin, View):
     social_auth = 'google-oauth2'
