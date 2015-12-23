@@ -363,7 +363,9 @@ class ViewsTestCase(ControllerBaseTestCase):
             'state': 'done'})
         self.mock_delete_marathon_app(controller.app_id)
 
-        resp = self.client.get(reverse('base:delete', args=[controller.id]))
+        self.client.login(username='testuser2', password='test')
+
+        resp = self.client.post(reverse('base:delete', args=[controller.id]))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(len(responses.calls), 1)
 
@@ -377,7 +379,9 @@ class ViewsTestCase(ControllerBaseTestCase):
             'state': 'done'})
         self.mock_delete_marathon_app(controller.app_id, 404)
 
-        resp = self.client.get(reverse('base:delete', args=[controller.id]))
+        self.client.login(username='testuser2', password='test')
+
+        resp = self.client.post(reverse('base:delete', args=[controller.id]))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(len(responses.calls), 1)
 
