@@ -371,6 +371,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         resp = self.client.get(reverse('home'))
         self.assertContains(resp, 'App deletion sent.')
+        self.assertEquals(Controller.objects.all().count(), 0)
 
     @responses.activate
     def test_app_delete_error(self):
@@ -387,3 +388,4 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         resp = self.client.get(reverse('home'))
         self.assertContains(resp, 'Failed to delete app: ')
+        self.assertEquals(Controller.objects.all().count(), 1)
