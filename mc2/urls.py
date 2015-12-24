@@ -1,8 +1,12 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 from django.contrib.auth.decorators import login_required
 from django.views.generic.base import TemplateView
+from django.contrib import admin
 
 from mc2 import views
+
+admin.autodiscover()
+
 
 urlpatterns = patterns(
     '',
@@ -26,4 +30,13 @@ urlpatterns = patterns(
         login_required(views.UserSettingsView.as_view()),
         name='user_settings'
     ),
+    url(r'^', include('mc2.controllers.urls')),
+    url(
+        r'^organizations/',
+        include('mc2.organizations.urls', namespace='organizations')),
+    url(r'^grappelli/', include('grappelli.urls')),
+    url(r'^admin/', include(admin.site.urls)),
+    url(
+        r'^social/',
+        include('social.apps.django_app.urls', namespace='social')),
 )
