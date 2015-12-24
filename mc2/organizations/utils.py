@@ -4,7 +4,7 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.views import redirect_to_login
 from django.utils.decorators import available_attrs
 
-from organizations.models import Organization, ORGANIZATION_SESSION_KEY
+from mc2.organizations.models import Organization, ORGANIZATION_SESSION_KEY
 
 
 def active_organization(request):

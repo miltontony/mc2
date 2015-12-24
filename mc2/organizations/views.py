@@ -5,8 +5,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.utils.http import is_safe_url
 
-from organizations.models import Organization, ORGANIZATION_SESSION_KEY
-from organizations.forms import OrganizationFormHelper
+from mc2.organizations.models import Organization, ORGANIZATION_SESSION_KEY
+from mc2.organizations.forms import OrganizationFormHelper
 
 
 class OrganizationAdminMixin(View):

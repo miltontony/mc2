@@ -1,9 +1,9 @@
 from django.core.urlresolvers import reverse
 from django.utils.http import urlencode, urlquote
 
-from organizations.tests.base import OrganizationTestCase
-from organizations.models import ORGANIZATION_SESSION_KEY
-from organizations.forms import OrganizationFormHelper
+from mc2.organizations.tests.base import OrganizationTestCase
+from mc2.organizations.models import ORGANIZATION_SESSION_KEY
+from mc2.organizations.forms import OrganizationFormHelper
 
 
 class TestViews(OrganizationTestCase):

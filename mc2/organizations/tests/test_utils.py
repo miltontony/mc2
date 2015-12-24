@@ -4,10 +4,10 @@ from django.contrib.auth.models import AnonymousUser
 
 from mock import patch, Mock
 
-from organizations import context_processors
-from organizations.tests.base import OrganizationTestCase
-from organizations.utils import active_organization, org_permission_required
-from organizations.models import (
+from mc2.organizations import context_processors
+from mc2.organizations.tests.base import OrganizationTestCase
+from mc2.organizations.utils import active_organization, org_permission_required
+from mc2.organizations.models import (
     ORGANIZATION_SESSION_KEY, OrganizationUserRelation)
 
 

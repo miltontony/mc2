@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from organizations.models import Organization
+from mc2.organizations.models import Organization
 
 
 class OrganizationUserRelationInline(admin.StackedInline):

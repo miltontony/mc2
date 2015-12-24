@@ -1,5 +1,5 @@
-from organizations.tests.base import OrganizationTestCase
-from organizations.forms import OrganizationFormHelper
+from mc2.organizations.tests.base import OrganizationTestCase
+from mc2.organizations.forms import OrganizationFormHelper
 
 
 class TestForms(OrganizationTestCase):

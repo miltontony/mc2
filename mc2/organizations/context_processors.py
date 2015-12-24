@@ -1,5 +1,5 @@
-from organizations.models import Organization
-from organizations.utils import active_organization
+from mc2.organizations.models import Organization
+from mc2.organizations.utils import active_organization
 
 
 def org(request):

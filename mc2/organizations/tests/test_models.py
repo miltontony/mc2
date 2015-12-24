@@ -2,8 +2,8 @@ from django.contrib.auth.models import Group
 
 from mock import Mock
 
-from organizations.tests.base import OrganizationTestCase
-from organizations.models import Organization, OrganizationUserRelation
+from mc2.organizations.tests.base import OrganizationTestCase
+from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
 class TestOrganizationManager(OrganizationTestCase):

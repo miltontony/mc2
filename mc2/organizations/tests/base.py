@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, Permission
 
-from organizations.models import Organization, OrganizationUserRelation
+from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
 class OrganizationTestCase(TransactionTestCase):

@@ -11,7 +11,7 @@ from mc2.controllers.base.models import Controller, publish_to_websocket
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
 from mc2.controllers.base.views import AppEventSourceView
-from organizations.models import Organization, OrganizationUserRelation
+from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
 @pytest.mark.django_db

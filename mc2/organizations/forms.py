@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.forms.models import inlineformset_factory, modelform_factory
 from django.utils.translation import ugettext as _
 
-from organizations.models import Organization
+from mc2.organizations.models import Organization
 
 
 OrganizationForm = modelform_factory(Organization, fields=('name',))
