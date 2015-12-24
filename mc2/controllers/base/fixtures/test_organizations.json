@@ -1,7 +1,7 @@
 [
     {
         "pk": 1,
-        "model": "mc2.organizations.Organization",
+        "model": "organizations.Organization",
         "fields": {
             "name": "Foo Org",
             "slug": "foo-org"
@@ -9,7 +9,7 @@
     },
     {
         "pk": 1,
-        "model": "mc2.organizations.OrganizationUserRelation",
+        "model": "organizations.OrganizationUserRelation",
         "fields": {
             "user": 1,
             "organization": 1,
@@ -18,7 +18,7 @@
     },
     {
         "pk": 2,
-        "model": "mc2.organizations.OrganizationUserRelation",
+        "model": "organizations.OrganizationUserRelation",
         "fields": {
             "user": 2,
             "organization": 1,
