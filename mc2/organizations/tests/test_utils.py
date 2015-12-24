@@ -6,7 +6,8 @@ from mock import patch, Mock
 
 from mc2.organizations import context_processors
 from mc2.organizations.tests.base import OrganizationTestCase
-from mc2.organizations.utils import active_organization, org_permission_required
+from mc2.organizations.utils import active_organization
+from mc2.organizations.utils import org_permission_required
 from mc2.organizations.models import (
     ORGANIZATION_SESSION_KEY, OrganizationUserRelation)
 
@@ -41,7 +42,7 @@ class TestUtils(OrganizationTestCase):
         self.assertEqual(set(context['organizations']), set([organization]))
         self.assertTrue(context['is_active_organization_admin'])
 
-        with patch('organizations.context_processors.active_organization',
+        with patch('mc2.organizations.context_processors.active_organization',
                    return_value=None):
             context = context_processors.org(request)
             self.assertEqual(context['active_organization'], None)

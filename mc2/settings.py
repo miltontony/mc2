@@ -111,7 +111,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
     'ws4redis.context_processors.default',
-    'organizations.context_processors.org',
+    'mc2.organizations.context_processors.org',
     'mc2.context_processors.default_forms'
 )
 
