@@ -141,20 +141,45 @@ jQuery(document).ready(function($) {
         var parentTag = $(evt.target).closest(".card-content-overlay");
         if(parentTag.siblings().length > 0) {
             parentTag.animate({opacity: 0}, 400, "linear", function () {
-                $(this).css("z-index", "1");
-                $(this).siblings().css("z-index", "3");
-                $(this).css('opacity', '1');
+                swapZIndex(this);
             });
         }
     });
 
     $("#overlay-content").click(function(evt){
         $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
-            $(this).css("z-index", "2");
-            $(this).siblings().css("z-index", "3");
-            $(this).css('opacity', '1');
+            swapZIndex(this);
         });
-    })
+    });
+
+    var deleteLink = "";
+    $(".app-delete-action").click(function (evt){
+        deleteLink = $(evt.target).closest("a").attr('href');
+        $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
+            swapZIndex(this);
+        });
+        return false;
+    });
+
+    $(".app-delete-confirm-action").click(function (evt){
+        var chosenOption = $(evt.target).closest(".app-delete-confirm-action").text().trim().toUpperCase();
+        if(chosenOption == "YES") {
+            $.post(deleteLink);
+        }else if(chosenOption == "NO"){
+            var parentTag = $(evt.target).closest(".card-content-overlay");
+            if(parentTag.siblings().length > 0) {
+                parentTag.animate({opacity: 0}, 400, "linear", function () {
+                    swapZIndex(this);
+                });
+            }
+        }
+    });
+
+    function swapZIndex(cardOverlay){
+        $(cardOverlay).css("z-index", "2");
+        $(cardOverlay).siblings().css("z-index", "3");
+        $(cardOverlay).css('opacity', '1');
+    }
 });
 </script>
 {% endblock %}

@@ -1,6 +1,5 @@
 import json
 import os.path
-
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseNotFound
@@ -11,13 +10,10 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
-
 from organizations.utils import org_permission_required, active_organization
-
 from controllers.base.models import Controller
 from controllers.base.forms import ControllerForm
 from controllers.base import exceptions
-
 from unicoremc import tasks
 
 
@@ -131,7 +127,6 @@ class AppLogView(ControllerViewMixin, TemplateView):
 
 
 class AppEventSourceView(ControllerViewMixin, View):
-
     def get(self, request, controller_pk, task_id, path):
         controller = get_object_or_404(
             self.get_controllers_queryset(request),
@@ -168,16 +163,20 @@ class ControllerRestartView(ControllerViewMixin, View):
 
 
 class ControllerDeleteView(ControllerViewMixin, View):
+    permissions = ['base.change_controller']
+
     # TODO: Check user permissions
 
-    def get(self, request, controller_pk):
+    def post(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
         try:
             controller.marathon_destroy_app()
+            controller.delete()
             messages.info(self.request, 'App deletion sent.')
         except exceptions.MarathonApiException:
             messages.error(
-                self.request, 'Failed to delete app: %(id)s. Please try again.'
-                              % {'id': controller.name}
+                self.request,
+                'Failed to delete app: %(id)s. Please try again.'
+                % {'id': controller.name}
             )
         return redirect('home')

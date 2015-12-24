@@ -363,12 +363,15 @@ class ViewsTestCase(ControllerBaseTestCase):
             'state': 'done'})
         self.mock_delete_marathon_app(controller.app_id)
 
-        resp = self.client.get(reverse('base:delete', args=[controller.id]))
+        self.client.login(username='testuser2', password='test')
+
+        resp = self.client.post(reverse('base:delete', args=[controller.id]))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
         self.assertContains(resp, 'App deletion sent.')
+        self.assertEquals(Controller.objects.all().count(), 0)
 
     @responses.activate
     def test_app_delete_error(self):
@@ -377,9 +380,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'state': 'done'})
         self.mock_delete_marathon_app(controller.app_id, 404)
 
-        resp = self.client.get(reverse('base:delete', args=[controller.id]))
+        self.client.login(username='testuser2', password='test')
+
+        resp = self.client.post(reverse('base:delete', args=[controller.id]))
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
         self.assertContains(resp, 'Failed to delete app: ')
+        self.assertEquals(Controller.objects.all().count(), 1)
