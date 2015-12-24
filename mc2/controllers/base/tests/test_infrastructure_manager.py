@@ -4,11 +4,11 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from django.db.models.signals import post_save
 
-from controllers.base.managers.infrastructure import (
+from mc2.controllers.base.managers.infrastructure import (
     GeneralInfrastructureManager, InfrastructureError)
-from controllers.base.models import Controller, publish_to_websocket
+from mc2.controllers.base.models import Controller, publish_to_websocket
 
-from controllers.base.tests.utils import setup_responses_for_logdriver
+from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
 
 
 class GeneralInfrastructureManagerTest(TestCase):

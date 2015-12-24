@@ -1,4 +1,4 @@
-from unicoremc.forms import UserSettingsForm
+from mc2.forms import UserSettingsForm
 
 
 def default_forms(request):

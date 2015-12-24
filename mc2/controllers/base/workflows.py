@@ -1,5 +1,5 @@
 from ostinato.statemachine import StateMachine
-from controllers.base.states import Initial, Done, Destroyed, Missing
+from mc2.controllers.base.states import Initial, Done, Destroyed, Missing
 
 
 class Workflow(StateMachine):

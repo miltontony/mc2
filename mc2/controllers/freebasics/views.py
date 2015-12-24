@@ -1,5 +1,5 @@
-from controllers.base.views import ControllerCreateView, ControllerEditView
-from controllers.freebasics.forms import FreeBasicsControllerForm
+from mc2.controllers.base.views import ControllerCreateView, ControllerEditView
+from mc2.controllers.freebasics.forms import FreeBasicsControllerForm
 
 
 class FreeBasicsControllerCreateView(ControllerCreateView):

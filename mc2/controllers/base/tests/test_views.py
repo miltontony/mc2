@@ -7,10 +7,10 @@ from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-from controllers.base.models import Controller, publish_to_websocket
-from controllers.base.tests.base import ControllerBaseTestCase
-from controllers.base.tests.utils import setup_responses_for_logdriver
-from controllers.base.views import AppEventSourceView
+from mc2.controllers.base.models import Controller, publish_to_websocket
+from mc2.controllers.base.tests.base import ControllerBaseTestCase
+from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
+from mc2.controllers.base.views import AppEventSourceView
 from organizations.models import Organization, OrganizationUserRelation
 
 

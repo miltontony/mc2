@@ -1,13 +1,13 @@
 import pytest
 import responses
-from controllers.freebasics.models import FreeBasicsController
+from mc2.controllers.freebasics.models import FreeBasicsController
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
-from controllers.base.models import Controller, publish_to_websocket
-from controllers.base.tests.base import ControllerBaseTestCase
-from controllers.docker.models import DockerController
+from mc2.controllers.base.models import Controller, publish_to_websocket
+from mc2.controllers.base.tests.base import ControllerBaseTestCase
+from mc2.controllers.docker.models import DockerController
 
 
 # Unknowm controller for testing the template tag default

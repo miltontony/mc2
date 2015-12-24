@@ -1,6 +1,6 @@
 from django import forms
 
-from unicoremc.models import UserSettings
+from mc2.models import UserSettings
 
 
 class UserSettingsForm(forms.ModelForm):

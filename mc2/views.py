@@ -1,12 +1,12 @@
 from django.views.generic import ListView, UpdateView
 
-from controllers.base.views import ControllerViewMixin
-from unicoremc.models import UserSettings
-from unicoremc.forms import UserSettingsForm
+from mc2.controllers.base.views import ControllerViewMixin
+from mc2.models import UserSettings
+from mc2.forms import UserSettingsForm
 
 
 class HomepageView(ControllerViewMixin, ListView):
-    template_name = 'unicoremc/home.html'
+    template_name = 'mc2/home.html'
 
     def get_queryset(self):
         return self.get_controllers_queryset(self.request)

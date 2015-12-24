@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from controllers.docker import views
+from mc2.controllers.docker import views
 
 
 urlpatterns = patterns(

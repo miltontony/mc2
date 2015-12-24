@@ -1,5 +1,5 @@
-from controllers.docker.forms import DockerControllerForm
-from controllers.freebasics.models import FreeBasicsController
+from mc2.controllers.docker.forms import DockerControllerForm
+from mc2.controllers.freebasics.models import FreeBasicsController
 from django import forms
 from django.forms.utils import ErrorList
 

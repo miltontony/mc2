@@ -1,5 +1,5 @@
-from controllers.base.views import ControllerCreateView, ControllerEditView
-from controllers.docker.forms import DockerControllerForm
+from mc2.controllers.base.views import ControllerCreateView, ControllerEditView
+from mc2.controllers.docker.forms import DockerControllerForm
 
 
 class DockerControllerCreateView(ControllerCreateView):

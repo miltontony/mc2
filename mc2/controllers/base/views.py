@@ -10,11 +10,12 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
-from organizations.utils import org_permission_required, active_organization
-from controllers.base.models import Controller
-from controllers.base.forms import ControllerForm
-from controllers.base import exceptions
-from unicoremc import tasks
+from mc2.organizations.utils import org_permission_required
+from mc2.organizations.utils import active_organization
+from mc2.controllers.base.models import Controller
+from mc2.controllers.base.forms import ControllerForm
+from mc2.controllers.base import exceptions
+from mc2 import tasks
 
 
 @login_required

@@ -4,7 +4,7 @@ import responses
 from django.test import TransactionTestCase
 from django.conf import settings
 
-from controllers.base.models import Controller
+from mc2.controllers.base.models import Controller
 
 
 class ControllerBaseTestCase(TransactionTestCase):

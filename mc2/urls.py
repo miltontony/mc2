@@ -2,7 +2,7 @@ from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required
 from django.views.generic.base import TemplateView
 
-from unicoremc import views
+from mc2 import views
 
 urlpatterns = patterns(
     '',
@@ -13,7 +13,7 @@ urlpatterns = patterns(
     ),
     url(
         r'^login/$',
-        TemplateView.as_view(template_name='unicoremc/login.html'),
+        TemplateView.as_view(template_name='mc2/login.html'),
         name='login'
     ),
     url(

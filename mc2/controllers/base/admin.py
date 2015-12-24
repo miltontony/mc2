@@ -7,7 +7,7 @@ from djcelery.models import (
 from django.contrib import admin
 from django.contrib.sites.models import Site
 
-from controllers.base.models import Controller
+from mc2.controllers.base.models import Controller
 
 
 class ControllerAdmin(admin.ModelAdmin):

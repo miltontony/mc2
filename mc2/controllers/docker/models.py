@@ -1,6 +1,6 @@
 from django.db import models
-from controllers.base.models import Controller
-from project import settings
+from mc2.controllers.base.models import Controller
+from django.conf import settings
 
 
 class DockerController(Controller):

@@ -24,7 +24,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'unicoremc.db',
+        'NAME': 'mc2.db',
     }
 }
 
@@ -112,7 +112,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'social.apps.django_app.context_processors.login_redirect',
     'ws4redis.context_processors.default',
     'organizations.context_processors.org',
-    'unicoremc.context_processors.default_forms'
+    'mc2.context_processors.default_forms'
 )
 
 MIDDLEWARE_CLASSES = (
@@ -136,7 +136,7 @@ LOGIN_REDIRECT_URL = '/'
 FIELDS_STORED_IN_SESSION = ['access_token', ]
 
 
-ROOT_URLCONF = 'project.urls'
+ROOT_URLCONF = 'mc2.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'ws4redis.django_runserver.application'
@@ -164,12 +164,12 @@ INSTALLED_APPS = (
     'debug_toolbar',
 
     'social.apps.django_app.default',
-    'unicoremc',
-    'organizations',
-    'controllers',
-    'controllers.base',
-    'controllers.docker',
-    'controllers.freebasics',
+    'mc2',
+    'mc2.organizations',
+    'mc2.controllers',
+    'mc2.controllers.base',
+    'mc2.controllers.docker',
+    'mc2.controllers.freebasics',
     'ws4redis',
     'compressor',
     'django_gravatar',
@@ -231,7 +231,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ALWAYS_EAGER = DEBUG
 
 # Tell Celery where to find the tasks
-CELERY_IMPORTS = ('unicoremc.tasks', )
+CELERY_IMPORTS = ('mc2.tasks', )
 
 # Defer email sending to Celery, except if we're in debug mode,
 # then just print the emails to stdout for debugging.
@@ -292,7 +292,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_uid',
     'social.pipeline.social_auth.auth_allowed',
     'social.pipeline.social_auth.social_user',
-    'unicoremc.socialauth_pipelines.redirect_if_no_refresh_token',
+    'mc2.socialauth_pipelines.redirect_if_no_refresh_token',
     'social.pipeline.user.get_username',
     'social.pipeline.social_auth.associate_by_email',
     'social.pipeline.user.create_user',
@@ -332,6 +332,6 @@ MESOS_DEFAULT_INSTANCES = 1
 HUBCLIENT_SETTINGS = None
 
 try:
-    from project.local_settings import *
+    from mc2.local_settings import *
 except ImportError:
     pass

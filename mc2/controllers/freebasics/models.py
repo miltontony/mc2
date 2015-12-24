@@ -1,5 +1,5 @@
 from django.db import models
-from controllers.docker.models import DockerController
+from mc2.controllers.docker.models import DockerController
 
 
 class FreeBasicsController(DockerController):

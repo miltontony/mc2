@@ -1,9 +1,9 @@
-from project.settings import *
+from mc2.settings import *
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'unicore_mc.db',
+        'NAME': 'mc2_test.db',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',

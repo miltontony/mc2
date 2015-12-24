@@ -1,4 +1,4 @@
-from controllers.base.workflows import Workflow
+from mc2.controllers.base.workflows import Workflow
 
 
 class Builder(object):

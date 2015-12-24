@@ -1,6 +1,6 @@
 from django import forms
-from controllers.docker.models import DockerController
-from controllers.base.forms import ControllerForm
+from mc2.controllers.docker.models import DockerController
+from mc2.controllers.base.forms import ControllerForm
 
 
 class DockerControllerForm(ControllerForm):

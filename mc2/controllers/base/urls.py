@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from controllers.base import views
+from mc2.controllers.base import views
 
 
 urlpatterns = patterns(

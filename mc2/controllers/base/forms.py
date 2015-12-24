@@ -1,5 +1,5 @@
 from django import forms
-from controllers.base.models import Controller
+from mc2.controllers.base.models import Controller
 
 
 class ControllerForm(forms.ModelForm):

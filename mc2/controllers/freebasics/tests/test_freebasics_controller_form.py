@@ -1,8 +1,8 @@
 import pytest
-from controllers.base.models import publish_to_websocket
-from controllers.base.tests.base import ControllerBaseTestCase
-from controllers.freebasics.forms import FreeBasicsControllerForm
-from controllers.freebasics.models import FreeBasicsController
+from mc2.controllers.base.models import publish_to_websocket
+from mc2.controllers.base.tests.base import ControllerBaseTestCase
+from mc2.controllers.freebasics.forms import FreeBasicsControllerForm
+from mc2.controllers.freebasics.models import FreeBasicsController
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.http import QueryDict

@@ -4,8 +4,8 @@ import responses
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
-from controllers.base.models import Controller, publish_to_websocket
-from controllers.base.tests.base import ControllerBaseTestCase
+from mc2.controllers.base.models import Controller, publish_to_websocket
+from mc2.controllers.base.tests.base import ControllerBaseTestCase
 
 
 @pytest.mark.django_db
