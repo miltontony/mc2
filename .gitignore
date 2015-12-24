@@ -40,11 +40,8 @@ htmlcov/
 logs/*.log
 *.pid
 *.db
-project/local_settings.py
-project/static/
-project/configs/
-project/.test_repo_dir/
-project/.test_config_dir/
+mc2/local_settings.py
+mc2/static/
 
 #Pycharm IDE files
 .idea/

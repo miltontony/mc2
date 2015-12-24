@@ -9,11 +9,17 @@ with open(os.path.join(here, 'README.rst')) as f:
 with open(os.path.join(here, 'requirements.txt')) as f:
     requires = filter(None, f.readlines())
 
+with open(os.path.join(here, 'requirements-dev.txt')) as f:
+    requires_dev = filter(None, f.readlines())
+
+with open(os.path.join(here, 'VERSION')) as f:
+    version = f.read().strip()
+
 setup(
     name='mc2',
-    version='2.0.0',
+    version=version,
     description=(
-        'Universal Core Mission Control - allows for easy launching'),
+        'Mission Control - allows for easy launching of sites on Marathon'),
     long_description=README,
     classifiers=[
         "Programming Language :: Python",
@@ -23,11 +29,11 @@ setup(
     ],
     author='Praekelt Foundation',
     author_email='dev@praekelt.com',
-    url='http://github.com/praekelt/unicore-mc',
+    url='http://github.com/praekelt/mc2',
     license='BSD',
     packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     install_requires=requires,
-    tests_require=requires,
+    tests_require=requires_dev,
 )

@@ -1,7 +1,7 @@
-Unicore Mission Control
-=======================
+Mission Control
+===============
 
-A project launcher for Universal Core
+A project launcher for Marathon
 
 Installation
 ------------
@@ -9,7 +9,7 @@ To install using a terminal::
 
     $ virtualenv ve
     $ source ve/bin/activate
-    (ve)$ pip install -e .
+    (ve)$ pip install mc2
     $ ./manage.py migrate --noinput
 
 Running
