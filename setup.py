@@ -19,7 +19,7 @@ setup(
     name='mc2',
     version=version,
     description=(
-        'Mission Control - allows for easy launching of sites on Marathon'),
+        'Mission Control - allows for easy launching of apps on Marathon'),
     long_description=README,
     classifiers=[
         "Programming Language :: Python",
