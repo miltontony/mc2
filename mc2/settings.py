@@ -330,8 +330,3 @@ MESOS_DEFAULT_MEMORY_ALLOCATION = 128.0
 MESOS_DEFAULT_INSTANCES = 1
 
 HUBCLIENT_SETTINGS = None
-
-try:
-    from mc2.local_settings import *
-except ImportError:
-    pass
