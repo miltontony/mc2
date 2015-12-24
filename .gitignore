@@ -41,7 +41,6 @@ logs/*.log
 *.pid
 *.db
 mc2/local_settings.py
-mc2/static/
 
 #Pycharm IDE files
 .idea/
