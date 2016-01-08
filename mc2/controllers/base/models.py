@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from polymorphic import PolymorphicModel
+from polymorphic.models import PolymorphicModel
 
 from mc2.controllers.base import exceptions, namers
 from mc2.controllers.base.builders import Builder

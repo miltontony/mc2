@@ -23,6 +23,6 @@ pycountry==1.10
 django-redis-cache
 django-websocket-redis
 gunicorn
-django-polymorphic
+django-polymorphic==0.8.1
 django_compressor
 django-gravatar2
