@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% load i18n grp_tags admin_static  %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static "mc2/css/custom.css" %}" />
+{% endblock %}
+
+{% block admin_title %}<h1 id="grp-admin-title">Mission Control</h1>{% endblock %}
+
+{% block messages %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+    (function($) {
+        $(document).ready(function() {
+            //javascript goes here
+        });
+    })(grp.jQuery);
+    </script>
+{% endblock %}

@@ -1,7 +1,7 @@
-Unicore Mission Control
-=======================
+Mission Control
+===============
 
-A project launcher for Universal Core
+A project launcher for Marathon
 
 Installation
 ------------
@@ -9,8 +9,8 @@ To install using a terminal::
 
     $ virtualenv ve
     $ source ve/bin/activate
-    (ve)$ pip install -e .
-    $ ./manage.py migrate --noinput
+    (ve)$ pip install mc2
+    (ve)$ ve/bin/django-admin migrate --noinput
 
 Running
 -------
@@ -20,11 +20,11 @@ steps one needs to complete in order to get a working system:
 
 Create a super user::
 
-    $ ./manage.py createsuperuser
+    (ve)$ ve/bin/django-admin createsuperuser
 
 Start the application on local address ``127.0.0.1:8000``::
 
-    $ ./manage.py runserver
+    (ve)$ ve/bin/django-admin runserver
 
 OAuth works with HTTP based callbacks & token exchange, for this to work our
 local server needs to be reachable on the Internet. Ngrok_ is a great utility
@@ -51,6 +51,8 @@ complete the OAuth setup:
 
 .. image:: http://note.io/1Aq99U8
     :align: center
+
+TODO: update section on ``local_settings.py``
 
 Next create a ``local_settings.py`` file in the ``project`` directory
 with the following:

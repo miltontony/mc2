@@ -6,13 +6,12 @@ language: python
 python:
   - "2.7"
 install:
-  - pip install --upgrade pip
-  - pip install coveralls
-  - pip install "Django<1.9,>=1.8"
-  - pip install -r requirements-dev.txt --download-cache $HOME/.cache/pip
-  - pip install -r requirements.txt --download-cache $HOME/.cache/pip
-  - pip install -e . --download-cache $HOME/.cache/pip
-  - pip install coveralls --download-cache $HOME/.cache/pip
+  - pip install --upgrade pip --cache-dir $HOME/.pip-cache/
+  - pip install coveralls --cache-dir $HOME/.pip-cache/
+  - pip install "Django >=1.8,<1.9" --cache-dir $HOME/.pip-cache/
+  - pip install -r requirements-dev.txt --cache-dir $HOME/.pip-cache/
+  - pip install -r requirements.txt --cache-dir $HOME/.pip-cache/
+  - pip install -e . --cache-dir $HOME/.pip-cache/
 script:
   - flake8
   - py.test
