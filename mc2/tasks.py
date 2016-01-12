@@ -1,7 +1,7 @@
-from celery import task
+from mc2 import celery_app
 
 
-@task(serializer='json')
+@celery_app.task(serializer='json')
 def start_new_controller(project_id):
     from mc2.controllers.base.models import Controller
 
