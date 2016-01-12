@@ -16,7 +16,7 @@ with open(os.path.join(here, 'VERSION')) as f:
     version = f.read().strip()
 
 setup(
-    name='mc2',
+    name='mission-control2',
     version=version,
     description=(
         'Mission Control - allows for easy launching of apps on Marathon'),
