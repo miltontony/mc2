@@ -1,3 +1,1 @@
-from .celery import app as celery_app
-
-celery_app
+from .celery_app import app as the_celery_app  # noqa
