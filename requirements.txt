@@ -4,7 +4,7 @@ python-memcached
 raven==5.0.0
 nose
 django-nose
-django-celery
+Celery
 psycopg2
 redis
 django-debug-toolbar<1.4
