@@ -1,16 +1,43 @@
 # Django settings for skeleton project.
 
-import os
+from os.path import abspath, dirname, join
 import djcelery
 
 djcelery.setup_loader()
 
-PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+# Environment Variables
+from os import environ
+SECRET_KEY = environ.get('SECRET_KEY') or 'please-change-me'
+PROJECT_ROOT = (
+    environ.get('PROJECT_ROOT') or dirname(dirname(abspath(__file__))))
+MESOS_DEFAULT_MEMORY_ALLOCATION = (
+    environ.get('MESOS_DEFAULT_MEMORY_ALLOCATION') or 128.0)
+MESOS_MARATHON_HOST = (
+    environ.get('MESOS_MARATHON_HOST') or 'http://localhost:8080')
+MESOS_HTTP_PORT = environ.get('MESOS_HTTP_PORT') or 5051
+MESOS_DEFAULT_CPU_SHARE = environ.get('MESOS_DEFAULT_CPU_SHARE') or 0.1
+MESOS_DEFAULT_INSTANCES = environ.get('MESOS_DEFAULT_INSTANCES') or 1
+
+# Configured at Nginx for internal redirect
+LOGDRIVER_PATH = (
+    environ.get('LOGDRIVER_PATH') or '/logdriver/')
+LOGDRIVER_BACKLOG = (
+    environ.get('LOGDRIVER_BACKLOG') or 0)
+
+# Sentry configuration
+RAVEN_DSN = environ.get('RAVEN_DSN')
+RAVEN_CONFIG = {'dsn': RAVEN_DSN} if RAVEN_DSN else {}
+
+# Social Auth
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
+    environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY') or '')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
+    environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET') or '')
 
 
 def abspath(*args):
     """convert relative paths to absolute paths relative to PROJECT_ROOT"""
-    return os.path.join(PROJECT_ROOT, *args)
+    return join(PROJECT_ROOT, *args)
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -88,10 +115,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'compressor.finders.CompressorFinder',
 )
-
-# Make this unique, and don't share it with anybody.
-# Leaving this intentionally blank because you have to generate one yourself.
-SECRET_KEY = 'please-change-me'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -214,7 +237,7 @@ CACHES = {
     }
 }
 
-GRAPPELLI_ADMIN_TITLE = 'UC Mission Control'
+GRAPPELLI_ADMIN_TITLE = 'Mission Control'
 
 WS4REDIS_EXPIRE = 1
 WEBSOCKET_URL = '/ws/'
@@ -246,11 +269,31 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-# Sentry configuration
-RAVEN_CONFIG = {
-    # DevOps will supply you with this.
-    # 'dsn': 'http://public:secret@example.com/1',
+SOCIAL_AUTH_SESSION_EXPIRATION = True
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
+    'https://www.googleapis.com/auth/analytics.edit',
+    'https://www.googleapis.com/auth/analytics.provision']
+SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
+    'access_type': 'offline',
+    'approval_prompt': 'auto'
 }
+
+SOCIAL_AUTH_PIPELINE = (
+    'social.pipeline.social_auth.social_details',
+    'social.pipeline.social_auth.social_uid',
+    'social.pipeline.social_auth.auth_allowed',
+    'social.pipeline.social_auth.social_user',
+    'mc2.socialauth_pipelines.redirect_if_no_refresh_token',
+    'social.pipeline.user.get_username',
+    'social.pipeline.social_auth.associate_by_email',
+    'social.pipeline.user.create_user',
+    'social.pipeline.social_auth.associate_user',
+    'social.pipeline.social_auth.load_extra_data',
+    'social.pipeline.user.user_details'
+)
+
+# Unicore Settings (not currently in use)
+# ---------------------------------------
 
 # Used to distinguish between QA and PROD in naming
 DEPLOY_ENVIRONMENT = 'qa'
@@ -276,31 +319,6 @@ UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
 UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
 UNICORE_CONFIGS_INSTALL_DIR = '/path/to/unicore-configs'
 
-SOCIAL_AUTH_SESSION_EXPIRATION = True
-SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
-    'https://www.googleapis.com/auth/analytics.edit',
-    'https://www.googleapis.com/auth/analytics.provision']
-SOCIAL_AUTH_GOOGLE_OAUTH2_AUTH_EXTRA_ARGUMENTS = {
-    'access_type': 'offline',
-    'approval_prompt': 'auto'
-}
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
-
-SOCIAL_AUTH_PIPELINE = (
-    'social.pipeline.social_auth.social_details',
-    'social.pipeline.social_auth.social_uid',
-    'social.pipeline.social_auth.auth_allowed',
-    'social.pipeline.social_auth.social_user',
-    'mc2.socialauth_pipelines.redirect_if_no_refresh_token',
-    'social.pipeline.user.get_username',
-    'social.pipeline.social_auth.associate_by_email',
-    'social.pipeline.user.create_user',
-    'social.pipeline.social_auth.associate_user',
-    'social.pipeline.social_auth.load_extra_data',
-    'social.pipeline.user.user_details'
-)
-
 GITHUB_API = 'https://api.github.com/orgs/universalcore/'
 GITHUB_HOOKS_API = 'https://api.github.com/repos/universalcore/%(repo)s/hooks'
 GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
@@ -318,15 +336,5 @@ THUMBOR_SECURITY_KEY = ''
 ELASTICSEARCH_HOST = 'http://localhost:9200'
 UNICORE_DISTRIBUTE_HOST = 'http://localhost:6543'
 SERVICE_HOST_IP = '127.0.0.1'
-
-# Configured at Nginx for internal redirect
-LOGDRIVER_PATH = '/logdriver/'
-LOGDRIVER_BACKLOG = 0
-
-MESOS_HTTP_PORT = 5051
-MESOS_MARATHON_HOST = 'http://localhost:8080'
-MESOS_DEFAULT_CPU_SHARE = 0.1
-MESOS_DEFAULT_MEMORY_ALLOCATION = 128.0
-MESOS_DEFAULT_INSTANCES = 1
 
 HUBCLIENT_SETTINGS = None
