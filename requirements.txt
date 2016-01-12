@@ -2,9 +2,9 @@ Django<1.9,>=1.8
 dj-database-url==0.3.0
 python-memcached
 raven==5.0.0
+celery==3.1.19
 nose
 django-nose
-Celery
 psycopg2
 redis
 django-debug-toolbar<1.4
