@@ -48,12 +48,11 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+import dj_database_url
+# Use `DATABASE_URL` environment variable to specify the database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mc2.db',
-    }
-}
+    'default': dj_database_url.config(
+        default='sqlite:///%s' % (join(PROJECT_ROOT, 'mc2.db'),))}
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts

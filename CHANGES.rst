@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.0.1
+-----
+- make settings variables configurable via ENV
+
 3.0.0
 -----
 - release as pip installable
