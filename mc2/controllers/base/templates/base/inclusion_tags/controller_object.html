@@ -1,0 +1,64 @@
+<!-- Custom Tabs -->
+<div class="col-xs-2 nav-tabs-custom main card application-card"
+     id="{{ controller.id }}"
+     name="{{ controller.name }}"
+     state="{{ controller.state }}"
+     appid="{{ controller.app_id }}">
+    <div class="card-content application-card">
+        <div id="confirm-delete" class="card-content-overlay block">
+            <div class="center-text">
+                <h3>Are you sure?</h3>
+                <hr/>
+                <div class="application-item-box bg-green app-delete-confirm-action">
+                    <div class="info-box-icon icon-small"><i class="fa fa-check"></i></div>
+                    Yes
+                </div>
+                <div class="application-item-box bg-red app-delete-confirm-action">
+                    <div class="info-box-icon icon-small"><i class="fa fa-times"></i></div>
+                    No
+                </div>
+            </div>
+        </div>
+        <div class="card-content-overlay block">
+            <div class="application-card-title">
+                {{ controller.name|capfirst }}
+            </div>
+            <div class="application-actions">
+                <div class="application-item-box bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">
+                    <div class="info-box-icon icon-small"><i class="fa fa-plus-square"></i></div>
+                    Status
+                </div>
+
+                <div class="application-item-box bg-blue">
+                    <div class="info-box-icon icon-small">
+                        {% block container_icon %}
+                            {% load staticfiles %}
+                            {% with "img/basic-container-vector.png" as icon_src %}
+                                <img class="icon-container-base" src="{% static icon_src %}"/>
+                            {% endwith %}
+                        {% endblock %}
+                    </div>
+                    Container
+                </div>
+
+                <div class="application-item-box bg-blue">
+                    {% block edit_action %}
+                        <a class="link" href="{% url 'base:edit' controller.id %}">
+                            <span><i class="fa fa-gears info-box-icon icon-small"></i></span>
+                            Edit
+                        </a>
+                    {% endblock %}
+                </div>
+
+                <div class="application-item-box link delete bg-blue app-delete-action">
+                    {% block delete_action %}
+                        <a class="link" href="{% url 'base:delete' controller.id %}">
+                            <span><i class="fa fa-trash-o info-box-icon icon-small"></i></span>
+                            Delete
+                        </a>
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

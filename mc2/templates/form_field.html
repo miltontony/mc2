@@ -1,0 +1,10 @@
+{% if field.is_hidden %}
+{{ field }}
+{% else %}
+<div class="form-group{% if field.errors|length > 0 %} error{% endif %}">
+  <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+  {{ field }}
+  {% if field.help_text %}<p class="help-block">{{ field.help_text }}</p>{% endif %}
+  {% include "form_errors.html" with errors=field.errors %}
+</div>
+{% endif %}

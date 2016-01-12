@@ -1,0 +1,14 @@
+{% extends 'base/inclusion_tags/controller_object.html' %}
+{% block container_icon%}
+    {% load staticfiles %}
+    {% with "img/freebasics-container-vector.png" as icon_src %}
+        <img class="icon-container-freebasics" src="{% static icon_src %}"/>
+    {% endwith %}
+{% endblock %}
+
+{% block edit_action %}
+    <a class="link" href="{% url 'controllers.freebasics:edit' controller.id %}">
+        <span><i class="fa fa-gears info-box-icon icon-small"></i></span>
+        Edit
+    </a>
+{% endblock %}

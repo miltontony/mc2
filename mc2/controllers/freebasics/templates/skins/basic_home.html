@@ -1,0 +1,167 @@
+{% extends "skins/_home.html" %}
+
+{% load i18n controller_base_tags mc2_tags static %}
+
+{% block title %}Mission Control - Free Basics{% endblock %}
+
+{% block page_header_title %}<h1>Home</h1>{% endblock %}
+
+{% block search %}{% endblock %}
+
+{% block content %}
+
+<div id="mc-overview">
+    <div class="mc-overview-item apps">
+        <span><i class="fa fa-play"></i></span>
+        Running Applications &ndash; {{ controller_list.count }}/Unlimited
+    </div>
+    <div class="mc-overview-item hosting">
+            <span><i class="fa fa-dollar"></i></span>
+        Hosting Costs &ndash; ${{controller_list.count|multiply:25}}
+    </div>
+</div>
+<div class="container" id="projects_progress">
+    <div class="row">
+        <div class="nav-tabs-custom main col-xs-2 card new-site">
+            <div class="card-content new-site">
+                <div id="overlay-content" class="card-content-overlay">
+                    {% if user.is_superuser %}
+                        <div>
+                            <h4>Choose app type</h4>
+                            <hr/>
+                            <a href="{% url 'base:add' %}" class="btn btn-primary">Basic</a>
+                            <a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Docker</a>
+                            <a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">
+                                <span class="free-basics"><i>&ensp;&ensp;&ensp;&ensp;</i></span>Free Basics
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="center-text">
+                            <a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">
+                                <span class="free-basics"><i>&ensp;&ensp;&ensp;&ensp;</i></span>Free Basics
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+                <div id="overlay-title" class="card-content-overlay">
+                    <div class="center-text">
+                        <h1>Create an app</h1>
+                        <hr/>
+                        <h3>Setup and create a new app</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="nav-tabs-custom main col-xs-2 card hosting">
+            Hosting
+        </div>
+    </div>
+    <div class="row">
+        <h3 class="title-text">Manage your applications</h3>
+    </div>
+    <div class="row" id="result_list">
+        {% for controller in controller_list %}
+        {% render_controller controller %}
+        {% endfor %}
+    </div>
+      <!-- /.info-box-content -->
+    </div>
+    <!-- /.info-box -->
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script src="{% static 'js/ws4redis.min.js' %}"></script>
+<script type="text/javascript">
+
+jQuery(document).ready(function($) {
+    var ws4redis = WS4Redis({
+        uri: '{{ WEBSOCKET_URI }}progress?subscribe-broadcast',
+        receive_message: receiveMessage,
+        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
+    });
+
+    // receive a message though the websocket from the server
+    function receiveMessage(msg) {
+      var data = JSON.parse(msg);
+      if (data.is_created && document.getElementById(data.id) == null){
+        //reload page when new project added
+        window.location.reload();
+        return
+      }
+
+      $('#'+data.id).attr('class', 'main '+ data.state);
+      $('#'+data.id+' .state').html(data.state_display);
+    }
+
+    $("#result_list .main")
+    .on("mouseenter", function(){
+      $(this).addClass("info-hint");
+    })
+    .on("mouseleave", function(){
+      $(this).removeClass("info-hint");
+    })
+    .on("click", function(e){
+      if(!$(e.target).is("a")){
+        $(this).find(".additional-info").toggle(400);
+      }
+    });
+
+    $('#filter').keyup(function(){
+        var valThis = $(this).val().toLowerCase().split(" ");
+        $('#result_list .main').each(function(){
+            var text = $(this).attr('name') + ' ' +
+                       $(this).attr('appid') + ' ' +
+                       $(this).attr('state');
+            valThis.every(function(a){return text.toLowerCase().indexOf(a) != -1}) ? $(this).show() : $(this).hide();
+        });
+        $("#results_count").html($('#result_list .main:visible').length);
+    });
+
+    $("#overlay-title").click(function(evt){
+        var parentTag = $(evt.target).closest(".card-content-overlay");
+        if(parentTag.siblings().length > 0) {
+            parentTag.animate({opacity: 0}, 400, "linear", function () {
+                swapZIndex(this);
+            });
+        }
+    });
+
+    $("#overlay-content").click(function(evt){
+        $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
+            swapZIndex(this);
+        });
+    });
+
+    var deleteLink = "";
+    $(".app-delete-action").click(function (evt){
+        deleteLink = $(evt.target).closest("a").attr('href');
+        $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
+            swapZIndex(this);
+        });
+        return false;
+    });
+
+    $(".app-delete-confirm-action").click(function (evt){
+        var chosenOption = $(evt.target).closest(".app-delete-confirm-action").text().trim().toUpperCase();
+        if(chosenOption == "YES") {
+            location.href = deleteLink;
+        }else if(chosenOption == "NO"){
+            var parentTag = $(evt.target).closest(".card-content-overlay");
+            if(parentTag.siblings().length > 0) {
+                parentTag.animate({opacity: 0}, 400, "linear", function () {
+                    swapZIndex(this);
+                });
+            }
+        }
+    });
+
+    function swapZIndex(cardOverlay){
+        $(cardOverlay).css("z-index", "2");
+        $(cardOverlay).siblings().css("z-index", "3");
+        $(cardOverlay).css('opacity', '1');
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,6 @@
+pytest
+pytest-django
+pytest-cov
+pytest-xdist
+responses
+flake8
