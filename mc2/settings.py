@@ -1,9 +1,10 @@
 # Django settings for skeleton project.
 
 from os.path import abspath, dirname, join
+from os import environ
+import dj_database_url
 
 # Environment Variables
-from os import environ
 SECRET_KEY = environ.get('SECRET_KEY') or 'please-change-me'
 PROJECT_ROOT = (
     environ.get('PROJECT_ROOT') or dirname(dirname(abspath(__file__))))
@@ -45,7 +46,6 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
-import dj_database_url
 # Use `DATABASE_URL` environment variable to specify the database
 DATABASES = {
     'default': dj_database_url.config(
