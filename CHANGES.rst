@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.0.2
+-----
+- update celery to be inline with 3.1.19
+
 3.0.1
 -----
 - make settings variables configurable via ENV

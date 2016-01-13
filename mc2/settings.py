@@ -1,9 +1,6 @@
 # Django settings for skeleton project.
 
 from os.path import abspath, dirname, join
-import djcelery
-
-djcelery.setup_loader()
 
 # Environment Variables
 from os import environ
@@ -182,7 +179,6 @@ INSTALLED_APPS = (
     'redis_cache',
     'django_nose',
     'raven.contrib.django.raven_compat',
-    'djcelery',
     'debug_toolbar',
 
     'social.apps.django_app.default',
