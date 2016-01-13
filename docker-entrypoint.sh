@@ -35,6 +35,34 @@ serverurl=unix:///var/run/supervisor.sock ; use a unix:// URL  for a unix socket
 files = /etc/supervisor/conf.d/*.conf
 EOM
 
+echo "=> Creating nginx config"
+rm /etc/nginx/sites-enabled/default
+
+cat > /etc/nginx/sites-enabled/mc2.conf <<-EOM
+server {
+    listen 80;
+
+    # static
+    location ^~ /static/ {
+        alias /deploy/static/;
+        expires 31d;
+    }
+
+    # media
+    location ^~ /media/ {
+        alias /deploy/media/;
+        expires 31d;
+    }
+
+    location / {
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header Host \$http_host;
+        proxy_pass http://0.0.0.0:$APP_PORT_NUMBER;
+        keepalive_timeout 0;
+    }
+}
+EOM
+
 # Redis
 echo "=> Creating Redis supervisor config"
 cat > /etc/supervisor/conf.d/redis.conf <<-EOM
@@ -67,6 +95,9 @@ EOM
 
 echo "=> Starting Supervisord"
 supervisord -c /etc/supervisord.conf
+
+echo "=> Starting nginx"
+nginx; service nginx reload
 
 echo "=> Tailing logs"
 tail -qF /var/log/supervisor/*.log

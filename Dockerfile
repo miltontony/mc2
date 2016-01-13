@@ -1,11 +1,13 @@
 FROM python:2.7.10
 
 RUN apt-get update && apt-get install -y \
-	redis-server
+	redis-server nginx
+
+RUN service nginx start`
 
 ENV PROJECT_ROOT /deploy/
 ENV DJANGO_SETTINGS_MODULE mc2.settings
-ENV MC2_VERSION 3.0.4
+ENV MC2_VERSION 3.0.5
 
 WORKDIR /deploy/
 
@@ -20,5 +22,5 @@ RUN chmod +x /deploy/docker-entrypoint.sh
 RUN django-admin.py migrate
 RUN django-admin.py collectstatic --noinput
 
-EXPOSE 8000
+EXPOSE 80
 ENTRYPOINT ["/deploy/docker-entrypoint.sh", "mc2", "mc2.wsgi", "8000"]
