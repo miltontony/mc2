@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.0.3
+-----
+- fix E402 in latest flake8 version
+
 3.0.2
 -----
 - update celery to be inline with 3.1.19
