@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.0.x
+-----
+- Dockerize
+
 3.0.3
 -----
 - fix E402 in latest flake8 version
