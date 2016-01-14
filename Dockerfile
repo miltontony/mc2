@@ -3,7 +3,7 @@ FROM python:2.7.10
 RUN apt-get update && apt-get install -y \
 	redis-server nginx
 
-RUN service nginx start`
+RUN service nginx start
 
 ENV PROJECT_ROOT /deploy/
 ENV DJANGO_SETTINGS_MODULE mc2.settings
