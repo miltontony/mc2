@@ -2,11 +2,6 @@
 
 set -e
 
-SUPERVISOR_APP_NAME=$1
-APP_WSGI=$2
-APP_PORT_NUMBER=$3
-DJANGO_SETTINGS_MODULE="${APP_WSGI:0:${#APP_WSGI}-5}.settings"
-
 # Create main Supervisord config file
 echo "=> Creating supervisord config"
 
@@ -57,7 +52,7 @@ server {
     location / {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header Host \$http_host;
-        proxy_pass http://0.0.0.0:$APP_PORT_NUMBER;
+        proxy_pass http://0.0.0.0:8000;
         keepalive_timeout 0;
     }
 }
@@ -75,9 +70,9 @@ EOM
 # App
 echo "=> Creating app supervisor config"
 cat > /etc/supervisor/conf.d/app.conf <<-EOM
-[program:$SUPERVISOR_APP_NAME]
-command = gunicorn --bind 0.0.0.0:$APP_PORT_NUMBER $APP_WSGI
-environment = DJANGO_SETTINGS_MODULE="$DJANGO_SETTINGS_MODULE"
+[program:mc2]
+command = gunicorn --bind 0.0.0.0:8000 mc2.wsgi
+environment = DJANGO_SETTINGS_MODULE="mc2.settings"
 directory = /deploy/
 redirect_stderr = true
 EOM
@@ -87,7 +82,7 @@ echo "=> Creating Celery supervisor config"
 cat > /etc/supervisor/conf.d/celery.conf <<-EOM
 [program:celery]
 command = celery worker -A mc2 -l INFO
-environment = DJANGO_SETTINGS_MODULE="$DJANGO_SETTINGS_MODULE"
+environment = DJANGO_SETTINGS_MODULE="mc2.settings"
 directory = /deploy/
 redirect_stderr = true
 EOM

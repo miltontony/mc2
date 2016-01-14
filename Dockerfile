@@ -23,4 +23,4 @@ RUN django-admin.py migrate
 RUN django-admin.py collectstatic --noinput
 
 EXPOSE 80
-ENTRYPOINT ["/deploy/docker-entrypoint.sh", "mc2", "mc2.wsgi", "8000"]
+ENTRYPOINT ["/deploy/docker-entrypoint.sh"]
