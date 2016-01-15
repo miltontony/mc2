@@ -1,0 +1,74 @@
+{% extends "skins/base.html" %}
+{% load i18n %}
+
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+    <li><a href="{% url 'home' %}">{% trans "Home" %}</a></li>
+    <li class="active"><a href="#">{% blocktrans with org_name=organization.name %}Manage {{ org_name }}{% endblocktrans %}</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-6">
+  <!-- general form elements -->
+  <form role="form" method="post">
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">{{ organization.name }}</h3>
+    </div>
+    <div class="box-body">
+        {% csrf_token %}
+        {% include "form.html" with form=form.organization_form %}
+
+        {{ form.users_formset.management_form }}
+        <div class="box-body no-padding">
+        <table class="table table-condensed">
+          <tr>
+            <th style="width: 10px">#</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Is admin?</th>
+            <th>Remove?</th>
+          </tr>
+        {% for user_form in form.users_formset %}
+            {% for field in user_form.hidden_fields %}{{ field }}{% endfor %}
+            {% with user=user_form.instance.user %}
+            <tr>
+              <td>{{forloop.counter}}.</td>
+              <td>{{ user.full_name|default:user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user_form.is_admin }}</td>
+              <td>{{ user_form.DELETE }}</td>
+            </tr>
+            {% endwith %}
+        {% endfor %}
+        </table>
+        </div>
+
+        <p>
+        <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+        </p>
+    </div>
+  </div>
+
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">{% blocktrans with org_name=organization.name %}Add a user to {{ org_name }}{% endblocktrans %}</h3>
+    </div>
+    <div class="box-body">
+      {% csrf_token %}
+      {{ form.new_users_formset.management_form }}
+      {% for new_user_form in form.new_users_formset %}
+          {% include "form.html" with form=new_user_form %}
+      {% endfor %}
+
+      <p>
+      <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
+      </p>
+    </div>
+    </div>
+  </form>
+  </div>
+</div>
+{% endblock %}

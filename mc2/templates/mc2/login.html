@@ -1,0 +1,29 @@
+{% extends "skins/base.html" %}
+ {% load i18n admin_urls admin_static static %}
+
+{% block body %}
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+    <a href="{% url 'home' %}"><b>Mission</b> Control</a>
+  </div>
+  <!-- /.login-logo -->
+  <div class="login-box-body">
+    <p class="login-box-msg">Welcome to Mission Control</p>
+
+    <div class="social-auth-links text-center">
+      <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using
+        Google</a>
+    </div>
+    <!-- /.social-auth-links -->
+  </div>
+  <!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->
+
+<!-- jQuery 2.1.4 -->
+  <script src="{% static 'plugins/jQuery/jQuery-2.1.4.min.js' %}"></script>
+  <!-- Bootstrap 3.3.5 -->
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</body>
+{% endblock %}

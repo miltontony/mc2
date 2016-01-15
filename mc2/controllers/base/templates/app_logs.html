@@ -1,0 +1,47 @@
+{% extends "skins/base.html" %}
+{% load i18n admin_urls admin_static %}
+
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="#">Logs</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<link href="{{STATIC_URL}}css/app_logs.css" rel="stylesheet">
+<script src="{{STATIC_URL}}js/eventsource.min.js"></script>
+<script src="{{STATIC_URL}}js/app_logs.js"></script>
+<script>
+$(document).ready(function() {
+
+    var al, es;
+    var task_ids = [
+        {% for task_id in task_ids %}
+        '{{task_id}}',
+        {% endfor %}
+    ]
+
+    var paths = ['stdout', 'stderr'];
+
+    task_ids.forEach(function(task_id) {
+        paths.forEach(function(path) {
+            al = new AppLog('#logs', function(msg) {
+                $("<div class='entry " + path + "' />")
+                    .text(msg)
+                    .appendTo($('#logs'));
+            })
+
+            es = new EventSource('./' + task_id + '/' + path + '/?n={{scroll_backlog}}');
+            es.addEventListener('log', function (event) {
+                al.log(event.data);
+            });
+        });
+    });
+});
+</script>
+<div id="content-main" class="new-project">
+    <div id="logs">
+    </div>
+</div>
+{% endblock %}

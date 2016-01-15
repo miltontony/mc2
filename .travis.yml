@@ -6,13 +6,12 @@ language: python
 python:
   - "2.7"
 install:
-  - pip install --upgrade pip
-  - pip install coveralls
-  - pip install "Django<1.9,>=1.8"
-  - pip install -r requirements-dev.txt --download-cache $HOME/.cache/pip
-  - pip install -r requirements.txt --download-cache $HOME/.cache/pip
-  - pip install -e . --download-cache $HOME/.cache/pip
-  - pip install coveralls --download-cache $HOME/.cache/pip
+  - pip install --upgrade pip --cache-dir $HOME/.pip-cache/
+  - pip install coveralls --cache-dir $HOME/.pip-cache/
+  - pip install "Django >=1.8,<1.9" --cache-dir $HOME/.pip-cache/
+  - pip install -r requirements-dev.txt --cache-dir $HOME/.pip-cache/
+  - pip install -r requirements.txt --cache-dir $HOME/.pip-cache/
+  - pip install -e . --cache-dir $HOME/.pip-cache/
 script:
   - flake8
   - py.test
@@ -20,3 +19,11 @@ services:
   - elasticsearch
 after_success:
   - coveralls
+deploy:
+  provider: pypi
+  user: Praekelt
+  password:
+    secure: EPm458KmHwAsUgKzS+MUtPqWySdK8bLVyv4ndI5/jEYislvqYJCS4kDOUU15etyY3wvf4pppcAGuAIDkNKdKZl+YWLtvmfRlH8TPpUjL+ysphqlmnMSt/SznSZDyT+PWW0PknmDANxIbuwkI/ZeP140iEnYOFIc5g0OYmV9H9/BqSJ0HsoKHJ2vV7/Z+c1GOkKY7ncqBmwc1Ym2I9/UBVRlhOYIqnqwZRRZLoNteLLbISAsVyVg4xDgaFDETn0roahm7lwZX7WgY2YTGoJiO/wEARrcbAg+AVq5qVBrgxAP2X2Uk9+yx19OD9SdG2KIVs9mXVePtXbK2afNK0G2Pi+SoaXsiKOMUjSqrB4EWt63uJgF7DY/VQFZMxOM7j2mp7dN2S1LwQhYGfjY1kWIHp7Uo9c9gGxZfxCGubS6zTCyNmxXVqJrwR7zxKm1Zlz7yDKyAnikjIaRqaM++4WVG/vFgKqbPTNodX0ypfN+ABIi7Ju1NRh13HywzO+2CxWv+ltv2XBazIKaJcxDUuiGP61nVWyhm+eCSkeo+l8e7dmx4/PAQW8L9OG4dw4/aPzPqKzW7FwbzanKPxR41Hz5dOrbE29+Us6gEhEXVtg78iaaApMXwPLO9s0QGDA7kaQZ23QIVlvGhFjFt6DL1jFHnmxf9UVJ1gKow3lUgN5Cl83I=
+  on:
+    tags: true
+    all_branches: true

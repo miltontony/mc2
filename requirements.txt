@@ -1,9 +1,10 @@
 Django<1.9,>=1.8
+dj-database-url==0.3.0
 python-memcached
 raven==5.0.0
+celery==3.1.19
 nose
 django-nose
-django-celery
 psycopg2
 redis
 django-debug-toolbar<1.4
@@ -23,6 +24,6 @@ pycountry==1.10
 django-redis-cache
 django-websocket-redis
 gunicorn
-django-polymorphic
+django-polymorphic==0.8.1
 django_compressor
 django-gravatar2

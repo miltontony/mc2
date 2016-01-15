@@ -1,0 +1,5 @@
+{% if request.user.is_authenticated %}
+  {% with skin='skins/'|add:request.user.settings.settings_level|add:'_home.html'%}
+  {% include skin %}
+  {% endwith %}
+{% endif %}

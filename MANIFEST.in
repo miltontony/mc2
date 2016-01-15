@@ -1,0 +1,8 @@
+include LICENSE
+include README.rst
+include CHANGES.rst
+include VERSION
+include MANIFEST.in
+include requirements.txt
+include requirements-dev.txt
+recursive-include mc2 *.py *.txt *.scss *.css *.otf *.svg *.ttf *.woff *.woff2 *.eot *.png *.gif *.jpg *.ico *.js *.html *.json *.yml *.yaml *.rst *.in *.sh

@@ -1,0 +1,32 @@
+{% extends "skins/base.html" %}
+ {% load i18n admin_urls admin_static %}
+
+{% block navbar %}
+<ul class="nav" id="main-menu-left">
+<li><a href="{% url 'home' %}">Home</a></li>
+<li class="active"><a href="#">Settings</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-6">
+  <!-- general form elements -->
+  <div class="box box-primary">
+    <div class="box-header with-border">
+      <h3 class="box-title">Edit your settings</h3>
+    </div>
+
+    <form role="form" method="POST">
+    <div class="box-body">
+      {% include "form.html" %}
+      {% csrf_token %}
+      <br/>
+      <p><input type="submit" value="Save" class="btn btn-primary"/></p>
+      </div>
+    </form>
+
+  </div>
+</div>
+</div>
+{% endblock %}
