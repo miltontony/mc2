@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
@@ -26,3 +26,11 @@ def user_profile_handler(sender, instance, created, **kwargs):
     if created:
         profile = UserSettings(user=instance)
         profile.save()
+
+
+class AuthorizedSite(models.Model):
+    site = models.CharField(max_length=200)
+    group = models.ManyToManyField(Group)
+
+    def __str__(self):
+        return self.site
