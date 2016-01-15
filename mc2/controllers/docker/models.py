@@ -8,7 +8,7 @@ class DockerController(Controller):
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
     port = models.PositiveIntegerField(default=0)
-    domain_urls = models.URLField(max_length=8000, default="")
+    domain_urls = models.TextField(max_length=8000, default="")
 
     def get_marathon_app_data(self):
         docker_dict = {
