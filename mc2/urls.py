@@ -15,6 +15,7 @@ urlpatterns = patterns(
         views.HomepageView.as_view(),
         name='home'
     ),
+    url(r'', include('mama_cas.urls')),
     url(
         r'^login/$',
         TemplateView.as_view(template_name='mc2/login.html'),
