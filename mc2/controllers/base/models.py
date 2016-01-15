@@ -8,6 +8,7 @@ import requests
 
 from django.db import models
 from django.conf import settings
+from django.contrib.auth.models import Group
 from django.utils.translation import ugettext_lazy as _
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -193,3 +194,11 @@ def publish_to_websocket(sender, instance, created, **kwargs):
     redis_publisher = RedisPublisher(facility='progress', broadcast=True)
     message = RedisMessage(json.dumps(data))
     redis_publisher.publish_message(message)
+
+
+class AuthorizedSite(models.Model):
+    site = models.CharField(max_length=200)
+    group = models.ManyToManyField(Group)
+
+    def __str__(self):
+        return self.site

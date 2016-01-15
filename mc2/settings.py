@@ -191,6 +191,7 @@ INSTALLED_APPS = (
     'ws4redis',
     'compressor',
     'django_gravatar',
+    'mama_cas',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -335,3 +336,12 @@ SERVICE_HOST_IP = '127.0.0.1'
 HUBCLIENT_SETTINGS = None
 
 CELERY_ACCEPT_CONTENT = ['json']
+
+MAMA_CAS_ATTRIBUTE_CALLBACKS = (
+    'controllers.base.permissions.custom_attributes',)
+
+
+try:
+    from project.local_settings import *
+except ImportError:
+    pass
