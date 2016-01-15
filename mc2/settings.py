@@ -338,10 +338,4 @@ HUBCLIENT_SETTINGS = None
 CELERY_ACCEPT_CONTENT = ['json']
 
 MAMA_CAS_ATTRIBUTE_CALLBACKS = (
-    'controllers.base.permissions.custom_attributes',)
-
-
-try:
-    from project.local_settings import *
-except ImportError:
-    pass
+    'mc2.permissions.custom_attributes',)

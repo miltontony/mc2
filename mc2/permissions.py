@@ -1,4 +1,4 @@
-from controllers.base.models import AuthorizedSite
+from mc2.models import AuthorizedSite
 from glob import fnmatch
 
 
