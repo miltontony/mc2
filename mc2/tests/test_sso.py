@@ -1,8 +1,35 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from mc2 import permissions
 from django.contrib.auth.models import User, Group
 from mc2.models import AuthorizedSite
 import pytest
+
+
+@pytest.mark.django_db
+class loginTest(TestCase):
+    def test_email_login_successful(self):
+        user = User.objects.create_user(
+            first_name='foo', username="foo@example.com",
+            email="foo@example.com", password="1234")
+        client = Client()
+        response = client.get('/')
+        self.assertRedirects(response, '/login/?next=/')
+
+        response = client.post(
+            '/login/?next=/', {'username': user.username, 'password': '1234'})
+        self.assertRedirects(response, '/')
+
+    def test_email_login_unsuccessful(self):
+        user = User.objects.create_user(
+            first_name='foo', username="foo@example.com",
+            email="foo@example.com", password="1234")
+        client = Client()
+        response = client.get('/')
+        self.assertRedirects(response, '/login/?next=/')
+
+        response = client.post(
+            '/login/?next=/', {'username': user.username, 'password': '123'})
+        self.assertContains(response, 'name or password is not correct')
 
 
 @pytest.mark.django_db

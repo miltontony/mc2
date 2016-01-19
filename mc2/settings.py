@@ -157,8 +157,8 @@ FIELDS_STORED_IN_SESSION = ['access_token', ]
 
 ROOT_URLCONF = 'mc2.urls'
 
-# Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+# Python dotted path to the WSGI application used by Django's server.
+# WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 TEMPLATE_DIRS = (
     abspath('puppet_templates'),
