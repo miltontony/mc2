@@ -12,7 +12,7 @@
     <p class="login-box-msg">Welcome to Mission Control</p>
 
     <div class="social-auth-links text-center">
-      <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using
+      <a href="{% url 'social:begin' 'google-oauth2' %}?next=/login/?service={{ service }}" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using
         Google</a>
     </div>
     <table width="100%">

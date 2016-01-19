@@ -5,6 +5,7 @@ from django.contrib.auth import login
 
 from mama_cas.views import LoginView
 from mama_cas.utils import redirect
+from mama_cas.utils import to_bool
 from mama_cas.models import ServiceTicket
 
 from mc2.controllers.base.views import ControllerViewMixin
@@ -37,6 +38,49 @@ class UserSettingsView(UpdateView):
 
 
 class MC2LoginView(LoginView):
+
+    def get(self, request, *args, **kwargs):
+        self.request.session['service'] = self.request.GET.get('service')
+
+        service = request.GET.get('service')
+        renew = to_bool(request.GET.get('renew'))
+        gateway = to_bool(request.GET.get('gateway'))
+
+        if renew:
+            logger.debug("Renew request received by credential requestor")
+        elif gateway and service:
+            logger.debug("Gateway request received by credential requestor")
+            if request.user.is_authenticated():
+
+                st = ServiceTicket.objects.create_ticket(service=service,
+                                                         user=request.user)
+                if self.warn_user():
+
+                    return redirect('cas_warn', params={'service': service,
+                                                        'ticket': st.ticket})
+                return redirect(service, params={'ticket': st.ticket})
+
+            else:
+                return redirect(service)
+        elif request.user.is_authenticated():
+            if service:
+                logger.debug("Service ticket request received by "
+                             "credential requestor")
+                st = ServiceTicket.objects.create_ticket(service=service,
+                                                         user=request.user)
+                if self.warn_user():
+                    return redirect('cas_warn', params={'service': service,
+                                                        'ticket': st.ticket})
+                return redirect(service, params={'ticket': st.ticket})
+            else:
+                msg = _("You are logged in as %s") % request.user
+                messages.success(request, msg)
+        return super(LoginView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(LoginView, self).get_context_data(*args, **kwargs)
+        context.update({'service': self.request.session['service']})
+        return context
 
     def form_valid(self, form):
         login(self.request, form.user)
