@@ -2,6 +2,8 @@ import logging
 
 from django.views.generic import ListView, UpdateView
 from django.contrib.auth import login
+from django.utils.translation import ugettext_lazy as _
+from django.contrib import messages
 
 from mama_cas.views import LoginView
 from mama_cas.utils import redirect
