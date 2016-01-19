@@ -2,6 +2,10 @@
 
 set -e
 
+echo "setting up the database"
+RUN django-admin.py migrate
+RUN django-admin.py collectstatic --noinput
+
 echo "from django.contrib.auth.models import User
 if not User.objects.filter(username='admin').count():
     User.objects.create_superuser('admin', 'admin@example.com', 'pass')

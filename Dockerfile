@@ -29,8 +29,5 @@ ADD docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
 RUN chmod +x /deploy/docker-entrypoint.sh
 
-RUN django-admin.py migrate
-RUN django-admin.py collectstatic --noinput
-
 EXPOSE 80
 ENTRYPOINT ["/deploy/docker-entrypoint.sh"]
