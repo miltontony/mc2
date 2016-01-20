@@ -46,6 +46,7 @@ class DockerController(Controller):
 
         service_labels = {
             "domain": domains.strip(),
+            "name": self.name,
         }
 
         app_data.update({
