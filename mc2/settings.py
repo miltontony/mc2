@@ -15,6 +15,8 @@ MESOS_MARATHON_HOST = (
 MESOS_HTTP_PORT = environ.get('MESOS_HTTP_PORT') or 5051
 MESOS_DEFAULT_CPU_SHARE = environ.get('MESOS_DEFAULT_CPU_SHARE') or 0.1
 MESOS_DEFAULT_INSTANCES = environ.get('MESOS_DEFAULT_INSTANCES') or 1
+MARATHON_DEFAULT_VOLUME_PATH = (
+    environ.get('MARATHON_DEFAULT_VOLUME_PATH') or '/volume/')
 
 # Configured at Nginx for internal redirect
 LOGDRIVER_PATH = (

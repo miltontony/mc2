@@ -31,7 +31,10 @@ class DockerController(Controller):
             parameters_dict.append({
                 "key": "volume",
                 "value": "%(app_id)s_media:%(path)s" % {
-                    'app_id': self.app_id, 'path': self.volume_path}})
+                    'app_id': self.app_id,
+                    'path':
+                        self.volume_path or
+                        settings.MARATHON_DEFAULT_VOLUME_PATH}})
 
         if parameters_dict:
             docker_dict.update({"parameters": parameters_dict})
