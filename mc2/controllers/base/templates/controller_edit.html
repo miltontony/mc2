@@ -11,8 +11,8 @@
  {% block script %}
     <script type="text/javascript">
       $(function() {
-          $(".inline.{{ env_variable_form.prefix }}").formset({
-              prefix: "{{ env_variable_form.prefix }}",
+          $(".inline.env").formset({
+              prefix: "env",
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           })
@@ -38,6 +38,7 @@
 
     <form role="form" method="POST">
     <div class="box-body">
+    {% with form=form.controller_form %}
       {% if form.errors %}
           <div class="alert alert-error">
               Please correct the errors below
@@ -50,14 +51,14 @@
       {% endif %}
 
       {% include "form_field.html" with field=form.name %}
-
+    {% endwith %}
       <fieldset class="input-xxlarge" id="env-variables">
         <legend>Environment Variables</legend>
-          {{ env_variable_form.management_form }}
-          {{ env_variable_form.non_form_errors }}
-          {% for form in env_variable_form %}
+          {{ form.env_formset.management_form }}
+          {{ form.non_form_errors }}
+          {% for form in form.env_formset %}
               {{ form.id }}
-              <div class="row inline {{ env_variable_form.prefix }}">
+              <div class="row inline env">
                   <div class="col-xs-4">
                   {% include "form_field.html" with field=form.key %}
                   </div>
@@ -68,8 +69,7 @@
           {% endfor %}
       </fieldset>
 
-      {{ formset.management_form }}
-
+      {% with form=form.controller_form %}
       <fieldset class="input-xxlarge">
           <legend>Marathon</legend>
           {% include "form_field.html" with field=form.marathon_cmd %}
@@ -85,6 +85,7 @@
           </div>
           </div>
       </fieldset>
+      {% endwith %}
 
       {% csrf_token %}
       <br/>
