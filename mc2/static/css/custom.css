@@ -11,3 +11,6 @@
     list-style: none;
     padding: 0;
 }
+
+#env-variables .add-row{margin-left: 30px;}
+#env-variables .delete-row{margin-top: 30px;}

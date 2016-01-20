@@ -108,6 +108,36 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             }]
         })
 
+    def test_get_marathon_app_data_with_env(self):
+        controller = DockerController.objects.create(
+            name='Test App',
+            owner=self.user,
+            marathon_cmd='ping',
+            docker_image='docker/image',
+        )
+        self.mk_env_variable(controller)
+
+        self.assertEquals(controller.get_marathon_app_data(), {
+            "id": controller.app_id,
+            "cpus": 0.1,
+            "mem": 128.0,
+            "instances": 1,
+            "cmd": "ping",
+            "env": {"TEST_KEY": "a test value"},
+            "labels": {
+                "domain": "{}.{}".format(controller.app_id,
+                                         settings.HUB_DOMAIN)
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "docker/image",
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                }
+            }
+        })
+
     @responses.activate
     def test_to_dict(self):
         controller = DockerController.objects.create(

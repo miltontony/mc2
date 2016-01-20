@@ -105,13 +105,19 @@ class Controller(PolymorphicModel):
         """
         Override this method to specify the app definition sent to marathon
         """
-        return {
+        data = {
             "id": self.app_id,
             "cpus": self.marathon_cpus,
             "mem": self.marathon_mem,
             "instances": self.marathon_instances,
             "cmd": self.marathon_cmd,
         }
+        if self.env_variables.exists():
+            data.update({
+                'env': dict([
+                    (env.key, env.value)
+                    for env in self.env_variables.all()])})
+        return data
 
     def create_marathon_app(self):
         post_data = self.get_marathon_app_data()
@@ -193,3 +199,9 @@ def publish_to_websocket(sender, instance, created, **kwargs):
     redis_publisher = RedisPublisher(facility='progress', broadcast=True)
     message = RedisMessage(json.dumps(data))
     redis_publisher.publish_message(message)
+
+
+class EnvVariable(models.Model):
+    controller = models.ForeignKey(Controller, related_name='env_variables')
+    key = models.TextField(blank=True, null=True)
+    value = models.TextField(blank=True, null=True)
