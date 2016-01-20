@@ -50,6 +50,10 @@
       {% include "form_field.html" with field=form.port %}
       </div>
       </div>
+
+      {% include "form_field.html" with field=form.volume_needed %}
+      {% include "form_field.html" with field=form.volume_path %}
+
       {% endwith %}
 
       <fieldset class="input-xxlarge" id="env-variables">
