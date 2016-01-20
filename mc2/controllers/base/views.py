@@ -13,7 +13,7 @@ from django.contrib import messages
 from mc2.organizations.utils import org_permission_required
 from mc2.organizations.utils import active_organization
 from mc2.controllers.base.models import Controller
-from mc2.controllers.base.forms import ControllerForm
+from mc2.controllers.base.forms import ControllerForm, EnvVariableInlineFormSet
 from mc2.controllers.base import exceptions
 from mc2 import tasks
 
@@ -77,9 +77,37 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
     def get_success_url(self):
         return reverse("home")
 
-    def form_valid(self, form):
+    def get(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        env_variable_form = EnvVariableInlineFormSet()
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  env_variable_form=env_variable_form))
+
+    def post(self, request, *args, **kwargs):
+        self.object = None
+        form_class = self.get_form_class()
+        form = self.get_form(form_class)
+        env_variable_form = EnvVariableInlineFormSet(self.request.POST)
+        if (form.is_valid() and env_variable_form.is_valid()):
+            return self.form_valid(form, env_variable_form)
+        else:
+            return self.form_invalid(form, env_variable_form)
+
+    def form_invalid(self, form, env_variable_form):
+        return self.render_to_response(
+            self.get_context_data(form=form,
+                                  env_variable_form=env_variable_form))
+
+    def form_valid(self, form, env_variable_form):
         form.instance.organization = active_organization(self.request)
         form.instance.owner = self.request.user
+        self.object = form.save()
+
+        env_variable_form.instance = self.object
+        env_variable_form.save()
 
         response = super(ControllerCreateView, self).form_valid(form)
         tasks.start_new_controller.delay(self.object.id)
@@ -97,8 +125,27 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
     def get_success_url(self):
         return reverse("home")
 
+    def get_context_data(self, *args, **kwargs):
+        context = super(
+            ControllerEditView, self).get_context_data(*args, **kwargs)
+        if self.request.method == 'GET':
+            env_variable_form = EnvVariableInlineFormSet(instance=self.object)
+        else:
+            env_variable_form = EnvVariableInlineFormSet(
+                instance=self.object,
+                data=self.request.POST)
+        context.update({'env_variable_form': env_variable_form})
+        return context
+
     def form_valid(self, form):
         response = super(ControllerEditView, self).form_valid(form)
+
+        env_variable_form = EnvVariableInlineFormSet(
+            instance=self.object, data=self.request.POST)
+        if env_variable_form.is_valid():
+            env_variable_form.save()
+        else:
+            return self.form_invalid(form)
 
         try:
             self.object.update_marathon_app()
