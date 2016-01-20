@@ -39,6 +39,10 @@ class ViewsTestCase(ControllerBaseTestCase):
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -67,12 +71,12 @@ class ViewsTestCase(ControllerBaseTestCase):
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
-            'env_variables-0-key': 'A_TEST_KEY',
-            'env_variables-0-value': 'the value',
-            'env_variables-TOTAL_FORMS': 1,
-            'env_variables-INITIAL_FORMS': 0,
-            'env_variables-MIN_NUM_FORMS': 0,
-            'env_variables-MAX_NUM_FORMS': 100,
+            'env-0-key': 'A_TEST_KEY',
+            'env-0-value': 'the value',
+            'env-TOTAL_FORMS': 1,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -97,6 +101,10 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         data = {
             'name': 'Another test app',
+            'env-TOTAL_FORMS': 1,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -106,6 +114,10 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         data = {
             'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -153,6 +165,10 @@ class ViewsTestCase(ControllerBaseTestCase):
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -168,6 +184,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'marathon_mem': 100.0,
                 'marathon_instances': 2,
                 'marathon_cmd': '/path/to/exec some command',
+                'env-TOTAL_FORMS': 0,
+                'env-INITIAL_FORMS': 0,
+                'env-MIN_NUM_FORMS': 0,
+                'env-MAX_NUM_FORMS': 100,
             })
         controller = Controller.objects.get(pk=controller.id)
         self.assertEqual(controller.marathon_cpus, 0.5)
@@ -186,6 +206,10 @@ class ViewsTestCase(ControllerBaseTestCase):
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -201,6 +225,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'marathon_mem': 100.0,
                 'marathon_instances': 2,
                 'marathon_cmd': '/path/to/exec some command',
+                'env-TOTAL_FORMS': 0,
+                'env-INITIAL_FORMS': 0,
+                'env-MIN_NUM_FORMS': 0,
+                'env-MAX_NUM_FORMS': 100,
             })
         controller = Controller.objects.get(pk=controller.id)
         self.assertEqual(controller.marathon_cpus, 0.5)

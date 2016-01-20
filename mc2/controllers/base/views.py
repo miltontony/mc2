@@ -79,11 +79,15 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         return reverse("home")
 
     def form_valid(self, form):
-        form.instance.organization = active_organization(self.request)
-        form.instance.owner = self.request.user
+        form.controller_form.instance.organization = active_organization(
+            self.request)
+        form.controller_form.instance.owner = self.request.user
+        form.controller_form.instance.save()
+
+        form.env_formset.instance = form.controller_form.instance
 
         response = super(ControllerCreateView, self).form_valid(form)
-        tasks.start_new_controller.delay(self.object.id)
+        tasks.start_new_controller.delay(form.controller_form.instance.id)
         return response
 
 
