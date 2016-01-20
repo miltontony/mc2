@@ -40,7 +40,7 @@ EnvVariableInlineFormSet = forms.inlineformset_factory(
     Controller,
     EnvVariable,
     form=EnvVariableForm,
-    extra=0,
+    extra=1,
     can_delete=True,
     can_order=False
 )
