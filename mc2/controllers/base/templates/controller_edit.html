@@ -1,14 +1,7 @@
 {% extends "skins/base.html" %}
- {% load i18n admin_urls admin_static %}
+{% load i18n admin_urls admin_static %}
 
-{% block extra_css %}
-<style type="text/css">
-  #env-variables .add-row{margin-left: 30px;}
-  #env-variables .delete-row{margin-top: 30px;}
-</style>
-{% endblock %}
-
- {% block script %}
+{% block script %}
     <script type="text/javascript">
       $(function() {
           $(".inline.env").formset({
