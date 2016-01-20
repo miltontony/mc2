@@ -4,7 +4,7 @@ import responses
 from django.test import TransactionTestCase
 from django.conf import settings
 
-from mc2.controllers.base.models import Controller
+from mc2.controllers.base.models import Controller, EnvVariable
 
 
 class ControllerBaseTestCase(TransactionTestCase):
@@ -18,6 +18,16 @@ class ControllerBaseTestCase(TransactionTestCase):
 
         controller_defaults.update(controller)
         return Controller.objects.create(**controller_defaults)
+
+    def mk_env_variable(self, controller, **env):
+        env_defaults = {
+            'controller': controller,
+            'key': 'TEST_KEY',
+            'value': 'a test value'
+        }
+
+        env_defaults.update(env)
+        return EnvVariable.objects.create(**env_defaults)
 
     def mock_create_marathon_app(self, status=201):
         responses.add(
