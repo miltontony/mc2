@@ -36,7 +36,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": "{}.{} {}".format(controller.app_id,
                                             settings.HUB_DOMAIN,
-                                            custom_urls)
+                                            custom_urls),
+                "name": "Test App",
             },
             "container": {
                 "type": "DOCKER",
@@ -60,7 +61,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": "{}.{} {}".format(controller.app_id,
                                             settings.HUB_DOMAIN,
-                                            custom_urls)
+                                            custom_urls),
+                "name": "Test App"
             },
             "container": {
                 "type": "DOCKER",
@@ -85,7 +87,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": "{}.{} {}".format(controller.app_id,
                                             settings.HUB_DOMAIN,
-                                            custom_urls)
+                                            custom_urls),
+                "name": "Test App",
             },
             "container": {
                 "type": "DOCKER",
@@ -121,7 +124,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": "{}.{} {}".format(controller.app_id,
                                             settings.HUB_DOMAIN,
-                                            custom_urls)
+                                            custom_urls),
+                "name": "Test App",
             },
             "container": {
                 "type": "DOCKER",
@@ -163,7 +167,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": "{}.{} {}".format(controller.app_id,
                                             settings.HUB_DOMAIN,
-                                            custom_urls)
+                                            custom_urls),
+                "name": "Test App",
             },
             "container": {
                 "type": "DOCKER",
@@ -213,7 +218,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "env": {"TEST_KEY": "a test value"},
             "labels": {
                 "domain": "{}.{}".format(controller.app_id,
-                                         settings.HUB_DOMAIN)
+                                         settings.HUB_DOMAIN),
+                "name": "Test App",
             },
             "container": {
                 "type": "DOCKER",
