@@ -251,3 +251,32 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             'port': 1234,
             'marathon_health_check_path': '/health/path/',
         })
+
+    @responses.activate
+    def test_marathon_cmd_optional(self):
+        controller = DockerController.objects.create(
+            name='Test App',
+            owner=self.user,
+            docker_image='docker/image',
+        )
+
+        self.assertEquals(controller.get_marathon_app_data(), {
+            "id": controller.app_id,
+            "cpus": 0.1,
+            "mem": 128.0,
+            "instances": 1,
+            "cmd": "",
+            "labels": {
+                "domain": "{}.{}".format(controller.app_id,
+                                         settings.HUB_DOMAIN),
+                "name": "Test App",
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "docker/image",
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                }
+            }
+        })

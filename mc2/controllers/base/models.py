@@ -30,7 +30,7 @@ class Controller(PolymorphicModel):
         default=settings.MESOS_DEFAULT_MEMORY_ALLOCATION)
     marathon_instances = models.IntegerField(
         default=settings.MESOS_DEFAULT_INSTANCES)
-    marathon_cmd = models.TextField()
+    marathon_cmd = models.TextField(default='')
 
     name = models.TextField(
         help_text='A descriptive name to uniquely identify a controller')
