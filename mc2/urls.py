@@ -14,9 +14,12 @@ urlpatterns = patterns(
         views.HomepageView.as_view(),
         name='home'
     ),
-    url(r'^accounts/password/reset/$', password_reset, name='password_change'),
     url(
-        r'^resetpassword/passwordsent/$',
+        r'^accounts/password/reset/$', password_reset,
+        {'template_name': 'password_reset_form.html'},
+        name='password_change'),
+    url(
+        r'^accounts/password/reset/sent/$',
         'django.contrib.auth.views.password_reset_done',
         {'template_name': 'password_reset_done.html'},
         name='password_reset_done'),
