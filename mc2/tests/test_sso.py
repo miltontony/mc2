@@ -31,6 +31,24 @@ class loginTest(TestCase):
             '/login/?next=/', {'username': user.username, 'password': '123'})
         self.assertContains(response, 'name or password is not correct')
 
+    def test_email_login_sso(self):
+        user = User.objects.create_user(
+            first_name='foo', username="foo@example.com",
+            email="foo@example.com", password="1234")
+        client = Client()
+        response = client.get(
+            '/login?service=http%3A%2F%2Ftestapp.com%2F'
+            'admin%2Flogin%2F%3Fnext%3D%252Fadmin%252F')
+        self.assertContains(response, 'Welcome to Mission Control')
+        response = client.post(
+            ('/login?service=http%3A%2F%2Ftestapp.com%2F'
+            'admin%2Flogin%2F%3Fnext%3D%252Fadmin%252F'),
+            {'username': user.username, 'password': '1234'})
+        self.assertEquals(
+            response.request['QUERY_STRING'],
+            ('service=http%3A%2F%2Ftestapp.com%2Fadmin%2Flogin'
+             '%2F%3Fnext%3D%252Fadmin%252F'))
+
 
 @pytest.mark.django_db
 class customAttributesTest(TestCase):
