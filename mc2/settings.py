@@ -34,6 +34,12 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
     environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET') or '')
 
+SOCIAL_AUTH_WHITELISTED_DOMAINS = environ.get(
+    'SOCIAL_AUTH_WHITELISTED_DOMAINS')
+if SOCIAL_AUTH_WHITELISTED_DOMAINS:
+    SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = \
+        [d.strip() for d in SOCIAL_AUTH_WHITELISTED_DOMAINS.split(',')]
+
 
 def abspath(*args):
     """convert relative paths to absolute paths relative to PROJECT_ROOT"""
