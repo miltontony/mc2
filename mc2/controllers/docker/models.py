@@ -9,6 +9,8 @@ class DockerController(Controller):
         max_length=255, blank=True, null=True)
     port = models.PositiveIntegerField(default=0)
     domain_urls = models.TextField(max_length=8000, default="")
+    volume_needed = models.BooleanField(default=False)
+    volume_path = models.CharField(max_length=255, blank=True, null=True)
 
     def get_marathon_app_data(self):
         app_data = super(DockerController, self).get_marathon_app_data()
@@ -23,6 +25,20 @@ class DockerController(Controller):
                 "portMappings": [{"containerPort": self.port, "hostPort": 0}]
             })
 
+        parameters_dict = []
+        if self.volume_needed:
+            parameters_dict.append({"key": "volume-driver", "value": "xylem"})
+            parameters_dict.append({
+                "key": "volume",
+                "value": "%(app_id)s_media:%(path)s" % {
+                    'app_id': self.app_id,
+                    'path':
+                        self.volume_path or
+                        settings.MARATHON_DEFAULT_VOLUME_PATH}})
+
+        if parameters_dict:
+            docker_dict.update({"parameters": parameters_dict})
+
         domains = "%(generic_domain)s %(custom)s" % {
             'generic_domain': self.get_generic_domain(),
             'custom': self.domain_urls
@@ -30,6 +46,7 @@ class DockerController(Controller):
 
         service_labels = {
             "domain": domains.strip(),
+            "name": self.name,
         }
 
         app_data.update({
