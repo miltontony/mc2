@@ -110,8 +110,11 @@ class Controller(PolymorphicModel):
             "cpus": self.marathon_cpus,
             "mem": self.marathon_mem,
             "instances": self.marathon_instances,
-            "cmd": self.marathon_cmd,
         }
+
+        if self.marathon_cmd:
+            data.update({"cmd": self.marathon_cmd})
+
         if self.env_variables.exists():
             data.update({
                 'env': dict([
