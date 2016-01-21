@@ -12,7 +12,7 @@
     <p class="login-box-msg">Welcome to Mission Control</p>
 
     <div class="social-auth-links text-center">
-      <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using
+      <a href="{% url 'social:begin' 'google-oauth2' %}?next=/login/?service={{ service }}" class="btn btn-block btn-social btn-google btn-flat"><i class="fa fa-google-plus"></i> Sign in using
         Google</a>
     </div>
     <table width="100%">
@@ -23,11 +23,8 @@
   </tr>
 </table>​
     {% block content %}
-        <h1 class="text-center login-title">
-        </h1>
-
         <div class="row">
-            <div class="col-sm-6 col-md-4 col-md-offset-4">
+            <div class="col-sm-12">
               {% if messages %}
                   <div class="alert alert-info"><ul>
                   {% for message in messages %}
@@ -51,7 +48,7 @@
               <form class="form-login" method="post">
                     {% csrf_token %}
                     <label class="sr-only" for="id_username">{{ form.username.label }}</label>
-                    <input type="text" class="form-control" id="id_username" name="username" placeholder="{{ form.username.label }}" required autofocus>
+                    <input type="text" class="form-control" id="id_username" name="username" placeholder="Username or Email Address" required autofocus>
                     <label class="sr-only" for="id_password">{{ form.password.label }}</label>
                     <input type="password" class="form-control" id="id_password" name="password" placeholder="{{ form.password.label }}" required>
                     {% if form.warn %}
@@ -64,6 +61,7 @@
             </div>
         </div>
     {% endblock content %}  </div>
+    <a href="{% url 'password_change' %}">{% trans 'Forgotten your password?' %}</a>
 
 </div>
 

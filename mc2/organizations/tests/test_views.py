@@ -15,12 +15,12 @@ class TestViews(OrganizationTestCase):
 
     def assertLoginRequired(self, url):
         self.client.logout()
-        self.assertRedirects(self.client.get(url), '%s?next=%s' % (
+        self.assertRedirects(self.client.get(url), '%s/?next=%s' % (
             reverse('login'), urlquote(url)))
 
     def test_select_active_organization(self):
-        redirect_url = reverse(
-            'organizations:edit', args=(self.organization.slug,))
+        redirect_url = (
+            "http://testserver/")
         url = '%s?%s' % (reverse(
             'organizations:select-active', args=(self.organization.slug,)),
             urlencode({'next': redirect_url}))

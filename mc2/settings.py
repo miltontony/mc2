@@ -165,8 +165,8 @@ FIELDS_STORED_IN_SESSION = ['access_token', ]
 
 ROOT_URLCONF = 'mc2.urls'
 
-# Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'ws4redis.django_runserver.application'
+# Python dotted path to the WSGI application used by Django's server.
+# WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 TEMPLATE_DIRS = (
     abspath('puppet_templates'),
@@ -190,15 +190,16 @@ INSTALLED_APPS = (
     'debug_toolbar',
 
     'social.apps.django_app.default',
+    'mc2',
     'mc2.controllers.freebasics',
     'mc2.controllers.docker',
     'mc2.controllers.base',
     'mc2.controllers',
     'mc2.organizations',
-    'mc2',
     'ws4redis',
     'compressor',
     'django_gravatar',
+    'mama_cas',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -343,3 +344,6 @@ SERVICE_HOST_IP = '127.0.0.1'
 HUBCLIENT_SETTINGS = None
 
 CELERY_ACCEPT_CONTENT = ['json']
+
+MAMA_CAS_ATTRIBUTE_CALLBACKS = (
+    'mc2.permissions.custom_attributes',)
