@@ -5,7 +5,6 @@ RUN apt-get update && apt-get install -y \
 
 ENV PROJECT_ROOT /deploy/
 ENV DJANGO_SETTINGS_MODULE mc2.settings
-ENV MC2_VERSION 3.1.1
 ENV MESOS_MARATHON_HOST http://servicehost:8080
 
 WORKDIR /deploy/
@@ -13,7 +12,7 @@ WORKDIR /deploy/
 RUN pip install gunicorn
 RUN pip install supervisor
 RUN pip install "Django<1.9,>=1.8"
-RUN pip install mission-control2==$MC2_VERSION
+RUN pip install -U mission-control2
 
 
 RUN rm /etc/nginx/sites-enabled/default
