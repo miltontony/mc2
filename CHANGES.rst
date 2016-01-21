@@ -1,9 +1,20 @@
 CHANGE LOG
 ==========
 
-3.0.x
+3.1.0
 -----
-- Dockerize
+- Docker container now fully functional
+- Use Environment variables to specify settings
+- Add volume support use xylem plugin
+- Allow marathon cmd to be blank for docker controller
+
+3.0.5
+-----
+- ensure all static files are packaged
+
+3.0.4
+-----
+- use json serialiser for celery
 
 3.0.3
 -----
