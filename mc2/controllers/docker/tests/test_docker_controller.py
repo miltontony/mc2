@@ -265,7 +265,6 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "",
             "labels": {
                 "domain": "{}.{}".format(controller.app_id,
                                          settings.HUB_DOMAIN),
