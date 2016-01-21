@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.1.1
+-----
+- Fix for marathon cmd when blank
+
 3.1.0
 -----
 - Docker container now fully functional
