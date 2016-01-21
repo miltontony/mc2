@@ -42,10 +42,10 @@ class loginTest(TestCase):
         self.assertContains(response, 'Welcome to Mission Control')
         response = client.post(
             ('/login?service=http%3A%2F%2Ftestapp.com%2F'
-            'admin%2Flogin%2F%3Fnext%3D%252Fadmin%252F'),
+             'admin%2Flogin%2F%3Fnext%3D%252Fadmin%252F'),
             {'username': user.username, 'password': '1234'})
         self.assertEquals(
-            response.request['QUERY_STRING'],
+            response.request.get('QUERY_STRING'),
             ('service=http%3A%2F%2Ftestapp.com%2Fadmin%2Flogin'
              '%2F%3Fnext%3D%252Fadmin%252F'))
 
