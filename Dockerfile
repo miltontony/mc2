@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
 
 ENV PROJECT_ROOT /deploy/
 ENV DJANGO_SETTINGS_MODULE mc2.settings
-ENV MC2_VERSION 3.0.5
+ENV MC2_VERSION 3.1.0
 ENV MESOS_MARATHON_HOST http://servicehost:8080
 
 WORKDIR /deploy/
