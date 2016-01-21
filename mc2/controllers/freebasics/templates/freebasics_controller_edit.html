@@ -36,6 +36,7 @@
       {% endif %}
 
       {% include "form_field.html" with field=form.name %}
+      {% include "form_field.html" with field=form.domain_urls %}
       <div class="row">
       </div>
 
@@ -51,6 +52,30 @@
               </div>
           {% endfor %}
       </fieldset>
+
+      {% if request.user.settings.settings_level == 'expert' %}
+      <br/>
+      <fieldset class="input-xxlarge">
+          <legend>Marathon</legend>
+          {% include "form_field.html" with field=form.marathon_cmd %}
+          <div class="row">
+          <div class="col-xs-3">
+          {% include "form_field.html" with field=form.marathon_cpus %}
+          </div>
+          <div class="col-xs-3">
+          {% include "form_field.html" with field=form.marathon_mem %}
+          </div>
+          <div class="col-xs-4">
+          {% include "form_field.html" with field=form.marathon_instances %}
+          </div>
+          </div>
+          <div class="row">
+          <div class="col-xs-6">
+          {% include "form_field.html" with field=form.marathon_health_check_path %}
+          </div>
+          </div>
+      </fieldset>
+      {% endif %}
 
       {% csrf_token %}
       <br/>

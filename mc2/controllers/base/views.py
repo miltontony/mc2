@@ -13,7 +13,8 @@ from django.contrib import messages
 from mc2.organizations.utils import org_permission_required
 from mc2.organizations.utils import active_organization
 from mc2.controllers.base.models import Controller
-from mc2.controllers.base.forms import ControllerForm
+from mc2.controllers.base.forms import (
+    ControllerFormHelper)
 from mc2.controllers.base import exceptions
 from mc2 import tasks
 
@@ -70,7 +71,7 @@ class ControllerViewMixin(View):
 
 
 class ControllerCreateView(ControllerViewMixin, CreateView):
-    form_class = ControllerForm
+    form_class = ControllerFormHelper
     template_name = 'controller_edit.html'
     permissions = ['controllers.base.add_controller']
 
@@ -78,16 +79,20 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         return reverse("home")
 
     def form_valid(self, form):
-        form.instance.organization = active_organization(self.request)
-        form.instance.owner = self.request.user
+        form.controller_form.instance.organization = active_organization(
+            self.request)
+        form.controller_form.instance.owner = self.request.user
+        form.controller_form.instance.save()
+
+        form.env_formset.instance = form.controller_form.instance
 
         response = super(ControllerCreateView, self).form_valid(form)
-        tasks.start_new_controller.delay(self.object.id)
+        tasks.start_new_controller.delay(form.controller_form.instance.id)
         return response
 
 
 class ControllerEditView(ControllerViewMixin, UpdateView):
-    form_class = ControllerForm
+    form_class = ControllerFormHelper
     template_name = 'controller_edit.html'
     permissions = ['base.change_controller']
 
@@ -99,9 +104,8 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
 
     def form_valid(self, form):
         response = super(ControllerEditView, self).form_valid(form)
-
         try:
-            self.object.update_marathon_app()
+            form.instance.update_marathon_app()
         except exceptions.MarathonApiException:
             messages.error(
                 self.request, 'Unable to update controller in marathon')

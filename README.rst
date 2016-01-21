@@ -10,6 +10,7 @@ To install using a terminal::
     $ virtualenv ve
     $ source ve/bin/activate
     (ve)$ pip install mission-control2
+    (ve)$ export DJANGO_SETTINGS_MODULE="mc2.settings"
     (ve)$ ve/bin/django-admin migrate --noinput
 
 Running
