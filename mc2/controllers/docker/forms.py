@@ -4,6 +4,9 @@ from mc2.controllers.base.forms import ControllerForm, ControllerFormHelper
 
 
 class DockerControllerForm(ControllerForm):
+    marathon_cmd = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control'}))
     docker_image = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
     marathon_health_check_path = forms.CharField(
