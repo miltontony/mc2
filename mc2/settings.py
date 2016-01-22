@@ -181,8 +181,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'grappelli',
-    'django.contrib.admin',
 
     'redis_cache',
     'django_nose',
@@ -196,6 +194,10 @@ INSTALLED_APPS = (
     'mc2.controllers.base',
     'mc2.controllers',
     'mc2.organizations',
+
+    'grappelli',
+    'django.contrib.admin',
+
     'ws4redis',
     'compressor',
     'django_gravatar',
