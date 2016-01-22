@@ -77,6 +77,7 @@ class MC2LoginView(LoginView):
             else:
                 msg = _("You are logged in as %s") % request.user
                 messages.success(request, msg)
+                return redirect('home')
         return super(LoginView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, *args, **kwargs):

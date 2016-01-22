@@ -6,7 +6,7 @@ import pytest
 
 
 @pytest.mark.django_db
-class loginTest(TestCase):
+class LoginTest(TestCase):
     def test_email_login_successful(self):
         user = User.objects.create_user(
             first_name='foo', username="foo@example.com",
@@ -49,9 +49,19 @@ class loginTest(TestCase):
             ('service=http%3A%2F%2Ftestapp.com%2Fadmin%2Flogin'
              '%2F%3Fnext%3D%252Fadmin%252F'))
 
+    def test_login_sso_redirects_to_home_when_no_service(self):
+        user = User.objects.create_user(
+            first_name='foo', username="foo@example.com",
+            email="foo@example.com", password="1234")
+        client = Client()
+        response = client.post(
+            ('/login?service=None'),
+            {'username': user.username, 'password': '1234'}, follow=True)
+        self.assertRedirects(response, '/')
+
 
 @pytest.mark.django_db
-class customAttributesTest(TestCase):
+class CustomAttributesTest(TestCase):
 
     def test_group_access(self):
         user = User.objects.create(first_name='foo')
