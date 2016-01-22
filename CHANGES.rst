@@ -1,6 +1,17 @@
 CHANGE LOG
 ==========
 
+3.2.1
+-----
+- fix password reset
+- add domain URLs for docker controllers
+- tweaks to the UI
+
+3.2.0
+-----
+- Added single-sign-on support for Molo
+- Enable email login + password reset
+
 3.1.1
 -----
 - Fix for marathon cmd when blank
