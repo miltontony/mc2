@@ -16,7 +16,7 @@ To install using a terminal::
 Running
 -------
 
-Because this system uses GitHub with OAuth2 for authentication there are a few
+Because this system uses Google Accounts with OAuth2 for authentication there are a few
 steps one needs to complete in order to get a working system:
 
 Create a super user::
@@ -39,19 +39,38 @@ local server will be reachable. The random subdomain address is useful for
 adhoc testing but we would recommend you use something predictable. This can
 be done using the ``-subdomain`` command line argument::
 
-    $ ngrok -subdomain mytestingtunnel 8000
+    $ ngrok -subdomain mc2 8000
 
-Next you need to generate a pair of secret keys for OAuth in your GitHub
-account. You can do this at https://github.com/settings/applications/new:
+If you haven't already, create a Google Developer Project at
+``https://console.developers.google.com/project`` .
 
-.. image:: http://note.io/1s0ZMdb
+.. image:: images/pic1.png
     :align: center
 
-Once saved, GitHub will have generated the unique keys you will need to
+Next, navigate to ``https://console.developers.google.com/apis/credentials`` ,
+select the 'OAuth Consent Screen', choose a product name and save.
+
+.. image:: images/pic2.png
+    :align: center
+
+Then select "New credentials" and select "OAuth Client ID". Then enter the
+necessary information
+
+.. image:: images/pic3.png
+    :align: center
+
+Once saved, Google will have generated the unique keys you will need to
 complete the OAuth setup:
 
-.. image:: http://note.io/1Aq99U8
+.. image:: images/pic4.png
     :align: center
+
+For quick setup, you would then enter the following:
+
+    (ve)$ export SOCIAL_AUTH_GOOGLE_OAUTH2_KEY="647082549192-142tni49187fck8i2n1p0ptjofihd1k4.apps.googleusercontent.com"
+    (ve)$ export SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET="mJG2Qgbsmwal8MdCeP_7x_S6D"
+
+Your Google OAuth setup should now be configured.
 
 You can specify the following ``environment variables`` to configure the app:
 
@@ -81,8 +100,8 @@ You can specify the following ``environment variables`` to configure the app:
     SOCIAL_AUTH_GOOGLE_OAUTH2_KEY
     SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET
 
-Once all this is done visit Mission Control via your
-custom http://mytestingtunnel.ngrok.com tunnel and sign-up via GitHub.
+Once all this is done visit MC2 via your
+custom http://mc2.ngrok.com tunnel and sign-up via Google.
 
 You'll be greeted with an empty page since no applications have been created
 yet. Only Django ``superusers`` are allowed to create new applications.
