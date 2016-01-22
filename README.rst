@@ -65,7 +65,7 @@ complete the OAuth setup:
 .. image:: images/pic4.png
     :align: center
 
-For quick setup, you would then enter the following:
+For quick setup, you would then enter the following::
 
     (ve)$ export SOCIAL_AUTH_GOOGLE_OAUTH2_KEY="647082549192-142tni49187fck8i2n1p0ptjofihd1k4.apps.googleusercontent.com"
     (ve)$ export SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET="mJG2Qgbsmwal8MdCeP_7x_S6D"
