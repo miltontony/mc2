@@ -25,11 +25,9 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <!-- jQuery 2.1.4 -->
-    <script src="{% static 'plugins/jQuery/jQuery-2.1.4.min.js' %}"></script>
-    <!-- Bootstrap 3.3.5 -->
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
     {% compress js %}
+    <script src="{% static 'plugins/jQuery/jQuery-2.1.4.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/app.js' %}"></script>
     <script src="{% static 'js/jquery.formset.js' %}"></script>
     {% endcompress %}
