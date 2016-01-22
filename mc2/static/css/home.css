@@ -174,6 +174,13 @@
     margin-right: 16px;
 }
 
+.application-item-box.edit:hover{
+    background-color:#005384 !important
+}
+
+.application-item-box.view:hover{
+    background-color: #00a65a !important;
+}
 .application-item-box.link.delete:hover{
     background-color: #dd4b39 !important;
 }
