@@ -13,11 +13,6 @@ class TestViews(OrganizationTestCase):
         self.organization = self.mk_organization(users=[self.user])
         self.client.login(username=self.user.username, password='password')
 
-    def assertLoginRequired(self, url):
-        self.client.logout()
-        self.assertRedirects(self.client.get(url), '%s/?next=%s' % (
-            reverse('login'), urlquote(url)))
-
     def test_select_active_organization(self):
         redirect_url = (
             "http://testserver/")
@@ -25,7 +20,9 @@ class TestViews(OrganizationTestCase):
             'organizations:select-active', args=(self.organization.slug,)),
             urlencode({'next': redirect_url}))
 
-        self.assertLoginRequired(url)
+        self.client.logout()
+        self.assertRedirects(self.client.get(url), '%s?next=%s' % (
+            reverse('login'), urlquote(url)))
 
         self.client.login(username=self.user.username, password='password')
         response = self.client.get(url)
