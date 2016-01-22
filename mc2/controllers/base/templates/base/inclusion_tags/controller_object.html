@@ -43,7 +43,9 @@
                     {% endblock %}
                 </div>
             </div>
+            {% block controller_footer %}
             <div>{{controller.app_id}} <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span></div>
+            {% endblock %}
         </div>
     </div>
 </div>
