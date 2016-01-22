@@ -1,7 +1,6 @@
 from django.conf.urls import patterns, url, include
 from django.contrib.auth.decorators import login_required
 from django.contrib import admin
-from django.contrib.auth.views import password_reset
 from mc2 import views
 
 admin.autodiscover()
