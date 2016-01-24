@@ -15,5 +15,5 @@
 #env-variables .add-row{margin-left: 30px;}
 #env-variables .delete-row{margin-top: 30px;}
 
-.form-group li {list-style: none; margin-left: 0}
+.form-group li, .alert li {list-style: none; margin-left: 0}
 .form-group ul {padding-left: 0}

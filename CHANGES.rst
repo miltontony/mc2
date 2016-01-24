@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.2.2
+-----
+- update UI fields on homepage
+- Fix redirect issue when logging in
+
 3.2.1
 -----
 - fix password reset

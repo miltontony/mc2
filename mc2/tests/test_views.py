@@ -36,12 +36,8 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.assertContains(resp, 'Test App')
         self.assertContains(resp, 'Status')
-        self.assertContains(resp, 'Container')
         self.assertContains(resp, 'Edit')
         self.assertContains(resp, 'Delete')
-        self.assertContains(resp, 'class="icon-container-base')
-        self.assertContains(resp,
-                            'src="/static/img/basic-container-vector.png"')
         self.assertContains(
             resp,
             '<a class="link" href="/base/%s/">' %
@@ -64,7 +60,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.assertContains(resp, 'Test Docker App')
         self.assertContains(resp, 'Status')
-        self.assertContains(resp, 'Container')
+        self.assertContains(resp, 'View')
         self.assertContains(resp, 'Edit')
         self.assertContains(resp, 'Delete')
         self.assertContains(resp, 'class="icon-container-docker')
@@ -87,7 +83,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.assertContains(resp, 'Test Free Basics App')
         self.assertContains(resp, 'Status')
-        self.assertContains(resp, 'Container')
+        self.assertContains(resp, 'View')
         self.assertContains(resp, 'Edit')
         self.assertContains(resp, 'Delete')
         self.assertContains(resp, 'class="icon-container-freebasics')
