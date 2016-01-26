@@ -21,7 +21,7 @@ class HomepageView(ControllerViewMixin, ListView):
     template_name = 'mc2/home.html'
 
     def get_queryset(self):
-        return self.get_controllers_queryset(self.request)
+        return self.get_controllers_queryset(self.request).order_by('name')
 
 
 class UserSettingsView(UpdateView):

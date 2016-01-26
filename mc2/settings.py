@@ -40,13 +40,14 @@ if SOCIAL_AUTH_WHITELISTED_DOMAINS:
     SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = \
         [d.strip() for d in SOCIAL_AUTH_WHITELISTED_DOMAINS.split(',')]
 
+DEBUG = environ.get('DEBUG', True)
+TEMPLATE_DEBUG = DEBUG
+
 
 def abspath(*args):
     """convert relative paths to absolute paths relative to PROJECT_ROOT"""
     return join(PROJECT_ROOT, *args)
 
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -202,6 +203,7 @@ INSTALLED_APPS = (
     'compressor',
     'django_gravatar',
     'mama_cas',
+    'djcelery_email',
 )
 
 # A sample logging configuration. The only tangible logging
