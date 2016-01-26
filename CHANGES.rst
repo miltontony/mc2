@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.2.3
+-----
+- enable restart button
+- allow debug to be set using env variable
+
 3.2.2
 -----
 - update UI fields on homepage
