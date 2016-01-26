@@ -34,6 +34,15 @@
                     {% endblock %}
                 </div>
 
+                <div class="application-item-box bg-blue restart">
+                    {% block restart_action %}
+                        <a class="link" href="{% url 'base:restart' controller.id %}">
+                            <span><i class="fa fa-refresh info-box-icon icon-small"></i></span>
+                            Restart
+                        </a>
+                    {% endblock %}
+                </div>
+
                 <div class="application-item-box link delete bg-blue app-delete-action">
                     {% block delete_action %}
                         <a class="link" href="{% url 'base:delete' controller.id %}">
