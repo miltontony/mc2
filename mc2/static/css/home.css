@@ -181,6 +181,11 @@
 .application-item-box.view:hover{
     background-color: #00a65a !important;
 }
+
+.application-item-box.restart:hover{
+    background-color: #ff7701 !important;
+}
+
 .application-item-box.link.delete:hover{
     background-color: #dd4b39 !important;
 }
