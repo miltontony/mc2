@@ -3,6 +3,10 @@ CHANGE LOG
 
 3.2.4
 -----
+- user json serializer for email
+
+3.2.4
+-----
 - ensure bool env (DEBUG) is read correctly
 
 3.2.3
