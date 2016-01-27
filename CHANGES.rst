@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.2.4
+-----
+- ensure bool env (DEBUG) is read correctly
+
 3.2.3
 -----
 - enable restart button

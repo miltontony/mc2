@@ -4,6 +4,11 @@ from os.path import abspath, dirname, join
 from os import environ
 import dj_database_url
 
+
+def bool_env(val):
+    """Replaces string based environment values with Python booleans"""
+    return True if environ.get(val, False) == 'True' else False
+
 # Environment Variables
 SECRET_KEY = environ.get('SECRET_KEY') or 'please-change-me'
 PROJECT_ROOT = (
@@ -40,7 +45,7 @@ if SOCIAL_AUTH_WHITELISTED_DOMAINS:
     SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = \
         [d.strip() for d in SOCIAL_AUTH_WHITELISTED_DOMAINS.split(',')]
 
-DEBUG = environ.get('DEBUG', True)
+DEBUG = bool_env('DEBUG')
 TEMPLATE_DEBUG = DEBUG
 
 
