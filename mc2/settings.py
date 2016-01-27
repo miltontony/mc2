@@ -275,6 +275,10 @@ EMAIL_BACKEND = 'djcelery_email.backends.CeleryEmailBackend'
 if DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+CELERY_EMAIL_TASK_CONFIG = {
+    'serializer': 'json'
+}
+
 # Django debug toolbar
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
