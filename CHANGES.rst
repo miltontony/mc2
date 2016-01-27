@@ -1,7 +1,7 @@
 CHANGE LOG
 ==========
 
-3.2.4
+3.2.5
 -----
 - user json serializer for email
 
