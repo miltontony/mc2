@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.2.6
+-----
+- expose SMPT settings as env variables
+
 3.2.5
 -----
 - user json serializer for email

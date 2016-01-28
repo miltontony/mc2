@@ -10,40 +10,42 @@ def bool_env(val):
     return True if environ.get(val, False) == 'True' else False
 
 # Environment Variables
-SECRET_KEY = environ.get('SECRET_KEY') or 'please-change-me'
-PROJECT_ROOT = (
-    environ.get('PROJECT_ROOT') or dirname(dirname(abspath(__file__))))
-MESOS_DEFAULT_MEMORY_ALLOCATION = (
-    environ.get('MESOS_DEFAULT_MEMORY_ALLOCATION') or 128.0)
-MESOS_MARATHON_HOST = (
-    environ.get('MESOS_MARATHON_HOST') or 'http://localhost:8080')
-MESOS_HTTP_PORT = environ.get('MESOS_HTTP_PORT') or 5051
-MESOS_DEFAULT_CPU_SHARE = environ.get('MESOS_DEFAULT_CPU_SHARE') or 0.1
-MESOS_DEFAULT_INSTANCES = environ.get('MESOS_DEFAULT_INSTANCES') or 1
-MARATHON_DEFAULT_VOLUME_PATH = (
-    environ.get('MARATHON_DEFAULT_VOLUME_PATH') or '/volume/')
+SECRET_KEY = environ.get('SECRET_KEY', 'please-change-me')
+PROJECT_ROOT = environ.get(
+    'PROJECT_ROOT', dirname(dirname(abspath(__file__))))
+MESOS_DEFAULT_MEMORY_ALLOCATION = environ.get(
+    'MESOS_DEFAULT_MEMORY_ALLOCATION', 128.0)
+MESOS_MARATHON_HOST = environ.get(
+    'MESOS_MARATHON_HOST', 'http://localhost:8080')
+MESOS_HTTP_PORT = environ.get('MESOS_HTTP_PORT', 5051)
+MESOS_DEFAULT_CPU_SHARE = environ.get('MESOS_DEFAULT_CPU_SHARE', 0.1)
+MESOS_DEFAULT_INSTANCES = environ.get('MESOS_DEFAULT_INSTANCES', 1)
+MARATHON_DEFAULT_VOLUME_PATH = environ.get(
+    'MARATHON_DEFAULT_VOLUME_PATH', '/volume/')
 
 # Configured at Nginx for internal redirect
-LOGDRIVER_PATH = (
-    environ.get('LOGDRIVER_PATH') or '/logdriver/')
-LOGDRIVER_BACKLOG = (
-    environ.get('LOGDRIVER_BACKLOG') or 0)
+LOGDRIVER_PATH = environ.get('LOGDRIVER_PATH', '/logdriver/')
+LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 0)
 
 # Sentry configuration
 RAVEN_DSN = environ.get('RAVEN_DSN')
 RAVEN_CONFIG = {'dsn': RAVEN_DSN} if RAVEN_DSN else {}
 
 # Social Auth
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = (
-    environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY') or '')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = (
-    environ.get('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET') or '')
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = environ.get(
+    'SOCIAL_AUTH_GOOGLE_OAUTH2_KEY', '')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = environ.get(
+    'SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET', '')
 
 SOCIAL_AUTH_WHITELISTED_DOMAINS = environ.get(
     'SOCIAL_AUTH_WHITELISTED_DOMAINS')
 if SOCIAL_AUTH_WHITELISTED_DOMAINS:
     SOCIAL_AUTH_GOOGLE_OAUTH2_WHITELISTED_DOMAINS = \
         [d.strip() for d in SOCIAL_AUTH_WHITELISTED_DOMAINS.split(',')]
+
+# SMTP Settings
+EMAIL_HOST = environ.get('EMAIL_HOST', 'localhost')
+EMAIL_PORT = environ.get('EMAIL_HOST', 25)
 
 DEBUG = bool_env('DEBUG')
 TEMPLATE_DEBUG = DEBUG
