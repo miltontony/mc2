@@ -9,10 +9,19 @@ ENV MESOS_MARATHON_HOST http://servicehost:8080
 
 WORKDIR /deploy/
 
+COPY mc2 /deploy/mc2
+ADD manage.py /deploy/
+ADD requirements.txt /deploy/
+ADD requirements-dev.txt /deploy/
+ADD setup.py /deploy/
+ADD README.rst /deploy/
+ADD VERSION /deploy/
+
+
 RUN pip install gunicorn
 RUN pip install supervisor
 RUN pip install "Django<1.9,>=1.8"
-RUN pip install -U mission-control2
+RUN pip install -e .
 
 
 RUN rm /etc/nginx/sites-enabled/default
