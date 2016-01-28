@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.2.7
+-----
+- specify user/pass env for smtp
+
 3.2.6
 -----
 - expose SMPT settings as env variables
