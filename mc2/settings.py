@@ -45,7 +45,9 @@ if SOCIAL_AUTH_WHITELISTED_DOMAINS:
 
 # SMTP Settings
 EMAIL_HOST = environ.get('EMAIL_HOST', 'localhost')
-EMAIL_PORT = environ.get('EMAIL_HOST', 25)
+EMAIL_PORT = environ.get('EMAIL_PORT', 25)
+EMAIL_HOST_USER = environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = environ.get('EMAIL_HOST_PASSWORD', '')
 
 DEBUG = bool_env('DEBUG')
 TEMPLATE_DEBUG = DEBUG
