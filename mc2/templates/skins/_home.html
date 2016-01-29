@@ -181,6 +181,13 @@ jQuery(document).ready(function($) {
         });
         return false;
     });
+    $(".card-content-overlay").click(function (evt){
+        if($(this).hasClass('content-overlay')) return;
+        $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
+            swapZIndex_with(this, $(this).parent().find(".content-overlay"));
+        });
+        //return false;
+    });
 
 
 
