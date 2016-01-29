@@ -23,6 +23,8 @@ MESOS_DEFAULT_INSTANCES = environ.get('MESOS_DEFAULT_INSTANCES', 1)
 MARATHON_DEFAULT_VOLUME_PATH = environ.get(
     'MARATHON_DEFAULT_VOLUME_PATH', '/volume/')
 
+HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
+
 # Configured at Nginx for internal redirect
 LOGDRIVER_PATH = environ.get('LOGDRIVER_PATH', '/logdriver/')
 LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 0)
@@ -320,7 +322,6 @@ SOCIAL_AUTH_PIPELINE = (
 DEPLOY_ENVIRONMENT = 'qa'
 
 CMS_SUBDOMAIN = 'qa-content'
-HUB_DOMAIN = 'qa-hub.unicore.io'
 
 # path to where repos will be located
 FRONTEND_REPO_PATH = abspath('repos', 'frontend')
