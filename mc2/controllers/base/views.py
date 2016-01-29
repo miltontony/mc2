@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseNotFound
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView
@@ -171,6 +173,10 @@ class ControllerDeleteView(ControllerViewMixin, View):
     permissions = ['base.change_controller']
 
     # TODO: Check user permissions
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(ControllerDeleteView, self).dispatch(*args, **kwargs)
 
     def post(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
