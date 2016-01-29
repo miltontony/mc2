@@ -155,7 +155,7 @@ jQuery(document).ready(function($) {
     $(".app-delete-action").click(function (evt){
         deleteLink = $(evt.target).closest("a").attr('href');
         $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
-            swapZIndex(this);
+            swapZIndex_with(this, $(this).parent().find(".delete-overlay"));
         });
         return false;
     });
@@ -163,21 +163,40 @@ jQuery(document).ready(function($) {
     $(".app-delete-confirm-action").click(function (evt){
         var chosenOption = $(evt.target).closest(".app-delete-confirm-action").text().trim().toUpperCase();
         if(chosenOption == "YES") {
-            $.post(deleteLink);
+            $.post(deleteLink).always(function(){
+              window.location.reload();
+            });
         }else if(chosenOption == "NO"){
             var parentTag = $(evt.target).closest(".card-content-overlay");
             if(parentTag.siblings().length > 0) {
                 parentTag.animate({opacity: 0}, 400, "linear", function () {
-                    swapZIndex(this);
+                    swapZIndex_with(this, $(this).parent().find(".content-overlay"));
                 });
             }
         }
     });
+    $(".app-view-action").click(function (evt){
+        $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
+            swapZIndex_with(this, $(this).parent().find(".view-overlay"));
+        });
+        return false;
+    });
+
+
 
     function swapZIndex(cardOverlay){
         $(cardOverlay).css("z-index", "2");
         $(cardOverlay).siblings().css("z-index", "3");
         $(cardOverlay).css('opacity', '1');
+    }
+
+    function swapZIndex_with(cardOverlay, targetCardOverlay){
+        $(cardOverlay).css("z-index", "1");
+        $(cardOverlay).siblings().css("z-index", "1");
+        $(cardOverlay).css('opacity', '1');
+
+        $(cardOverlay).siblings('.blank-overlay').css("z-index", "2");
+        $(targetCardOverlay).css("z-index", "3");
     }
 });
 </script>

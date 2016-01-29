@@ -2,7 +2,8 @@ import json
 import os.path
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import (
+    HttpResponse, HttpResponseNotFound, HttpResponseBadRequest)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
 from django.utils.decorators import method_decorator
@@ -185,9 +186,8 @@ class ControllerDeleteView(ControllerViewMixin, View):
             controller.delete()
             messages.info(self.request, 'App deletion sent.')
         except exceptions.MarathonApiException:
-            messages.error(
-                self.request,
-                'Failed to delete app: %(id)s. Please try again.'
-                % {'id': controller.name}
-            )
+            msg = 'Failed to delete "%(id)s". Please try again.' % {
+                'id': controller.name}
+            messages.error(self.request, msg)
+            return HttpResponseBadRequest(msg)
         return redirect('home')
