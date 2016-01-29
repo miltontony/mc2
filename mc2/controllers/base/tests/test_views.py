@@ -448,9 +448,9 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.login(username='testuser2', password='test')
 
         resp = self.client.post(reverse('base:delete', args=[controller.id]))
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, 400)
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Failed to delete app: ')
+        self.assertContains(resp, 'Failed to delete')
         self.assertEquals(Controller.objects.all().count(), 1)
