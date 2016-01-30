@@ -23,13 +23,17 @@ class DockerControllerForm(ControllerForm):
     volume_path = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         required=False)
+    volume_name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False)
 
     class Meta:
         model = DockerController
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
             'marathon_cmd', 'docker_image', 'marathon_health_check_path',
-            'port', 'domain_urls', 'volume_needed', 'volume_path')
+            'port', 'domain_urls', 'volume_needed', 'volume_path',
+            'volume_name')
 
 
 class DockerControllerFormHelper(ControllerFormHelper):

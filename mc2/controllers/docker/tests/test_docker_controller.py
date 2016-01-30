@@ -155,6 +155,50 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             }]
         })
 
+        controller.volume_name = 'some_custom_volume_name'
+        controller.save()
+
+        self.assertEquals(controller.get_marathon_app_data(), {
+            "id": controller.app_id,
+            "cpus": 0.1,
+            "mem": 128.0,
+            "instances": 1,
+            "cmd": "ping",
+            "labels": {
+                "domain": "{}.{} {}".format(controller.app_id,
+                                            settings.HUB_DOMAIN,
+                                            custom_urls),
+                "name": "Test App",
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "docker/image",
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                    "portMappings": [{"containerPort": 1234, "hostPort": 0}],
+                    "parameters": [
+                        {"key": "volume-driver", "value": "xylem"},
+                        {
+                            "key": "volume",
+                            "value":
+                                "some_custom_volume_name:/deploy/media/"
+                        }]
+                }
+            },
+            "ports": [0],
+            "healthChecks": [{
+                "gracePeriodSeconds": 3,
+                "intervalSeconds": 10,
+                "maxConsecutiveFailures": 3,
+                "path": '/health/path/',
+                "portIndex": 0,
+                "protocol": "HTTP",
+                "timeoutSeconds": 5
+            }]
+        })
+
+        controller.volume_name = ""
         controller.volume_path = ""
         controller.save()
 
