@@ -22,7 +22,6 @@ httplib2==0.9
 google-api-python-client==1.3.1
 pycountry==1.10
 django-redis-cache
-django-websocket-redis
 django-mama-cas==1.0.0
 gunicorn
 django-polymorphic==0.8.1

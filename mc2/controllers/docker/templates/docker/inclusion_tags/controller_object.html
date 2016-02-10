@@ -1,7 +1,7 @@
 {% extends 'base/inclusion_tags/controller_object.html' %}
 {% block controller_visit %}
-<div class="application-item-box bg-blue view">
-<a class="link docker" target="blank" href="http://{{controller.get_generic_domain}}">
+<div class="application-item-box bg-blue view app-view-action">
+<a class="link docker" href="#">
   <div class="info-box-icon icon-small">
     {% load staticfiles %}
     {% with "img/docker-container-vector.png" as icon_src %}

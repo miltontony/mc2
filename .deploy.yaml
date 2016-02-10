@@ -1,9 +1,3 @@
 buildscript: scripts/build.sh
 postinstall: scripts/postinstall.sh
-dependencies:
- - nginx
- - postgresql-server-dev-all
- - libpq-dev
- - libffi-dev
- - postgresql
- - redis-server
+dependencies: []

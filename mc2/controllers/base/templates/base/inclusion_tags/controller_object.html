@@ -5,10 +5,10 @@
      state="{{ controller.state }}"
      appid="{{ controller.app_id }}">
     <div class="card-content application-card">
-        <div id="confirm-delete" class="card-content-overlay block">
+        <div id="confirm-delete" class="card-content-overlay delete-overlay block">
+            <div class="application-card-title overlay-title">Are you sure?</div>
             <div class="center-text">
-                <h3>Are you sure?</h3>
-                <hr/>
+            <br/>
                 <div class="application-item-box bg-green app-delete-confirm-action">
                     <div class="info-box-icon icon-small"><i class="fa fa-check"></i></div>
                     Yes
@@ -19,7 +19,20 @@
                 </div>
             </div>
         </div>
-        <div class="card-content-overlay block">
+        <div class="card-content-overlay view-overlay block">
+            <div class="application-card-title overlay-title">{{ controller.name|capfirst }}</div>
+            <div class="center-text">
+            <br/>
+                <a target="blank" href="http://{{controller.get_generic_domain}}">{{controller.get_generic_domain}}</a>
+                {% for l in controller.domain_urls.split %}
+                <br><a target="blank" href="http://{{l}}">{{l}}</a>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="card-content-overlay blank-overlay block">
+          <div class="application-card-title">&nbsp;</div>
+        </div>
+        <div class="card-content-overlay content-overlay block">
             <div class="application-card-title">
                 {{ controller.name|capfirst }}
             </div>

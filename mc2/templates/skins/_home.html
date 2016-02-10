@@ -89,29 +89,9 @@
 {% endblock %}
 
 {% block script %}
-<script src="{% static 'js/ws4redis.min.js' %}"></script>
 <script type="text/javascript">
 
 jQuery(document).ready(function($) {
-    var ws4redis = WS4Redis({
-        uri: '{{ WEBSOCKET_URI }}progress?subscribe-broadcast',
-        receive_message: receiveMessage,
-        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
-    });
-
-    // receive a message though the websocket from the server
-    function receiveMessage(msg) {
-      var data = JSON.parse(msg);
-      if (data.is_created && document.getElementById(data.id) == null){
-        //reload page when new project added
-        window.location.reload();
-        return
-      }
-
-      $('#'+data.id).attr('class', 'col-xs-2 nav-tabs-custom main card application-card '+ data.state);
-      $('#'+data.id+' .state').html(data.state_display);
-    }
-
     $("#result_list .main")
     .on("mouseenter", function(){
       $(this).addClass("info-hint");
@@ -155,7 +135,7 @@ jQuery(document).ready(function($) {
     $(".app-delete-action").click(function (evt){
         deleteLink = $(evt.target).closest("a").attr('href');
         $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
-            swapZIndex(this);
+            swapZIndex_with(this, $(this).parent().find(".delete-overlay"));
         });
         return false;
     });
@@ -163,21 +143,47 @@ jQuery(document).ready(function($) {
     $(".app-delete-confirm-action").click(function (evt){
         var chosenOption = $(evt.target).closest(".app-delete-confirm-action").text().trim().toUpperCase();
         if(chosenOption == "YES") {
-            $.post(deleteLink);
+            $.post(deleteLink).always(function(){
+              window.location.reload();
+            });
         }else if(chosenOption == "NO"){
             var parentTag = $(evt.target).closest(".card-content-overlay");
             if(parentTag.siblings().length > 0) {
                 parentTag.animate({opacity: 0}, 400, "linear", function () {
-                    swapZIndex(this);
+                    swapZIndex_with(this, $(this).parent().find(".content-overlay"));
                 });
             }
         }
     });
+    $(".app-view-action").click(function (evt){
+        $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
+            swapZIndex_with(this, $(this).parent().find(".view-overlay"));
+        });
+        return false;
+    });
+    $(".card-content-overlay").click(function (evt){
+        if($(this).hasClass('content-overlay')) return;
+        $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
+            swapZIndex_with(this, $(this).parent().find(".content-overlay"));
+        });
+        //return false;
+    });
+
+
 
     function swapZIndex(cardOverlay){
         $(cardOverlay).css("z-index", "2");
         $(cardOverlay).siblings().css("z-index", "3");
         $(cardOverlay).css('opacity', '1');
+    }
+
+    function swapZIndex_with(cardOverlay, targetCardOverlay){
+        $(cardOverlay).css("z-index", "1");
+        $(cardOverlay).siblings().css("z-index", "1");
+        $(cardOverlay).css('opacity', '1');
+
+        $(cardOverlay).siblings('.blank-overlay').css("z-index", "2");
+        $(targetCardOverlay).css("z-index", "3");
     }
 });
 </script>

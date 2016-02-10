@@ -4,8 +4,7 @@ from mc2.controllers.freebasics.models import FreeBasicsController
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from mc2.controllers.base.models import Controller, publish_to_websocket
+from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
 
@@ -24,8 +23,6 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client = Client()
         self.client.login(username='testuser', password='test')
         self.user = User.objects.get(username='testuser')
-
-        post_save.disconnect(publish_to_websocket, sender=Controller)
 
     @responses.activate
     def test_homepage(self):

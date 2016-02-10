@@ -1,5 +1,7 @@
 #!/bin/bash
 
-cp -a $REPO ./build/
+cd $REPO
 
-${PIP} install -r $REPO/requirements.txt -U
+docker build -t mc2 .
+docker tag -f mc2 qa-mesos-persistence.za.prk-host.net:5000/mc2
+docker push qa-mesos-persistence.za.prk-host.net:5000/mc2

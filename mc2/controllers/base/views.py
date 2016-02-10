@@ -2,9 +2,12 @@ import json
 import os.path
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import (
+    HttpResponse, HttpResponseNotFound, HttpResponseBadRequest)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import UpdateView, CreateView
@@ -172,6 +175,10 @@ class ControllerDeleteView(ControllerViewMixin, View):
 
     # TODO: Check user permissions
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(ControllerDeleteView, self).dispatch(*args, **kwargs)
+
     def post(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
         try:
@@ -179,9 +186,8 @@ class ControllerDeleteView(ControllerViewMixin, View):
             controller.delete()
             messages.info(self.request, 'App deletion sent.')
         except exceptions.MarathonApiException:
-            messages.error(
-                self.request,
-                'Failed to delete app: %(id)s. Please try again.'
-                % {'id': controller.name}
-            )
+            msg = 'Failed to delete "%(id)s". Please try again.' % {
+                'id': controller.name}
+            messages.error(self.request, msg)
+            return HttpResponseBadRequest(msg)
         return redirect('home')

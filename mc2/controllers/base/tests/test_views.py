@@ -6,8 +6,7 @@ from django.test import RequestFactory
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from mc2.controllers.base.models import Controller, publish_to_websocket
+from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
 from mc2.controllers.base.views import AppEventSourceView
@@ -23,8 +22,6 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client = Client()
         self.client.login(username='testuser', password='test')
         self.user = User.objects.get(username='testuser')
-
-        post_save.disconnect(publish_to_websocket, sender=Controller)
 
     @responses.activate
     def test_create_new_controller(self):
@@ -448,9 +445,9 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.login(username='testuser2', password='test')
 
         resp = self.client.post(reverse('base:delete', args=[controller.id]))
-        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp.status_code, 400)
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Failed to delete app: ')
+        self.assertContains(resp, 'Failed to delete')
         self.assertEquals(Controller.objects.all().count(), 1)
