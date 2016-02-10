@@ -2,9 +2,7 @@ import pytest
 import responses
 
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 
-from mc2.controllers.base.models import Controller, publish_to_websocket
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 
 
@@ -14,7 +12,6 @@ class StatesTestCase(ControllerBaseTestCase):
 
     def setUp(self):
         self.user = User.objects.get(username='testuser')
-        post_save.disconnect(publish_to_websocket, sender=Controller)
 
     def test_initial_state(self):
         controller = self.mk_controller()

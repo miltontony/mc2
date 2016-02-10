@@ -72,29 +72,9 @@
 {% endblock %}
 
 {% block script %}
-<script src="{% static 'js/ws4redis.min.js' %}"></script>
 <script type="text/javascript">
 
 jQuery(document).ready(function($) {
-    var ws4redis = WS4Redis({
-        uri: '{{ WEBSOCKET_URI }}progress?subscribe-broadcast',
-        receive_message: receiveMessage,
-        heartbeat_msg: {{ WS4REDIS_HEARTBEAT }}
-    });
-
-    // receive a message though the websocket from the server
-    function receiveMessage(msg) {
-      var data = JSON.parse(msg);
-      if (data.is_created && document.getElementById(data.id) == null){
-        //reload page when new project added
-        window.location.reload();
-        return
-      }
-
-      $('#'+data.id).attr('class', 'main '+ data.state);
-      $('#'+data.id+' .state').html(data.state_display);
-    }
-
     $("#result_list .main")
     .on("mouseenter", function(){
       $(this).addClass("info-hint");
