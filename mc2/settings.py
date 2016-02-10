@@ -274,6 +274,7 @@ CELERY_ALWAYS_EAGER = DEBUG
 
 # Tell Celery where to find the tasks
 CELERY_IMPORTS = ('mc2.tasks', )
+CELERY_ACCEPT_CONTENT = ['json']
 
 # Defer email sending to Celery, except if we're in debug mode,
 # then just print the emails to stdout for debugging.
@@ -315,53 +316,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.user.user_details'
 )
 
-# Unicore Settings (not currently in use)
-# ---------------------------------------
-
-# Used to distinguish between QA and PROD in naming
-DEPLOY_ENVIRONMENT = 'qa'
-
-CMS_SUBDOMAIN = 'qa-content'
-
-# path to where repos will be located
-FRONTEND_REPO_PATH = abspath('repos', 'frontend')
-CMS_REPO_PATH = abspath('repos', 'cms')
-
-CONFIGS_REPO_PATH = abspath('configs')
-
-# path to settings files
-SPRINGBOARD_SETTINGS_OUTPUT_PATH = abspath('configs', 'springboard_settings')
-FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
-CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
-
-FRONTEND_SOCKETS_PATH = abspath('configs', 'frontend_sockets')
-CMS_SOCKETS_PATH = abspath('configs', 'cms_sockets')
-
-UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
-UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
-UNICORE_CONFIGS_INSTALL_DIR = '/path/to/unicore-configs'
-
-GITHUB_API = 'https://api.github.com/orgs/universalcore/'
-GITHUB_HOOKS_API = 'https://api.github.com/repos/universalcore/%(repo)s/hooks'
-GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
-GITHUB_USERNAME = ''
-GITHUB_TOKEN = ''
-
-RAVEN_DSN_FRONTEND_QA = ''
-RAVEN_DSN_FRONTEND_PROD = ''
-
-RAVEN_DSN_CMS_QA = ''
-RAVEN_DSN_CMS_PROD = ''
-
-THUMBOR_SECURITY_KEY = ''
-
-ELASTICSEARCH_HOST = 'http://localhost:9200'
-UNICORE_DISTRIBUTE_HOST = 'http://localhost:6543'
-SERVICE_HOST_IP = '127.0.0.1'
-
 HUBCLIENT_SETTINGS = None
 
-CELERY_ACCEPT_CONTENT = ['json']
-
-MAMA_CAS_ATTRIBUTE_CALLBACKS = (
-    'mc2.permissions.custom_attributes',)
+MAMA_CAS_ATTRIBUTE_CALLBACKS = ('mc2.permissions.custom_attributes',)
