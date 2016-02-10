@@ -1,6 +1,14 @@
 CHANGE LOG
 ==========
 
+3.2.8
+-----
+- ensure cards can be clicked properly
+- cleanup old settings
+- remove dependency of ws4redis
+- fix delete of app
+- allow hub domain to be specified in ENV
+
 3.2.7
 -----
 - specify user/pass env for smtp
