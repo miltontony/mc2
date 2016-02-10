@@ -2,9 +2,7 @@ import pytest
 import responses
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.base.models import publish_to_websocket
 from mc2.controllers.docker.models import DockerController
 
 
@@ -14,7 +12,6 @@ class DockerControllerTestCase(ControllerBaseTestCase):
 
     def setUp(self):
         self.user = User.objects.get(username='testuser')
-        post_save.disconnect(publish_to_websocket, sender=DockerController)
         self.maxDiff = None
 
     def test_get_marathon_app_data(self):

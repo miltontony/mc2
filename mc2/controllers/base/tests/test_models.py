@@ -2,10 +2,9 @@ import pytest
 import responses
 
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
 
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.base.models import Controller, publish_to_websocket
+from mc2.controllers.base.models import Controller
 from mc2.controllers.base import exceptions
 
 
@@ -24,7 +23,6 @@ class ModelsTestCase(ControllerBaseTestCase):
 
     def setUp(self):
         self.user = User.objects.get(username='testuser')
-        post_save.disconnect(publish_to_websocket, sender=Controller)
         self.maxDiff = None
 
     def test_get_marathon_app_data(self):
