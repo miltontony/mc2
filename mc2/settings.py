@@ -176,8 +176,6 @@ FIELDS_STORED_IN_SESSION = ['access_token', ]
 
 ROOT_URLCONF = 'mc2.urls'
 
-# Python dotted path to the WSGI application used by Django's server.
-
 TEMPLATE_DIRS = (
     abspath('puppet_templates'),
     abspath('templates'),
