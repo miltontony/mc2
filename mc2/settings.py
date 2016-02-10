@@ -149,7 +149,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
-    'ws4redis.context_processors.default',
     'mc2.organizations.context_processors.org',
     'mc2.context_processors.default_forms'
 )
@@ -178,7 +177,6 @@ FIELDS_STORED_IN_SESSION = ['access_token', ]
 ROOT_URLCONF = 'mc2.urls'
 
 # Python dotted path to the WSGI application used by Django's server.
-# WSGI_APPLICATION = 'ws4redis.django_runserver.application'
 
 TEMPLATE_DIRS = (
     abspath('puppet_templates'),
@@ -210,7 +208,6 @@ INSTALLED_APPS = (
     'grappelli',
     'django.contrib.admin',
 
-    'ws4redis',
     'compressor',
     'django_gravatar',
     'mama_cas',
@@ -257,12 +254,6 @@ CACHES = {
 }
 
 GRAPPELLI_ADMIN_TITLE = 'Mission Control'
-
-WS4REDIS_EXPIRE = 1
-WEBSOCKET_URL = '/ws/'
-WS4REDIS_CONNECTION = {
-    'db': 4
-}
 
 # Celery configuration options
 BROKER_URL = 'redis://localhost:6379/0'
