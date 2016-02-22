@@ -88,7 +88,6 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         form.controller_form.instance.save()
 
         form.env_formset.instance = form.controller_form.instance
-        form.labels_formset.instance = form.controller_form.instance
 
         response = super(ControllerCreateView, self).form_valid(form)
         tasks.start_new_controller.delay(form.controller_form.instance.id)
