@@ -191,7 +191,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'redis_cache',
-    'django_nose',
     'raven.contrib.django.raven_compat',
     'debug_toolbar',
 
