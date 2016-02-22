@@ -3,7 +3,7 @@ import responses
 from django.conf import settings
 from django.contrib.auth.models import User
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.docker.models import DockerController, MarathonLabel
+from mc2.controllers.docker.models import DockerController
 
 
 @pytest.mark.django_db
@@ -13,16 +13,6 @@ class DockerControllerTestCase(ControllerBaseTestCase):
     def setUp(self):
         self.user = User.objects.get(username='testuser')
         self.maxDiff = None
-
-    def mk_labels_variable(self, controller, **env):
-        env_defaults = {
-            'controller': controller,
-            'name': 'TEST_LABELS_NAME',
-            'value': 'a test label value'
-        }
-
-        env_defaults.update(env)
-        return MarathonLabel.objects.create(**env_defaults)
 
     def test_get_marathon_app_data(self):
         controller = DockerController.objects.create(
