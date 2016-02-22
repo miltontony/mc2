@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('docker', '0005_add_volume_fields'),
+        ('base', '0003_set_default_for_marathon_cmd'),
     ]
 
     operations = [
@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.TextField(null=True, blank=True)),
                 ('value', models.TextField(null=True, blank=True)),
-                ('controller', models.ForeignKey(related_name='label_vars', to='docker.DockerController')),
+                ('controller', models.ForeignKey(related_name='label_variables', to='base.Controller')),
             ],
         ),
     ]
