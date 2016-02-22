@@ -56,6 +56,43 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertTrue(controller.slug)
 
     @responses.activate
+    def test_create_new_controller_with_label(self):
+        existing_controller = self.mk_controller()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'label-0-key': 'A_TEST_KEY',
+            'label-0-value': 'the value',
+            'label-TOTAL_FORMS': 1,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.exclude(
+            pk=existing_controller.pk).get()
+        self.assertEqual(controller.state, 'done')
+
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(controller.label_variables.count(), 1)
+        self.assertEqual(controller.label_variables.all()[0].key, 'A_TEST_KEY')
+        self.assertEqual(controller.label_variables.all()[0].value, 'the value')
+        self.assertTrue(controller.slug)
+
+    @responses.activate
     def test_create_new_controller_with_env(self):
         existing_controller = self.mk_controller()
 
