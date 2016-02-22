@@ -76,7 +76,7 @@ class ViewsTestCase(ControllerBaseTestCase):
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
             'env-MAX_NUM_FORMS': 100,
-            'label-0-key': 'A_TEST_KEY',
+            'label-0-name': 'A_TEST_KEY',
             'label-0-value': 'the value',
             'label-TOTAL_FORMS': 1,
             'label-INITIAL_FORMS': 0,
@@ -96,7 +96,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.marathon_cmd, 'ping2')
         self.assertEqual(controller.organization.slug, 'foo-org')
         self.assertEqual(controller.label_variables.count(), 1)
-        self.assertEqual(controller.label_variables.all()[0].key,
+        self.assertEqual(controller.label_variables.all()[0].name,
             'A_TEST_KEY')
         self.assertEqual(controller.label_variables.all()[0].value,
             'the value')
