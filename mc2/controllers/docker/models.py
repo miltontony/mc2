@@ -49,6 +49,11 @@ class DockerController(Controller):
             "name": self.name,
         }
 
+        # Update custom labels
+        if self.label_variables.exists():
+            for label in self.label_variables.all():
+                service_labels[label.name] = label.value
+
         app_data.update({
             "labels": service_labels,
             "container": {
