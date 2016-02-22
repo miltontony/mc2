@@ -50,9 +50,9 @@ class DockerController(Controller):
         }
 
         # Update custom labels
-        if self.label_vars.exists():
-            for label in self.label_vars.all():
-                service_labels[label.name] = label.var
+        if self.label_variables.exists():
+            for label in self.label_variables.all():
+                service_labels[label.name] = label.value
 
         app_data.update({
             "labels": service_labels,
@@ -93,8 +93,3 @@ class DockerController(Controller):
             'app_id': self.app_id,
             'hub': settings.HUB_DOMAIN
         }
-
-class MarathonLabel(models.Model):
-    controller = models.ForeignKey(DockerController, related_name='label_vars')
-    name = models.TextField(blank=True, null=True)
-    value = models.TextField(blank=True, null=True)
