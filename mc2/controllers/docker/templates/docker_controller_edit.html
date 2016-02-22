@@ -18,8 +18,8 @@
           })
       })
       $(function() {
-          $(".inline.labels").formset({
-              prefix: "labels",
+          $(".inline.label").formset({
+              prefix: "label",
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           })
@@ -84,11 +84,11 @@
 
       <fieldset class="input-xxlarge" id="label-variables">
         <legend>Application Labels</legend>
-          {{ form.labels_formset.management_form }}
+          {{ form.label_formset.management_form }}
           {{ form.non_form_errors }}
-          {% for form in form.labels_formset %}
+          {% for form in form.label_formset %}
               {{ form.id }}
-              <div class="row inline labels">
+              <div class="row inline label">
                   <div class="col-xs-4">
                   {% include "form_field.html" with field=form.name %}
                   </div>
