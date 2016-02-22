@@ -49,6 +49,7 @@ EnvVariableInlineFormSet = forms.inlineformset_factory(
     can_order=False
 )
 
+
 class MarathonLabelForm(forms.ModelForm):
     name = forms.RegexField(
         "^[0-9a-zA-Z_]+$", required=True, error_messages={
@@ -72,6 +73,7 @@ MarathonLabelInlineFormSet = forms.inlineformset_factory(
     can_order=False
 )
 
+
 class ControllerFormHelper(object):
 
     def __init__(self, data=None, files=None, instance=None,
@@ -84,12 +86,10 @@ class ControllerFormHelper(object):
             data, files,
             instance=instance,
             prefix='env')
-
         self.label_formset = MarathonLabelInlineFormSet(
             data, files,
             instance=instance,
             prefix='label')
-
 
     def __iter__(self):
         yield self.controller_form

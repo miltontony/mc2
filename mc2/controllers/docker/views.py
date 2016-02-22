@@ -7,6 +7,7 @@ class DockerControllerCreateView(ControllerCreateView):
     template_name = 'docker_controller_edit.html'
     permissions = ['controllers.docker.add_dockercontroller']
 
+
 class DockerControllerEditView(ControllerEditView):
     form_class = DockerControllerFormHelper
     template_name = 'docker_controller_edit.html'

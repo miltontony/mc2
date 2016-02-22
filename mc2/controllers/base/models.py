@@ -189,6 +189,7 @@ class EnvVariable(models.Model):
     key = models.TextField(blank=True, null=True)
     value = models.TextField(blank=True, null=True)
 
+
 class MarathonLabel(models.Model):
     controller = models.ForeignKey(Controller, related_name='label_variables')
     name = models.TextField(blank=True, null=True)

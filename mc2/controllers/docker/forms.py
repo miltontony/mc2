@@ -1,5 +1,4 @@
 from django import forms
-from django.utils.translation import ugettext_lazy as _
 from mc2.controllers.docker.models import DockerController
 from mc2.controllers.base.forms import ControllerForm, ControllerFormHelper
 
