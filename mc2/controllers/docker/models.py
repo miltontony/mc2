@@ -76,8 +76,6 @@ class DockerController(Controller):
                 }]
             })
 
-        print app_data
-
         return app_data
 
     def to_dict(self):
