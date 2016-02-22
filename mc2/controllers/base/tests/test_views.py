@@ -40,6 +40,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
             'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -68,6 +72,10 @@ class ViewsTestCase(ControllerBaseTestCase):
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
             'label-0-key': 'A_TEST_KEY',
             'label-0-value': 'the value',
             'label-TOTAL_FORMS': 1,
@@ -111,6 +119,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
             'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -139,6 +151,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
             'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 1,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -152,6 +168,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
             'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 1,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -203,6 +223,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
             'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -222,6 +246,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'env-INITIAL_FORMS': 0,
                 'env-MIN_NUM_FORMS': 0,
                 'env-MAX_NUM_FORMS': 100,
+                'label-TOTAL_FORMS': 0,
+                'label-INITIAL_FORMS': 0,
+                'label-MIN_NUM_FORMS': 0,
+                'label-MAX_NUM_FORMS': 100,
             })
         controller = Controller.objects.get(pk=controller.id)
         self.assertEqual(controller.marathon_cpus, 0.5)
@@ -244,6 +272,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
             'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -263,6 +295,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'env-INITIAL_FORMS': 0,
                 'env-MIN_NUM_FORMS': 0,
                 'env-MAX_NUM_FORMS': 100,
+                'label-TOTAL_FORMS': 0,
+                'label-INITIAL_FORMS': 0,
+                'label-MIN_NUM_FORMS': 0,
+                'label-MAX_NUM_FORMS': 100,
             })
         controller = Controller.objects.get(pk=controller.id)
         self.assertEqual(controller.marathon_cpus, 0.5)
