@@ -3,7 +3,7 @@ import responses
 from django.conf import settings
 from django.contrib.auth.models import User
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.docker.models import DockerController
+from mc2.controllers.docker.models import DockerController, MarathonLabel
 
 
 @pytest.mark.django_db
@@ -13,6 +13,16 @@ class DockerControllerTestCase(ControllerBaseTestCase):
     def setUp(self):
         self.user = User.objects.get(username='testuser')
         self.maxDiff = None
+
+    def mk_labels_variable(self, controller, **env):
+        env_defaults = {
+            'controller': controller,
+            'name': 'TEST_LABELS_NAME',
+            'value': 'a test label value'
+        }
+
+        env_defaults.update(env)
+        return MarathonLabel.objects.create(**env_defaults)
 
     def test_get_marathon_app_data(self):
         controller = DockerController.objects.create(
@@ -217,6 +227,39 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": "{}.{}".format(controller.app_id,
                                          settings.HUB_DOMAIN),
                 "name": "Test App",
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "docker/image",
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                }
+            }
+        })
+
+    def test_get_marathon_app_data_with_app_labels(self):
+        controller = DockerController.objects.create(
+            name='Test App',
+            owner=self.user,
+            marathon_cmd='ping',
+            docker_image='docker/image',
+        )
+        self.mk_env_variable(controller)
+        self.mk_labels_variable(controller)
+
+        self.assertEquals(controller.get_marathon_app_data(), {
+            "id": controller.app_id,
+            "cpus": 0.1,
+            "mem": 128.0,
+            "instances": 1,
+            "cmd": "ping",
+            "env": {"TEST_KEY": "a test value"},
+            "labels": {
+                "domain": "{}.{}".format(controller.app_id,
+                                         settings.HUB_DOMAIN),
+                "name": "Test App",
+                "TEST_LABELS_NAME": 'a test label value'
             },
             "container": {
                 "type": "DOCKER",
