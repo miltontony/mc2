@@ -1,13 +1,14 @@
 import json
 import responses
 
-from django.test import TransactionTestCase
+# from django.test import TransactionTestCase
+from hypothesis.extra.django import TestCase
 from django.conf import settings
 
 from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 
 
-class ControllerBaseTestCase(TransactionTestCase):
+class ControllerBaseTestCase(TestCase):
 
     def mk_controller(self, controller={}):
         controller_defaults = {

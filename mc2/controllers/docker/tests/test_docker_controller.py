@@ -2,8 +2,44 @@ import pytest
 import responses
 from django.conf import settings
 from django.contrib.auth.models import User
+from hypothesis import given
+from hypothesis.strategies import text, random_module
+
+from mc2.controllers.docker.tests.hypothesis_helper import (
+    models, DEFAULT_VALUE)
+
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
+
+
+def docker_controller(**kw):
+    kw.setdefault("slug", text().map(lambda t: "".join(t.split())))
+    kw.setdefault("owner", models(User))
+    return models(DockerController, controller_ptr=DEFAULT_VALUE, **kw)
+
+
+def filter_docker_data(docker, volume_needed):
+    """
+    Remove fields with default or unset values.
+    """
+    docker["portMappings"] = [pm for pm in docker["portMappings"]
+                              if pm["containerPort"] != 0]
+    if not docker["portMappings"]:
+        docker.pop("portMappings")
+    if not volume_needed:
+        docker.pop("parameters")
+
+
+def filter_app_data(appdata, **kw):
+    """
+    Remove fields with default or unset values.
+    """
+    if not appdata["cmd"]:
+        appdata.pop("cmd")
+    if not appdata["healthChecks"][0]["path"]:
+        appdata.pop("healthChecks")
+        appdata.pop("ports")
+    filter_docker_data(appdata["container"]["docker"], **kw)
 
 
 @pytest.mark.django_db
@@ -13,6 +49,68 @@ class DockerControllerTestCase(ControllerBaseTestCase):
     def setUp(self):
         self.user = User.objects.get(username='testuser')
         self.maxDiff = None
+
+    @given(_r=random_module(), controller=docker_controller())
+    def test_get_marathon_app_data_h(self, _r, controller):
+
+        app_data = {
+            "id": controller.app_id,
+            "cpus": controller.marathon_cpus,
+            "mem": controller.marathon_mem,
+            "instances": controller.marathon_instances,
+            "cmd": controller.marathon_cmd,
+            "labels": {
+                "domain": u"{}.{} {}".format(controller.app_id,
+                                             settings.HUB_DOMAIN,
+                                             controller.domain_urls).strip(),
+                "name": controller.name,
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": controller.docker_image,
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                    "portMappings": [{
+                        "containerPort": controller.port,
+                        "hostPort": 0,
+                    }],
+                    "parameters": [
+                        {"key": "volume-driver", "value": "xylem"},
+                        {
+                            "key": "volume",
+                            "value": u"%s_media:%s" % (
+                                controller.app_id,
+                                controller.volume_path or
+                                settings.MARATHON_DEFAULT_VOLUME_PATH),
+                        },
+                    ],
+                },
+            },
+            "ports": [0],
+            "healthChecks": [{
+                "gracePeriodSeconds": 3,
+                "intervalSeconds": 10,
+                "maxConsecutiveFailures": 3,
+                "path": controller.marathon_health_check_path,
+                "portIndex": 0,
+                "protocol": "HTTP",
+                "timeoutSeconds": 5
+            }]
+        }
+
+        filter_app_data(app_data, volume_needed=controller.volume_needed)
+
+        self.assertEquals(app_data, controller.get_marathon_app_data())
+
+    @given(_r=random_module(), controller=docker_controller())
+    def test_from_marathon_app_data_h(self, _r, controller):
+
+        orig_data = controller.get_marathon_app_data()
+        new_controller = DockerController.from_marathon_app_data(
+            controller.owner, orig_data)
+        new_data = new_controller.get_marathon_app_data()
+        self.assertEqual(orig_data, new_data)
 
     def test_get_marathon_app_data(self):
         controller = DockerController.objects.create(
