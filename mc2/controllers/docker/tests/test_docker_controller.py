@@ -15,18 +15,28 @@ from mc2.controllers.docker.models import DockerController
 
 
 def add_envvars(controller):
+    """
+    Generate some EnvVariable models for the given controller.
+
+    We discard these once we've made them because they're in the database.
+    """
     envvars = lists(models(EnvVariable, controller=just(controller)))
     return envvars.map(lambda _: controller)
 
 
 def add_labels(controller):
+    """
+    Generate some MarathonLabel models for the given controller.
+
+    We discard these once we've made them because they're in the database.
+    """
     labels = lists(models(MarathonLabel, controller=just(controller)))
     return labels.map(lambda _: controller)
 
 
 def docker_controller(with_envvars=True, with_labels=True, **kw):
     """
-    Strategy to generate a controller model with (optional) envvars and labels.
+    Generate a DockerController model with (optional) envvars and labels.
     """
     # The slug is used in places where whitespace and colons are problematic,
     # so we remove them from the generated value.
