@@ -28,9 +28,16 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     """
     Strategy to generate a controller model with (optional) envvars and labels.
     """
+    # The slug is used in places where whitespace and colos are problematic, so
+    # we remove them from the generated value.
+    # TODO: Build a proper SlugField strategy.
+    # TODO: Figure out why the field validation isn't being applied.
     kw.setdefault("slug", text().map(
         lambda t: "".join(t.replace(":", "").split())))
     kw.setdefault("owner", models(User))
+    # The model generator sees `controller_ptr` (from the PolymorphicModel
+    # magic) as a mandatory field and objects if we don't provide a value for
+    # it.
     controller = models(DockerController, controller_ptr=DEFAULT_VALUE, **kw)
     if with_envvars:
         controller = controller.flatmap(add_envvars)
