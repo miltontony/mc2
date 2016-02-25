@@ -1,5 +1,5 @@
 from django.db import models
-from mc2.controllers.base.models import Controller
+from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 from django.conf import settings
 
 
@@ -82,14 +82,11 @@ class DockerController(Controller):
     def from_marathon_app_data(cls, owner, app_data):
         docker_dict = app_data["container"]["docker"]
         args = {
-            # From base
             "slug": app_data["id"],
             "marathon_cpus": app_data["cpus"],
             "marathon_mem": app_data["mem"],
             "marathon_instances": app_data["instances"],
             "marathon_cmd": app_data.get("cmd", ""),
-            # TODO: env
-            # Ours
             "docker_image": docker_dict["image"],
         }
 
@@ -101,6 +98,8 @@ class DockerController(Controller):
                 args["volume_needed"] = True
                 args["volume_path"] = param["value"].split(":", 1)[1]
 
+        labels = []
+
         gen_domain = (u"%s.%s" % (app_data["id"], settings.HUB_DOMAIN)).strip()
         for k, v in app_data["labels"].items():
             if k == "name":
@@ -109,14 +108,21 @@ class DockerController(Controller):
                 args["domain_urls"] = u" ".join(
                     [d for d in v.split(u" ") if d != gen_domain])
             else:
-                # TODO: labels
-                pass
+                labels.append({"name": k, "value": v})
 
         if "healthChecks" in app_data:
             hcp = app_data["healthChecks"][0]["path"]
             args["marathon_health_check_path"] = hcp
 
-        return cls.objects.create(owner=owner, **args)
+        self = cls.objects.create(owner=owner, **args)
+
+        for label in labels:
+            MarathonLabel.objects.create(controller=self, **label)
+
+        for key, value in app_data.get("env", {}).items():
+            EnvVariable.objects.create(controller=self, key=key, value=value)
+
+        return self
 
     def to_dict(self):
         data = super(DockerController, self).to_dict()

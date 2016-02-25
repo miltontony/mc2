@@ -186,11 +186,11 @@ class Controller(PolymorphicModel):
 
 class EnvVariable(models.Model):
     controller = models.ForeignKey(Controller, related_name='env_variables')
-    key = models.TextField(blank=True, null=True)
-    value = models.TextField(blank=True, null=True)
+    key = models.TextField(blank=False, null=False)
+    value = models.TextField(blank=False, null=False)
 
 
 class MarathonLabel(models.Model):
     controller = models.ForeignKey(Controller, related_name='label_variables')
-    name = models.TextField(blank=True, null=True)
-    value = models.TextField(blank=True, null=True)
+    name = models.TextField(blank=False, null=False)
+    value = models.TextField(blank=False, null=False)

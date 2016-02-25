@@ -3,19 +3,36 @@ import responses
 from django.conf import settings
 from django.contrib.auth.models import User
 from hypothesis import given
-from hypothesis.strategies import text, random_module
+from hypothesis.strategies import text, random_module, lists, just
 
 from mc2.controllers.docker.tests.hypothesis_helper import (
     models, DEFAULT_VALUE)
 
+from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
 
 
-def docker_controller(**kw):
-    kw.setdefault("slug", text().map(lambda t: "".join(t.split())))
+def add_envvars(controller):
+    envvars = lists(models(EnvVariable, controller=just(controller)))
+    return envvars.map(lambda _: controller)
+
+
+def add_labels(controller):
+    envvars = lists(models(MarathonLabel, controller=just(controller)))
+    return envvars.map(lambda _: controller)
+
+
+def docker_controller(with_envvars=True, with_labels=True, **kw):
+    kw.setdefault("slug", text().map(
+        lambda t: "".join(t.replace(":", "").split())))
     kw.setdefault("owner", models(User))
-    return models(DockerController, controller_ptr=DEFAULT_VALUE, **kw)
+    controller = models(DockerController, controller_ptr=DEFAULT_VALUE, **kw)
+    if with_envvars:
+        controller = controller.flatmap(add_envvars)
+    if with_labels:
+        controller = controller.flatmap(add_labels)
+    return controller
 
 
 def filter_docker_data(docker, volume_needed):
@@ -39,6 +56,8 @@ def filter_app_data(appdata, **kw):
     if not appdata["healthChecks"][0]["path"]:
         appdata.pop("healthChecks")
         appdata.pop("ports")
+    if not appdata["env"]:
+        appdata.pop("env")
     filter_docker_data(appdata["container"]["docker"], **kw)
 
 
@@ -96,8 +115,11 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "portIndex": 0,
                 "protocol": "HTTP",
                 "timeoutSeconds": 5
-            }]
+            }],
+            "env": {e.key: e.value for e in controller.env_variables.all()},
         }
+        for label in controller.label_variables.all():
+            app_data["labels"][label.name] = label.value
 
         filter_app_data(app_data, volume_needed=controller.volume_needed)
 
