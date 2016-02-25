@@ -2,7 +2,7 @@ import pytest
 import responses
 from django.conf import settings
 from django.contrib.auth.models import User
-from hypothesis import given
+from hypothesis import given, settings as hsettings
 from hypothesis.extra.django import TestCase
 from hypothesis.strategies import text, random_module, lists, just
 
@@ -28,8 +28,8 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     """
     Strategy to generate a controller model with (optional) envvars and labels.
     """
-    # The slug is used in places where whitespace and colos are problematic, so
-    # we remove them from the generated value.
+    # The slug is used in places where whitespace and colons are problematic,
+    # so we remove them from the generated value.
     # TODO: Build a proper SlugField strategy.
     # TODO: Figure out why the field validation isn't being applied.
     kw.setdefault("slug", text().map(
@@ -151,9 +151,20 @@ def check_and_remove_optional(appdata, field, value):
 
 @pytest.mark.django_db
 class DockerControllerHypothesisTestCase(TestCase):
+    """
+    Hypothesis tests for the DockerController model.
 
+    These need to have the health checks disabled because Django model
+    generation is very slow and occasionally fails the slow data generation
+    check.
+    """
+
+    @hsettings(perform_health_check=False)
     @given(_r=random_module(), controller=docker_controller())
     def test_get_marathon_app_data(self, _r, controller):
+        """
+        Suitable app_data is built for any combination of model parameters.
+        """
         app_data = controller.get_marathon_app_data()
         check_and_clear_appdata(app_data, controller)
 
