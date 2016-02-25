@@ -2,8 +2,153 @@ import pytest
 import responses
 from django.conf import settings
 from django.contrib.auth.models import User
+from hypothesis import given
+from hypothesis.extra.django import TestCase
+from hypothesis.strategies import text, random_module, lists, just
+
+from mc2.controllers.docker.tests.hypothesis_helper import (
+    models, DEFAULT_VALUE)
+
+from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
+
+
+def add_envvars(controller):
+    envvars = lists(models(EnvVariable, controller=just(controller)))
+    return envvars.map(lambda _: controller)
+
+
+def add_labels(controller):
+    labels = lists(models(MarathonLabel, controller=just(controller)))
+    return labels.map(lambda _: controller)
+
+
+def docker_controller(with_envvars=True, with_labels=True, **kw):
+    """
+    Strategy to generate a controller model with (optional) envvars and labels.
+    """
+    kw.setdefault("slug", text().map(
+        lambda t: "".join(t.replace(":", "").split())))
+    kw.setdefault("owner", models(User))
+    controller = models(DockerController, controller_ptr=DEFAULT_VALUE, **kw)
+    if with_envvars:
+        controller = controller.flatmap(add_envvars)
+    if with_labels:
+        controller = controller.flatmap(add_labels)
+    return controller
+
+
+def check_and_clear_appdata(appdata, controller):
+    """
+    Assert that appdata is correct and clear it.
+
+    Because there are a bunch of separate checks for different parts of the
+    data, we remove each thing we check as we check it. If we don't have an
+    empty dict at the end, there's something unexpected in the data.
+
+    We do it this way instead of generating a big dict to compare against so
+    that we don't end up with two copies of the same logic.
+    """
+    assert appdata.pop("id") == controller.app_id
+    assert appdata.pop("cpus") == controller.marathon_cpus
+    assert appdata.pop("mem") == controller.marathon_mem
+    assert appdata.pop("instances") == controller.marathon_instances
+    check_and_remove_optional(appdata, "cmd", controller.marathon_cmd)
+    check_and_remove_docker(appdata, controller)
+    check_and_remove_health(appdata, controller)
+    check_and_remove_env(appdata, controller)
+    check_and_remove_labels(appdata, controller)
+    assert appdata == {}
+
+
+def check_and_remove_docker(appdata, controller):
+    """
+    Assert that the docker container data is correct and remove it.
+    """
+    container = appdata.pop("container")
+    assert container.pop("type") == "DOCKER"
+    docker = container.pop("docker")
+    assert docker.pop("image") == controller.docker_image
+    assert docker.pop("forcePullImage") is True
+    assert docker.pop("network") == "BRIDGE"
+    if controller.port:
+        assert docker.pop("portMappings") == [
+            {"containerPort": controller.port, "hostPort": 0}]
+    if controller.volume_needed:
+        volume = u"%s_media:%s" % (
+            controller.app_id,
+            controller.volume_path or settings.MARATHON_DEFAULT_VOLUME_PATH)
+        assert sorted(docker.pop("parameters")) == sorted([
+            {"key": "volume-driver", "value": "xylem"},
+            {"key": "volume", "value": volume},
+        ])
+    assert docker == {}
+    assert container == {}
+
+
+def check_and_remove_health(appdata, controller):
+    """
+    Assert that the health check data is correct and remove it.
+    """
+    if controller.marathon_health_check_path:
+        assert appdata.pop("ports") == [0]
+        assert appdata.pop("healthChecks") == [{
+            "gracePeriodSeconds": 3,
+            "intervalSeconds": 10,
+            "maxConsecutiveFailures": 3,
+            "path": controller.marathon_health_check_path,
+            "portIndex": 0,
+            "protocol": "HTTP",
+            "timeoutSeconds": 5,
+        }]
+    assert "ports" not in appdata
+    assert "healthChecks" not in appdata
+
+
+def check_and_remove_env(appdata, controller):
+    """
+    Assert that the correct envvars are in appdata and remove them.
+    """
+    env_variables = controller.env_variables.all()
+    if env_variables:
+        # We may have duplicate keys in here, but hopefully the database always
+        # return the objects in the same order.
+        assert appdata.pop("env") == {ev.key: ev.value for ev in env_variables}
+    assert "env" not in appdata
+
+
+def check_and_remove_labels(appdata, controller):
+    """
+    Assert that the correct labels are in appdata and remove them.
+    """
+    labels = appdata.pop("labels")
+    assert labels.pop("name") == controller.name
+    domains = [u".".join([controller.app_id, settings.HUB_DOMAIN])]
+    domains.extend(controller.domain_urls.split())
+    assert sorted(labels.pop("domain").split()) == sorted(domains)
+    # We may have duplicate keys in here, but hopefully the database always
+    # return the objects in the same order.
+    lvs = {lv.name: lv.value for lv in controller.label_variables.all()}
+    assert labels == lvs
+
+
+def check_and_remove_optional(appdata, field, value):
+    """
+    Assert that the given field has the correct value or is missing if unset.
+    """
+    if value:
+        assert appdata.pop(field) == value
+    assert field not in appdata
+
+
+@pytest.mark.django_db
+class DockerControllerHypothesisTestCase(TestCase):
+
+    @given(_r=random_module(), controller=docker_controller())
+    def test_get_marathon_app_data(self, _r, controller):
+        app_data = controller.get_marathon_app_data()
+        check_and_clear_appdata(app_data, controller)
 
 
 @pytest.mark.django_db
