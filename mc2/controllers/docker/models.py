@@ -1,6 +1,9 @@
+import json
+
 from django.db import models
-from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 from django.conf import settings
+
+from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 
 
 class DockerController(Controller):
@@ -86,28 +89,39 @@ class DockerController(Controller):
         NOTE: This is tested with the output of `get_marathon_app_data()`
         above, so it may not correctly handle arbitrary fields.
         """
-        docker_dict = app_data["container"]["docker"]
+        # Round-trip through JSON so we:
+        # (a) know that everything's valid JSON
+        # (b) get our own copy that we can modify without changing our input.
+        app_data = json.loads(json.dumps(app_data))
+
+        docker_dict = app_data["container"].pop("docker")
         args = {
-            "slug": app_data["id"],
-            "marathon_cpus": app_data["cpus"],
-            "marathon_mem": app_data["mem"],
-            "marathon_instances": app_data["instances"],
-            "marathon_cmd": app_data.get("cmd", ""),
-            "docker_image": docker_dict["image"],
+            "slug": app_data.pop("id"),
+            "marathon_cpus": app_data.pop("cpus"),
+            "marathon_mem": app_data.pop("mem"),
+            "marathon_instances": app_data.pop("instances"),
+            "marathon_cmd": app_data.pop("cmd", ""),
+            "docker_image": docker_dict.pop("image"),
         }
+        # TODO: Better error:
+        assert docker_dict.pop("network") == "BRIDGE"
+        assert docker_dict.pop("forcePullImage") is True
+        assert app_data.pop("container") == {"type": "DOCKER"}
 
-        if docker_dict.get("portMappings"):
-            args["port"] = docker_dict["portMappings"][0]["containerPort"]
+        if "portMappings" in docker_dict:
+            # TODO: Better error:
+            assert len(docker_dict["portMappings"]) == 1
+            args["port"] = docker_dict.pop("portMappings")[0]["containerPort"]
 
-        for param in docker_dict.get("parameters", []):
+        for param in docker_dict.pop("parameters", []):
             if param["key"] == "volume":
                 args["volume_needed"] = True
                 args["volume_path"] = param["value"].split(":", 1)[1]
 
         labels = []
 
-        gen_domain = (u"%s.%s" % (app_data["id"], settings.HUB_DOMAIN)).strip()
-        for k, v in app_data["labels"].items():
+        gen_domain = (u"%s.%s" % (args["slug"], settings.HUB_DOMAIN)).strip()
+        for k, v in app_data.pop("labels").items():
             if k == "name":
                 args["name"] = v
             elif k == "domain":
@@ -117,16 +131,24 @@ class DockerController(Controller):
                 labels.append({"name": k, "value": v})
 
         if "healthChecks" in app_data:
-            hcp = app_data["healthChecks"][0]["path"]
-            args["marathon_health_check_path"] = hcp
+            # TODO: Validate the rest of the health check data.
+            # TODO: Better errors:
+            assert app_data.pop("ports") == [0]
+            hc = app_data.pop("healthChecks")
+            assert len(hc) == 1
+            args["marathon_health_check_path"] = hc[0]["path"]
 
         self = cls.objects.create(owner=owner, **args)
 
         for label in labels:
             MarathonLabel.objects.create(controller=self, **label)
 
-        for key, value in app_data.get("env", {}).items():
+        for key, value in app_data.pop("env", {}).items():
             EnvVariable.objects.create(controller=self, key=key, value=value)
+
+        # TODO: Better errors:
+        assert docker_dict == {}
+        assert app_data == {}
 
         return self
 

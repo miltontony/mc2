@@ -188,7 +188,7 @@ class DockerControllerHypothesisTestCase(TestCase):
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
             controller.owner, app_data)
-        self.assertEqual(app_data, new_controller.get_marathon_app_data())
+        assert app_data == new_controller.get_marathon_app_data()
 
 
 @pytest.mark.django_db
