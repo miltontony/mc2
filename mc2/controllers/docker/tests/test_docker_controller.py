@@ -178,6 +178,18 @@ class DockerControllerHypothesisTestCase(TestCase):
         app_data = controller.get_marathon_app_data()
         check_and_clear_appdata(app_data, controller)
 
+    @hsettings(perform_health_check=False)
+    @given(_r=random_module(), controller=docker_controller())
+    def test_from_marathon_app_data(self, _r, controller):
+        """
+        A model imported from app_data generates the same app_data as the model
+        it was imported from.
+        """
+        app_data = controller.get_marathon_app_data()
+        new_controller = DockerController.from_marathon_app_data(
+            controller.owner, app_data)
+        self.assertEqual(app_data, new_controller.get_marathon_app_data())
+
 
 @pytest.mark.django_db
 class DockerControllerTestCase(ControllerBaseTestCase):

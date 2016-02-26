@@ -1,5 +1,5 @@
 from django.db import models
-from mc2.controllers.base.models import Controller
+from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 from django.conf import settings
 
 
@@ -77,6 +77,58 @@ class DockerController(Controller):
             })
 
         return app_data
+
+    @classmethod
+    def from_marathon_app_data(cls, owner, app_data):
+        """
+        Create a new model from the given Marathon app data.
+
+        NOTE: This is tested with the output of `get_marathon_app_data()`
+        above, so it may not correctly handle arbitrary fields.
+        """
+        docker_dict = app_data["container"]["docker"]
+        args = {
+            "slug": app_data["id"],
+            "marathon_cpus": app_data["cpus"],
+            "marathon_mem": app_data["mem"],
+            "marathon_instances": app_data["instances"],
+            "marathon_cmd": app_data.get("cmd", ""),
+            "docker_image": docker_dict["image"],
+        }
+
+        if docker_dict.get("portMappings"):
+            args["port"] = docker_dict["portMappings"][0]["containerPort"]
+
+        for param in docker_dict.get("parameters", []):
+            if param["key"] == "volume":
+                args["volume_needed"] = True
+                args["volume_path"] = param["value"].split(":", 1)[1]
+
+        labels = []
+
+        gen_domain = (u"%s.%s" % (app_data["id"], settings.HUB_DOMAIN)).strip()
+        for k, v in app_data["labels"].items():
+            if k == "name":
+                args["name"] = v
+            elif k == "domain":
+                args["domain_urls"] = u" ".join(
+                    [d for d in v.split(u" ") if d != gen_domain])
+            else:
+                labels.append({"name": k, "value": v})
+
+        if "healthChecks" in app_data:
+            hcp = app_data["healthChecks"][0]["path"]
+            args["marathon_health_check_path"] = hcp
+
+        self = cls.objects.create(owner=owner, **args)
+
+        for label in labels:
+            MarathonLabel.objects.create(controller=self, **label)
+
+        for key, value in app_data.get("env", {}).items():
+            EnvVariable.objects.create(controller=self, key=key, value=value)
+
+        return self
 
     def to_dict(self):
         data = super(DockerController, self).to_dict()
