@@ -1,3 +1,5 @@
+import json
+
 import pytest
 import responses
 from django.conf import settings
@@ -189,6 +191,25 @@ class DockerControllerHypothesisTestCase(TestCase):
         new_controller = DockerController.from_marathon_app_data(
             controller.owner, app_data)
         assert app_data == new_controller.get_marathon_app_data()
+
+    @hsettings(perform_health_check=False, max_examples=50)
+    @given(_r=random_module(), controller=docker_controller(), name=text())
+    def test_from_marathon_app_data_with_name(self, _r, controller, name):
+        """
+        A model imported from app_data generates the same app_data as the model
+        it was imported from, but with the name field overridden.
+
+        We limit the number of examples we generate because we don't need
+        hundreds of examples to verify that this behaviour is correct.
+        """
+        app_data = controller.get_marathon_app_data()
+        new_controller = DockerController.from_marathon_app_data(
+            controller.owner, app_data, name=name)
+        assert new_controller.name == name
+
+        app_data_with_name = json.loads(json.dumps(app_data))
+        app_data_with_name["labels"]["name"] = name
+        assert app_data_with_name == new_controller.get_marathon_app_data()
 
 
 @pytest.mark.django_db

@@ -82,7 +82,7 @@ class DockerController(Controller):
         return app_data
 
     @classmethod
-    def from_marathon_app_data(cls, owner, app_data):
+    def from_marathon_app_data(cls, owner, app_data, name=None):
         """
         Create a new model from the given Marathon app data.
 
@@ -137,6 +137,9 @@ class DockerController(Controller):
             hc = app_data.pop("healthChecks")
             assert len(hc) == 1
             args["marathon_health_check_path"] = hc[0]["path"]
+
+        if name is not None:
+            args["name"] = name
 
         self = cls.objects.create(owner=owner, **args)
 
