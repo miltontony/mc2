@@ -21,7 +21,6 @@
 {#{% if user.is_superuser %}#}
 {#<a href="{% url 'base:add' %}" class="btn btn-primary">Start new base controller</a>#}
 {#<a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Start new docker controller</a>#}
-{#<a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">Start new free basics controller</a>#}
 {#{% comment %}#}
 {#<a href="{% url 'manage_ga' %}" class="btn btn-primary">Manage GA Profiles</a>#}
 {#<a href="{% url 'health_check' %}" class="btn btn-primary">Health Checks</a>#}
@@ -50,9 +49,6 @@
                             <hr/>
                             <a href="{% url 'base:add' %}" class="btn btn-primary">Basic</a>
                             <a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Docker</a>
-                            <a href="{% url 'controllers.freebasics:add' %}" class="btn btn-primary">
-                                <span class="free-basics"><i>&ensp;&ensp;&ensp;&ensp;</i></span>Free Basics
-                            </a>
                         </div>
                     {% else %}
                         <div class="center-text">
