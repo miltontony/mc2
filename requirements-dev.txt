@@ -1,6 +1,7 @@
-pytest
+pytest>=2.8
 pytest-django
 pytest-cov
 pytest-xdist
+pytest-flake8
 responses
-flake8
+hypothesis[django]

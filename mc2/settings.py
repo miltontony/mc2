@@ -191,13 +191,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'redis_cache',
-    'django_nose',
     'raven.contrib.django.raven_compat',
     'debug_toolbar',
 
     'social.apps.django_app.default',
     'mc2',
-    'mc2.controllers.freebasics',
     'mc2.controllers.docker',
     'mc2.controllers.base',
     'mc2.controllers',

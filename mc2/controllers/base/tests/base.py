@@ -4,7 +4,7 @@ import responses
 from django.test import TransactionTestCase
 from django.conf import settings
 
-from mc2.controllers.base.models import Controller, EnvVariable
+from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 
 
 class ControllerBaseTestCase(TransactionTestCase):
@@ -18,6 +18,16 @@ class ControllerBaseTestCase(TransactionTestCase):
 
         controller_defaults.update(controller)
         return Controller.objects.create(**controller_defaults)
+
+    def mk_labels_variable(self, controller, **env):
+        env_defaults = {
+            'controller': controller,
+            'name': 'TEST_LABELS_NAME',
+            'value': 'a test label value'
+        }
+
+        env_defaults.update(env)
+        return MarathonLabel.objects.create(**env_defaults)
 
     def mk_env_variable(self, controller, **env):
         env_defaults = {

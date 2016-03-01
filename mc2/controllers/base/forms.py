@@ -1,6 +1,6 @@
 from django import forms
 from django.utils.translation import ugettext_lazy as _
-from mc2.controllers.base.models import Controller, EnvVariable
+from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 
 
 class ControllerForm(forms.ModelForm):
@@ -50,6 +50,30 @@ EnvVariableInlineFormSet = forms.inlineformset_factory(
 )
 
 
+class MarathonLabelForm(forms.ModelForm):
+    name = forms.RegexField(
+        "^[0-9a-zA-Z_]+$", required=True, error_messages={
+            'invalid':
+                _("You did not enter a valid key. Please try again.")},
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+    value = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = MarathonLabel
+        fields = ('name', 'value')
+
+
+MarathonLabelInlineFormSet = forms.inlineformset_factory(
+    Controller,
+    MarathonLabel,
+    form=MarathonLabelForm,
+    extra=1,
+    can_delete=True,
+    can_order=False
+)
+
+
 class ControllerFormHelper(object):
 
     def __init__(self, data=None, files=None, instance=None,
@@ -62,10 +86,15 @@ class ControllerFormHelper(object):
             data, files,
             instance=instance,
             prefix='env')
+        self.label_formset = MarathonLabelInlineFormSet(
+            data, files,
+            instance=instance,
+            prefix='label')
 
     def __iter__(self):
         yield self.controller_form
         yield self.env_formset
+        yield self.label_formset
 
     def is_valid(self):
         return all(form.is_valid() for form in self)

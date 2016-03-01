@@ -9,6 +9,12 @@
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           })
+          $(".inline.label").formset({
+              prefix: "label",
+              addCssClass: "add-row btn btn-primary",
+              deleteCssClass: "delete-row btn btn-danger btn-xs",
+          })
+
       })
     </script>
 {% endblock %}
@@ -54,6 +60,23 @@
               <div class="row inline env">
                   <div class="col-xs-4">
                   {% include "form_field.html" with field=form.key %}
+                  </div>
+                  <div class="col-xs-4">
+                  {% include "form_field.html" with field=form.value %}
+                  </div>
+              </div>
+          {% endfor %}
+      </fieldset>
+
+      <fieldset class="input-xxlarge" id="label-variables">
+        <legend>Application Labels</legend>
+          {{ form.label_formset.management_form }}
+          {{ form.non_form_errors }}
+          {% for form in form.label_formset %}
+              {{ form.id }}
+              <div class="row inline label">
+                  <div class="col-xs-4">
+                  {% include "form_field.html" with field=form.name %}
                   </div>
                   <div class="col-xs-4">
                   {% include "form_field.html" with field=form.value %}
