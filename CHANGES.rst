@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.2.10
+-----
+- remove freebasics
+
 3.2.8
 -----
 - ensure cards can be clicked properly
