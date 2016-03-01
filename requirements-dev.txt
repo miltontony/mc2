@@ -1,4 +1,4 @@
-pytest
+pytest>=2.8
 pytest-django
 pytest-cov
 pytest-xdist
