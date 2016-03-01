@@ -5,6 +5,10 @@ CHANGE LOG
 -----
 - remove freebasics
 
+3.2.9
+-----
+- add marathon labels
+
 3.2.8
 -----
 - ensure cards can be clicked properly
