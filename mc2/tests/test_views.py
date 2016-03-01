@@ -1,6 +1,5 @@
 import pytest
 import responses
-from mc2.controllers.freebasics.models import FreeBasicsController
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -63,29 +62,6 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'class="icon-container-docker')
         self.assertContains(resp,
                             'src="/static/img/docker-container-vector.png"')
-
-    @responses.activate
-    def test_homepage_with_free_basics_controller(self):
-        FreeBasicsController.objects.create(
-            name='Test Free Basics App',
-            owner=self.user,
-            marathon_cmd='ping pong',
-            docker_image='docker/image',
-            port=1234,
-            marathon_health_check_path='/health/path/'
-        )
-
-        self.client.login(username='testuser2', password='test')
-        resp = self.client.get(reverse('home'))
-
-        self.assertContains(resp, 'Test Free Basics App')
-        self.assertContains(resp, 'Status')
-        self.assertContains(resp, 'View')
-        self.assertContains(resp, 'Edit')
-        self.assertContains(resp, 'Delete')
-        self.assertContains(resp, 'class="icon-container-freebasics')
-        self.assertContains(
-            resp, 'src="/static/img/freebasics-container-vector.png"')
 
     @responses.activate
     def test_template_tag_fallback(self):

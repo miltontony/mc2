@@ -196,7 +196,6 @@ INSTALLED_APPS = (
 
     'social.apps.django_app.default',
     'mc2',
-    'mc2.controllers.freebasics',
     'mc2.controllers.docker',
     'mc2.controllers.base',
     'mc2.controllers',

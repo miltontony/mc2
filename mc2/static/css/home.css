@@ -117,11 +117,6 @@
     text-align: center;
 }
 
-.free-basics{
-    background: url("../img/freebasics-container-vector.png") no-repeat;
-    background-size: contain;
-}
-
 .title-text{
     margin-left: 1%;
     padding-bottom: 5px;
@@ -200,8 +195,4 @@
 
 .icon-container-docker{
     width: 60%;
-}
-
-.icon-container-freebasics{
-    width: 20%
 }
