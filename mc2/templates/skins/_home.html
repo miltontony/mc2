@@ -44,6 +44,7 @@
         <div class="nav-tabs-custom main col-xs-2 card new-site">
             <div class="card-content new-site">
                 <div id="overlay-content" class="card-content-overlay">
+                    <i class="fa fa-close card-close"></i>
                     {% if user.is_superuser %}
                         <div>
                             <h4>Choose app type</h4>
@@ -161,8 +162,7 @@ jQuery(document).ready(function($) {
         });
         return false;
     });
-    $(".card-content-overlay").click(function (evt){
-        if($(this).hasClass('content-overlay')) return;
+    $(".card-close").click(function (evt){
         $(evt.target).closest(".card-content-overlay").animate({opacity: 0}, 400, "linear", function(){
             swapZIndex_with(this, $(this).parent().find(".content-overlay"));
         });
