@@ -6,7 +6,7 @@
      appid="{{ controller.app_id }}">
     <div class="card-content application-card">
         <div id="confirm-delete" class="card-content-overlay delete-overlay block">
-            <i class="fa fa-close card-close"></i>
+            <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
             <div class="application-card-title overlay-title">Are you sure?</div>
             <div class="center-text">
             <br/>
@@ -21,7 +21,7 @@
             </div>
         </div>
         <div class="card-content-overlay view-overlay block">
-            <i class="fa fa-close card-close"></i>
+            <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
             <div class="application-card-title overlay-title">{{ controller.name|capfirst }}</div>
             <div class="center-text">
             <br/>

@@ -39,12 +39,12 @@
         Hosting Costs &ndash; ${{controller_list.count|multiply:25}}
     </div>
 </div>
-<div class="container" id="projects_progress">
+<div id="projects_progress">
     <div class="row">
         <div class="nav-tabs-custom main col-xs-2 card new-site">
             <div class="card-content new-site">
                 <div id="overlay-content" class="card-content-overlay">
-                    <i class="fa fa-close card-close"></i>
+                    <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
                     {% if user.is_superuser %}
                         <div>
                             <h4>Choose app type</h4>
