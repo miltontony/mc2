@@ -18,14 +18,6 @@
 <!-- CONTENT -->
 {% block content %}
 
-{#{% if user.is_superuser %}#}
-{#<a href="{% url 'base:add' %}" class="btn btn-primary">Start new base controller</a>#}
-{#<a href="{% url 'controllers.docker:add' %}" class="btn btn-primary">Start new docker controller</a>#}
-{#{% comment %}#}
-{#<a href="{% url 'manage_ga' %}" class="btn btn-primary">Manage GA Profiles</a>#}
-{#<a href="{% url 'health_check' %}" class="btn btn-primary">Health Checks</a>#}
-{#{% endcomment %}#}
-{#{% endif %}#}
 <div id="mc-overview">
     <div class="mc-overview-item apps">
         <span><i class="fa fa-play"></i></span>
@@ -44,7 +36,7 @@
             <div class="card-content new-site">
                 <div id="overlay-content" class="card-content-overlay">
                     <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
-                    {% if user.is_superuser %}
+                    {% if is_admin %}
                         <div>
                             <h4>Choose app type</h4>
                             <hr/>

@@ -316,14 +316,35 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertNotContains(resp, 'Start new base controller')
         self.assertNotContains(resp, 'edit')
 
-        self.client.login(username='testuser2', password='test')
+        # normal user with org who is not admin
+        user = User.objects.create_user('joe2', 'joe2@email.com', '1234')
+        org = Organization.objects.get(pk=1)
+        OrganizationUserRelation.objects.create(user=user, organization=org)
+
+        self.client.login(username='joe2', password='1234')
 
         self.client.post(
             reverse('user_settings'), {'settings_level': 'expert'})
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Basic')
-        self.assertContains(resp, 'Docker')
-        self.assertContains(resp, 'card-content new-site')
+        self.assertContains(resp, 'You do not have permission to create')
+
+    def test_normal_user_who_is_org_admin_can_create_sites(self):
+        resp = self.client.get(reverse('home'))
+        self.assertNotContains(resp, 'Start new base controller')
+        self.assertNotContains(resp, 'edit')
+
+        # normal user with org who is not admin
+        user = User.objects.create_user('joe2', 'joe2@email.com', '1234')
+        org = Organization.objects.get(pk=1)
+        OrganizationUserRelation.objects.create(
+            user=user, organization=org, is_admin=True)
+
+        self.client.login(username='joe2', password='1234')
+
+        self.client.post(
+            reverse('user_settings'), {'settings_level': 'expert'})
+        resp = self.client.get(reverse('home'))
+        self.assertNotContains(resp, 'You do not have permission to create')
 
     def test_staff_access_required(self):
         self.mk_controller(controller={'owner': User.objects.get(pk=2)})
