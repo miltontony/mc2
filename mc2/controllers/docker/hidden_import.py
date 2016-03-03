@@ -17,7 +17,7 @@ from mc2.controllers.docker.models import DockerController
 
 
 class HiddenImportForm(forms.Form):
-    name = forms.CharField()
+    name = forms.CharField(required=False)
     app_data = forms.CharField(widget=forms.Textarea)
 
 
@@ -32,6 +32,6 @@ class HiddenImportView(ControllerViewMixin):
         DockerController.from_marathon_app_data(
             self.request.user, json.loads(form.cleaned_data['app_data']),
             form.cleaned_data['name'])
-        messages.info(self.request, "App created: {name}".format(
+        messages.info(self.request, u"App created: {name}".format(
             **form.cleaned_data))
         return HttpResponseRedirect('/')
