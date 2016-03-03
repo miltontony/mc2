@@ -13,12 +13,21 @@ from mama_cas.models import ServiceTicket
 from mc2.controllers.base.views import ControllerViewMixin
 from mc2.models import UserSettings
 from mc2.forms import UserSettingsForm
+from mc2.organizations.utils import active_organization
 
 logger = logging.getLogger(__name__)
 
 
 class HomepageView(ControllerViewMixin, ListView):
     template_name = 'mc2/home.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(HomepageView, self).get_context_data(*args, **kwargs)
+        active_org = active_organization(self.request)
+        if active_org:
+            context.update(
+                {'is_admin': active_org.has_admin(self.request.user)})
+        return context
 
     def get_queryset(self):
         return self.get_controllers_queryset(self.request).order_by('name')
