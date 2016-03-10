@@ -8,10 +8,8 @@ from django.core.urlresolvers import reverse
 from django.test.client import Client
 from hypothesis import given, settings as hsettings
 from hypothesis.extra.django import TestCase
+from hypothesis.extra.django.models import models, default_value
 from hypothesis.strategies import text, random_module, lists, just
-
-from mc2.controllers.docker.tests.hypothesis_helper import (
-    models, DEFAULT_VALUE)
 
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
@@ -52,7 +50,7 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
     # it.
-    controller = models(DockerController, controller_ptr=DEFAULT_VALUE, **kw)
+    controller = models(DockerController, controller_ptr=default_value, **kw)
     if with_envvars:
         controller = controller.flatmap(add_envvars)
     if with_labels:
