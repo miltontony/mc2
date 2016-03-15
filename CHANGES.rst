@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.2.11
+------
+- add hypothesis testing
+- upgrade to latest version of grappelli (fixes delete bug)
+
 3.2.10
 -----
 - remove freebasics
