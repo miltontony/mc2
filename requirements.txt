@@ -3,7 +3,7 @@ celery==3.1.19
 dj-database-url==0.3.0
 django-celery-email==1.1.4
 django-debug-toolbar<1.4
-django-grappelli<2.6.1
+django-grappelli==2.8.1
 django-gravatar2
 django-mama-cas==1.0.0
 Django-ostinato

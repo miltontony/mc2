@@ -4,12 +4,12 @@ import pytest
 import responses
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.test.client import Client
 from hypothesis import given, settings as hsettings
 from hypothesis.extra.django import TestCase
+from hypothesis.extra.django.models import models, default_value
 from hypothesis.strategies import text, random_module, lists, just
-
-from mc2.controllers.docker.tests.hypothesis_helper import (
-    models, DEFAULT_VALUE)
 
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
@@ -46,11 +46,11 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # TODO: Figure out why the field validation isn't being applied.
     kw.setdefault("slug", text().map(
         lambda t: "".join(t.replace(":", "").split())))
-    kw.setdefault("owner", models(User))
+    kw.setdefault("owner", models(User, is_active=just(True)))
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
     # it.
-    controller = models(DockerController, controller_ptr=DEFAULT_VALUE, **kw)
+    controller = models(DockerController, controller_ptr=default_value, **kw)
     if with_envvars:
         controller = controller.flatmap(add_envvars)
     if with_labels:
@@ -205,6 +205,35 @@ class DockerControllerHypothesisTestCase(TestCase):
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
             controller.owner, app_data, name=name)
+        assert new_controller.name == name
+
+        app_data_with_name = json.loads(json.dumps(app_data))
+        app_data_with_name["labels"]["name"] = name
+        assert app_data_with_name == new_controller.get_marathon_app_data()
+
+    @hsettings(perform_health_check=False, max_examples=50)
+    @given(_r=random_module(), controller=docker_controller(), name=text())
+    def test_hidden_import_view(self, _r, controller, name):
+        """
+        A model imported through the hidden view generates the same app_data
+        as the model it was imported from, but with the name field overridden.
+
+        We limit the number of examples we generate because we don't need
+        hundreds of examples to verify that this behaviour is correct.
+        """
+        app_data = controller.get_marathon_app_data()
+        user = controller.owner
+        user.set_password("password")  # So we can log in.
+        user.save()
+        client = Client()
+        assert client.login(username=user.username, password="password")
+        resp = client.post(
+            reverse('controllers.docker:hidden_import'),
+            {"name": name, "app_data": json.dumps(app_data)})
+        assert resp.status_code == 302
+
+        new_controller = DockerController.objects.exclude(
+            pk=controller.pk).get()
         assert new_controller.name == name
 
         app_data_with_name = json.loads(json.dumps(app_data))

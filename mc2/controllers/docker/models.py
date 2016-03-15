@@ -99,13 +99,13 @@ class DockerController(Controller):
             "slug": app_data.pop("id"),
             "marathon_cpus": app_data.pop("cpus"),
             "marathon_mem": app_data.pop("mem"),
-            "marathon_instances": app_data.pop("instances"),
+            "marathon_instances": app_data.pop("instances", 1),
             "marathon_cmd": app_data.pop("cmd", ""),
             "docker_image": docker_dict.pop("image"),
         }
         # TODO: Better error:
         assert docker_dict.pop("network") == "BRIDGE"
-        assert docker_dict.pop("forcePullImage") is True
+        assert docker_dict.pop("forcePullImage", True) is True
         assert app_data.pop("container") == {"type": "DOCKER"}
 
         if "portMappings" in docker_dict:
@@ -133,7 +133,7 @@ class DockerController(Controller):
         if "healthChecks" in app_data:
             # TODO: Validate the rest of the health check data.
             # TODO: Better errors:
-            assert app_data.pop("ports") == [0]
+            assert app_data.pop("ports", [0]) == [0]
             hc = app_data.pop("healthChecks")
             assert len(hc) == 1
             args["marathon_health_check_path"] = hc[0]["path"]

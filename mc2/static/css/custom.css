@@ -20,3 +20,10 @@
 
 .form-group li, .alert li {list-style: none; margin-left: 0}
 .form-group ul {padding-left: 0}
+
+.card-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 5px 10px;
+}
