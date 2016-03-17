@@ -9,6 +9,12 @@ export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
+# Make sure the cache directory exists
+# NOTE: pyenv fails to install properly if ~/.pyenv is present, even if the
+# directory is empty. So if you cache any directories within ~/.pyenv then you
+# will break pyenv.
+mkdir -p "${PYTHON_BUILD_CACHE_PATH:-$HOME/.pyenv/cache}"
+
 # Install pypy and make a virtualenv for it.
 pyenv install -s pypy-$PYPY_VERSION
 pyenv global pypy-$PYPY_VERSION

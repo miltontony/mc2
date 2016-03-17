@@ -4,9 +4,10 @@ python:
 matrix:
   include:
     - python: "pypy"
-      env: PYPY_VERSION="5.0.0" NO_COVERAGE=1
+      env: PYPY_VERSION="5.0.0" NO_COVERAGE=1 PYTHON_BUILD_CACHE_PATH="$HOME/pyenv-cache"
 cache:
   directories:
+    - $HOME/pyenv-cache
     - $HOME/.cache/pip
     - $HOME/.hypothesis
 env:
