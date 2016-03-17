@@ -4,6 +4,10 @@ from os.path import abspath, dirname, join
 from os import environ
 import dj_database_url
 
+# Tell psycopg2cffi to impersonate psycopg2
+from psycopg2cffi import compat
+compat.register()
+
 
 def bool_env(val):
     """Replaces string based environment values with Python booleans"""
