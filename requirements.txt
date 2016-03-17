@@ -17,3 +17,4 @@ python-social-auth
 raven==5.0.0
 redis
 unicore.hub.client>=0.2.0
+whitenoise<2.1.0,>=2.0.0
