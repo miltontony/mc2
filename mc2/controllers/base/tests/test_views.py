@@ -115,6 +115,8 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.mock_create_marathon_app()
 
+        webhook_token = str(uuid.uuid4())
+
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
@@ -128,6 +130,7 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'webhook_token': webhook_token,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -144,6 +147,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.env_variables.count(), 1)
         self.assertEqual(controller.env_variables.all()[0].key, 'A_TEST_KEY')
         self.assertEqual(controller.env_variables.all()[0].value, 'the value')
+        self.assertEqual(str(controller.webhook_token), webhook_token)
         self.assertTrue(controller.slug)
 
     @responses.activate
@@ -240,6 +244,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = Controller.objects.all().last()
         self.mock_update_marathon_app(controller.app_id)
 
+        webhook_token = str(uuid.uuid4())
+
         self.client.post(
             reverse('base:edit', args=[controller.id]), {
                 'name': 'A new name',
@@ -255,12 +261,14 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'webhook_token': webhook_token,
             })
         controller = Controller.objects.get(pk=controller.id)
         self.assertEqual(controller.marathon_cpus, 0.5)
         self.assertEqual(controller.marathon_mem, 100.0)
         self.assertEqual(controller.marathon_instances, 2)
         self.assertEqual(controller.marathon_cmd, '/path/to/exec some command')
+        self.assertEqual(str(controller.webhook_token), webhook_token)
 
     @responses.activate
     def test_advanced_page_marathon_error(self):
