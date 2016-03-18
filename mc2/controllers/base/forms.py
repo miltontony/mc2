@@ -18,12 +18,15 @@ class ControllerForm(forms.ModelForm):
         required=False,
         min_value=0,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
+    webhook_token = forms.UUIDField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
-            'marathon_cmd')
+            'marathon_cmd', 'webhook_token')
 
 
 class EnvVariableForm(forms.ModelForm):

@@ -3,17 +3,33 @@
 
 {% block script %}
     <script type="text/javascript">
+      function guid() {
+        function s4() {
+          return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+          s4() + '-' + s4() + s4() + s4();
+      }
+
       $(function() {
           $(".inline.env").formset({
               prefix: "env",
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
-          })
+          });
           $(".inline.label").formset({
               prefix: "label",
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
-          })
+          });
+
+          $('#generate_webhook').click(function(){
+            var uuid = guid();
+            $('#id_webhook_token').val(uuid);
+            $('#id_webhook_token_ui').val('{% if request.is_secure %}https://{% else %}http://{% endif %}{{request.get_host}}/base/restarthook/' + uuid + '/');
+          });
 
       })
     </script>
@@ -99,6 +115,22 @@
           <div class="col-xs-4">
           {% include "form_field.html" with field=form.marathon_instances %}
           </div>
+          </div>
+      </fieldset>
+      {% endwith %}
+
+      {% with form=form.controller_form %}
+      <fieldset class="input-xxlarge">
+          <legend>Webhooks</legend>
+            <label>{{form.webhook_token.label}}</label>
+          <div class="input-group input-group-sm">
+            {% include "form_errors.html" with errors=field.errors %}
+            <input name="webhook_token" id="id_webhook_token" type="hidden" value="{% if form.webhook_token.value %}{{form.webhook_token.value}}{% endif %}"/>
+
+            <input class="form-control" id="id_webhook_token_ui" type="text" value="{% if object.webhook_token %}{% if request.is_secure %}https://{% else %}http://{% endif %}{{request.get_host}}/base/restarthook/{{object.webhook_token}}/{% endif %}" disabled>
+                <span class="input-group-btn">
+                  <button id="generate_webhook" type="button" class="btn btn-info btn-flat">Generate!</button>
+                </span>
           </div>
       </fieldset>
       {% endwith %}
