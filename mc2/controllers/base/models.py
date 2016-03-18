@@ -54,6 +54,8 @@ class Controller(PolymorphicModel):
             'is automatically set each time the item is saved.')
     )
 
+    webhook_token = models.UUIDField(null=True)
+
     class Meta:
         ordering = ('name', )
 

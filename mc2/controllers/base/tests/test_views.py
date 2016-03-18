@@ -1,4 +1,7 @@
+import json
 import os
+import uuid
+
 import pytest
 import responses
 from django.conf import settings
@@ -546,3 +549,93 @@ class ViewsTestCase(ControllerBaseTestCase):
         resp = self.client.get(reverse('home'))
         self.assertContains(resp, 'Failed to delete')
         self.assertEquals(Controller.objects.all().count(), 1)
+
+    @responses.activate
+    def test_app_webhook_restart(self):
+        """
+        The restart webhook restarts the app and requires no authentication.
+        """
+        token = uuid.uuid4()
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'webhook_token': token,
+        })
+        self.mock_restart_marathon_app(controller.app_id)
+
+        resp = Client().post(
+            reverse('base:webhook_restart', args=[controller.id, token]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(json.loads(resp.content), {})
+        self.assertEqual(len(responses.calls), 1)
+
+    @responses.activate
+    def test_app_webhook_restart_wrong_token(self):
+        """
+        The restart webhook 404s if the token doesn't match.
+        """
+        token = uuid.uuid4()
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'webhook_token': token,
+        })
+        self.mock_restart_marathon_app(controller.app_id)
+
+        resp = Client().post(
+            reverse('base:webhook_restart', args=[controller.id, 'abc']))
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_app_webhook_restart_no_token(self):
+        """
+        The restart webhook 404s if the controller has no token set.
+        """
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
+        self.mock_restart_marathon_app(controller.app_id)
+
+        resp = Client().post(
+            reverse('base:webhook_restart', args=[controller.id, 'abc']))
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_app_webhook_restart_no_get(self):
+        """
+        The restart webhook does not accept GET requests.
+        """
+        token = uuid.uuid4()
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'webhook_token': token,
+        })
+        self.mock_restart_marathon_app(controller.app_id)
+
+        resp = Client().get(
+            reverse('base:webhook_restart', args=[controller.id, token]))
+        self.assertEqual(resp.status_code, 405)
+        self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_app_webhook_restart_error(self):
+        """
+        The restart webhook returns an error if the restart failed for some
+        reason.
+        """
+        token = uuid.uuid4()
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'webhook_token': token,
+        })
+        self.mock_restart_marathon_app(controller.app_id, 404)
+
+        resp = Client().post(
+            reverse('base:webhook_restart', args=[controller.id, token]))
+        self.assertEqual(resp.status_code, 500)
+        self.assertEqual(
+            json.loads(resp.content), {'error': 'Restart failed.'})

@@ -3,7 +3,8 @@ import os.path
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
-    HttpResponse, HttpResponseNotFound, HttpResponseBadRequest)
+    HttpResponse, HttpResponseNotFound, HttpResponseBadRequest,
+    HttpResponseNotAllowed, HttpResponseServerError)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
 from django.utils.decorators import method_decorator
@@ -192,3 +193,27 @@ class ControllerDeleteView(ControllerViewMixin, View):
             messages.error(self.request, msg)
             return HttpResponseBadRequest(msg)
         return redirect('home')
+
+
+class ControllerWebhookRestartView(View):
+    """
+    Unauthenticated webhook to restart an app.
+
+    Technically, this is a 'URL capability'.
+    """
+
+    def get(self, request, controller_pk, token):
+        return HttpResponseNotAllowed(['POST'])
+
+    def post(self, request, controller_pk, token):
+        controller = get_object_or_404(Controller, pk=controller_pk)
+        if str(controller.webhook_token) != token:
+            return HttpResponseNotFound()
+
+        try:
+            controller.marathon_restart_app()
+        except exceptions.MarathonApiException:
+            return HttpResponseServerError(
+                json.dumps({'error': 'Restart failed.'}),
+                content_type='application/json')
+        return HttpResponse(json.dumps({}), content_type='application/json')
