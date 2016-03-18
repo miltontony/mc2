@@ -35,7 +35,7 @@ $(document).ready(function() {
 </script>
 <div id="content-main" class="new-project">
     <div class="box-header with-border">
-      <h3 class="box-title">Logs for <a href="{% url 'home' %}#{{controller.name}}">{{controller.name|capfirst}}</a></h3>
+      <h3 class="box-title">Logs for <a href="{% url 'home' %}#{{controller.pk}}">{{controller.name|capfirst}}</a></h3>
     </div>
     <div id="logs">
     </div>
