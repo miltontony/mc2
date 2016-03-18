@@ -28,7 +28,7 @@
           $('#generate_webhook').click(function(){
             var uuid = guid();
             $('#id_webhook_token').val(uuid);
-            $('#id_webhook_token_ui').val('{% if request.is_secure %}https://{% else %}http://{% endif %}{{request.get_host}}/base/restarthook/' + uuid + '/');
+            $('#id_webhook_token_ui').val('{% if request.is_secure %}https://{% else %}http://{% endif %}{{request.get_host}}/base/restarthook/{{object.pk}}/' + uuid + '/');
           });
 
       })
@@ -127,7 +127,7 @@
             {% include "form_errors.html" with errors=field.errors %}
             <input name="webhook_token" id="id_webhook_token" type="hidden" value="{% if form.webhook_token.value %}{{form.webhook_token.value}}{% endif %}"/>
 
-            <input class="form-control" id="id_webhook_token_ui" type="text" value="{% if object.webhook_token %}{% if request.is_secure %}https://{% else %}http://{% endif %}{{request.get_host}}/base/restarthook/{{object.webhook_token}}/{% endif %}" disabled>
+            <input class="form-control" id="id_webhook_token_ui" type="text" value="{% if object.webhook_token %}{% if request.is_secure %}https://{% else %}http://{% endif %}{{request.get_host}}/base/restarthook/{{object.pk}}/{{object.webhook_token}}/{% endif %}" disabled>
                 <span class="input-group-btn">
                   <button id="generate_webhook" type="button" class="btn btn-info btn-flat">Generate!</button>
                 </span>
