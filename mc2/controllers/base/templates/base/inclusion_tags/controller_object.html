@@ -58,6 +58,15 @@
                     {% endblock %}
                 </div>
 
+                <div class="application-item-box bg-blue logs">
+                    {% block logs_action %}
+                        <a class="link" href="{% url 'base:logs' controller.pk %}">
+                            <span><i class="fa fa-file-text-o info-box-icon icon-small"></i></span>
+                            Logs
+                        </a>
+                    {% endblock %}
+                </div>
+
                 <div class="application-item-box link delete bg-blue app-delete-action">
                     {% block delete_action %}
                         <a class="link" href="{% url 'base:delete' controller.id %}">
