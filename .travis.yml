@@ -1,13 +1,10 @@
 language: python
 python:
   - "2.7"
-# # pypy build disabled because of a crash bug.
-# # Please re-enable with pypy > 5.0.0 when it's released.
-# matrix:
-#   include:
-#     - python: "pypy"
-#       env: PYPY_VERSION="5.0.0" NO_COVERAGE=1 PYTHON_BUILD_CACHE_PATH="$HOME/pyenv-cache"
-
+matrix:
+  include:
+    - python: "pypy"
+      env: PYPY_VERSION="5.0.0" NO_COVERAGE=1 PYTHON_BUILD_CACHE_PATH="$HOME/pyenv-cache"
 cache:
   directories:
     - $HOME/pyenv-cache
