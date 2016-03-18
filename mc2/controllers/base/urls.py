@@ -34,7 +34,7 @@ urlpatterns = patterns(
         views.update_marathon_exists_json,
         name='update_marathon_exists_json'),
     url(
-        r'^restarthook/(?P<controller_pk>\d+)/(?P<token>[^/]+)/$',
+        r'^restarthook/(?P<controller_pk>\d+)/(?P<token>[\w-]+)/$',
         views.ControllerWebhookRestartView.as_view(),
         name='webhook_restart'),
 )

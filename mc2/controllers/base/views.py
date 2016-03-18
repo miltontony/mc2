@@ -202,6 +202,11 @@ class ControllerWebhookRestartView(View):
     Technically, this is a 'URL capability'.
     """
 
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(
+            ControllerWebhookRestartView, self).dispatch(*args, **kwargs)
+
     def get(self, request, controller_pk, token):
         return HttpResponseNotAllowed(['POST'])
 
