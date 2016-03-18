@@ -199,7 +199,7 @@ class ControllerWebhookRestartView(View):
     """
     Unauthenticated webhook to restart an app.
 
-    FIXME: We need to validate the token.
+    Technically, this is a 'URL capability'.
     """
 
     def get(self, request, controller_pk, token):
@@ -207,6 +207,9 @@ class ControllerWebhookRestartView(View):
 
     def post(self, request, controller_pk, token):
         controller = get_object_or_404(Controller, pk=controller_pk)
+        if str(controller.webhook_token) != token:
+            return HttpResponseNotFound()
+
         try:
             controller.marathon_restart_app()
         except exceptions.MarathonApiException:
