@@ -12,14 +12,16 @@
     padding: 0;
 }
 
-#env-variables .add-row{margin-left: 30px;}
 #env-variables .delete-row{margin-top: 30px;}
-
-#label-variables .add-row{margin-left: 30px;}
 #label-variables .delete-row{margin-top: 30px;}
 
 .form-group li, .alert li {list-style: none; margin-left: 0}
 .form-group ul {padding-left: 0}
+
+.box-body fieldset {margin: 2em 0 0 0;}
+    .box-body fieldset .row {margin-right: 0;}
+    .box-body fieldset legend {margin-bottom: 0;}
+    .box-body fieldset .col-xs-4 {padding-left: 0}
 
 .card-close {
     position: absolute;
@@ -27,3 +29,5 @@
     right: 0;
     padding: 5px 10px;
 }
+
+.mc2-version{padding: 15px; line-height: 50px}
