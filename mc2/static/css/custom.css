@@ -1,7 +1,5 @@
-.nav-tabs-custom.main{
-    margin: 1%;
-    width: 48%;
-}
+.main-sidebar, .left-side, .main-header .logo {width: 200px}
+.content-wrapper, .main-header>.navbar {margin-left: 200px}
 
 .progress-bar-green, .progress-bar-success {
     background-color: #00A65A !important;

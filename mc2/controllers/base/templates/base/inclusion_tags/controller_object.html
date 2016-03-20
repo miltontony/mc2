@@ -1,5 +1,6 @@
 <!-- Custom Tabs -->
-<div class="col-xs-2 nav-tabs-custom main card application-card"
+<div class="col-md-4">
+<div class="nav-tabs-custom main card application-card"
      id="{{ controller.id }}"
      name="{{ controller.name }}"
      state="{{ controller.state }}"
@@ -22,7 +23,7 @@
         </div>
         <div class="card-content-overlay view-overlay block">
             <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
-            <div class="application-card-title overlay-title">{{ controller.name|capfirst }}</div>
+            <div class="application-card-title">View</div>
             <div class="center-text">
             <br/>
                 <a target="blank" href="http://{{controller.get_generic_domain}}">{{controller.get_generic_domain}}</a>
@@ -34,51 +35,71 @@
         <div class="card-content-overlay blank-overlay block">
           <div class="application-card-title">&nbsp;</div>
         </div>
+
+        {% block content-overlay %}
         <div class="card-content-overlay content-overlay block">
-            <div class="application-card-title">
-                {{ controller.name|capfirst }}
+          <!-- Widget: user widget style 1 -->
+          <div class="box box-widget widget-user">
+            <!-- Add the bg color to the header using any of the bg-* classes -->
+            <div class="widget-user-header bg-navy">
+              <h3 class="widget-user-username">{{controller.name}}</h3>
+              <h6 class="widget-user-desc"></h6>
+              <div class="widget-user-desc">
+                {{controller.app_id }}
+                <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span>
+              </div>
             </div>
-            <div class="application-actions">
+            <div class="box-footer">
+              <div class="row">
                 {% block controller_visit %}{% endblock %}
-                <div class="application-item-box bg-blue edit">
+                <div class="col-sm-3 border-right">
+                  <div class="description-block">
                     {% block edit_action %}
-                        <a class="link" href="{% url 'base:edit' controller.id %}">
-                            <span><i class="fa fa-gears info-box-icon icon-small"></i></span>
-                            Edit
-                        </a>
+                    <h5 class="description-header"><a href="{% url 'base:edit' controller.id %}">Edit</a></h5>
+                    <span class="description-text"></span>
                     {% endblock %}
+                  </div>
+                  <!-- /.description-block -->
                 </div>
-
-                <div class="application-item-box bg-blue restart">
+                <!-- /.col -->
+                <div class="col-sm-3 border-right">
+                  <div class="description-block">
                     {% block restart_action %}
-                        <a class="link" href="{% url 'base:restart' controller.id %}">
-                            <span><i class="fa fa-refresh info-box-icon icon-small"></i></span>
-                            Restart
-                        </a>
+                      <h5 class="description-header"><a href="{% url 'base:restart' controller.id %}">Restart</a></h5>
+                      <span class="description-text"></span>
                     {% endblock %}
+                  </div>
+                  <!-- /.description-block -->
                 </div>
-
-                <div class="application-item-box bg-blue logs">
+                <!-- /.col -->
+                <div class="col-sm-3 border-right">
+                  <div class="description-block">
                     {% block logs_action %}
-                        <a class="link" href="{% url 'base:logs' controller.pk %}">
-                            <span><i class="fa fa-file-text-o info-box-icon icon-small"></i></span>
-                            Logs
-                        </a>
+                      <h5 class="description-header"><a href="{% url 'base:logs' controller.id %}">Logs</a></h5>
+                      <span class="description-text"></span>
                     {% endblock %}
+                  </div>
+                  <!-- /.description-block -->
                 </div>
-
-                <div class="application-item-box link delete bg-blue app-delete-action">
+                <!-- /.col -->
+                <div class="col-sm-3 border-right">
+                  <div class="description-block delete app-delete-action">
                     {% block delete_action %}
-                        <a class="link" href="{% url 'base:delete' controller.id %}">
-                            <span><i class="fa fa-trash-o info-box-icon icon-small"></i></span>
-                            Delete
-                        </a>
+                      <h5 class="description-header"><a class="text-red" href="{% url 'base:delete' controller.id %}">Delete</a></h5>
+                      <span class="description-text"></span>
                     {% endblock %}
+                  </div>
+                  <!-- /.description-block -->
                 </div>
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
             </div>
-            {% block controller_footer %}
-            <div>{{controller.app_id}} <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span></div>
-            {% endblock %}
+          </div>
+          <!-- /.widget-user -->
         </div>
+        {% endblock %}
+
     </div>
+</div>
 </div>

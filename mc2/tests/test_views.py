@@ -36,7 +36,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Delete')
         self.assertContains(
             resp,
-            '<a class="link" href="/base/%s/">' %
+            '<a href="/base/%s/">' %
             controller.id)
         controller.delete()
 
@@ -59,9 +59,6 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'View')
         self.assertContains(resp, 'Edit')
         self.assertContains(resp, 'Delete')
-        self.assertContains(resp, 'class="icon-container-docker')
-        self.assertContains(resp,
-                            'src="/static/img/docker-container-vector.png"')
 
     @responses.activate
     def test_template_tag_fallback(self):
@@ -77,7 +74,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(resp, 'Test App')
 
         self.assertContains(
-            resp, '<a class="link" href="/base/%s/">' % controller.id)
+            resp, '<a href="/base/%s/">' % controller.id)
 
         self.assertContains(
-            resp, '<a class="link" href="/base/delete/%s/">' % controller.id)
+            resp,
+            '<a class="text-red" href="/base/delete/%s/">' % controller.id)
