@@ -31,5 +31,5 @@ RUN mkdir -p /var/log/supervisor
 
 RUN chmod +x /deploy/docker-entrypoint.sh
 
-EXPOSE 80
+EXPOSE 8000
 ENTRYPOINT ["/deploy/docker-entrypoint.sh"]
