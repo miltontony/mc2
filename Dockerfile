@@ -1,7 +1,7 @@
 FROM python:2.7.10
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-	redis-server nginx && \
+	redis-server && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -19,15 +19,12 @@ ADD setup.py /deploy/
 ADD README.rst /deploy/
 ADD VERSION /deploy/
 ADD docker/docker-entrypoint.sh /deploy/
-ADD docker/mc2.nginx.conf /etc/nginx/sites-enabled/
 ADD docker/supervisord.conf /etc/
 ADD docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
 RUN pip install gunicorn supervisor "Django<1.9,>=1.8" && \
     pip install -e . && \
     rm -rf ~/.cache/pip
-
-RUN rm /etc/nginx/sites-enabled/default
 
 RUN mkdir -p /etc/supervisor/conf.d/
 RUN mkdir -p /var/log/supervisor
