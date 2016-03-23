@@ -14,5 +14,5 @@ AppLog.prototype.scroll = function () {
     var height = this.target.get(0).scrollHeight;
     this.target.animate({
         scrollTop: height
-    }, 500);
+    }, 10);
 };
