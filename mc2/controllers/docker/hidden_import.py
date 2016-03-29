@@ -14,6 +14,7 @@ from django.shortcuts import render
 
 from mc2.controllers.base.views import ControllerViewMixin
 from mc2.controllers.docker.models import DockerController
+from mc2.organizations.utils import active_organization
 
 
 class HiddenImportForm(forms.Form):
@@ -30,7 +31,8 @@ class HiddenImportView(ControllerViewMixin):
         form = HiddenImportForm(request.POST)
         assert form.is_valid()
         DockerController.from_marathon_app_data(
-            self.request.user, json.loads(form.cleaned_data['app_data']),
+            self.request.user, active_organization(self.request),
+            json.loads(form.cleaned_data['app_data']),
             form.cleaned_data['name'])
         messages.info(self.request, u"App created: {name}".format(
             **form.cleaned_data))
