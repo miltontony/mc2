@@ -14,6 +14,7 @@ from hypothesis.strategies import text, random_module, lists, just
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
+from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
 def add_envvars(controller):
@@ -46,7 +47,12 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # TODO: Figure out why the field validation isn't being applied.
     kw.setdefault("slug", text().map(
         lambda t: "".join(t.replace(":", "").split())))
-    kw.setdefault("owner", models(User, is_active=just(True)))
+
+    user = User.objects.create_user('joe', 'joe@email.com', '1234')
+    org = Organization.objects.create(name='Test', slug='test')
+    OrganizationUserRelation.objects.create(user=user, organization=org)
+    kw.setdefault("owner", user)
+    kw.setdefault("organization", org)
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
     # it.
@@ -189,7 +195,7 @@ class DockerControllerHypothesisTestCase(TestCase):
         """
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
-            controller.owner, app_data)
+            controller.owner, controller.organization, app_data)
         assert app_data == new_controller.get_marathon_app_data()
 
     @hsettings(perform_health_check=False, max_examples=50)
@@ -204,7 +210,7 @@ class DockerControllerHypothesisTestCase(TestCase):
         """
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
-            controller.owner, app_data, name=name)
+            controller.owner, controller.organization, app_data, name=name)
         assert new_controller.name == name
 
         app_data_with_name = json.loads(json.dumps(app_data))
