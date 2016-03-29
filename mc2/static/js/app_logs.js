@@ -7,7 +7,13 @@ var AppLog = function (target, cb) {
 
 AppLog.prototype.log = function (msg) {
     this.cb(msg);
-    this.scroll();
+    if(this.atBottom()) {
+        this.scroll();
+    }
+}
+
+AppLog.prototype.atBottom = function () {
+    return (this.target.prop('scrollTop') + this.target.prop('offsetHeight')) >= this.target.prop('scrollHeight');
 }
 
 AppLog.prototype.scroll = function () {
