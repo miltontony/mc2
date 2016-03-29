@@ -6,8 +6,9 @@ var AppLog = function (target, cb) {
 };
 
 AppLog.prototype.log = function (msg) {
+    var scrollit = this.atBottom();
     this.cb(msg);
-    if(this.atBottom()) {
+    if(scrollit) {
         this.scroll();
     }
 }
