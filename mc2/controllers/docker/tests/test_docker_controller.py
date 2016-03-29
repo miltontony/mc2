@@ -14,7 +14,7 @@ from hypothesis.strategies import text, random_module, lists, just
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
-from mc2.organizations.models import Organization, OrganizationUserRelation
+from mc2.organizations.models import Organization
 
 
 def add_envvars(controller):
@@ -45,14 +45,11 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # so we remove them from the generated value.
     # TODO: Build a proper SlugField strategy.
     # TODO: Figure out why the field validation isn't being applied.
-    kw.setdefault("slug", text().map(
-        lambda t: "".join(t.replace(":", "").split())))
+    slug = text().map(lambda t: "".join(t.replace(":", "").split()))
+    kw.setdefault("slug", slug)
 
-    user = User.objects.create_user('joe', 'joe@email.com', '1234')
-    org = Organization.objects.create(name='Test', slug='test')
-    OrganizationUserRelation.objects.create(user=user, organization=org)
-    kw.setdefault("owner", user)
-    kw.setdefault("organization", org)
+    kw.setdefault("owner", models(User, is_active=just(True)))
+    kw.setdefault("organization", models(Organization, slug=slug))
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
     # it.
