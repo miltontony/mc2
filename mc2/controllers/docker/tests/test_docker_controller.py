@@ -231,6 +231,8 @@ class DockerControllerHypothesisTestCase(TestCase):
         client = Client()
         assert client.login(username=user.username, password="password")
         with responses.RequestsMock() as rsps:
+            # If the Marathon request hasn't occurred by the time this context
+            # is closed then the test will fail.
             rsps.add(
                 responses.POST, '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
                 body="{}", content_type="application/json", status=201)
