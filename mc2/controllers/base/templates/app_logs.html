@@ -19,16 +19,23 @@ $(document).ready(function() {
 
     task_ids.forEach(function(task_id) {
         paths.forEach(function(path) {
-            al = new AppLog('#logs', function(msg) {
-                $("<div class='entry " + path + "' />")
-                    .text(msg)
-                    .appendTo($('#logs'));
-            })
+            function (path) {
+                al = new AppLog('#logs', function(msg) {
+                    $("<div class='entry " + path + "' />")
+                        .text(msg)
+                        .appendTo($('#logs'));
+                })
+                // scroll to the bottom on page load, from that point onwards
+                // the logs will auto scroll. If someone scrolls up it'll remain
+                // paused at that point until the user manually scrolls to the bottom
+                // again
+                al.scroll();
 
-            es = new EventSource('./' + task_id + '/' + path + '/?n={{scroll_backlog}}');
-            es.addEventListener('log', function (event) {
-                al.log(event.data);
-            });
+                es = new EventSource('./' + task_id + '/' + path + '/?n={{scroll_backlog}}');
+                es.addEventListener('log', function (event) {
+                    al.log(event.data);
+                });
+            }(path);
         });
     });
 });
