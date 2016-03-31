@@ -29,12 +29,6 @@ $(document).ready(function() {
             es.addEventListener('log', function (event) {
                 al.log(event.data);
             });
-
-            // scroll to the bottom on page load, from that point onwards
-            // the logs will auto scroll. If someone scrolls up it'll remain
-            // paused at that point until the user manually scrolls to the bottom
-            // again
-            al.scroll();
         });
     });
 });
