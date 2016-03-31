@@ -19,7 +19,7 @@ $(document).ready(function() {
 
     task_ids.forEach(function(task_id) {
         paths.forEach(function(path) {
-            function (path) {
+            (function(path) {
                 al = new AppLog('#logs', function(msg) {
                     $("<div class='entry " + path + "' />")
                         .text(msg)
@@ -35,7 +35,7 @@ $(document).ready(function() {
                 es.addEventListener('log', function (event) {
                     al.log(event.data);
                 });
-            }(path);
+            })(path);
         });
     });
 });
