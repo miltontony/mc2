@@ -14,6 +14,7 @@ class DockerController(Controller):
     domain_urls = models.TextField(max_length=8000, default="")
     volume_needed = models.BooleanField(default=False)
     volume_path = models.CharField(max_length=255, blank=True, null=True)
+    volume_name = models.CharField(max_length=255, blank=True, null=True)
 
     def get_marathon_app_data(self):
         app_data = super(DockerController, self).get_marathon_app_data()
@@ -31,10 +32,11 @@ class DockerController(Controller):
         parameters_dict = []
         if self.volume_needed:
             parameters_dict.append({"key": "volume-driver", "value": "xylem"})
+            generic_volume_name = "%s_media" % self.app_id
             parameters_dict.append({
                 "key": "volume",
-                "value": "%(app_id)s_media:%(path)s" % {
-                    'app_id': self.app_id,
+                "value": "%(volume_name)s:%(path)s" % {
+                    'volume_name': self.volume_name or generic_volume_name,
                     'path':
                         self.volume_path or
                         settings.MARATHON_DEFAULT_VOLUME_PATH}})
@@ -116,7 +118,9 @@ class DockerController(Controller):
         for param in docker_dict.pop("parameters", []):
             if param["key"] == "volume":
                 args["volume_needed"] = True
-                args["volume_path"] = param["value"].split(":", 1)[1]
+                volume_name, volume_path = param["value"].split(":", 1)
+                args["volume_name"] = volume_name
+                args["volume_path"] = volume_path
 
         labels = []
 
