@@ -38,6 +38,7 @@ class DockerControllerForm(ControllerForm):
             'port', 'domain_urls', 'volume_needed', 'volume_path',
             'volume_name', 'webhook_token')
 
+
 class DockerControllerFormHelper(ControllerFormHelper):
 
     def __init__(self, data=None, files=None, instance=None,
