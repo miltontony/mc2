@@ -26,6 +26,9 @@ class DockerControllerForm(ControllerForm):
     volume_name = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}),
         required=False)
+    webhook_token = forms.UUIDField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = DockerController
@@ -33,8 +36,7 @@ class DockerControllerForm(ControllerForm):
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
             'marathon_cmd', 'docker_image', 'marathon_health_check_path',
             'port', 'domain_urls', 'volume_needed', 'volume_path',
-            'volume_name')
-
+            'volume_name', 'webhook_token')
 
 class DockerControllerFormHelper(ControllerFormHelper):
 

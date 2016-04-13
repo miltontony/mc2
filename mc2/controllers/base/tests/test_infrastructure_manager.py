@@ -2,11 +2,10 @@ import responses
 
 from django.test import TestCase
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
 
 from mc2.controllers.base.managers.infrastructure import (
     GeneralInfrastructureManager, InfrastructureError)
-from mc2.controllers.base.models import Controller, publish_to_websocket
+from mc2.controllers.base.models import Controller
 
 from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
 
@@ -14,8 +13,6 @@ from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
 class GeneralInfrastructureManagerTest(TestCase):
 
     def setUp(self):
-        post_save.disconnect(publish_to_websocket, sender=Controller)
-
         User = get_user_model()
         user = User.objects.create_user(
             'tester', 'test@example.org', 'tester')
@@ -25,9 +22,6 @@ class GeneralInfrastructureManagerTest(TestCase):
         setup_responses_for_logdriver(self.controller)
         self.general_im = GeneralInfrastructureManager()
         self.controller_im = self.controller.infra_manager
-
-    def tearDown(self):
-        post_save.connect(publish_to_websocket, sender=Controller)
 
     @responses.activate
     def test_get_marathon_app(self):

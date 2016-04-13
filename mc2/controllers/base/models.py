@@ -1,25 +1,14 @@
-import os
-import pwd
-import json
-
-os.getlogin = lambda: pwd.getpwuid(os.getuid())[0]  # noqa
-
 import requests
 
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
 from polymorphic.models import PolymorphicModel
 
 from mc2.controllers.base import exceptions, namers
 from mc2.controllers.base.builders import Builder
 from mc2.controllers.base.managers import ControllerInfrastructureManager
-
-from ws4redis.publisher import RedisPublisher
-from ws4redis.redis_store import RedisMessage
 
 
 class Controller(PolymorphicModel):
@@ -64,6 +53,8 @@ class Controller(PolymorphicModel):
             'Date and time on which this item was last modified. This'
             'is automatically set each time the item is saved.')
     )
+
+    webhook_token = models.UUIDField(null=True)
 
     class Meta:
         ordering = ('name', )
@@ -190,21 +181,13 @@ class Controller(PolymorphicModel):
         pass
 
 
-@receiver(post_save, sender=Controller)
-def publish_to_websocket(sender, instance, created, **kwargs):
-    '''
-    Broadcasts the state of a project when it is saved.
-    broadcast channel: progress
-    '''
-    # TODO: apply permissions here?
-    data = instance.to_dict()
-    data.update({'is_created': created})
-    redis_publisher = RedisPublisher(facility='progress', broadcast=True)
-    message = RedisMessage(json.dumps(data))
-    redis_publisher.publish_message(message)
-
-
 class EnvVariable(models.Model):
     controller = models.ForeignKey(Controller, related_name='env_variables')
-    key = models.TextField(blank=True, null=True)
+    key = models.TextField(blank=True, null=False)
+    value = models.TextField(blank=True, null=True)
+
+
+class MarathonLabel(models.Model):
+    controller = models.ForeignKey(Controller, related_name='label_variables')
+    name = models.TextField(blank=True, null=False)
     value = models.TextField(blank=True, null=True)

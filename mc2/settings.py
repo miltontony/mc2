@@ -4,6 +4,10 @@ from os.path import abspath, dirname, join
 from os import environ
 import dj_database_url
 
+# Tell psycopg2cffi to impersonate psycopg2
+from psycopg2cffi import compat
+compat.register()
+
 
 def bool_env(val):
     """Replaces string based environment values with Python booleans"""
@@ -27,7 +31,7 @@ HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 
 # Configured at Nginx for internal redirect
 LOGDRIVER_PATH = environ.get('LOGDRIVER_PATH', '/logdriver/')
-LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 0)
+LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 1)
 
 # Sentry configuration
 RAVEN_DSN = environ.get('RAVEN_DSN')
@@ -149,9 +153,9 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.request",
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
-    'ws4redis.context_processors.default',
     'mc2.organizations.context_processors.org',
-    'mc2.context_processors.default_forms'
+    'mc2.context_processors.default_forms',
+    'mc2.context_processors.app_version',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -177,9 +181,6 @@ FIELDS_STORED_IN_SESSION = ['access_token', ]
 
 ROOT_URLCONF = 'mc2.urls'
 
-# Python dotted path to the WSGI application used by Django's server.
-# WSGI_APPLICATION = 'ws4redis.django_runserver.application'
-
 TEMPLATE_DIRS = (
     abspath('puppet_templates'),
     abspath('templates'),
@@ -195,13 +196,11 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'redis_cache',
-    'django_nose',
     'raven.contrib.django.raven_compat',
     'debug_toolbar',
 
     'social.apps.django_app.default',
     'mc2',
-    'mc2.controllers.freebasics',
     'mc2.controllers.docker',
     'mc2.controllers.base',
     'mc2.controllers',
@@ -210,7 +209,6 @@ INSTALLED_APPS = (
     'grappelli',
     'django.contrib.admin',
 
-    'ws4redis',
     'compressor',
     'django_gravatar',
     'mama_cas',
@@ -258,12 +256,6 @@ CACHES = {
 
 GRAPPELLI_ADMIN_TITLE = 'Mission Control'
 
-WS4REDIS_EXPIRE = 1
-WEBSOCKET_URL = '/ws/'
-WS4REDIS_CONNECTION = {
-    'db': 4
-}
-
 # Celery configuration options
 BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
@@ -274,6 +266,7 @@ CELERY_ALWAYS_EAGER = DEBUG
 
 # Tell Celery where to find the tasks
 CELERY_IMPORTS = ('mc2.tasks', )
+CELERY_ACCEPT_CONTENT = ['json']
 
 # Defer email sending to Celery, except if we're in debug mode,
 # then just print the emails to stdout for debugging.
@@ -292,7 +285,6 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-SOCIAL_AUTH_SESSION_EXPIRATION = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/analytics.edit',
     'https://www.googleapis.com/auth/analytics.provision']
@@ -315,53 +307,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.user.user_details'
 )
 
-# Unicore Settings (not currently in use)
-# ---------------------------------------
-
-# Used to distinguish between QA and PROD in naming
-DEPLOY_ENVIRONMENT = 'qa'
-
-CMS_SUBDOMAIN = 'qa-content'
-
-# path to where repos will be located
-FRONTEND_REPO_PATH = abspath('repos', 'frontend')
-CMS_REPO_PATH = abspath('repos', 'cms')
-
-CONFIGS_REPO_PATH = abspath('configs')
-
-# path to settings files
-SPRINGBOARD_SETTINGS_OUTPUT_PATH = abspath('configs', 'springboard_settings')
-FRONTEND_SETTINGS_OUTPUT_PATH = abspath('configs', 'frontend_settings')
-CMS_SETTINGS_OUTPUT_PATH = abspath('configs', 'cms_settings')
-
-FRONTEND_SOCKETS_PATH = abspath('configs', 'frontend_sockets')
-CMS_SOCKETS_PATH = abspath('configs', 'cms_sockets')
-
-UNICORE_CMS_INSTALL_DIR = '/path/to/unicore-cms-django'
-UNICORE_CMS_PYTHON_VENV = '/path/to/bin/python'
-UNICORE_CONFIGS_INSTALL_DIR = '/path/to/unicore-configs'
-
-GITHUB_API = 'https://api.github.com/orgs/universalcore/'
-GITHUB_HOOKS_API = 'https://api.github.com/repos/universalcore/%(repo)s/hooks'
-GITHUB_REPO_NAME_SUFFIX = ''  # used to denote PROD vs QA
-GITHUB_USERNAME = ''
-GITHUB_TOKEN = ''
-
-RAVEN_DSN_FRONTEND_QA = ''
-RAVEN_DSN_FRONTEND_PROD = ''
-
-RAVEN_DSN_CMS_QA = ''
-RAVEN_DSN_CMS_PROD = ''
-
-THUMBOR_SECURITY_KEY = ''
-
-ELASTICSEARCH_HOST = 'http://localhost:9200'
-UNICORE_DISTRIBUTE_HOST = 'http://localhost:6543'
-SERVICE_HOST_IP = '127.0.0.1'
-
 HUBCLIENT_SETTINGS = None
 
-CELERY_ACCEPT_CONTENT = ['json']
-
-MAMA_CAS_ATTRIBUTE_CALLBACKS = (
-    'mc2.permissions.custom_attributes',)
+MAMA_CAS_ATTRIBUTE_CALLBACKS = ('mc2.permissions.custom_attributes',)

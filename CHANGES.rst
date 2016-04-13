@@ -1,6 +1,27 @@
 CHANGE LOG
 ==========
 
+3.2.11
+------
+- add hypothesis testing
+- upgrade to latest version of grappelli (fixes delete bug)
+
+3.2.10
+-----
+- remove freebasics
+
+3.2.9
+-----
+- add marathon labels
+
+3.2.8
+-----
+- ensure cards can be clicked properly
+- cleanup old settings
+- remove dependency of ws4redis
+- fix delete of app
+- allow hub domain to be specified in ENV
+
 3.2.7
 -----
 - specify user/pass env for smtp
