@@ -98,12 +98,11 @@ def check_and_remove_docker(appdata, controller):
         assert docker.pop("portMappings") == [
             {"containerPort": controller.port, "hostPort": 0}]
     if controller.volume_needed:
-        volume = u"%s_media:%s" % (
-            controller.app_id,
-            controller.volume_path or settings.MARATHON_DEFAULT_VOLUME_PATH)
+        vname = controller.volume_name or ("%s_media" % (controller.app_id,))
+        vpath = controller.volume_path or settings.MARATHON_DEFAULT_VOLUME_PATH
         assert sorted(docker.pop("parameters")) == sorted([
             {"key": "volume-driver", "value": "xylem"},
-            {"key": "volume", "value": volume},
+            {"key": "volume", "value": u":".join([vname, vpath])},
         ])
     assert docker == {}
     assert container == {}
