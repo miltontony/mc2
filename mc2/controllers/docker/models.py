@@ -118,7 +118,9 @@ class DockerController(Controller):
         for param in docker_dict.pop("parameters", []):
             if param["key"] == "volume":
                 args["volume_needed"] = True
-                args["volume_path"] = param["value"].split(":", 1)[1]
+                volume_name, volume_path = param["value"].split(":", 1)
+                args["volume_name"] = volume_name
+                args["volume_path"] = volume_path
 
         labels = []
 
