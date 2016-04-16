@@ -160,12 +160,9 @@ class ControllerRestartView(ControllerViewMixin, View):
 
     def get(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
-        try:
-            controller.marathon_restart_app()
-            messages.info(self.request, 'App restart sent.')
-        except exceptions.MarathonApiException:
-            messages.error(
-                self.request, 'App restart failed. Please try again.')
+        tasks.marathon_restart_app.delay(controller.id)
+        messages.info(
+            self.request, '%s app restart requested.' % controller.app_id)
         return redirect('home')
 
 

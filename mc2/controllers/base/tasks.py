@@ -15,3 +15,11 @@ def update_marathon_app(project_id):
 
     controller = Controller.objects.get(pk=project_id)
     controller.update_marathon_app()
+
+
+@the_celery_app.task(serializer='json')
+def marathon_restart_app(project_id):
+    from mc2.controllers.base.models import Controller
+
+    controller = Controller.objects.get(pk=project_id)
+    controller.marathon_restart_app()
