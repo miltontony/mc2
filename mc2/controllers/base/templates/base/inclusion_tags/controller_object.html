@@ -43,7 +43,7 @@
             <!-- Add the bg color to the header using any of the bg-* classes -->
             <div class="widget-user-header bg-navy">
               <h3 class="widget-user-username">{{controller.name}}</h3>
-              <h6 class="widget-user-desc"></h6>
+              <div class="widget-user-desc">{{controller.description}}</div>
               <div class="widget-user-desc">
                 {{controller.app_id }}
                 <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span>
