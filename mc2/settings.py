@@ -265,7 +265,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ALWAYS_EAGER = DEBUG
 
 # Tell Celery where to find the tasks
-CELERY_IMPORTS = ('mc2.tasks', )
+CELERY_IMPORTS = ('mc2.controllers.base.tasks', )
 CELERY_ACCEPT_CONTENT = ['json']
 
 # Defer email sending to Celery, except if we're in debug mode,

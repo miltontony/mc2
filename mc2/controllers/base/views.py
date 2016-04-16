@@ -19,8 +19,7 @@ from mc2.organizations.utils import active_organization
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.forms import (
     ControllerFormHelper)
-from mc2.controllers.base import exceptions
-from mc2 import tasks
+from mc2.controllers.base import exceptions, tasks
 
 
 @login_required
@@ -109,11 +108,9 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
 
     def form_valid(self, form):
         response = super(ControllerEditView, self).form_valid(form)
-        try:
-            form.instance.update_marathon_app()
-        except exceptions.MarathonApiException:
-            messages.error(
-                self.request, 'Unable to update controller in marathon')
+        tasks.update_marathon_app.delay(form.instance.id)
+        messages.info(
+            self.request, '%s app update requested.' % form.instance.app_id)
         return response
 
 
