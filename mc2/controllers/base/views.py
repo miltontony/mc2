@@ -3,7 +3,7 @@ import os.path
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
-    HttpResponse, HttpResponseNotFound, HttpResponseBadRequest,
+    HttpResponse, HttpResponseNotFound,
     HttpResponseNotAllowed, HttpResponseServerError)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
@@ -177,15 +177,9 @@ class ControllerDeleteView(ControllerViewMixin, View):
 
     def post(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
-        try:
-            controller.marathon_destroy_app()
-            controller.delete()
-            messages.info(self.request, 'App deletion sent.')
-        except exceptions.MarathonApiException:
-            msg = 'Failed to delete "%(id)s". Please try again.' % {
-                'id': controller.name}
-            messages.error(self.request, msg)
-            return HttpResponseBadRequest(msg)
+        tasks.marathon_destroy_app.delay(controller.id)
+        messages.info(
+            self.request, '%s app delete requested.' % controller.app_id)
         return redirect('home')
 
 

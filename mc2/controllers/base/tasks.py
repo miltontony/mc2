@@ -23,3 +23,12 @@ def marathon_restart_app(project_id):
 
     controller = Controller.objects.get(pk=project_id)
     controller.marathon_restart_app()
+
+
+@the_celery_app.task(serializer='json')
+def marathon_destroy_app(project_id):
+    from mc2.controllers.base.models import Controller
+
+    controller = Controller.objects.get(pk=project_id)
+    controller.marathon_destroy_app()
+    controller.delete()
