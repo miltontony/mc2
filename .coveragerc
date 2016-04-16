@@ -1,2 +1,3 @@
 [run]
 omit = controllers/*/migrations/*,organizations/migrations/*,ve/*
+source = mc2

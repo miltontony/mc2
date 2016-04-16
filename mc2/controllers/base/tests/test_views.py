@@ -369,6 +369,52 @@ class ViewsTestCase(ControllerBaseTestCase):
         resp = self.client.get(reverse('base:edit', args=[1]))
         self.assertEqual(resp.status_code, 302)
 
+    def test_superuser_can_edit_anything(self):
+        controller = self.mk_controller(
+            controller={'owner': User.objects.get(pk=2)})
+        User.objects.create_superuser('joe3', 'joe3@email.com', '1234')
+
+        self.client.login(username='joe3', password='1234')
+
+        resp = self.client.get(reverse('base:edit', args=[controller.pk]))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_normal_user_can_edit_if_admin(self):
+        controller = self.mk_controller(
+            controller={'owner': User.objects.get(pk=2)})
+
+        user = User.objects.create_user('joe2', 'joe2@email.com', '1234')
+        org = Organization.objects.get(pk=1)
+        OrganizationUserRelation.objects.create(
+            user=user, organization=org, is_admin=True)
+        controller.organization = org
+        controller.save()
+
+        self.client.login(username='joe2', password='1234')
+
+        resp = self.client.get(reverse('base:edit', args=[controller.pk]))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_normal_user_with_no_admin_cannot_edit(self):
+        controller = self.mk_controller(
+            controller={'owner': User.objects.get(pk=2)})
+
+        user = User.objects.create_user('joe2', 'joe2@email.com', '1234')
+        org = Organization.objects.get(pk=1)
+        OrganizationUserRelation.objects.create(
+            user=user, organization=org)
+        controller.organization = org
+        controller.save()
+
+        self.client.logout()
+        self.client.login(username='joe2', password='1234')
+
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        resp = self.client.get(reverse('base:edit', args=[controller.pk]))
+        self.assertEqual(resp.status_code, 302)
+
     @responses.activate
     def test_applog_view(self):
         self.client.login(username='testuser2', password='test')

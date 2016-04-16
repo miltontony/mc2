@@ -16,6 +16,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from mc2.organizations.utils import org_permission_required
 from mc2.organizations.utils import active_organization
+from mc2.organizations.models import Organization
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.forms import (
     ControllerFormHelper)
@@ -103,6 +104,20 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
 
     def get_queryset(self):
         return self.get_controllers_queryset(self.request)
+
+    def get_object(self):
+        controller = get_object_or_404(
+            Controller, pk=self.kwargs.get('controller_pk'))
+
+        if self.request.user.is_superuser:
+            return controller
+        elif controller.organization:
+            org = Organization.objects.for_user(self.request.user).filter(
+                pk=controller.organization.id).first()
+            if org and org.has_perms(
+                    self.request.user, ['base.change_controller']):
+                return controller
+        raise HttpResponseNotFound()
 
     def get_success_url(self):
         return reverse("home")
