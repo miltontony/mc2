@@ -403,8 +403,8 @@ class ViewsTestCase(ControllerBaseTestCase):
                 settings.LOGDRIVER_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
-                 '/%s.the-task-id/runs/latest/stdout?n=0' %
-                 controller.app_id)))
+                 '/%s.the-task-id/runs/latest/stdout?n=%s' %
+                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -425,8 +425,8 @@ class ViewsTestCase(ControllerBaseTestCase):
                 settings.LOGDRIVER_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
-                 '/%s.the-task-id/runs/latest/stderr?n=0' %
-                 controller.app_id)))
+                 '/%s.the-task-id/runs/latest/stderr?n=%s' %
+                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
