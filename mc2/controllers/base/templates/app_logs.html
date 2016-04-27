@@ -19,13 +19,13 @@ $(document).ready(function() {
 
     task_ids.forEach(function(task_id) {
         paths.forEach(function(path) {
-            al = new AppLog('#logs', function(msg) {
+            var al = new AppLog('#logs', function(msg) {
                 $("<div class='entry " + path + "' />")
                     .text(msg)
                     .appendTo($('#logs'));
             })
 
-            es = new EventSource('./' + task_id + '/' + path + '/?n={{scroll_backlog}}');
+            var es = new EventSource('./' + task_id + '/' + path + '/?n={{scroll_backlog}}');
             es.addEventListener('log', function (event) {
                 al.log(event.data);
             });

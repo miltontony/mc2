@@ -82,7 +82,7 @@ class DockerController(Controller):
         return app_data
 
     @classmethod
-    def from_marathon_app_data(cls, owner, app_data, name=None):
+    def from_marathon_app_data(cls, owner, org, app_data, name=None):
         """
         Create a new model from the given Marathon app data.
 
@@ -141,7 +141,7 @@ class DockerController(Controller):
         if name is not None:
             args["name"] = name
 
-        self = cls.objects.create(owner=owner, **args)
+        self = cls.objects.create(owner=owner, organization=org, **args)
 
         for label in labels:
             MarathonLabel.objects.create(controller=self, **label)
