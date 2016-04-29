@@ -74,6 +74,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         data = {
             'name': 'Another test app',
+            'description': 'A really lovely little app',
             'marathon_cmd': 'ping2',
             'env-TOTAL_FORMS': 0,
             'env-INITIAL_FORMS': 0,
@@ -96,6 +97,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.state, 'done')
 
         self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.description, 'A really lovely little app')
         self.assertEqual(controller.marathon_cmd, 'ping2')
         self.assertEqual(controller.organization.slug, 'foo-org')
         self.assertEqual(controller.label_variables.count(), 1)
@@ -227,6 +229,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         data = {
             'name': 'Another test app',
+            'description': 'A really lovely little app',
             'marathon_cmd': 'ping2',
             'env-TOTAL_FORMS': 0,
             'env-INITIAL_FORMS': 0,
@@ -249,6 +252,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.post(
             reverse('base:edit', args=[controller.id]), {
                 'name': 'A new name',
+                'description': 'A lovely little app indeed!',
                 'marathon_cpus': 0.5,
                 'marathon_mem': 100.0,
                 'marathon_instances': 2,
@@ -264,6 +268,7 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'webhook_token': webhook_token,
             })
         controller = Controller.objects.get(pk=controller.id)
+        self.assertEqual(controller.description, 'A lovely little app indeed!')
         self.assertEqual(controller.marathon_cpus, 0.5)
         self.assertEqual(controller.marathon_mem, 100.0)
         self.assertEqual(controller.marathon_instances, 2)
