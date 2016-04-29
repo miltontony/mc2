@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
-from mc2 import tasks
+from mc2.controllers.base import tasks
 from mc2.controllers.base.views import ControllerViewMixin
 from mc2.controllers.docker.models import DockerController
 from mc2.organizations.utils import active_organization

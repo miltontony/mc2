@@ -3,7 +3,7 @@ import os.path
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
-    HttpResponse, HttpResponseNotFound, HttpResponseBadRequest,
+    HttpResponse, HttpResponseNotFound,
     HttpResponseNotAllowed, HttpResponseServerError)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
@@ -19,8 +19,7 @@ from mc2.organizations.utils import active_organization
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.forms import (
     ControllerFormHelper)
-from mc2.controllers.base import exceptions
-from mc2 import tasks
+from mc2.controllers.base import exceptions, tasks
 
 
 @login_required
@@ -109,11 +108,9 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
 
     def form_valid(self, form):
         response = super(ControllerEditView, self).form_valid(form)
-        try:
-            form.instance.update_marathon_app()
-        except exceptions.MarathonApiException:
-            messages.error(
-                self.request, 'Unable to update controller in marathon')
+        tasks.update_marathon_app.delay(form.instance.id)
+        messages.info(
+            self.request, '%s app update requested.' % form.instance.app_id)
         return response
 
 
@@ -163,12 +160,9 @@ class ControllerRestartView(ControllerViewMixin, View):
 
     def get(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
-        try:
-            controller.marathon_restart_app()
-            messages.info(self.request, 'App restart sent.')
-        except exceptions.MarathonApiException:
-            messages.error(
-                self.request, 'App restart failed. Please try again.')
+        tasks.marathon_restart_app.delay(controller.id)
+        messages.info(
+            self.request, '%s app restart requested.' % controller.app_id)
         return redirect('home')
 
 
@@ -183,15 +177,9 @@ class ControllerDeleteView(ControllerViewMixin, View):
 
     def post(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
-        try:
-            controller.marathon_destroy_app()
-            controller.delete()
-            messages.info(self.request, 'App deletion sent.')
-        except exceptions.MarathonApiException:
-            msg = 'Failed to delete "%(id)s". Please try again.' % {
-                'id': controller.name}
-            messages.error(self.request, msg)
-            return HttpResponseBadRequest(msg)
+        tasks.marathon_destroy_app.delay(controller.id)
+        messages.info(
+            self.request, '%s app delete requested.' % controller.app_id)
         return redirect('home')
 
 

@@ -320,7 +320,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.marathon_cmd, '/path/to/exec some command')
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Unable to update controller in marathon')
+        self.assertContains(
+            resp, '%s app update requested' % controller.app_id)
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))
@@ -457,7 +458,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'App restart sent.')
+        self.assertContains(
+            resp, '%s app restart requested' % controller.app_id)
 
     @responses.activate
     def test_app_restart_error(self):
@@ -471,7 +473,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'App restart failed.')
+        self.assertContains(
+            resp, '%s app restart requested' % controller.app_id)
 
     @responses.activate
     def test_update_marathon_exists(self):
@@ -538,7 +541,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'App deletion sent.')
+        self.assertContains(
+            resp, '%s app delete requested' % controller.app_id)
         self.assertEquals(Controller.objects.all().count(), 0)
 
     @responses.activate
@@ -551,11 +555,11 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.login(username='testuser2', password='test')
 
         resp = self.client.post(reverse('base:delete', args=[controller.id]))
-        self.assertEqual(resp.status_code, 400)
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Failed to delete')
+        self.assertContains(
+            resp, '%s app delete requested' % controller.app_id)
         self.assertEquals(Controller.objects.all().count(), 1)
 
     @responses.activate
