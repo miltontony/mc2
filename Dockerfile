@@ -1,9 +1,6 @@
-FROM python:2.7.10
+FROM python:2.7.11-alpine
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-	redis-server nginx && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+RUN apk --no-cache add nginx redis libffi postgresql
 
 ENV PROJECT_ROOT /deploy/
 ENV DJANGO_SETTINGS_MODULE mc2.settings
@@ -19,15 +16,16 @@ ADD setup.py /deploy/
 ADD README.rst /deploy/
 ADD VERSION /deploy/
 ADD docker/docker-entrypoint.sh /deploy/
-ADD docker/mc2.nginx.conf /etc/nginx/sites-enabled/
+ADD docker/nginx.conf /etc/nginx/nginx.conf
+ADD docker/mc2.nginx.conf /etc/nginx/conf.d/
 ADD docker/supervisord.conf /etc/
 ADD docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
-RUN pip install gunicorn supervisor "Django<1.9,>=1.8" && \
-    pip install -e . && \
-    rm -rf ~/.cache/pip
-
-RUN rm /etc/nginx/sites-enabled/default
+RUN apk --no-cache add --virtual devdeps gcc musl-dev python-dev libffi-dev postgresql-dev \
+    && pip install gunicorn supervisor "Django<1.9,>=1.8" \
+    && pip install -e . \
+    && rm -rf ~/.cache/pip \
+    && apk del devdeps
 
 RUN mkdir -p /etc/supervisor/conf.d/
 RUN mkdir -p /var/log/supervisor

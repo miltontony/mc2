@@ -14,6 +14,7 @@ from hypothesis.strategies import text, random_module, lists, just
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
+from mc2.organizations.models import Organization
 
 
 def add_envvars(controller):
@@ -44,9 +45,11 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # so we remove them from the generated value.
     # TODO: Build a proper SlugField strategy.
     # TODO: Figure out why the field validation isn't being applied.
-    kw.setdefault("slug", text().map(
-        lambda t: "".join(t.replace(":", "").split())))
+    slug = text().map(lambda t: "".join(t.replace(":", "").split()))
+    kw.setdefault("slug", slug)
+
     kw.setdefault("owner", models(User, is_active=just(True)))
+    kw.setdefault("organization", models(Organization, slug=slug))
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
     # it.
@@ -113,13 +116,13 @@ def check_and_remove_health(appdata, controller):
     if controller.marathon_health_check_path:
         assert appdata.pop("ports") == [0]
         assert appdata.pop("healthChecks") == [{
-            "gracePeriodSeconds": 3,
+            "gracePeriodSeconds": 60,
             "intervalSeconds": 10,
             "maxConsecutiveFailures": 3,
             "path": controller.marathon_health_check_path,
             "portIndex": 0,
             "protocol": "HTTP",
-            "timeoutSeconds": 5,
+            "timeoutSeconds": 20,
         }]
     assert "ports" not in appdata
     assert "healthChecks" not in appdata
@@ -189,7 +192,7 @@ class DockerControllerHypothesisTestCase(TestCase):
         """
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
-            controller.owner, app_data)
+            controller.owner, controller.organization, app_data)
         assert app_data == new_controller.get_marathon_app_data()
 
     @hsettings(perform_health_check=False, max_examples=50)
@@ -204,7 +207,7 @@ class DockerControllerHypothesisTestCase(TestCase):
         """
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
-            controller.owner, app_data, name=name)
+            controller.owner, controller.organization, app_data, name=name)
         assert new_controller.name == name
 
         app_data_with_name = json.loads(json.dumps(app_data))
@@ -227,9 +230,15 @@ class DockerControllerHypothesisTestCase(TestCase):
         user.save()
         client = Client()
         assert client.login(username=user.username, password="password")
-        resp = client.post(
-            reverse('controllers.docker:hidden_import'),
-            {"name": name, "app_data": json.dumps(app_data)})
+        with responses.RequestsMock() as rsps:
+            # If the Marathon request hasn't occurred by the time this context
+            # is closed then the test will fail.
+            rsps.add(
+                responses.POST, '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
+                body="{}", content_type="application/json", status=201)
+            resp = client.post(
+                reverse('controllers.docker:hidden_import'),
+                {"name": name, "app_data": json.dumps(app_data)})
         assert resp.status_code == 302
 
         new_controller = DockerController.objects.exclude(
@@ -333,13 +342,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             },
             "ports": [0],
             "healthChecks": [{
-                "gracePeriodSeconds": 3,
+                "gracePeriodSeconds": 60,
                 "intervalSeconds": 10,
                 "maxConsecutiveFailures": 3,
                 "path": '/health/path/',
                 "portIndex": 0,
                 "protocol": "HTTP",
-                "timeoutSeconds": 5
+                "timeoutSeconds": 20
             }]
         })
 
@@ -377,13 +386,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             },
             "ports": [0],
             "healthChecks": [{
-                "gracePeriodSeconds": 3,
+                "gracePeriodSeconds": 60,
                 "intervalSeconds": 10,
                 "maxConsecutiveFailures": 3,
                 "path": '/health/path/',
                 "portIndex": 0,
                 "protocol": "HTTP",
-                "timeoutSeconds": 5
+                "timeoutSeconds": 20
             }]
         })
 
@@ -422,13 +431,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             },
             "ports": [0],
             "healthChecks": [{
-                "gracePeriodSeconds": 3,
+                "gracePeriodSeconds": 60,
                 "intervalSeconds": 10,
                 "maxConsecutiveFailures": 3,
                 "path": '/health/path/',
                 "portIndex": 0,
                 "protocol": "HTTP",
-                "timeoutSeconds": 5
+                "timeoutSeconds": 20
             }]
         })
 

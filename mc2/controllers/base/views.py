@@ -3,7 +3,8 @@ import os.path
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
-    HttpResponse, HttpResponseNotFound, HttpResponseBadRequest)
+    HttpResponse, HttpResponseNotFound,
+    HttpResponseNotAllowed, HttpResponseServerError)
 from django.contrib.auth.decorators import (
     login_required, user_passes_test)
 from django.utils.decorators import method_decorator
@@ -15,11 +16,11 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from mc2.organizations.utils import org_permission_required
 from mc2.organizations.utils import active_organization
+from mc2.organizations.models import Organization
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.forms import (
     ControllerFormHelper)
-from mc2.controllers.base import exceptions
-from mc2 import tasks
+from mc2.controllers.base import exceptions, tasks
 
 
 @login_required
@@ -103,16 +104,28 @@ class ControllerEditView(ControllerViewMixin, UpdateView):
     def get_queryset(self):
         return self.get_controllers_queryset(self.request)
 
+    def get_object(self):
+        controller = get_object_or_404(
+            Controller, pk=self.kwargs.get('controller_pk'))
+
+        if self.request.user.is_superuser:
+            return controller
+        elif controller.organization:
+            org = Organization.objects.for_user(self.request.user).filter(
+                pk=controller.organization.id).first()
+            if org and org.has_perms(
+                    self.request.user, ['base.change_controller']):
+                return controller
+        raise HttpResponseNotFound()
+
     def get_success_url(self):
         return reverse("home")
 
     def form_valid(self, form):
         response = super(ControllerEditView, self).form_valid(form)
-        try:
-            form.instance.update_marathon_app()
-        except exceptions.MarathonApiException:
-            messages.error(
-                self.request, 'Unable to update controller in marathon')
+        tasks.update_marathon_app.delay(form.instance.id)
+        messages.info(
+            self.request, '%s app update requested.' % form.instance.app_id)
         return response
 
 
@@ -162,12 +175,9 @@ class ControllerRestartView(ControllerViewMixin, View):
 
     def get(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
-        try:
-            controller.marathon_restart_app()
-            messages.info(self.request, 'App restart sent.')
-        except exceptions.MarathonApiException:
-            messages.error(
-                self.request, 'App restart failed. Please try again.')
+        tasks.marathon_restart_app.delay(controller.id)
+        messages.info(
+            self.request, '%s app restart requested.' % controller.app_id)
         return redirect('home')
 
 
@@ -182,13 +192,36 @@ class ControllerDeleteView(ControllerViewMixin, View):
 
     def post(self, request, controller_pk):
         controller = get_object_or_404(Controller, pk=controller_pk)
-        try:
-            controller.marathon_destroy_app()
-            controller.delete()
-            messages.info(self.request, 'App deletion sent.')
-        except exceptions.MarathonApiException:
-            msg = 'Failed to delete "%(id)s". Please try again.' % {
-                'id': controller.name}
-            messages.error(self.request, msg)
-            return HttpResponseBadRequest(msg)
+        tasks.marathon_destroy_app.delay(controller.id)
+        messages.info(
+            self.request, '%s app delete requested.' % controller.app_id)
         return redirect('home')
+
+
+class ControllerWebhookRestartView(View):
+    """
+    Unauthenticated webhook to restart an app.
+
+    Technically, this is a 'URL capability'.
+    """
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, *args, **kwargs):
+        return super(
+            ControllerWebhookRestartView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, controller_pk, token):
+        return HttpResponseNotAllowed(['POST'])
+
+    def post(self, request, controller_pk, token):
+        controller = get_object_or_404(Controller, pk=controller_pk)
+        if str(controller.webhook_token) != token:
+            return HttpResponseNotFound()
+
+        try:
+            controller.marathon_restart_app()
+        except exceptions.MarathonApiException:
+            return HttpResponseServerError(
+                json.dumps({'error': 'Restart failed.'}),
+                content_type='application/json')
+        return HttpResponse(json.dumps({}), content_type='application/json')

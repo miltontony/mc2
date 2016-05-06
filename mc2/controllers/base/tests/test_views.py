@@ -1,4 +1,7 @@
+import json
 import os
+import uuid
+
 import pytest
 import responses
 from django.conf import settings
@@ -71,6 +74,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         data = {
             'name': 'Another test app',
+            'description': 'A really lovely little app',
             'marathon_cmd': 'ping2',
             'env-TOTAL_FORMS': 0,
             'env-INITIAL_FORMS': 0,
@@ -93,6 +97,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.state, 'done')
 
         self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.description, 'A really lovely little app')
         self.assertEqual(controller.marathon_cmd, 'ping2')
         self.assertEqual(controller.organization.slug, 'foo-org')
         self.assertEqual(controller.label_variables.count(), 1)
@@ -112,6 +117,8 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.mock_create_marathon_app()
 
+        webhook_token = str(uuid.uuid4())
+
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
@@ -125,6 +132,7 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'webhook_token': webhook_token,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -141,6 +149,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.env_variables.count(), 1)
         self.assertEqual(controller.env_variables.all()[0].key, 'A_TEST_KEY')
         self.assertEqual(controller.env_variables.all()[0].value, 'the value')
+        self.assertEqual(str(controller.webhook_token), webhook_token)
         self.assertTrue(controller.slug)
 
     @responses.activate
@@ -220,6 +229,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         data = {
             'name': 'Another test app',
+            'description': 'A really lovely little app',
             'marathon_cmd': 'ping2',
             'env-TOTAL_FORMS': 0,
             'env-INITIAL_FORMS': 0,
@@ -237,9 +247,12 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = Controller.objects.all().last()
         self.mock_update_marathon_app(controller.app_id)
 
+        webhook_token = str(uuid.uuid4())
+
         self.client.post(
             reverse('base:edit', args=[controller.id]), {
                 'name': 'A new name',
+                'description': 'A lovely little app indeed!',
                 'marathon_cpus': 0.5,
                 'marathon_mem': 100.0,
                 'marathon_instances': 2,
@@ -252,12 +265,15 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'webhook_token': webhook_token,
             })
         controller = Controller.objects.get(pk=controller.id)
+        self.assertEqual(controller.description, 'A lovely little app indeed!')
         self.assertEqual(controller.marathon_cpus, 0.5)
         self.assertEqual(controller.marathon_mem, 100.0)
         self.assertEqual(controller.marathon_instances, 2)
         self.assertEqual(controller.marathon_cmd, '/path/to/exec some command')
+        self.assertEqual(str(controller.webhook_token), webhook_token)
 
     @responses.activate
     def test_advanced_page_marathon_error(self):
@@ -309,7 +325,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.marathon_cmd, '/path/to/exec some command')
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Unable to update controller in marathon')
+        self.assertContains(
+            resp, '%s app update requested' % controller.app_id)
 
     def test_view_only_on_homepage(self):
         resp = self.client.get(reverse('home'))
@@ -358,6 +375,52 @@ class ViewsTestCase(ControllerBaseTestCase):
         resp = self.client.get(reverse('base:edit', args=[1]))
         self.assertEqual(resp.status_code, 302)
 
+    def test_superuser_can_edit_anything(self):
+        controller = self.mk_controller(
+            controller={'owner': User.objects.get(pk=2)})
+        User.objects.create_superuser('joe3', 'joe3@email.com', '1234')
+
+        self.client.login(username='joe3', password='1234')
+
+        resp = self.client.get(reverse('base:edit', args=[controller.pk]))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_normal_user_can_edit_if_admin(self):
+        controller = self.mk_controller(
+            controller={'owner': User.objects.get(pk=2)})
+
+        user = User.objects.create_user('joe2', 'joe2@email.com', '1234')
+        org = Organization.objects.get(pk=1)
+        OrganizationUserRelation.objects.create(
+            user=user, organization=org, is_admin=True)
+        controller.organization = org
+        controller.save()
+
+        self.client.login(username='joe2', password='1234')
+
+        resp = self.client.get(reverse('base:edit', args=[controller.pk]))
+        self.assertEqual(resp.status_code, 200)
+
+    def test_normal_user_with_no_admin_cannot_edit(self):
+        controller = self.mk_controller(
+            controller={'owner': User.objects.get(pk=2)})
+
+        user = User.objects.create_user('joe2', 'joe2@email.com', '1234')
+        org = Organization.objects.get(pk=1)
+        OrganizationUserRelation.objects.create(
+            user=user, organization=org)
+        controller.organization = org
+        controller.save()
+
+        self.client.logout()
+        self.client.login(username='joe2', password='1234')
+
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        resp = self.client.get(reverse('base:edit', args=[controller.pk]))
+        self.assertEqual(resp.status_code, 302)
+
     @responses.activate
     def test_applog_view(self):
         self.client.login(username='testuser2', password='test')
@@ -391,8 +454,8 @@ class ViewsTestCase(ControllerBaseTestCase):
                 settings.LOGDRIVER_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
-                 '/%s.the-task-id/runs/latest/stdout?n=0' %
-                 controller.app_id)))
+                 '/%s.the-task-id/runs/latest/stdout?n=%s' %
+                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -413,8 +476,8 @@ class ViewsTestCase(ControllerBaseTestCase):
                 settings.LOGDRIVER_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
-                 '/%s.the-task-id/runs/latest/stderr?n=0' %
-                 controller.app_id)))
+                 '/%s.the-task-id/runs/latest/stderr?n=%s' %
+                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -446,7 +509,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'App restart sent.')
+        self.assertContains(
+            resp, '%s app restart requested' % controller.app_id)
 
     @responses.activate
     def test_app_restart_error(self):
@@ -460,7 +524,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'App restart failed.')
+        self.assertContains(
+            resp, '%s app restart requested' % controller.app_id)
 
     @responses.activate
     def test_update_marathon_exists(self):
@@ -527,7 +592,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'App deletion sent.')
+        self.assertContains(
+            resp, '%s app delete requested' % controller.app_id)
         self.assertEquals(Controller.objects.all().count(), 0)
 
     @responses.activate
@@ -540,9 +606,99 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.login(username='testuser2', password='test')
 
         resp = self.client.post(reverse('base:delete', args=[controller.id]))
-        self.assertEqual(resp.status_code, 400)
         self.assertEqual(len(responses.calls), 1)
 
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'Failed to delete')
+        self.assertContains(
+            resp, '%s app delete requested' % controller.app_id)
         self.assertEquals(Controller.objects.all().count(), 1)
+
+    @responses.activate
+    def test_app_webhook_restart(self):
+        """
+        The restart webhook restarts the app and requires no authentication.
+        """
+        token = uuid.uuid4()
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'webhook_token': token,
+        })
+        self.mock_restart_marathon_app(controller.app_id)
+
+        resp = Client().post(
+            reverse('base:webhook_restart', args=[controller.id, token]))
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(json.loads(resp.content), {})
+        self.assertEqual(len(responses.calls), 1)
+
+    @responses.activate
+    def test_app_webhook_restart_wrong_token(self):
+        """
+        The restart webhook 404s if the token doesn't match.
+        """
+        token = uuid.uuid4()
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'webhook_token': token,
+        })
+        self.mock_restart_marathon_app(controller.app_id)
+
+        resp = Client().post(
+            reverse('base:webhook_restart', args=[controller.id, 'abc']))
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_app_webhook_restart_no_token(self):
+        """
+        The restart webhook 404s if the controller has no token set.
+        """
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done'})
+        self.mock_restart_marathon_app(controller.app_id)
+
+        resp = Client().post(
+            reverse('base:webhook_restart', args=[controller.id, 'abc']))
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_app_webhook_restart_no_get(self):
+        """
+        The restart webhook does not accept GET requests.
+        """
+        token = uuid.uuid4()
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'webhook_token': token,
+        })
+        self.mock_restart_marathon_app(controller.app_id)
+
+        resp = Client().get(
+            reverse('base:webhook_restart', args=[controller.id, token]))
+        self.assertEqual(resp.status_code, 405)
+        self.assertEqual(len(responses.calls), 0)
+
+    @responses.activate
+    def test_app_webhook_restart_error(self):
+        """
+        The restart webhook returns an error if the restart failed for some
+        reason.
+        """
+        token = uuid.uuid4()
+        controller = self.mk_controller(controller={
+            'owner': User.objects.get(pk=2),
+            'state': 'done',
+            'webhook_token': token,
+        })
+        self.mock_restart_marathon_app(controller.app_id, 404)
+
+        resp = Client().post(
+            reverse('base:webhook_restart', args=[controller.id, token]))
+        self.assertEqual(resp.status_code, 500)
+        self.assertEqual(
+            json.loads(resp.content), {'error': 'Restart failed.'})

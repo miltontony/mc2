@@ -19,10 +19,13 @@ class Controller(PolymorphicModel):
         default=settings.MESOS_DEFAULT_MEMORY_ALLOCATION)
     marathon_instances = models.IntegerField(
         default=settings.MESOS_DEFAULT_INSTANCES)
-    marathon_cmd = models.TextField(default='')
+    marathon_cmd = models.TextField(default='', blank=True, null=True)
 
     name = models.TextField(
         help_text='A descriptive name to uniquely identify a controller')
+    description = models.TextField(
+        help_text='A description to provide more info about a controller',
+        blank=True, null=True, default='')
     slug = models.SlugField(
         max_length=255,
         db_index=True,
@@ -53,6 +56,8 @@ class Controller(PolymorphicModel):
             'Date and time on which this item was last modified. This'
             'is automatically set each time the item is saved.')
     )
+
+    webhook_token = models.UUIDField(null=True)
 
     class Meta:
         ordering = ('name', )

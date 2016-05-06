@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 
@@ -6,24 +7,38 @@ from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 class ControllerForm(forms.ModelForm):
     name = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
+    description = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '(optional)'}),
+        required=False)
     marathon_cmd = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'form-control'}))
     marathon_cpus = forms.FloatField(
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': settings.MESOS_DEFAULT_CPU_SHARE}))
     marathon_mem = forms.FloatField(
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': settings.MESOS_DEFAULT_MEMORY_ALLOCATION}))
     marathon_instances = forms.IntegerField(
         required=False,
         min_value=0,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': settings.MESOS_DEFAULT_INSTANCES}))
+    webhook_token = forms.UUIDField(
+        required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
-            'marathon_cmd')
+            'marathon_cmd', 'webhook_token', 'description')
 
 
 class EnvVariableForm(forms.ModelForm):

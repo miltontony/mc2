@@ -1,6 +1,17 @@
 CHANGE LOG
 ==========
 
+3.3.0
+-----
+- added description field
+- ensure org change doesn't result in 404 if org permssions are good
+- ensure all marathon calls are done via celery
+- re-introduce log driver
+- added app restart webhook
+- UI improvements + tweaks
+- increase graceperiod for when apps start with healthchecks
+- small docker image with python:2.7.11-alpine
+
 3.2.11
 ------
 - add hypothesis testing

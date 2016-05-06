@@ -4,6 +4,10 @@ from os.path import abspath, dirname, join
 from os import environ
 import dj_database_url
 
+# Tell psycopg2cffi to impersonate psycopg2
+from psycopg2cffi import compat
+compat.register()
+
 
 def bool_env(val):
     """Replaces string based environment values with Python booleans"""
@@ -27,7 +31,7 @@ HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 
 # Configured at Nginx for internal redirect
 LOGDRIVER_PATH = environ.get('LOGDRIVER_PATH', '/logdriver/')
-LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 0)
+LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 1)
 
 # Sentry configuration
 RAVEN_DSN = environ.get('RAVEN_DSN')
@@ -150,7 +154,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
     'mc2.organizations.context_processors.org',
-    'mc2.context_processors.default_forms'
+    'mc2.context_processors.default_forms',
+    'mc2.context_processors.app_version',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -260,7 +265,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ALWAYS_EAGER = DEBUG
 
 # Tell Celery where to find the tasks
-CELERY_IMPORTS = ('mc2.tasks', )
+CELERY_IMPORTS = ('mc2.controllers.base.tasks', )
 CELERY_ACCEPT_CONTENT = ['json']
 
 # Defer email sending to Celery, except if we're in debug mode,
@@ -280,7 +285,6 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-SOCIAL_AUTH_SESSION_EXPIRATION = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/analytics.edit',
     'https://www.googleapis.com/auth/analytics.provision']

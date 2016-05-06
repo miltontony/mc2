@@ -69,20 +69,20 @@ class DockerController(Controller):
             app_data.update({
                 "ports": [0],
                 "healthChecks": [{
-                    "gracePeriodSeconds": 3,
+                    "gracePeriodSeconds": 60,
                     "intervalSeconds": 10,
                     "maxConsecutiveFailures": 3,
                     "path": self.marathon_health_check_path,
                     "portIndex": 0,
                     "protocol": "HTTP",
-                    "timeoutSeconds": 5
+                    "timeoutSeconds": 20
                 }]
             })
 
         return app_data
 
     @classmethod
-    def from_marathon_app_data(cls, owner, app_data, name=None):
+    def from_marathon_app_data(cls, owner, org, app_data, name=None):
         """
         Create a new model from the given Marathon app data.
 
@@ -141,7 +141,7 @@ class DockerController(Controller):
         if name is not None:
             args["name"] = name
 
-        self = cls.objects.create(owner=owner, **args)
+        self = cls.objects.create(owner=owner, organization=org, **args)
 
         for label in labels:
             MarathonLabel.objects.create(controller=self, **label)

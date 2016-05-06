@@ -1,21 +1,71 @@
 {% extends 'base/inclusion_tags/controller_object.html' %}
-{% block controller_visit %}
-<div class="application-item-box bg-blue view app-view-action">
-<a class="link docker" href="#">
-  <div class="info-box-icon icon-small">
-    {% load staticfiles %}
-    {% with "img/docker-container-vector.png" as icon_src %}
-        <img class="icon-container-docker" src="{% static icon_src %}"/>
-    {% endwith %}
-  </div>
-  View
-</a>
-</div>
-{% endblock %}
 
-{% block edit_action %}
-    <a class="link" href="{% url 'controllers.docker:edit' controller.id %}">
-        <span><i class="fa fa-gears info-box-icon icon-small"></i></span>
-        Edit
-    </a>
+{% block content-overlay %}
+<div class="card-content-overlay content-overlay block">
+  <!-- Widget: user widget style 1 -->
+  <div class="box box-widget widget-user">
+    <!-- Add the bg color to the header using any of the bg-* classes -->
+    <div class="widget-user-header bg-navy">
+      <h3 class="widget-user-username">{{controller.name}}</h3>
+      <div class="widget-user-desc">{{controller.description}}</div>
+      <div class="widget-user-desc">
+        {{controller.app_id }}
+        <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span>
+      </div>
+    </div>
+    <div class="box-footer">
+      <div class="row">
+        <div class="col-sm-2 border-right">
+          <div class="description-block app-view-action">
+            <h5 class="description-header"><a class="text-green" href="#">View</a></h5>
+            <span class="description-text"></span>
+          </div>
+          <!-- /.description-block -->
+        </div>
+        <div class="col-sm-2 border-right">
+          <div class="description-block">
+            {% block edit_action %}
+            <h5 class="description-header"><a href="{% url 'controllers.docker:edit' controller.id %}">Edit</a></h5>
+            <span class="description-text"></span>
+            {% endblock %}
+          </div>
+          <!-- /.description-block -->
+        </div>
+        <!-- /.col -->
+        <div class="col-sm-3 border-right">
+          <div class="description-block">
+            {% block restart_action %}
+              <h5 class="description-header"><a href="{% url 'base:restart' controller.id %}">Restart</a></h5>
+              <span class="description-text"></span>
+            {% endblock %}
+          </div>
+          <!-- /.description-block -->
+        </div>
+        <!-- /.col -->
+        <div class="col-sm-2 border-right">
+          <div class="description-block">
+            {% block logs_action %}
+              <h5 class="description-header"><a href="{% url 'base:logs' controller.id %}">Logs</a></h5>
+              <span class="description-text"></span>
+            {% endblock %}
+          </div>
+          <!-- /.description-block -->
+        </div>
+        <!-- /.col -->
+        <div class="col-sm-3 border-right">
+          <div class="description-block delete app-delete-action">
+            {% block delete_action %}
+              <h5 class="description-header"><a class="text-red" href="{% url 'base:delete' controller.id %}">Delete</a></h5>
+              <span class="description-text"></span>
+            {% endblock %}
+          </div>
+          <!-- /.description-block -->
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.row -->
+    </div>
+  </div>
+  <!-- /.widget-user -->
+</div>
 {% endblock %}

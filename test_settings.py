@@ -1,5 +1,9 @@
 from mc2.settings import *
 
+# Tell psycopg2cffi to impersonate psycopg2
+from psycopg2cffi import compat
+compat.register()
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',

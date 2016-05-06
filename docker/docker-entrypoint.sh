@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
@@ -12,7 +12,7 @@ if not User.objects.filter(username='admin').count():
 " | django-admin.py shell
 
 echo "=> Starting nginx"
-nginx; service nginx reload
+nginx
 
 echo "=> Starting Supervisord"
 supervisord -c /etc/supervisord.conf
