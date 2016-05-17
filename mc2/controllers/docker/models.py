@@ -49,6 +49,8 @@ class DockerController(Controller):
 
         service_labels = {
             "domain": domains.strip(),
+            "HAPROXY_GROUP": "external",
+            "HAPROXY_0_VHOST": domains.strip(),
             "name": self.name,
         }
 
