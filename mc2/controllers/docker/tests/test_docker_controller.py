@@ -553,3 +553,54 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 }
             }
         })
+
+    @responses.activate
+    def test_get_marathon_app_data_using_health_timeout_strings(self):
+        controller = DockerController.objects.create(
+            name='Test App',
+            owner=self.user,
+            marathon_cmd='ping',
+            docker_image='docker/image',
+            marathon_health_check_path='/health/path/',
+            port=1234,
+        )
+
+        custom_urls = "testing.com url.com"
+        controller.domain_urls += custom_urls
+        with self.settings(
+            MESOS_DEFAULT_GRACE_PERIOD_SECONDS='600',
+            MESOS_DEFAULT_INTERVAL_SECONDS='100',
+                MESOS_DEFAULT_TIMEOUT_SECONDS='200'):
+            self.assertEquals(controller.get_marathon_app_data(), {
+                "id": controller.app_id,
+                "cpus": 0.1,
+                "mem": 128.0,
+                "instances": 1,
+                "cmd": "ping",
+                "labels": {
+                    "domain": "{}.{} {}".format(controller.app_id,
+                                                settings.HUB_DOMAIN,
+                                                custom_urls),
+                    "name": "Test App",
+                },
+                "container": {
+                    "type": "DOCKER",
+                    "docker": {
+                        "image": "docker/image",
+                        "forcePullImage": True,
+                        "network": "BRIDGE",
+                        "portMappings": [
+                            {"containerPort": 1234, "hostPort": 0}],
+                    }
+                },
+                "ports": [0],
+                "healthChecks": [{
+                    "gracePeriodSeconds": 600,
+                    "intervalSeconds": 100,
+                    "maxConsecutiveFailures": 3,
+                    "path": '/health/path/',
+                    "portIndex": 0,
+                    "protocol": "HTTP",
+                    "timeoutSeconds": 200
+                }]
+            })
