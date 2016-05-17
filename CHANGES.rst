@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.3.2
+-----
+- ensure int values for health check timeouts
+
 3.3.1
 -----
 - allow health check timeouts to be configurable
