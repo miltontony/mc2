@@ -69,13 +69,13 @@ class DockerController(Controller):
             app_data.update({
                 "ports": [0],
                 "healthChecks": [{
-                    "gracePeriodSeconds": 60,
+                    "gracePeriodSeconds": 600,
                     "intervalSeconds": 10,
                     "maxConsecutiveFailures": 3,
                     "path": self.marathon_health_check_path,
                     "portIndex": 0,
                     "protocol": "HTTP",
-                    "timeoutSeconds": 20
+                    "timeoutSeconds": 60
                 }]
             })
 

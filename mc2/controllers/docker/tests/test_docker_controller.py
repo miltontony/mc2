@@ -116,13 +116,13 @@ def check_and_remove_health(appdata, controller):
     if controller.marathon_health_check_path:
         assert appdata.pop("ports") == [0]
         assert appdata.pop("healthChecks") == [{
-            "gracePeriodSeconds": 60,
+            "gracePeriodSeconds": 600,
             "intervalSeconds": 10,
             "maxConsecutiveFailures": 3,
             "path": controller.marathon_health_check_path,
             "portIndex": 0,
             "protocol": "HTTP",
-            "timeoutSeconds": 20,
+            "timeoutSeconds": 60,
         }]
     assert "ports" not in appdata
     assert "healthChecks" not in appdata
@@ -342,13 +342,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             },
             "ports": [0],
             "healthChecks": [{
-                "gracePeriodSeconds": 60,
+                "gracePeriodSeconds": 600,
                 "intervalSeconds": 10,
                 "maxConsecutiveFailures": 3,
                 "path": '/health/path/',
                 "portIndex": 0,
                 "protocol": "HTTP",
-                "timeoutSeconds": 20
+                "timeoutSeconds": 60
             }]
         })
 
@@ -386,13 +386,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             },
             "ports": [0],
             "healthChecks": [{
-                "gracePeriodSeconds": 60,
+                "gracePeriodSeconds": 600,
                 "intervalSeconds": 10,
                 "maxConsecutiveFailures": 3,
                 "path": '/health/path/',
                 "portIndex": 0,
                 "protocol": "HTTP",
-                "timeoutSeconds": 20
+                "timeoutSeconds": 60
             }]
         })
 
@@ -431,13 +431,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             },
             "ports": [0],
             "healthChecks": [{
-                "gracePeriodSeconds": 60,
+                "gracePeriodSeconds": 600,
                 "intervalSeconds": 10,
                 "maxConsecutiveFailures": 3,
                 "path": '/health/path/',
                 "portIndex": 0,
                 "protocol": "HTTP",
-                "timeoutSeconds": 20
+                "timeoutSeconds": 60
             }]
         })
 
