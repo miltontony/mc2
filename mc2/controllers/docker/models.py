@@ -70,15 +70,15 @@ class DockerController(Controller):
                 "ports": [0],
                 "healthChecks": [{
                     "gracePeriodSeconds":
-                        settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS,
+                        int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
                     "intervalSeconds":
-                        settings.MESOS_DEFAULT_INTERVAL_SECONDS,
+                        int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
                     "maxConsecutiveFailures": 3,
                     "path": self.marathon_health_check_path,
                     "portIndex": 0,
                     "protocol": "HTTP",
                     "timeoutSeconds":
-                        settings.MESOS_DEFAULT_TIMEOUT_SECONDS,
+                        int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
                 }]
             })
 
