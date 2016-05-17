@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.3.1
+-----
+- allow health check timeouts to be configurable
+
 3.3.0
 -----
 - added description field
