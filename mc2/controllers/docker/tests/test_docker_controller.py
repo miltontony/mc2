@@ -589,6 +589,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             MESOS_DEFAULT_GRACE_PERIOD_SECONDS='600',
             MESOS_DEFAULT_INTERVAL_SECONDS='100',
                 MESOS_DEFAULT_TIMEOUT_SECONDS='200'):
+            domain_label = "{}.{} {}".format(
+                controller.app_id, settings.HUB_DOMAIN, custom_urls)
             self.assertEquals(controller.get_marathon_app_data(), {
                 "id": controller.app_id,
                 "cpus": 0.1,
@@ -596,9 +598,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "instances": 1,
                 "cmd": "ping",
                 "labels": {
-                    "domain": "{}.{} {}".format(controller.app_id,
-                                                settings.HUB_DOMAIN,
-                                                custom_urls),
+                    "domain": domain_label,
+                    "HAPROXY_GROUP": "external",
+                    "HAPROXY_0_VHOST": domain_label,
                     "name": "Test App",
                 },
                 "container": {
