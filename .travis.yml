@@ -32,7 +32,7 @@ install:
   - pip install coveralls
 
 script:
-  - py.test
+  - py.test mc2
 
 after_success:
   - if [ -z "$NO_COVERAGE" ]; then coveralls; fi

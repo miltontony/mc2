@@ -149,6 +149,8 @@ def check_and_remove_labels(appdata, controller):
     domains = [u".".join([controller.app_id, settings.HUB_DOMAIN])]
     domains.extend(controller.domain_urls.split())
     assert sorted(labels.pop("domain").split()) == sorted(domains)
+    assert sorted(labels.pop("HAPROXY_0_VHOST").split()) == sorted(domains)
+    assert labels.pop("HAPROXY_GROUP") == "external"
     # We may have duplicate keys in here, but hopefully the database always
     # return the objects in the same order.
     lvs = {lv.name: lv.value for lv in controller.label_variables.all()}
@@ -268,6 +270,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
 
         custom_urls = "testing.com url.com"
         controller.domain_urls += custom_urls
+        domain_label = "{}.{} {}".format(
+            controller.app_id, settings.HUB_DOMAIN, custom_urls)
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -275,9 +279,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "instances": 1,
             "cmd": "ping",
             "labels": {
-                "domain": "{}.{} {}".format(controller.app_id,
-                                            settings.HUB_DOMAIN,
-                                            custom_urls),
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
                 "name": "Test App",
             },
             "container": {
@@ -293,6 +297,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         controller.port = 1234
         controller.save()
 
+        domain_label = "{}.{} {}".format(
+            controller.app_id, settings.HUB_DOMAIN, custom_urls)
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -300,9 +306,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "instances": 1,
             "cmd": "ping",
             "labels": {
-                "domain": "{}.{} {}".format(controller.app_id,
-                                            settings.HUB_DOMAIN,
-                                            custom_urls),
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
                 "name": "Test App"
             },
             "container": {
@@ -319,6 +325,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         controller.marathon_health_check_path = '/health/path/'
         controller.save()
 
+        domain_label = "{}.{} {}".format(
+            controller.app_id, settings.HUB_DOMAIN, custom_urls)
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -326,9 +334,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "instances": 1,
             "cmd": "ping",
             "labels": {
-                "domain": "{}.{} {}".format(controller.app_id,
-                                            settings.HUB_DOMAIN,
-                                            custom_urls),
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
                 "name": "Test App",
             },
             "container": {
@@ -356,6 +364,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         controller.volume_path = "/deploy/media/"
         controller.save()
 
+        domain_label = "{}.{} {}".format(
+            controller.app_id, settings.HUB_DOMAIN, custom_urls)
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -363,9 +373,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "instances": 1,
             "cmd": "ping",
             "labels": {
-                "domain": "{}.{} {}".format(controller.app_id,
-                                            settings.HUB_DOMAIN,
-                                            custom_urls),
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
                 "name": "Test App",
             },
             "container": {
@@ -399,6 +409,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         controller.volume_path = ""
         controller.save()
 
+        domain_label = "{}.{} {}".format(
+            controller.app_id, settings.HUB_DOMAIN, custom_urls)
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -406,9 +418,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "instances": 1,
             "cmd": "ping",
             "labels": {
-                "domain": "{}.{} {}".format(controller.app_id,
-                                            settings.HUB_DOMAIN,
-                                            custom_urls),
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
                 "name": "Test App",
             },
             "container": {
@@ -450,6 +462,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         )
         self.mk_env_variable(controller)
 
+        domain_label = "{}.{}".format(controller.app_id, settings.HUB_DOMAIN)
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -458,8 +471,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cmd": "ping",
             "env": {"TEST_KEY": "a test value"},
             "labels": {
-                "domain": "{}.{}".format(controller.app_id,
-                                         settings.HUB_DOMAIN),
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
                 "name": "Test App",
             },
             "container": {
@@ -482,6 +496,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         self.mk_env_variable(controller)
         self.mk_labels_variable(controller)
 
+        domain_label = "{}.{}".format(controller.app_id, settings.HUB_DOMAIN)
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -490,8 +505,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cmd": "ping",
             "env": {"TEST_KEY": "a test value"},
             "labels": {
-                "domain": "{}.{}".format(controller.app_id,
-                                         settings.HUB_DOMAIN),
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
                 "name": "Test App",
                 "TEST_LABELS_NAME": 'a test label value'
             },
@@ -534,14 +550,16 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             docker_image='docker/image',
         )
 
+        domain_label = "{}.{}".format(controller.app_id, settings.HUB_DOMAIN)
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
             "labels": {
-                "domain": "{}.{}".format(controller.app_id,
-                                         settings.HUB_DOMAIN),
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
                 "name": "Test App",
             },
             "container": {
@@ -571,6 +589,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             MESOS_DEFAULT_GRACE_PERIOD_SECONDS='600',
             MESOS_DEFAULT_INTERVAL_SECONDS='100',
                 MESOS_DEFAULT_TIMEOUT_SECONDS='200'):
+            domain_label = "{}.{} {}".format(
+                controller.app_id, settings.HUB_DOMAIN, custom_urls)
             self.assertEquals(controller.get_marathon_app_data(), {
                 "id": controller.app_id,
                 "cpus": 0.1,
@@ -578,9 +598,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "instances": 1,
                 "cmd": "ping",
                 "labels": {
-                    "domain": "{}.{} {}".format(controller.app_id,
-                                                settings.HUB_DOMAIN,
-                                                custom_urls),
+                    "domain": domain_label,
+                    "HAPROXY_GROUP": "external",
+                    "HAPROXY_0_VHOST": domain_label,
                     "name": "Test App",
                 },
                 "container": {
