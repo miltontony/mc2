@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.3.3
+-----
+- Add marathon-lb labels to app definitions
+
 3.3.2
 -----
 - ensure int values for health check timeouts
