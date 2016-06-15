@@ -159,7 +159,6 @@ def check_and_remove_labels(appdata, controller):
     assert labels.pop("HAPROXY_GROUP") == "external"
 
     traefik_domains = labels.pop("traefik.frontend.rule")
-    print(traefik_domains)
     traefik_domains = [d.split(":", 2)[-1] for d in traefik_domains.split(";")]
     assert sorted(traefik_domains) == sorted(domains)
 
