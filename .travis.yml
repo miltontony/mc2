@@ -19,8 +19,11 @@ services:
 before_install:
   - mkdir -p $HOME/.hypothesis
   # If necessary, set up an appropriate version of pypy.
-  - if [ ! -z "$PYPY_VERSION" ]; then source setup-pypy-travis.sh; fi
-  - if [ ! -z "$PYPY_VERSION" ]; then python --version 2>&1 | fgrep "PyPy $PYPY_VERSION"; fi
+  - >
+     if [[ -n "$PYPY_VERSION" ]]; then
+       source setup-pypy-travis.sh
+       python --version 2>&1 | fgrep "PyPy $PYPY_VERSION"
+     fi
 
 install:
   # Upgrade pip to get wheel caching
@@ -36,7 +39,7 @@ script:
   - py.test mc2 $COVERAGE_OPT
 
 after_success:
-  - if [ -z "$NO_COVERAGE" ]; then coveralls; fi
+  - if [[ -z "$NO_COVERAGE" ]]; then coveralls; fi
 deploy:
   provider: pypi
   user: Praekelt
