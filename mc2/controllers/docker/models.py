@@ -6,6 +6,14 @@ from django.conf import settings
 from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 
 
+def traefik_domains(domains):
+    """
+    Create the traefik.frontend.rule label from the string of domains we use
+    for templated Nginx/marathon-lb.
+    """
+    return ';'.join(['Host:%s' % (d,) for d in domains.split()])
+
+
 class DockerController(Controller):
     docker_image = models.CharField(max_length=256)
     marathon_health_check_path = models.CharField(
@@ -46,11 +54,13 @@ class DockerController(Controller):
             'generic_domain': self.get_generic_domain(),
             'custom': self.domain_urls
         }
+        domains = domains.strip()
 
         service_labels = {
-            "domain": domains.strip(),
+            "domain": domains,
             "HAPROXY_GROUP": "external",
-            "HAPROXY_0_VHOST": domains.strip(),
+            "HAPROXY_0_VHOST": domains,
+            "traefik.frontend.rule": traefik_domains(domains),
             "name": self.name,
         }
 

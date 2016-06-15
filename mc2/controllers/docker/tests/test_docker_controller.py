@@ -1,4 +1,5 @@
 import json
+import string
 
 import pytest
 import responses
@@ -13,7 +14,7 @@ from hypothesis.strategies import text, random_module, lists, just
 
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.docker.models import DockerController
+from mc2.controllers.docker.models import DockerController, traefik_domains
 from mc2.organizations.models import Organization
 
 
@@ -50,6 +51,11 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
 
     kw.setdefault("owner", models(User, is_active=just(True)))
     kw.setdefault("organization", models(Organization, slug=slug))
+
+    # Prevent Hypothesis from generating domains with invalid characters
+    domain_urls = text(string.ascii_letters + string.digits + '-.')
+    kw.setdefault("domain_urls", domain_urls)
+
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
     # it.
@@ -151,6 +157,11 @@ def check_and_remove_labels(appdata, controller):
     assert sorted(labels.pop("domain").split()) == sorted(domains)
     assert sorted(labels.pop("HAPROXY_0_VHOST").split()) == sorted(domains)
     assert labels.pop("HAPROXY_GROUP") == "external"
+
+    traefik_domains = labels.pop("traefik.frontend.rule")
+    traefik_domains = [d.split(":", 2)[-1] for d in traefik_domains.split(";")]
+    assert sorted(traefik_domains) == sorted(domains)
+
     # We may have duplicate keys in here, but hopefully the database always
     # return the objects in the same order.
     lvs = {lv.name: lv.value for lv in controller.label_variables.all()}
@@ -164,6 +175,34 @@ def check_and_remove_optional(appdata, field, value):
     if value:
         assert appdata.pop(field) == value
     assert field not in appdata
+
+
+def test_traefik_domains_single():
+    """
+    When a domains string with a single domain is passed to traefik_domains,
+    it returns a Host frontend rule.
+    """
+    domains = 'abc.com'
+    assert traefik_domains(domains) == 'Host:abc.com'
+
+
+def test_traefik_domains_multiple():
+    """
+    When a domains string with multiple domains is passed to traefik_domains,
+    it returns multiple Host frontend rules joined by ';'.
+    """
+    domains = 'abc.com def.co.za   ghi.co.ng'
+    assert (traefik_domains(domains) ==
+            'Host:abc.com;Host:def.co.za;Host:ghi.co.ng')
+
+
+def test_traefik_domains_none():
+    """
+    When a domains string with no domains is passed to traefik_domains, it
+    returns an empty string.
+    """
+    domains = '  '
+    assert traefik_domains(domains) == ''
 
 
 @pytest.mark.django_db
@@ -282,6 +321,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -309,6 +349,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App"
             },
             "container": {
@@ -337,6 +378,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -376,6 +418,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -421,6 +464,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -474,6 +518,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -508,6 +553,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "TEST_LABELS_NAME": 'a test label value'
             },
@@ -560,6 +606,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -601,6 +648,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "domain": domain_label,
                     "HAPROXY_GROUP": "external",
                     "HAPROXY_0_VHOST": domain_label,
+                    "traefik.frontend.rule": traefik_domains(domain_label),
                     "name": "Test App",
                 },
                 "container": {
