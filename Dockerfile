@@ -1,6 +1,6 @@
 FROM python:2.7.11-alpine
 
-RUN apk --no-cache add nginx redis libffi postgresql
+RUN apk --no-cache add nginx redis libffi postgresql ca-certificates
 
 ENV PROJECT_ROOT /deploy/
 ENV DJANGO_SETTINGS_MODULE mc2.settings
