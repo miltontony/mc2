@@ -32,7 +32,8 @@ install:
   - pip install coveralls
 
 script:
-  - py.test mc2
+  - if [[ -z "$NO_COVERAGE" ]]; then COVERAGE_OPT="--cov"; else COVERAGE_OPT=""; fi
+  - py.test mc2 $COVERAGE_OPT
 
 after_success:
   - if [ -z "$NO_COVERAGE" ]; then coveralls; fi
