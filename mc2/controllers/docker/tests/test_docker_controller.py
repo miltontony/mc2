@@ -1,4 +1,5 @@
 import json
+import string
 
 import pytest
 import responses
@@ -50,6 +51,11 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
 
     kw.setdefault("owner", models(User, is_active=just(True)))
     kw.setdefault("organization", models(Organization, slug=slug))
+
+    # Prevent Hypothesis from generating domains with invalid characters
+    domain_urls = text(string.ascii_letters + string.digits + '-.')
+    kw.setdefault("domain_urls", domain_urls)
+
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
     # it.
