@@ -46,7 +46,8 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # so we remove them from the generated value.
     # TODO: Build a proper SlugField strategy.
     # TODO: Figure out why the field validation isn't being applied.
-    slug = text().map(lambda t: "".join(t.replace(":", "").split()))
+    # Slugs must be domain-name friendly - used in the "generic" domain
+    slug = text(string.ascii_letters + string.digits + '-')
     kw.setdefault("slug", slug)
 
     kw.setdefault("owner", models(User, is_active=just(True)))
