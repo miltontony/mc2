@@ -6,9 +6,9 @@ matrix:
     - python: "pypy"
       env: PYPY_VERSION="4.0.1" NO_COVERAGE=1 PYTHON_BUILD_CACHE_PATH="$HOME/pyenv-cache"
 cache:
-  directories:
+  - pip
+  - directories:
     - $HOME/pyenv-cache
-    - $HOME/.cache/pip
     - $HOME/.hypothesis
 env:
   global:
