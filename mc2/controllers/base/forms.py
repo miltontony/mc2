@@ -67,7 +67,7 @@ EnvVariableInlineFormSet = forms.inlineformset_factory(
 
 class MarathonLabelForm(forms.ModelForm):
     name = forms.RegexField(
-        "^[0-9a-zA-Z_]+$", required=True, error_messages={
+        "^[0-9a-zA-Z_.]+$", required=True, error_messages={
             'invalid':
                 _("You did not enter a valid key. Please try again.")},
         widget=forms.TextInput(attrs={'class': 'form-control'}))
