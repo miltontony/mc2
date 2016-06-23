@@ -11,7 +11,10 @@ def traefik_domains(domains):
     Create the traefik.frontend.rule label from the string of domains we use
     for templated Nginx/marathon-lb.
     """
-    return ';'.join(['Host:%s' % (d,) for d in domains.split()])
+    if not domains.strip():
+        return ''
+
+    return "Host: %s" % (", ".join(domains.split()),)
 
 
 class DockerController(Controller):

@@ -160,7 +160,8 @@ def check_and_remove_labels(appdata, controller):
     assert labels.pop("HAPROXY_GROUP") == "external"
 
     traefik_domains = labels.pop("traefik.frontend.rule")
-    traefik_domains = [d.split(":", 2)[-1] for d in traefik_domains.split(";")]
+    traefik_domains = traefik_domains.split(":", 2)[-1].split(",")
+    traefik_domains = [d.strip() for d in traefik_domains]
     assert sorted(traefik_domains) == sorted(domains)
 
     # We may have duplicate keys in here, but hopefully the database always
@@ -184,7 +185,7 @@ def test_traefik_domains_single():
     it returns a Host frontend rule.
     """
     domains = 'abc.com'
-    assert traefik_domains(domains) == 'Host:abc.com'
+    assert traefik_domains(domains) == 'Host: abc.com'
 
 
 def test_traefik_domains_multiple():
@@ -194,7 +195,7 @@ def test_traefik_domains_multiple():
     """
     domains = 'abc.com def.co.za   ghi.co.ng'
     assert (traefik_domains(domains) ==
-            'Host:abc.com;Host:def.co.za;Host:ghi.co.ng')
+            'Host: abc.com, def.co.za, ghi.co.ng')
 
 
 def test_traefik_domains_none():
