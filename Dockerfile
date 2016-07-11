@@ -9,17 +9,19 @@ ENV MESOS_MARATHON_HOST http://servicehost:8080
 WORKDIR /deploy/
 
 COPY mc2 /deploy/mc2
-ADD manage.py /deploy/
-ADD requirements.txt /deploy/
-ADD requirements-dev.txt /deploy/
-ADD setup.py /deploy/
-ADD README.rst /deploy/
-ADD VERSION /deploy/
-ADD docker/docker-entrypoint.sh /deploy/
-ADD docker/nginx.conf /etc/nginx/nginx.conf
-ADD docker/mc2.nginx.conf /etc/nginx/conf.d/
-ADD docker/supervisord.conf /etc/
-ADD docker/mc2.supervisor.conf /etc/supervisor/conf.d/
+COPY manage.py \
+    requirements.txt \
+    requirements-dev.txt \
+    setup.py \
+    README.rst \
+    VERSION \
+    docker/docker-entrypoint.sh \
+        /deploy/
+
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/mc2.nginx.conf /etc/nginx/conf.d/
+COPY docker/supervisord.conf /etc/supervisord.conf
+COPY docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
 RUN pip install gunicorn supervisor "Django<1.9,>=1.8" \
     && pip install -e .
