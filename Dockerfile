@@ -26,10 +26,7 @@ COPY docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 RUN pip install gunicorn supervisor "Django<1.9,>=1.8" \
     && pip install -e .
 
-RUN mkdir -p /etc/supervisor/conf.d/
 RUN mkdir -p /var/log/supervisor
-
-RUN chmod +x /deploy/docker-entrypoint.sh
 
 EXPOSE 80
 CMD ["/deploy/docker-entrypoint.sh"]
