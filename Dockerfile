@@ -1,6 +1,6 @@
-FROM python:2.7.11-alpine
+FROM praekeltfoundation/python-base:alpine
 
-RUN apk --no-cache add nginx redis libffi postgresql ca-certificates
+RUN apk --no-cache add nginx redis libffi postgresql-dev
 
 ENV PROJECT_ROOT /deploy/
 ENV DJANGO_SETTINGS_MODULE mc2.settings
@@ -21,11 +21,8 @@ ADD docker/mc2.nginx.conf /etc/nginx/conf.d/
 ADD docker/supervisord.conf /etc/
 ADD docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
-RUN apk --no-cache add --virtual devdeps gcc musl-dev python-dev libffi-dev postgresql-dev \
-    && pip install gunicorn supervisor "Django<1.9,>=1.8" \
-    && pip install -e . \
-    && rm -rf ~/.cache/pip \
-    && apk del devdeps
+RUN pip install gunicorn supervisor "Django<1.9,>=1.8" \
+    && pip install -e .
 
 RUN mkdir -p /etc/supervisor/conf.d/
 RUN mkdir -p /var/log/supervisor
@@ -33,4 +30,4 @@ RUN mkdir -p /var/log/supervisor
 RUN chmod +x /deploy/docker-entrypoint.sh
 
 EXPOSE 80
-ENTRYPOINT ["/deploy/docker-entrypoint.sh"]
+CMD ["/deploy/docker-entrypoint.sh"]
