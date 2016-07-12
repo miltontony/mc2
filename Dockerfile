@@ -1,7 +1,8 @@
 FROM praekeltfoundation/python-base:alpine
 
 # Install runtime dependencies for MC2 as well as Nginx and Redis
-RUN apk --no-cache add nginx redis libffi postgresql-dev
+RUN apk --no-cache add libffi libpq \
+    nginx redis
 
 # Copy in bits of MC2 source we need
 COPY mc2 /deploy/mc2
