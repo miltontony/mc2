@@ -32,6 +32,10 @@ COPY docker/mc2.nginx.conf /etc/nginx/conf.d/
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
+# Send Nginx access and error logs to stdout/stderr
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+    && ln -sf /dev/stderr /var/log/nginx/error.log
+
 RUN mkdir -p /var/log/supervisor
 
 EXPOSE 80

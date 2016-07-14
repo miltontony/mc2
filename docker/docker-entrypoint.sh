@@ -11,8 +11,5 @@ if not User.objects.filter(username='admin').count():
     User.objects.create_superuser('admin', 'admin@example.com', 'pass')
 " | django-admin.py shell
 
-echo "=> Starting nginx"
-nginx
-
 echo "=> Starting Supervisord"
 supervisord -c /etc/supervisord.conf
