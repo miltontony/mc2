@@ -16,6 +16,3 @@ nginx
 
 echo "=> Starting Supervisord"
 supervisord -c /etc/supervisord.conf
-
-echo "=> Tailing logs"
-tail -qF /var/log/supervisor/*.log
