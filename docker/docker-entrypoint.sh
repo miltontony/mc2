@@ -12,4 +12,4 @@ if not User.objects.filter(username='admin').count():
 " | django-admin.py shell
 
 echo "=> Starting Supervisord"
-supervisord -c /etc/supervisord.conf
+supervisord -c /etc/supervisor/supervisord.conf
