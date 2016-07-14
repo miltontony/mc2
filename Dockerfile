@@ -29,7 +29,7 @@ ENV MESOS_MARATHON_HOST http://servicehost:8080
 # Copy in Nginx and Supervisor config
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/mc2.nginx.conf /etc/nginx/conf.d/
-COPY docker/supervisord.conf /etc/supervisord.conf
+COPY docker/supervisord.conf /etc/supervisor/supervisord.conf
 COPY docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
 RUN mkdir -p /var/log/supervisor
