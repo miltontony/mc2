@@ -1,4 +1,4 @@
-FROM praekeltfoundation/python-base:alpine
+FROM praekeltfoundation/supervisor:alpine
 
 # Install runtime dependencies for MC2 as well as Nginx and Redis
 RUN apk --no-cache add libffi libpq \
@@ -18,8 +18,8 @@ COPY manage.py \
 ENV PROJECT_ROOT /deploy/
 WORKDIR /deploy/
 
-# Install MC2 as well as gunicorn and supervisor
-RUN pip install gunicorn supervisor "Django<1.9,>=1.8" \
+# Install MC2 as well as gunicorn
+RUN pip install gunicorn "Django<1.9,>=1.8" \
     && pip install -e .
 
 # Set some basic config
@@ -29,10 +29,7 @@ ENV MESOS_MARATHON_HOST http://servicehost:8080
 # Copy in Nginx and Supervisor config
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/mc2.nginx.conf /etc/nginx/conf.d/
-COPY docker/supervisord.conf /etc/supervisor/supervisord.conf
 COPY docker/mc2.supervisor.conf /etc/supervisor/conf.d/
-
-RUN mkdir -p /var/log/supervisor
 
 EXPOSE 80
 CMD ["/deploy/docker-entrypoint.sh"]
