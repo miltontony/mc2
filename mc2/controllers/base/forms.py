@@ -97,14 +97,24 @@ class ControllerFormHelper(object):
         self.controller_form = ControllerForm(
             data, files,
             instance=instance, initial=initial)
+
+        initial_env = initial.get('envs', [])
+        initial_label = initial.get('labels', [])
+
         self.env_formset = EnvVariableInlineFormSet(
             data, files,
             instance=instance,
-            prefix='env')
+            prefix='env',
+            initial=initial_env)
+
         self.label_formset = MarathonLabelInlineFormSet(
             data, files,
             instance=instance,
-            prefix='label')
+            prefix='label',
+            initial=initial_label)
+
+        self.env_formset.extra = len(initial_env) + 1
+        self.label_formset.extra = len(initial_label) + 1
 
     def __iter__(self):
         yield self.controller_form
@@ -115,4 +125,7 @@ class ControllerFormHelper(object):
         return all(form.is_valid() for form in self)
 
     def save(self):
+        for form in self:
+            print '---- ------'
+            print form
         return [form.save() for form in self]
