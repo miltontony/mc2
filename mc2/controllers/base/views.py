@@ -96,6 +96,37 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         return response
 
 
+class ControllerCloneView(ControllerViewMixin, CreateView):
+    form_class = ControllerFormHelper
+    template_name = 'controller_edit.html'
+    permissions = ['controllers.base.add_controller']
+
+    def get_initial(self):
+        controller = get_object_or_404(
+            Controller, pk=self.kwargs.get('controller_pk'))
+
+        if self.request.user.is_superuser:
+            return {'docker_image': controller.docker_image, }
+
+        raise HttpResponseNotFound()
+
+    def get_success_url(self):
+        return reverse("home")
+
+    def form_valid(self, form):
+        form.controller_form.instance.organization = active_organization(
+            self.request)
+        form.controller_form.instance.owner = self.request.user
+        form.controller_form.instance.save()
+
+        form.env_formset.instance = form.controller_form.instance
+        form.label_formset.instance = form.controller_form.instance
+
+        response = super(ControllerCloneView, self).form_valid(form)
+        tasks.start_new_controller.delay(form.controller_form.instance.id)
+        return response
+
+
 class ControllerEditView(ControllerViewMixin, UpdateView):
     form_class = ControllerFormHelper
     template_name = 'controller_edit.html'
