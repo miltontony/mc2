@@ -102,13 +102,21 @@ class ControllerCloneView(ControllerViewMixin, CreateView):
     permissions = ['controllers.base.add_controller']
 
     def get_initial(self):
+        initial = super(ControllerCloneView, self).get_initial()
+
         controller = get_object_or_404(
             Controller, pk=self.kwargs.get('controller_pk'))
 
         if self.request.user.is_superuser:
-            return {'docker_image': controller.docker_image, }
+            initial.update({
+                'marathon_cpus': controller.marathon_cpus,
+                'marathon_mem': controller.marathon_mem,
+                'marathon_instances': controller.marathon_instances,
+                'marathon_cmd': controller.marathon_cmd,
+                'description': controller.description
+            })
 
-        raise HttpResponseNotFound()
+        return initial
 
     def get_success_url(self):
         return reverse("home")

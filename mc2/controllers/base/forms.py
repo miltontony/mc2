@@ -96,7 +96,7 @@ class ControllerFormHelper(object):
         self.instance = instance
         self.controller_form = ControllerForm(
             data, files,
-            instance=instance)
+            instance=instance, initial=initial)
         self.env_formset = EnvVariableInlineFormSet(
             data, files,
             instance=instance,
