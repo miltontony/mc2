@@ -51,6 +51,15 @@
           </div>
           <!-- /.description-block -->
         </div>
+        <div class="col-sm-2 border-right">
+          <div class="description-block">
+            {% block clone_action %}
+            <h5 class="description-header"><a href="{% url 'controllers.docker:clone' controller.id %}">Clone</a></h5>
+            <span class="description-text"></span>
+            {% endblock %}
+          </div>
+        </div>
+
         <!-- /.col -->
         <div class="col-sm-3 border-right">
           <div class="description-block delete app-delete-action">
