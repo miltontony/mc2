@@ -197,3 +197,12 @@
 .icon-container-docker{
     width: 60%;
 }
+
+.col-description{
+  display: inline-block;
+  padding: 0 6px;
+}
+
+.col-description:last-child {
+  border-right: none;
+}
