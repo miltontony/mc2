@@ -810,7 +810,7 @@ class ViewsTestCase(ControllerBaseTestCase):
 
             })
         self.assertEqual(response.status_code, 302)
-        controller = Controller.objects.all().first
+        controller = Controller.objects.all().first()
 
         self.assertEqual(controller.name, 'A new name')
         self.assertEqual(controller.description, 'A really lovely little app')

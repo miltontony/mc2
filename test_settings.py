@@ -1,4 +1,4 @@
-from mc2.settings import *
+from mc2.settings import *  # noqa
 
 # Tell psycopg2cffi to impersonate psycopg2
 from psycopg2cffi import compat
@@ -26,7 +26,7 @@ CELERY_ALWAYS_EAGER = True
 
 
 def scratchpath(*paths):
-    return abspath('.scratchpath', *paths)
+    return abspath('.scratchpath', *paths)  # noqa
 
 SCRATCHPATH = scratchpath()
 
