@@ -15,14 +15,14 @@
     </div>
     <div class="box-footer">
       <div class="row">
-        <div class="col-sm-2 border-right">
+        <div class="border-right col-description">
           <div class="description-block app-view-action">
             <h5 class="description-header"><a class="text-green" href="#">View</a></h5>
             <span class="description-text"></span>
           </div>
           <!-- /.description-block -->
         </div>
-        <div class="col-sm-2 border-right">
+        <div class="border-right col-description">
           <div class="description-block">
             {% block edit_action %}
             <h5 class="description-header"><a href="{% url 'controllers.docker:edit' controller.id %}">Edit</a></h5>
@@ -32,7 +32,7 @@
           <!-- /.description-block -->
         </div>
         <!-- /.col -->
-        <div class="col-sm-3 border-right">
+        <div class="border-right col-description">
           <div class="description-block">
             {% block restart_action %}
               <h5 class="description-header"><a href="{% url 'base:restart' controller.id %}">Restart</a></h5>
@@ -42,7 +42,7 @@
           <!-- /.description-block -->
         </div>
         <!-- /.col -->
-        <div class="col-sm-2 border-right">
+        <div class="border-right col-description">
           <div class="description-block">
             {% block logs_action %}
               <h5 class="description-header"><a href="{% url 'base:logs' controller.id %}">Logs</a></h5>
@@ -51,8 +51,17 @@
           </div>
           <!-- /.description-block -->
         </div>
+        <div class="border-right col-description">
+          <div class="description-block">
+            {% block clone_action %}
+            <h5 class="description-header"><a href="{% url 'controllers.docker:clone' controller.id %}">Clone</a></h5>
+            <span class="description-text"></span>
+            {% endblock %}
+          </div>
+        </div>
+
         <!-- /.col -->
-        <div class="col-sm-3 border-right">
+        <div class="border-right col-description">
           <div class="description-block delete app-delete-action">
             {% block delete_action %}
               <h5 class="description-header"><a class="text-red" href="{% url 'base:delete' controller.id %}">Delete</a></h5>

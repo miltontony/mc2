@@ -96,6 +96,48 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         return response
 
 
+class ControllerCloneView(ControllerViewMixin, CreateView):
+    form_class = ControllerFormHelper
+    template_name = 'controller_edit.html'
+    permissions = ['controllers.base.add_controller']
+
+    def get_initial(self):
+        initial = super(ControllerCloneView, self).get_initial()
+
+        controller = get_object_or_404(
+            Controller, pk=self.kwargs.get('controller_pk'))
+
+        initial.update({
+            'marathon_cpus': controller.marathon_cpus,
+            'marathon_mem': controller.marathon_mem,
+            'marathon_instances': controller.marathon_instances,
+            'marathon_cmd': controller.marathon_cmd,
+            'description': controller.description,
+            'envs': [
+                {'key': env.key, 'value': env.value}
+                for env in controller.env_variables.all()],
+            'labels': [
+                {'name': label.name, 'value': label.value}
+                for label in controller.label_variables.all()]})
+        return initial
+
+    def get_success_url(self):
+        return reverse("home")
+
+    def form_valid(self, form):
+        form.controller_form.instance.organization = active_organization(
+            self.request)
+        form.controller_form.instance.owner = self.request.user
+        form.controller_form.instance.save()
+
+        form.env_formset.instance = form.controller_form.instance
+        form.label_formset.instance = form.controller_form.instance
+
+        response = super(ControllerCloneView, self).form_valid(form)
+        tasks.start_new_controller.delay(form.controller_form.instance.id)
+        return response
+
+
 class ControllerEditView(ControllerViewMixin, UpdateView):
     form_class = ControllerFormHelper
     template_name = 'controller_edit.html'
