@@ -23,6 +23,10 @@ urlpatterns = patterns(
         views.ControllerDeleteView.as_view(),
         name='delete'),
     url(
+        r'^(?P<controller_pk>\d+)/clone/$',
+        views.ControllerCloneView.as_view(),
+        name='clone'),
+    url(
         r'^logs/(?P<controller_pk>\d+)/$',
         views.AppLogView.as_view(),
         name='logs'),

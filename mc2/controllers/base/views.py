@@ -107,19 +107,18 @@ class ControllerCloneView(ControllerViewMixin, CreateView):
         controller = get_object_or_404(
             Controller, pk=self.kwargs.get('controller_pk'))
 
-        if self.request.user.is_superuser:
-            initial.update({
-                'marathon_cpus': controller.marathon_cpus,
-                'marathon_mem': controller.marathon_mem,
-                'marathon_instances': controller.marathon_instances,
-                'marathon_cmd': controller.marathon_cmd,
-                'description': controller.description,
-                'envs': [
-                    {'key': env.key, 'value': env.value}
-                    for env in controller.env_variables.all()],
-                'labels': [
-                    {'name': label.name, 'value': label.value}
-                    for label in controller.label_variables.all()]})
+        initial.update({
+            'marathon_cpus': controller.marathon_cpus,
+            'marathon_mem': controller.marathon_mem,
+            'marathon_instances': controller.marathon_instances,
+            'marathon_cmd': controller.marathon_cmd,
+            'description': controller.description,
+            'envs': [
+                {'key': env.key, 'value': env.value}
+                for env in controller.env_variables.all()],
+            'labels': [
+                {'name': label.name, 'value': label.value}
+                for label in controller.label_variables.all()]})
         return initial
 
     def get_success_url(self):

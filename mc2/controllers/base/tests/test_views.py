@@ -702,3 +702,132 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(resp.status_code, 500)
         self.assertEqual(
             json.loads(resp.content), {'error': 'Restart failed.'})
+
+    @responses.activate
+    def test_cloning_a_controller_has_all_the_values(self):
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'description': 'A really lovely little app',
+            'marathon_cmd': 'ping2',
+            'marathon_cpus': 0.5,
+            'marathon_mem': 100.0,
+            'marathon_instances': 2,
+            'env-0-key': 'A_TEST_ENV',
+            'env-0-value': 'the env value',
+            'env-TOTAL_FORMS': 1,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-0-name': 'A_TEST_LABEL',
+            'label-0-value': 'the label value',
+            'label-1-name': 'A_TEST_LABEL2',
+            'label-1-value': 'the label value2',
+            'label-TOTAL_FORMS': 2,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.all().last()
+        response = self.client.get(
+            reverse('base:clone', args=[controller.id]))
+        self.assertNotContains(response, 'A new name')
+        self.assertContains(response, 'A really lovely little app')
+        self.assertContains(response, 'value="0.5"')
+        self.assertContains(response, 'value="100.0"')
+        self.assertContains(response, 'value="2"')
+        self.assertContains(response, 'ping2')
+        self.assertContains(response, 'A_TEST_ENV')
+        self.assertContains(response, 'the env value')
+        self.assertContains(response, 'A_TEST_LABEL')
+        self.assertContains(response, 'the label value')
+        self.assertContains(response, 'A_TEST_LABEL2')
+        self.assertContains(response, 'the label value2')
+
+    @responses.activate
+    def test_cloning_a_controller_with_new_values(self):
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'description': 'A really lovely little app',
+            'marathon_cmd': 'ping2',
+            'marathon_cpus': 0.5,
+            'marathon_mem': 100.0,
+            'marathon_instances': 2,
+            'env-0-key': 'A_TEST_ENV',
+            'env-0-value': 'the env value',
+            'env-TOTAL_FORMS': 1,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-0-name': 'A_TEST_LABEL',
+            'label-0-value': 'the label value',
+            'label-TOTAL_FORMS': 1,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.all().last()
+        self.mock_update_marathon_app(controller.app_id)
+        response = self.client.post(
+            reverse('base:clone', args=[controller.id]), {
+                'name': 'A new name',
+                'description': 'A really lovely little app',
+                'marathon_cmd': 'ping2',
+                'marathon_cpus': 0.5,
+                'marathon_mem': 100.0,
+                'marathon_instances': 2,
+                'env-0-key': 'A_TEST_ENV',
+                'env-0-value': 'the env value',
+                'env-TOTAL_FORMS': 1,
+                'env-INITIAL_FORMS': 0,
+                'env-MIN_NUM_FORMS': 0,
+                'env-MAX_NUM_FORMS': 100,
+                'label-0-name': 'A_TEST_LABEL',
+                'label-0-value': 'the label value',
+                'label-1-name': 'A_TEST_LABEL2',
+                'label-1-value': 'the label value2',
+                'label-TOTAL_FORMS': 2,
+                'label-INITIAL_FORMS': 0,
+                'label-MIN_NUM_FORMS': 0,
+                'label-MAX_NUM_FORMS': 100,
+
+            })
+        self.assertEqual(response.status_code, 302)
+        controller = Controller.objects.all().first
+
+        self.assertEqual(controller.name, 'A new name')
+        self.assertEqual(controller.description, 'A really lovely little app')
+        self.assertEqual(controller.marathon_cpus, 0.5)
+        self.assertEqual(controller.marathon_mem, 100.0)
+        self.assertEqual(controller.marathon_instances, 2)
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.env_variables.count(), 1)
+        self.assertEqual(controller.env_variables.all()[0].key, 'A_TEST_ENV')
+        self.assertEqual(
+            controller.env_variables.all()[0].value, 'the env value')
+        self.assertEqual(controller.label_variables.count(), 2)
+        self.assertEqual(
+            controller.label_variables.all()[0].name, 'A_TEST_LABEL')
+        self.assertEqual(
+            controller.label_variables.all()[0].value, 'the label value')
+        self.assertEqual(
+            controller.label_variables.all()[1].name, 'A_TEST_LABEL2')
+        self.assertEqual(
+            controller.label_variables.all()[1].value, 'the label value2')
