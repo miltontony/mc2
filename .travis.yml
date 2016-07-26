@@ -36,8 +36,8 @@ install:
 
 script:
   - if [[ -z "$NO_COVERAGE" ]]; then COVERAGE_OPT="--cov"; else COVERAGE_OPT=""; fi
-  - flake8 .
   - py.test mc2 $COVERAGE_OPT
+  - flake8 .
 
 after_success:
   - if [[ -z "$NO_COVERAGE" ]]; then coveralls; fi
