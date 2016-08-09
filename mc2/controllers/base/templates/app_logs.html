@@ -11,7 +11,7 @@ $(document).ready(function() {
 
     {% for task_id in task_ids %}
     {% for path in paths %}
-    $('#logs').pailer({
+    $('#logs_{{path}}').pailer({
         'read': function(options) {
           var settings = $.extend({
             'offset': -1,
@@ -22,7 +22,7 @@ $(document).ready(function() {
             + '&length=' + settings.length;
           return $.getJSON(url);
         },
-        'indicator': $('#indicator')
+        'indicator': $('#indicator_{{path}}')
       });
     {% endfor %}
     {% endfor %}
@@ -33,8 +33,9 @@ $(document).ready(function() {
     <div class="box-header with-border">
       <h3 class="box-title">Logs for <a href="{% url 'home' %}#{{controller.pk}}">{{controller.name|capfirst}}</a></h3>
     </div>
-    <div id="indicator"></indicator>
-    <div id="logs">
-    </div>
+    {% for path in paths %}
+    <div id="indicator_{{path}}" class="indicator"></indicator>
+    <div id="logs_{{path}}" class="logs"></div>
+    {% endfor %}
 </div>
 {% endblock %}
