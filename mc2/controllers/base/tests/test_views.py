@@ -11,7 +11,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
+from mc2.controllers.base.tests.utils import setup_responses_for_log_tests
 from mc2.controllers.base.views import AppEventSourceView
 from mc2.organizations.models import Organization, OrganizationUserRelation
 
@@ -427,7 +427,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
+        setup_responses_for_log_tests(controller)
         response = self.client.get(reverse('base:logs', kwargs={
             'controller_pk': controller.pk,
         }))
@@ -442,7 +442,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
+        setup_responses_for_log_tests(controller)
         resp = self.client.get(reverse('base:logs_event_source', kwargs={
             'controller_pk': controller.pk,
             'task_id': 'the-task-id',
@@ -451,11 +451,11 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(
             resp['X-Accel-Redirect'],
             os.path.join(
-                settings.LOGDRIVER_PATH,
+                settings.MESOS_FILE_API_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
                  '/%s.the-task-id/runs/latest/stdout?n=%s' %
-                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
+                 (controller.app_id, 0))))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -464,7 +464,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
+        setup_responses_for_log_tests(controller)
         resp = self.client.get(reverse('base:logs_event_source', kwargs={
             'controller_pk': controller.pk,
             'task_id': 'the-task-id',
@@ -473,11 +473,11 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(
             resp['X-Accel-Redirect'],
             os.path.join(
-                settings.LOGDRIVER_PATH,
+                settings.MESOS_FILE_API_PATH,
                 ('worker-machine-1/worker-machine-id'
                  '/frameworks/the-framework-id/executors'
                  '/%s.the-task-id/runs/latest/stderr?n=%s' %
-                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
+                 (controller.app_id, 0))))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -486,7 +486,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
+        setup_responses_for_log_tests(controller)
         # NOTE: bad path according to URL regex, hence the manual requesting
         view = AppEventSourceView()
         request = RequestFactory().get('/')
