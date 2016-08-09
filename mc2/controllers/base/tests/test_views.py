@@ -437,7 +437,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(task_id, 'the-task-id')
 
     @responses.activate
-    def test_event_source_response_stdout(self):
+    def test_mesos_file_response_stdout(self):
         self.client.login(username='testuser2', password='test')
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
@@ -455,14 +455,14 @@ class ViewsTestCase(ControllerBaseTestCase):
                     'worker_host': 'worker-machine-1',
                     'api_path': 'read.json',
                 },
-                '?%s' % (urllib.urlencode({
-                    'path': ('/tmp/mesos/slaves/worker-machine-id'
-                             '/frameworks/the-framework-id/executors'
-                             '/%s.the-task-id/runs/latest/stdout') % (
-                                 controller.app_id,),
-                    'length': '',
-                    'offset': '',
-                }),)))
+                '?%s' % (urllib.urlencode((
+                    ('path', ('/tmp/mesos/slaves/worker-machine-id'
+                              '/frameworks/the-framework-id/executors'
+                              '/%s.the-task-id/runs/latest/stdout') % (
+                                  controller.app_id,)),
+                    ('length', ''),
+                    ('offset', ''),
+                )),)))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
@@ -484,14 +484,14 @@ class ViewsTestCase(ControllerBaseTestCase):
                     'worker_host': 'worker-machine-1',
                     'api_path': 'read.json',
                 },
-                '?%s' % (urllib.urlencode({
-                    'path': ('/tmp/mesos/slaves/worker-machine-id'
-                             '/frameworks/the-framework-id/executors'
-                             '/%s.the-task-id/runs/latest/stderr') % (
-                                 controller.app_id,),
-                    'offset': '',
-                    'length': '',
-                }),)))
+                '?%s' % (urllib.urlencode((
+                    ('path', ('/tmp/mesos/slaves/worker-machine-id'
+                              '/frameworks/the-framework-id/executors'
+                              '/%s.the-task-id/runs/latest/stderr') % (
+                                  controller.app_id,)),
+                    ('length', ''),
+                    ('offset', ''),
+                )),)))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
