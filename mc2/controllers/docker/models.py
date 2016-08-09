@@ -32,6 +32,8 @@ class DockerController(Controller):
             "image": self.docker_image,
             "forcePullImage": True,
             "network": "BRIDGE",
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
         }
 
         if self.port:
