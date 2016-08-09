@@ -1,5 +1,6 @@
 import json
 import os.path
+import urllib
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
@@ -184,18 +185,19 @@ class AppLogView(ControllerViewMixin, TemplateView):
             'controller': controller,
             'tasks': tasks,
             'task_ids': [t['id'].split('.', 1)[1] for t in tasks],
-            'scroll_backlog': (
-                self.request.GET.get('n') or settings.LOGDRIVER_BACKLOG)
+            'offset': self.request.GET.get('offset'),
+            'length': self.request.GET.get('length'),
         })
         return context
 
 
-class AppEventSourceView(ControllerViewMixin, View):
+class MesosFileLogView(ControllerViewMixin, View):
     def get(self, request, controller_pk, task_id, path):
         controller = get_object_or_404(
             self.get_controllers_queryset(request),
             pk=controller_pk)
-        n = request.GET.get('n') or settings.LOGDRIVER_BACKLOG
+        length = request.GET.get('length', '')
+        offset = request.GET.get('offset', '')
         if path not in ['stdout', 'stderr']:
             return HttpResponseNotFound('File not found.')
 
@@ -203,11 +205,20 @@ class AppEventSourceView(ControllerViewMixin, View):
         #       so as to not need to expose both in the templates.
         task = controller.infra_manager.get_controller_task_log_info(
             '%s.%s' % (controller.app_id, task_id))
+        file_path = os.path.join(task['task_dir'], path)
+
+        internal_redirect_url = settings.MESOS_FILE_API_PATH % {
+            'worker_host': task['task_host'],
+            'api_path': 'read.json',
+        }
 
         response = HttpResponse()
-        response['X-Accel-Redirect'] = '%s?n=%s' % (os.path.join(
-            settings.LOGDRIVER_PATH, task['task_host'],
-            task['task_dir'], path), n)
+        response['X-Accel-Redirect'] = '%s?%s' % (
+            internal_redirect_url, urllib.urlencode({
+                'path': file_path,
+                'offset': offset,
+                'length': length,
+            }))
         response['X-Accel-Buffering'] = 'no'
         return response
 

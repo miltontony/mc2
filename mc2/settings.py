@@ -35,6 +35,10 @@ MARATHON_DEFAULT_VOLUME_PATH = environ.get(
 
 HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 
+# Configured at Nginx for internal redirect
+MESOS_FILE_API_PATH = environ.get(
+    'MESOS_FILE_API_PATH', '/mesos/%(worker_host)s/files/%(api_path)s')
+
 # Sentry configuration
 RAVEN_DSN = environ.get('RAVEN_DSN')
 RAVEN_CONFIG = {'dsn': RAVEN_DSN} if RAVEN_DSN else {}
