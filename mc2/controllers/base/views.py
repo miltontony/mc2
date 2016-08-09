@@ -214,11 +214,11 @@ class MesosFileLogView(ControllerViewMixin, View):
 
         response = HttpResponse()
         response['X-Accel-Redirect'] = '%s?%s' % (
-            internal_redirect_url, urllib.urlencode({
-                'path': os.path.join(settings.MESOS_LOG_PATH, file_path),
-                'offset': offset,
-                'length': length,
-            }))
+            internal_redirect_url, urllib.urlencode((
+                ('path', os.path.join(settings.MESOS_LOG_PATH, file_path)),
+                ('length', length),
+                ('offset', offset),
+            )))
 
         response['X-Accel-Buffering'] = 'no'
         return response
