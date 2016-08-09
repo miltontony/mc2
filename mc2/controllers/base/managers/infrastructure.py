@@ -33,10 +33,11 @@ class GeneralInfrastructureManager(object):
         :param app_id str: The application id
         :returns: list
         """
-        return requests.get('%s/v2/apps/%s/tasks' % (
+        app_info = requests.get('%s/v2/apps/%s/tasks' % (
             settings.MESOS_MARATHON_HOST,
             app_id,
-        ), headers=self.headers).json()['tasks']
+        ), headers=self.headers).json()
+        return app_info.get('tasks', [])
 
     def get_marathon_info(self):
         """
