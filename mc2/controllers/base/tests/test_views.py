@@ -495,7 +495,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
-    def test_event_source_response_badpath(self):
+    def test_mesos_file_response_badpath(self):
         self.client.login(username='testuser2', password='test')
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
