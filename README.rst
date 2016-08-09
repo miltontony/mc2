@@ -88,10 +88,6 @@ You can specify the following ``environment variables`` to configure the app:
     MESOS_DEFAULT_CPU_SHARE
     MESOS_DEFAULT_INSTANCES
 
-    # Log Driver settings
-    LOGDRIVER_PATH
-    LOGDRIVER_BACKLOG
-
     # Sentry configuration
     RAVEN_DSN
     RAVEN_CONFIG
