@@ -83,7 +83,8 @@ def check_and_clear_appdata(appdata, controller):
     assert appdata.pop("cpus") == controller.marathon_cpus
     assert appdata.pop("mem") == controller.marathon_mem
     assert appdata.pop("instances") == controller.marathon_instances
-    check_and_remove_optional(appdata, "cmd", controller.marathon_cmd)
+    if controller.marathon_cmd:
+        check_and_remove_optional(appdata, "args", [controller.marathon_cmd])
     check_and_remove_docker(appdata, controller)
     check_and_remove_health(appdata, controller)
     check_and_remove_env(appdata, controller)
@@ -224,7 +225,8 @@ class DockerControllerHypothesisTestCase(TestCase):
     """
 
     @hsettings(perform_health_check=False)
-    @given(_r=random_module(), controller=docker_controller())
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_cmd=text(["ping"])))
     def test_get_marathon_app_data(self, _r, controller):
         """
         Suitable app_data is built for any combination of model parameters.
@@ -233,7 +235,8 @@ class DockerControllerHypothesisTestCase(TestCase):
         check_and_clear_appdata(app_data, controller)
 
     @hsettings(perform_health_check=False)
-    @given(_r=random_module(), controller=docker_controller())
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_cmd=text(["ping"])))
     def test_from_marathon_app_data(self, _r, controller):
         """
         A model imported from app_data generates the same app_data as the model
@@ -245,7 +248,9 @@ class DockerControllerHypothesisTestCase(TestCase):
         assert app_data == new_controller.get_marathon_app_data()
 
     @hsettings(perform_health_check=False, max_examples=50)
-    @given(_r=random_module(), controller=docker_controller(), name=text())
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_cmd=text(["ping"])),
+           name=text())
     def test_from_marathon_app_data_with_name(self, _r, controller, name):
         """
         A model imported from app_data generates the same app_data as the model
@@ -264,7 +269,9 @@ class DockerControllerHypothesisTestCase(TestCase):
         assert app_data_with_name == new_controller.get_marathon_app_data()
 
     @hsettings(perform_health_check=False, max_examples=50)
-    @given(_r=random_module(), controller=docker_controller(), name=text())
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_cmd=text(["ping"])),
+           name=text())
     def test_hidden_import_view(self, _r, controller, name):
         """
         A model imported through the hidden view generates the same app_data
@@ -324,7 +331,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -354,7 +361,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -385,7 +392,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -427,7 +434,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -475,7 +482,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -530,7 +537,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {"TEST_KEY": "a test value"},
@@ -567,7 +574,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {"TEST_KEY": "a test value"},
@@ -667,7 +674,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "cpus": 0.1,
                 "mem": 128.0,
                 "instances": 1,
-                "cmd": "ping",
+                "args": ["ping"],
                 "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
                 "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
                 "labels": {

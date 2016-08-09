@@ -1,4 +1,5 @@
 import requests
+import shlex
 
 from django.db import models
 from django.conf import settings
@@ -107,7 +108,7 @@ class Controller(PolymorphicModel):
         }
 
         if self.marathon_cmd:
-            data.update({"cmd": self.marathon_cmd})
+            data.update({"args": shlex.split(self.marathon_cmd)})
 
         if self.env_variables.exists():
             data.update({

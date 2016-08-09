@@ -32,7 +32,7 @@ class ModelsTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
         })
 
     def test_get_marathon_app_data_with_env(self):
@@ -45,7 +45,7 @@ class ModelsTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "cmd": "ping",
+            "args": ["ping"],
             "env": {
                 "TEST_KEY": "a test value",
                 "ANOTHER_KEY": "another value",
