@@ -34,8 +34,14 @@ $(document).ready(function() {
       <h3 class="box-title">Logs for <a href="{% url 'home' %}#{{controller.pk}}">{{controller.name|capfirst}}</a></h3>
     </div>
     {% for path in paths %}
-    <div id="indicator_{{path}}" class="indicator"></indicator>
-    <div id="logs_{{path}}" class="logs"></div>
+    <div class="box-header with-border">
+        <h4 class="box-title">{{path}}</h4>
+        <p>
+            Download the <a href="{% url "mesos_file_log_view" task_id=task_id path=path %}?download=true">full log file</a>.
+        </p>
+        <div id="indicator_{{path}}" class="indicator"></indicator>
+        <div id="logs_{{path}}" class="logs"></div>
+    </div>
     {% endfor %}
 </div>
 {% endblock %}

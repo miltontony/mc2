@@ -453,7 +453,7 @@ class ViewsTestCase(ControllerBaseTestCase):
             '%s%s' % (
                 settings.MESOS_FILE_API_PATH % {
                     'worker_host': 'worker-machine-1',
-                    'api_path': 'read.json',
+                    'api_path': 'read',
                 },
                 '?%s' % (urllib.urlencode((
                     ('path', ('/tmp/mesos/slaves/worker-machine-id'
@@ -482,7 +482,7 @@ class ViewsTestCase(ControllerBaseTestCase):
             '%s%s' % (
                 settings.MESOS_FILE_API_PATH % {
                     'worker_host': 'worker-machine-1',
-                    'api_path': 'read.json',
+                    'api_path': 'read',
                 },
                 '?%s' % (urllib.urlencode((
                     ('path', ('/tmp/mesos/slaves/worker-machine-id'
