@@ -35,10 +35,6 @@ MARATHON_DEFAULT_VOLUME_PATH = environ.get(
 
 HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 
-# Configured at Nginx for internal redirect
-LOGDRIVER_PATH = environ.get('LOGDRIVER_PATH', '/logdriver/')
-LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 1)
-
 # Sentry configuration
 RAVEN_DSN = environ.get('RAVEN_DSN')
 RAVEN_CONFIG = {'dsn': RAVEN_DSN} if RAVEN_DSN else {}
