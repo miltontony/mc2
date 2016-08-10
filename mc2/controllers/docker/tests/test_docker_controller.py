@@ -120,7 +120,7 @@ def check_and_remove_health(appdata, controller):
     """
     Assert that the health check data is correct and remove it.
     """
-    if controller.marathon_health_check_path:
+    if controller.marathon_health_check_path and controller.port:
         assert appdata.pop("ports") == [0]
         assert appdata.pop("healthChecks") == [{
             "gracePeriodSeconds": 60,
