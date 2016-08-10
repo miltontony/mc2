@@ -7,7 +7,7 @@ from mc2.controllers.base.managers.infrastructure import (
     GeneralInfrastructureManager, InfrastructureError)
 from mc2.controllers.base.models import Controller
 
-from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
+from mc2.controllers.base.tests.utils import setup_responses_for_log_tests
 
 
 class GeneralInfrastructureManagerTest(TestCase):
@@ -19,7 +19,7 @@ class GeneralInfrastructureManagerTest(TestCase):
         self.controller = Controller(
             name='Test App', marathon_cmd='ping', owner=user)
         self.controller.save()
-        setup_responses_for_logdriver(self.controller)
+        setup_responses_for_log_tests(self.controller)
         self.general_im = GeneralInfrastructureManager()
         self.controller_im = self.controller.infra_manager
 

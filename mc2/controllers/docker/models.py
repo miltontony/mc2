@@ -22,7 +22,7 @@ class DockerController(Controller):
     docker_image = models.CharField(max_length=256)
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
-    port = models.PositiveIntegerField(default=0)
+    port = models.PositiveIntegerField(default=0, blank=True, null=True)
     domain_urls = models.TextField(max_length=8000, default="")
     volume_needed = models.BooleanField(default=False)
     volume_path = models.CharField(max_length=255, blank=True, null=True)
@@ -83,7 +83,7 @@ class DockerController(Controller):
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
         })
 
-        if self.marathon_health_check_path:
+        if self.marathon_health_check_path and self.port:
             app_data.update({
                 "ports": [0],
                 "healthChecks": [{

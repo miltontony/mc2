@@ -3,7 +3,7 @@ import json
 import responses
 
 
-def setup_responses_for_logdriver(controller):
+def setup_responses_for_log_tests(controller):
     responses.add(
         responses.GET,
         'http://testserver:8080/v2/apps/%s' % (controller.app_id,),
