@@ -210,9 +210,9 @@ class MesosFileLogView(ControllerViewMixin, View):
 
         internal_redirect_url = settings.MESOS_FILE_API_PATH % {
             'worker_host': task['task_host'],
-            'api_path': ('download'
+            'api_path': ('download.json'
                          if request.GET.get('download')
-                         else 'read'),
+                         else 'read.json'),
         }
 
         response = HttpResponse()
