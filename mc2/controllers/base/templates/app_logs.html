@@ -17,7 +17,7 @@ $(document).ready(function() {
             'offset': -1,
             'length': -1
           }, options);
-          var url = '{% url "mesos_file_log_view" task_id=task_id path=path %}'
+          var url = '{% url "base:mesos_file_log_view" controller_pk=controller.pk task_id=task_id path=path %}'
             + '?offset=' + settings.offset
             + '&length=' + settings.length;
           return $.getJSON(url);
@@ -33,15 +33,17 @@ $(document).ready(function() {
     <div class="box-header with-border">
       <h3 class="box-title">Logs for <a href="{% url 'home' %}#{{controller.pk}}">{{controller.name|capfirst}}</a></h3>
     </div>
+    {% for task_id in task_ids %}
     {% for path in paths %}
     <div class="box-header with-border">
         <h4 class="box-title">{{path}}</h4>
         <p>
-            Download the <a href="{% url "mesos_file_log_view" task_id=task_id path=path %}?download=true">full log file</a>.
+            Download the <a href="{% url "base:mesos_file_log_view" controller_pk=controller.pk task_id=task_id path=path %}?download=true">full log file</a>.
         </p>
         <div id="indicator_{{path}}" class="indicator"></indicator>
         <div id="logs_{{path}}" class="logs"></div>
     </div>
+    {% endfor %}
     {% endfor %}
 </div>
 {% endblock %}

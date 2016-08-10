@@ -185,6 +185,7 @@ class AppLogView(ControllerViewMixin, TemplateView):
             'controller': controller,
             'tasks': tasks,
             'task_ids': [t['id'].split('.', 1)[1] for t in tasks],
+            'paths': ['stdout', 'stderr'],
             'offset': self.request.GET.get('offset'),
             'length': self.request.GET.get('length'),
         })
