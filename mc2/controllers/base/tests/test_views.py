@@ -1,6 +1,6 @@
 import json
-import os
 import uuid
+import urllib
 
 import pytest
 import responses
@@ -11,8 +11,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
-from mc2.controllers.base.views import AppEventSourceView
+from mc2.controllers.base.tests.utils import setup_responses_for_log_tests
+from mc2.controllers.base.views import MesosFileLogView
 from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
@@ -427,7 +427,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
+        setup_responses_for_log_tests(controller)
         response = self.client.get(reverse('base:logs', kwargs={
             'controller_pk': controller.pk,
         }))
@@ -437,58 +437,72 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(task_id, 'the-task-id')
 
     @responses.activate
-    def test_event_source_response_stdout(self):
+    def test_mesos_file_response_stdout(self):
         self.client.login(username='testuser2', password='test')
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
-        resp = self.client.get(reverse('base:logs_event_source', kwargs={
+        setup_responses_for_log_tests(controller)
+        resp = self.client.get(reverse('base:mesos_file_log_view', kwargs={
             'controller_pk': controller.pk,
             'task_id': 'the-task-id',
             'path': 'stdout',
         }))
         self.assertEqual(
             resp['X-Accel-Redirect'],
-            os.path.join(
-                settings.LOGDRIVER_PATH,
-                ('worker-machine-1/worker-machine-id'
-                 '/frameworks/the-framework-id/executors'
-                 '/%s.the-task-id/runs/latest/stdout?n=%s' %
-                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
+            '%s%s' % (
+                settings.MESOS_FILE_API_PATH % {
+                    'worker_host': 'worker-machine-1',
+                    'api_path': 'read',
+                },
+                '?%s' % (urllib.urlencode((
+                    ('path', ('/tmp/mesos/slaves/worker-machine-id'
+                              '/frameworks/the-framework-id/executors'
+                              '/%s.the-task-id/runs/latest/stdout') % (
+                                  controller.app_id,)),
+                    ('length', ''),
+                    ('offset', ''),
+                )),)))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
-    def test_event_source_response_stderr(self):
+    def test_mesos_file_response_stderr(self):
         self.client.login(username='testuser2', password='test')
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
-        resp = self.client.get(reverse('base:logs_event_source', kwargs={
+        setup_responses_for_log_tests(controller)
+        resp = self.client.get(reverse('base:mesos_file_log_view', kwargs={
             'controller_pk': controller.pk,
             'task_id': 'the-task-id',
             'path': 'stderr',
         }))
         self.assertEqual(
             resp['X-Accel-Redirect'],
-            os.path.join(
-                settings.LOGDRIVER_PATH,
-                ('worker-machine-1/worker-machine-id'
-                 '/frameworks/the-framework-id/executors'
-                 '/%s.the-task-id/runs/latest/stderr?n=%s' %
-                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
+            '%s%s' % (
+                settings.MESOS_FILE_API_PATH % {
+                    'worker_host': 'worker-machine-1',
+                    'api_path': 'read',
+                },
+                '?%s' % (urllib.urlencode((
+                    ('path', ('/tmp/mesos/slaves/worker-machine-id'
+                              '/frameworks/the-framework-id/executors'
+                              '/%s.the-task-id/runs/latest/stderr') % (
+                                  controller.app_id,)),
+                    ('length', ''),
+                    ('offset', ''),
+                )),)))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
-    def test_event_source_response_badpath(self):
+    def test_mesos_file_response_badpath(self):
         self.client.login(username='testuser2', password='test')
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
+        setup_responses_for_log_tests(controller)
         # NOTE: bad path according to URL regex, hence the manual requesting
-        view = AppEventSourceView()
+        view = MesosFileLogView()
         request = RequestFactory().get('/')
         request.user = controller.owner
         request.session = {}
