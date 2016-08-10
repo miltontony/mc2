@@ -49,16 +49,6 @@ class GeneralInfrastructureManager(object):
             '%s/v2/info' % (settings.MESOS_MARATHON_HOST,),
             headers=self.headers).json()
 
-    def get_mesos_info(self, task_host):
-        """
-        Returns the state of a Mesos worker machine
-
-        :returns: dict
-        """
-        return requests.get(
-            'http://%s:5051/state.json' % (task_host,),
-            headers=self.headers).json()
-
     def get_worker_info(self, hostname):
         """
         Returns info for the worker at the given hostname.
@@ -101,14 +91,15 @@ class GeneralInfrastructureManager(object):
         :returns: dict
         """
         marathon_info = marathon_info or self.get_marathon_info()
-        mesos_info = self.get_mesos_info(task_host)
+        worker_info = self.get_worker_info(task_host)
         framework_id = marathon_info['frameworkId']
         [framework_executor] = [framework
-                                for framework in mesos_info['frameworks']
+                                for framework in worker_info['frameworks']
                                 if framework['id'] == framework_id]
-        task_info = [task
-                     for task in framework_executor['executors']
-                     if task["id"] == task_id]
+
+        [task_info] = [task
+                       for task in framework_executor['executors']
+                       if task["id"] == task_id]
 
         return {
             'task_id': task_id,
