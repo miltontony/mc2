@@ -91,17 +91,20 @@ class GeneralInfrastructureManager(object):
         :returns: dict
         """
         marathon_info = marathon_info or self.get_marathon_info()
+        worker_info = self.get_worker_info(task_host)
         framework_id = marathon_info['frameworkId']
-        follower_id = self.get_worker_info(task_host)['id']
+        [framework_executor] = [framework
+                                for framework in worker_info['frameworks']
+                                if framework['id'] == framework_id]
+
+        [task_info] = [task
+                       for task in framework_executor['executors']
+                       if task["id"] == task_id]
+
         return {
             'task_id': task_id,
             'task_host': task_host,
-            'task_dir': (
-                "%(follower_id)s/frameworks/%(framework_id)s/executors"
-                "/%(task_id)s/runs/latest") % {
-                    'follower_id': follower_id,
-                    'framework_id': framework_id,
-                    'task_id': task_id}
+            'task_dir': task_info["directory"]
         }
 
 

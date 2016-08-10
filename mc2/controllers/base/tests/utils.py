@@ -44,5 +44,15 @@ def setup_responses_for_log_tests(controller):
         status=200, content_type='application/json',
         body=json.dumps({
             "id": "worker-machine-id",
+            "frameworks": [{
+                "id": "the-framework-id",
+                "executors": [{
+                    "id": "%s.the-task-id" % (controller.app_id,),
+                    "directory": (
+                        "worker-machine-id/frameworks/the-framework-id/"
+                        "executors/%s.the-task-id/runs/latest") % (
+                            controller.app_id,),
+                }]
+            }]
         })
     )
