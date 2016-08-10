@@ -88,6 +88,7 @@ def check_and_clear_appdata(appdata, controller):
     check_and_remove_health(appdata, controller)
     check_and_remove_env(appdata, controller)
     check_and_remove_labels(appdata, controller)
+    check_and_remove_backoff_params(appdata)
     assert appdata == {}
 
 
@@ -133,6 +134,11 @@ def check_and_remove_health(appdata, controller):
         }]
     assert "ports" not in appdata
     assert "healthChecks" not in appdata
+
+
+def check_and_remove_backoff_params(appdata):
+    appdata.pop('backoffFactor')
+    appdata.pop('backoffSeconds')
 
 
 def check_and_remove_env(appdata, controller):
@@ -319,6 +325,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
@@ -347,6 +355,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
@@ -376,6 +386,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
@@ -416,6 +428,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
@@ -462,6 +476,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
@@ -515,6 +531,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {"TEST_KEY": "a test value"},
             "labels": {
                 "domain": domain_label,
@@ -550,6 +568,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {"TEST_KEY": "a test value"},
             "labels": {
                 "domain": domain_label,
@@ -604,6 +624,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
@@ -646,6 +668,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "mem": 128.0,
                 "instances": 1,
                 "cmd": "ping",
+                "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+                "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
                 "labels": {
                     "domain": domain_label,
                     "HAPROXY_GROUP": "external",

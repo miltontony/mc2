@@ -77,7 +77,9 @@ class DockerController(Controller):
             "container": {
                 "type": "DOCKER",
                 "docker": docker_dict
-            }
+            },
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
         })
 
         if self.marathon_health_check_path and self.port:
@@ -168,6 +170,10 @@ class DockerController(Controller):
             EnvVariable.objects.create(controller=self, key=key, value=value)
 
         # TODO: Better errors:
+        # NOTE: Popping these backoffFactor and backoffSeconds because they're
+        #       deployment defaults at the moment, not app specific ones.
+        app_data.pop('backoffFactor', None)
+        app_data.pop('backoffSeconds', None)
         assert docker_dict == {}
         assert app_data == {}
 
