@@ -2,6 +2,7 @@
     color: #999;
     background: black;
     font-family: monospace;
+    white-space: pre;
     padding: 20px 0;
     height: 600px;
     width: 100%;
