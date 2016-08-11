@@ -5,7 +5,7 @@
   <!-- Widget: user widget style 1 -->
   <div class="box box-widget widget-user">
     <!-- Add the bg color to the header using any of the bg-* classes -->
-    <div class="widget-user-header bg-navy">
+    <div class="widget-user-header {% if controller.marathon_instances %}bg-navy{% else %}bg-gray{% endif %}">
       <h3 class="widget-user-username">{{controller.name}}</h3>
       <div class="widget-user-desc">{{controller.description}}</div>
       <div class="widget-user-desc">
