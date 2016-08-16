@@ -57,7 +57,6 @@
 
 .card .box {box-shadow: none}
 .card.new-site{
-    display: block;
     justify-content: center;
     align-items: center;
     cursor: pointer;
