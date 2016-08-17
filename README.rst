@@ -87,10 +87,14 @@ You can specify the following ``environment variables`` to configure the app:
     MESOS_HTTP_PORT
     MESOS_DEFAULT_CPU_SHARE
     MESOS_DEFAULT_INSTANCES
+    MESOS_DEFAULT_BACKOFF_FACTOR   # defaults to 1.15
+    MESOS_DEFAULT_BACKOFF_SECONDS  # defaults to 1
 
-    # Log Driver settings
-    LOGDRIVER_PATH
-    LOGDRIVER_BACKLOG
+    # Mesos File API path (for Nginx internal redirect)
+    # Defaults to '/mesos/%(worker_host)s/files/%(api_path)s'
+    MESOS_FILE_API_PATH
+    # Defaults to '/tmp/mesos/slaves/'
+    MESOS_LOG_PATH
 
     # Sentry configuration
     RAVEN_DSN

@@ -11,6 +11,11 @@ urlpatterns = patterns(
         name='add'
     ),
     url(
+        r'^(?P<controller_pk>\d+)/clone/$',
+        views.DockerControllerCloneView.as_view(),
+        name='clone'
+    ),
+    url(
         r'^(?P<controller_pk>\d+)/$',
         views.DockerControllerEditView.as_view(),
         name='edit'),

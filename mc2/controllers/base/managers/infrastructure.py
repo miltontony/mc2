@@ -33,10 +33,11 @@ class GeneralInfrastructureManager(object):
         :param app_id str: The application id
         :returns: list
         """
-        return requests.get('%s/v2/apps/%s/tasks' % (
+        app_info = requests.get('%s/v2/apps/%s/tasks' % (
             settings.MESOS_MARATHON_HOST,
             app_id,
-        ), headers=self.headers).json()['tasks']
+        ), headers=self.headers).json()
+        return app_info.get('tasks', [])
 
     def get_marathon_info(self):
         """
@@ -61,7 +62,7 @@ class GeneralInfrastructureManager(object):
 
     def get_app_log_info(self, app_id):
         """
-        Returns a list of task info dicts for logdriver for the given app_id
+        Returns a list of task info dicts for the given app_id
 
         :param app_id str: The application id
         :returns: list
@@ -79,8 +80,8 @@ class GeneralInfrastructureManager(object):
     def get_task_log_info(self, app_id, task_id, task_host,
                           marathon_info=None):
         """
-        Returns a dictionary with the task_host and task_dir for logdriver
-        logs for the given task_id
+        Returns a dictionary with the task_host and task_dir
+        for the given task_id
 
         :param app_id str: the application id
         :param task_id str: the task id
@@ -90,17 +91,20 @@ class GeneralInfrastructureManager(object):
         :returns: dict
         """
         marathon_info = marathon_info or self.get_marathon_info()
+        worker_info = self.get_worker_info(task_host)
         framework_id = marathon_info['frameworkId']
-        follower_id = self.get_worker_info(task_host)['id']
+        [framework_executor] = [framework
+                                for framework in worker_info['frameworks']
+                                if framework['id'] == framework_id]
+
+        [task_info] = [task
+                       for task in framework_executor['executors']
+                       if task["id"] == task_id]
+
         return {
             'task_id': task_id,
             'task_host': task_host,
-            'task_dir': (
-                "%(follower_id)s/frameworks/%(framework_id)s/executors"
-                "/%(task_id)s/runs/latest") % {
-                    'follower_id': follower_id,
-                    'framework_id': framework_id,
-                    'task_id': task_id}
+            'task_dir': task_info["directory"]
         }
 
 

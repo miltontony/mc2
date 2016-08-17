@@ -47,4 +47,4 @@ class DockerControllerFormHelper(ControllerFormHelper):
         super(DockerControllerFormHelper, self).__init__(
             data, files, instance, prefix, initial)
         self.controller_form = DockerControllerForm(
-            data, files, instance=instance)
+            data, files, instance=instance, initial=initial)

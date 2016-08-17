@@ -4,11 +4,11 @@ python:
 matrix:
   include:
     - python: "pypy"
-      env: PYPY_VERSION="4.0.1" NO_COVERAGE=1 PYTHON_BUILD_CACHE_PATH="$HOME/pyenv-cache"
+      env: PYPY_VERSION="5.3" NO_COVERAGE=1 PYTHON_BUILD_CACHE_PATH="$HOME/pyenv-cache"
 cache:
-  directories:
+  - pip
+  - directories:
     - $HOME/pyenv-cache
-    - $HOME/.cache/pip
     - $HOME/.hypothesis
 env:
   global:
@@ -19,8 +19,11 @@ services:
 before_install:
   - mkdir -p $HOME/.hypothesis
   # If necessary, set up an appropriate version of pypy.
-  - if [ ! -z "$PYPY_VERSION" ]; then source setup-pypy-travis.sh; fi
-  - if [ ! -z "$PYPY_VERSION" ]; then python --version 2>&1 | fgrep "PyPy $PYPY_VERSION"; fi
+  - >
+     if [[ -n "$PYPY_VERSION" ]]; then
+       source setup-pypy-travis.sh
+       python --version 2>&1 | fgrep "PyPy $PYPY_VERSION"
+     fi
 
 install:
   # Upgrade pip to get wheel caching
@@ -32,10 +35,12 @@ install:
   - pip install coveralls
 
 script:
-  - py.test mc2
+  - if [[ -z "$NO_COVERAGE" ]]; then COVERAGE_OPT="--cov"; else COVERAGE_OPT=""; fi
+  - py.test mc2 $COVERAGE_OPT
+  - flake8 .
 
 after_success:
-  - if [ -z "$NO_COVERAGE" ]; then coveralls; fi
+  - if [[ -z "$NO_COVERAGE" ]]; then coveralls; fi
 deploy:
   provider: pypi
   user: Praekelt

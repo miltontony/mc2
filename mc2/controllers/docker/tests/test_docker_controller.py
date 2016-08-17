@@ -1,4 +1,5 @@
 import json
+import string
 
 import pytest
 import responses
@@ -13,7 +14,7 @@ from hypothesis.strategies import text, random_module, lists, just
 
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.docker.models import DockerController
+from mc2.controllers.docker.models import DockerController, traefik_domains
 from mc2.organizations.models import Organization
 
 
@@ -45,11 +46,17 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # so we remove them from the generated value.
     # TODO: Build a proper SlugField strategy.
     # TODO: Figure out why the field validation isn't being applied.
-    slug = text().map(lambda t: "".join(t.replace(":", "").split()))
+    # Slugs must be domain-name friendly - used in the "generic" domain
+    slug = text(string.ascii_letters + string.digits + '-')
     kw.setdefault("slug", slug)
 
     kw.setdefault("owner", models(User, is_active=just(True)))
     kw.setdefault("organization", models(Organization, slug=slug))
+
+    # Prevent Hypothesis from generating domains with invalid characters
+    domain_urls = text(string.ascii_letters + string.digits + '-.')
+    kw.setdefault("domain_urls", domain_urls)
+
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
     # it.
@@ -81,6 +88,7 @@ def check_and_clear_appdata(appdata, controller):
     check_and_remove_health(appdata, controller)
     check_and_remove_env(appdata, controller)
     check_and_remove_labels(appdata, controller)
+    check_and_remove_backoff_params(appdata)
     assert appdata == {}
 
 
@@ -113,7 +121,7 @@ def check_and_remove_health(appdata, controller):
     """
     Assert that the health check data is correct and remove it.
     """
-    if controller.marathon_health_check_path:
+    if controller.marathon_health_check_path and controller.port:
         assert appdata.pop("ports") == [0]
         assert appdata.pop("healthChecks") == [{
             "gracePeriodSeconds": 60,
@@ -126,6 +134,11 @@ def check_and_remove_health(appdata, controller):
         }]
     assert "ports" not in appdata
     assert "healthChecks" not in appdata
+
+
+def check_and_remove_backoff_params(appdata):
+    appdata.pop('backoffFactor')
+    appdata.pop('backoffSeconds')
 
 
 def check_and_remove_env(appdata, controller):
@@ -151,6 +164,12 @@ def check_and_remove_labels(appdata, controller):
     assert sorted(labels.pop("domain").split()) == sorted(domains)
     assert sorted(labels.pop("HAPROXY_0_VHOST").split()) == sorted(domains)
     assert labels.pop("HAPROXY_GROUP") == "external"
+
+    traefik_domains = labels.pop("traefik.frontend.rule")
+    traefik_domains = traefik_domains.split(":", 2)[-1].split(",")
+    traefik_domains = [d.strip() for d in traefik_domains]
+    assert sorted(traefik_domains) == sorted(domains)
+
     # We may have duplicate keys in here, but hopefully the database always
     # return the objects in the same order.
     lvs = {lv.name: lv.value for lv in controller.label_variables.all()}
@@ -164,6 +183,34 @@ def check_and_remove_optional(appdata, field, value):
     if value:
         assert appdata.pop(field) == value
     assert field not in appdata
+
+
+def test_traefik_domains_single():
+    """
+    When a domains string with a single domain is passed to traefik_domains,
+    it returns a Host frontend rule.
+    """
+    domains = 'abc.com'
+    assert traefik_domains(domains) == 'Host: abc.com'
+
+
+def test_traefik_domains_multiple():
+    """
+    When a domains string with multiple domains is passed to traefik_domains,
+    it returns multiple Host frontend rules joined by ';'.
+    """
+    domains = 'abc.com def.co.za   ghi.co.ng'
+    assert (traefik_domains(domains) ==
+            'Host: abc.com, def.co.za, ghi.co.ng')
+
+
+def test_traefik_domains_none():
+    """
+    When a domains string with no domains is passed to traefik_domains, it
+    returns an empty string.
+    """
+    domains = '  '
+    assert traefik_domains(domains) == ''
 
 
 @pytest.mark.django_db
@@ -278,10 +325,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -305,10 +355,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App"
             },
             "container": {
@@ -333,10 +386,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -372,10 +428,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -417,10 +476,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -469,11 +531,14 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {"TEST_KEY": "a test value"},
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -503,11 +568,14 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {"TEST_KEY": "a test value"},
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "TEST_LABELS_NAME": 'a test label value'
             },
@@ -556,10 +624,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
             },
             "container": {
@@ -597,10 +668,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "mem": 128.0,
                 "instances": 1,
                 "cmd": "ping",
+                "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+                "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
                 "labels": {
                     "domain": domain_label,
                     "HAPROXY_GROUP": "external",
                     "HAPROXY_0_VHOST": domain_label,
+                    "traefik.frontend.rule": traefik_domains(domain_label),
                     "name": "Test App",
                 },
                 "container": {

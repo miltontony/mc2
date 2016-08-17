@@ -41,6 +41,32 @@ class ControllerForm(forms.ModelForm):
             'marathon_cmd', 'webhook_token', 'description')
 
 
+class CustomInlineFormset(forms.BaseInlineFormSet):
+    """
+    Custom formset that support initial data
+    """
+
+    def initial_form_count(self):
+        """
+        set 0 to use initial_extra explicitly.
+        """
+        if self.initial_extra:
+            return 0
+        else:
+            return forms.BaseInlineFormSet.initial_form_count(self)
+
+    def total_form_count(self):
+        """
+        here use the initial_extra len to determine needed forms
+        """
+        if self.initial_extra:
+            count = len(self.initial_extra) if self.initial_extra else 0
+            count += self.extra
+            return count
+        else:
+            return forms.BaseInlineFormSet.total_form_count(self)
+
+
 class EnvVariableForm(forms.ModelForm):
     key = forms.RegexField(
         "^[0-9a-zA-Z_]+$", required=True, error_messages={
@@ -49,6 +75,13 @@ class EnvVariableForm(forms.ModelForm):
         widget=forms.TextInput(attrs={'class': 'form-control'}))
     value = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def has_changed(self):
+        """
+        Returns True if we have initial data.
+        """
+        has_changed = forms.ModelForm.has_changed(self)
+        return bool(self.initial or has_changed)
 
     class Meta:
         model = EnvVariable
@@ -59,6 +92,7 @@ EnvVariableInlineFormSet = forms.inlineformset_factory(
     Controller,
     EnvVariable,
     form=EnvVariableForm,
+    formset=CustomInlineFormset,
     extra=1,
     can_delete=True,
     can_order=False
@@ -67,12 +101,19 @@ EnvVariableInlineFormSet = forms.inlineformset_factory(
 
 class MarathonLabelForm(forms.ModelForm):
     name = forms.RegexField(
-        "^[0-9a-zA-Z_]+$", required=True, error_messages={
+        "^[0-9a-zA-Z_.]+$", required=True, error_messages={
             'invalid':
                 _("You did not enter a valid key. Please try again.")},
         widget=forms.TextInput(attrs={'class': 'form-control'}))
     value = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def has_changed(self):
+        """
+        Returns True if we have initial data.
+        """
+        has_changed = forms.ModelForm.has_changed(self)
+        return bool(self.initial or has_changed)
 
     class Meta:
         model = MarathonLabel
@@ -83,6 +124,7 @@ MarathonLabelInlineFormSet = forms.inlineformset_factory(
     Controller,
     MarathonLabel,
     form=MarathonLabelForm,
+    formset=CustomInlineFormset,
     extra=1,
     can_delete=True,
     can_order=False
@@ -96,15 +138,22 @@ class ControllerFormHelper(object):
         self.instance = instance
         self.controller_form = ControllerForm(
             data, files,
-            instance=instance)
+            instance=instance, initial=initial)
+
+        initial_env = initial.get('envs', [])
+        initial_label = initial.get('labels', [])
+
         self.env_formset = EnvVariableInlineFormSet(
             data, files,
             instance=instance,
-            prefix='env')
+            prefix='env',
+            initial=initial_env)
+
         self.label_formset = MarathonLabelInlineFormSet(
             data, files,
             instance=instance,
-            prefix='label')
+            prefix='label',
+            initial=initial_label)
 
     def __iter__(self):
         yield self.controller_form

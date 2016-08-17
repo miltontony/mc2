@@ -1,5 +1,6 @@
 import json
 import os.path
+import urllib
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
@@ -96,6 +97,48 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         return response
 
 
+class ControllerCloneView(ControllerViewMixin, CreateView):
+    form_class = ControllerFormHelper
+    template_name = 'controller_edit.html'
+    permissions = ['controllers.base.add_controller']
+
+    def get_initial(self):
+        initial = super(ControllerCloneView, self).get_initial()
+
+        controller = get_object_or_404(
+            Controller, pk=self.kwargs.get('controller_pk'))
+
+        initial.update({
+            'marathon_cpus': controller.marathon_cpus,
+            'marathon_mem': controller.marathon_mem,
+            'marathon_instances': controller.marathon_instances,
+            'marathon_cmd': controller.marathon_cmd,
+            'description': controller.description,
+            'envs': [
+                {'key': env.key, 'value': env.value}
+                for env in controller.env_variables.all()],
+            'labels': [
+                {'name': label.name, 'value': label.value}
+                for label in controller.label_variables.all()]})
+        return initial
+
+    def get_success_url(self):
+        return reverse("home")
+
+    def form_valid(self, form):
+        form.controller_form.instance.organization = active_organization(
+            self.request)
+        form.controller_form.instance.owner = self.request.user
+        form.controller_form.instance.save()
+
+        form.env_formset.instance = form.controller_form.instance
+        form.label_formset.instance = form.controller_form.instance
+
+        response = super(ControllerCloneView, self).form_valid(form)
+        tasks.start_new_controller.delay(form.controller_form.instance.id)
+        return response
+
+
 class ControllerEditView(ControllerViewMixin, UpdateView):
     form_class = ControllerFormHelper
     template_name = 'controller_edit.html'
@@ -142,18 +185,20 @@ class AppLogView(ControllerViewMixin, TemplateView):
             'controller': controller,
             'tasks': tasks,
             'task_ids': [t['id'].split('.', 1)[1] for t in tasks],
-            'scroll_backlog': (
-                self.request.GET.get('n') or settings.LOGDRIVER_BACKLOG)
+            'paths': ['stdout', 'stderr'],
+            'offset': self.request.GET.get('offset'),
+            'length': self.request.GET.get('length'),
         })
         return context
 
 
-class AppEventSourceView(ControllerViewMixin, View):
+class MesosFileLogView(ControllerViewMixin, View):
     def get(self, request, controller_pk, task_id, path):
         controller = get_object_or_404(
             self.get_controllers_queryset(request),
             pk=controller_pk)
-        n = request.GET.get('n') or settings.LOGDRIVER_BACKLOG
+        length = request.GET.get('length', '')
+        offset = request.GET.get('offset', '')
         if path not in ['stdout', 'stderr']:
             return HttpResponseNotFound('File not found.')
 
@@ -161,11 +206,23 @@ class AppEventSourceView(ControllerViewMixin, View):
         #       so as to not need to expose both in the templates.
         task = controller.infra_manager.get_controller_task_log_info(
             '%s.%s' % (controller.app_id, task_id))
+        file_path = os.path.join(task['task_dir'], path)
+
+        internal_redirect_url = settings.MESOS_FILE_API_PATH % {
+            'worker_host': task['task_host'],
+            'api_path': ('download.json'
+                         if request.GET.get('download')
+                         else 'read.json'),
+        }
 
         response = HttpResponse()
-        response['X-Accel-Redirect'] = '%s?n=%s' % (os.path.join(
-            settings.LOGDRIVER_PATH, task['task_host'],
-            task['task_dir'], path), n)
+        response['X-Accel-Redirect'] = '%s?%s' % (
+            internal_redirect_url, urllib.urlencode((
+                ('path', os.path.join(settings.MESOS_LOG_PATH, file_path)),
+                ('length', length),
+                ('offset', offset),
+            )))
+
         response['X-Accel-Buffering'] = 'no'
         return response
 

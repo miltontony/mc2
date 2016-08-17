@@ -1,36 +1,35 @@
-FROM python:2.7.11-alpine
+FROM praekeltfoundation/supervisor:alpine
 
-RUN apk --no-cache add nginx redis libffi postgresql
+# Install runtime dependencies for MC2 as well as Nginx and Redis
+RUN apk --no-cache add libffi libpq \
+    nginx redis
+
+# Copy in bits of MC2 source we need
+COPY mc2 /deploy/mc2
+COPY manage.py \
+    requirements.txt \
+    requirements-dev.txt \
+    setup.py \
+    README.rst \
+    VERSION \
+    docker/docker-entrypoint.sh \
+        /deploy/
 
 ENV PROJECT_ROOT /deploy/
+WORKDIR /deploy/
+
+# Install MC2 as well as gunicorn
+RUN pip install gunicorn "Django<1.9,>=1.8" \
+    && pip install -e .
+
+# Set some basic config
 ENV DJANGO_SETTINGS_MODULE mc2.settings
 ENV MESOS_MARATHON_HOST http://servicehost:8080
 
-WORKDIR /deploy/
-
-COPY mc2 /deploy/mc2
-ADD manage.py /deploy/
-ADD requirements.txt /deploy/
-ADD requirements-dev.txt /deploy/
-ADD setup.py /deploy/
-ADD README.rst /deploy/
-ADD VERSION /deploy/
-ADD docker/docker-entrypoint.sh /deploy/
-ADD docker/nginx.conf /etc/nginx/nginx.conf
-ADD docker/mc2.nginx.conf /etc/nginx/conf.d/
-ADD docker/supervisord.conf /etc/
-ADD docker/mc2.supervisor.conf /etc/supervisor/conf.d/
-
-RUN apk --no-cache add --virtual devdeps gcc musl-dev python-dev libffi-dev postgresql-dev \
-    && pip install gunicorn supervisor "Django<1.9,>=1.8" \
-    && pip install -e . \
-    && rm -rf ~/.cache/pip \
-    && apk del devdeps
-
-RUN mkdir -p /etc/supervisor/conf.d/
-RUN mkdir -p /var/log/supervisor
-
-RUN chmod +x /deploy/docker-entrypoint.sh
+# Copy in Nginx and Supervisor config
+COPY docker/nginx.conf /etc/nginx/nginx.conf
+COPY docker/mc2.nginx.conf /etc/nginx/conf.d/
+COPY docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
 EXPOSE 80
-ENTRYPOINT ["/deploy/docker-entrypoint.sh"]
+CMD ["/deploy/docker-entrypoint.sh"]
