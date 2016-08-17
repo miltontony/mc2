@@ -1,5 +1,15 @@
 CHANGE LOG
 ==========
+3.4.0
+-----
+- Add traefik labels to app definitions
+- Allow labels to contain '.' characters
+- Better improved docker file
+- Add clone option to docker controller
+- Switch from Logdriver to Mesos API for logs
+- Allow port-less containers
+- Added sensible backoff values for marathon
+- Show suspended apps as greyed out
 
 3.3.3
 -----
