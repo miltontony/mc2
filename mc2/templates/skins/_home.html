@@ -28,11 +28,8 @@
     <div class="col-md-4">
         <div class="nav-tabs-custom main card new-site bg-green">
             <div class="card-content new-site bg-green">
-                {# NOTE: the inline styles were added by Simon at Peters      #}
-                {#       recommendatation. The cards were floating too high   #}
-                {#       otherwise. Sorry for the hack                        #}
                 {% if is_admin %}
-                <div id="overlay-content" class="card-content-overlay bg-green" style="top: 0;">
+                <div id="overlay-content" class="card-content-overlay bg-green">
                     <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
                     <div>
                         <h4>Choose app type</h4>
@@ -42,14 +39,14 @@
                     </div>
                 </div>
                 {% else %}
-                <div id="overlay-content" class="card-content-overlay bg-red" style="top: 0;">
+                <div id="overlay-content" class="card-content-overlay bg-red">
                     <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
                     <div class="center-text">
                         <span><i class="fa fa-times-circle fa-5x"></i></span><h3>You do not have permission to create a new website</h3>
                     </div>
                 </div>
                 {% endif %}
-                <div id="overlay-title" class="card-content-overlay bg-green" style="top: 0;">
+                <div id="overlay-title" class="card-content-overlay bg-green">
                     <div class="center-text">
                         <h1>Create an app</h1>
                         <hr/>
