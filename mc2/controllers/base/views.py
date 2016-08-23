@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView, FormMixin
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from mc2.organizations.utils import org_permission_required
@@ -41,7 +41,7 @@ def update_marathon_exists_json(request, controller_pk):
         content_type='application/json')
 
 
-class ControllerViewMixin(View):
+class ControllerViewMixin(FormMixin, View):
     pk_url_kwarg = 'controller_pk'
     permissions = []
     social_auth = None
@@ -73,6 +73,24 @@ class ControllerViewMixin(View):
                 return Controller.objects.all()
             return Controller.objects.none()
         return Controller.objects.filter(organization=organization)
+
+    def get_form(self, *args, **kwargs):
+        """
+        Return a form with the organizations limited to the organizations
+        this user has access to. Returns a form with all availble
+        organizations for super users.
+
+        Since mixin is used in views that subclass CreateView or UpdateView
+        I am relying on those to provide the `get_form` as implemented
+        in the `FormMixin` both of those inherit
+        """
+        form = FormMixin.get_form(self, *args, **kwargs)
+        if self.request.user.is_superuser:
+            return form
+
+        form.controller_form.fields['organization'].queryset = (
+            self.request.user.organization_set.all())
+        return form
 
 
 class ControllerCreateView(ControllerViewMixin, CreateView):

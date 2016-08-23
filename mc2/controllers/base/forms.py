@@ -38,7 +38,7 @@ class ControllerForm(forms.ModelForm):
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
-            'marathon_cmd', 'webhook_token', 'description')
+            'marathon_cmd', 'webhook_token', 'description', 'organization')
 
 
 class CustomInlineFormset(forms.BaseInlineFormSet):
