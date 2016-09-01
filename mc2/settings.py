@@ -37,6 +37,9 @@ MESOS_DEFAULT_BACKOFF_FACTOR = float(environ.get(
 MARATHON_DEFAULT_VOLUME_PATH = environ.get(
     'MARATHON_DEFAULT_VOLUME_PATH', '/volume/')
 
+DEFAULT_REQUEST_TIMEOUT = int(environ.get(
+    'DEFAULT_REQUEST_TIMEOUT', 2))
+
 HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 
 # Configured at Nginx for internal redirect

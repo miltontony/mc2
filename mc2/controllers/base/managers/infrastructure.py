@@ -24,7 +24,9 @@ class GeneralInfrastructureManager(object):
         return requests.get('%s/v2/apps/%s' % (
             settings.MESOS_MARATHON_HOST,
             app_id,
-        ), headers=self.headers).json()['app']
+        ),
+            headers=self.headers,
+            timeout=settings.DEFAULT_REQUEST_TIMEOUT).json()['app']
 
     def get_marathon_app_tasks(self, app_id):
         """
@@ -36,7 +38,9 @@ class GeneralInfrastructureManager(object):
         app_info = requests.get('%s/v2/apps/%s/tasks' % (
             settings.MESOS_MARATHON_HOST,
             app_id,
-        ), headers=self.headers).json()
+        ),
+            headers=self.headers,
+            timeout=settings.DEFAULT_REQUEST_TIMEOUT).json()
         return app_info.get('tasks', [])
 
     def get_marathon_info(self):
@@ -47,7 +51,8 @@ class GeneralInfrastructureManager(object):
         """
         return requests.get(
             '%s/v2/info' % (settings.MESOS_MARATHON_HOST,),
-            headers=self.headers).json()
+            headers=self.headers,
+            timeout=settings.DEFAULT_REQUEST_TIMEOUT).json()
 
     def get_worker_info(self, hostname):
         """
@@ -57,7 +62,8 @@ class GeneralInfrastructureManager(object):
         """
         return requests.get(
             'http://%s:%s/state.json' % (hostname, settings.MESOS_HTTP_PORT),
-            headers=self.headers
+            headers=self.headers,
+            timeout=settings.DEFAULT_REQUEST_TIMEOUT
         ).json()
 
     def get_app_log_info(self, app_id):
