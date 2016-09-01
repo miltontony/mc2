@@ -1,5 +1,11 @@
 CHANGE LOG
 ==========
+
+3.4.1
+-----
+
+- Add sensible timeouts to external HTTP APIs.
+
 3.4.0
 -----
 - Add traefik labels to app definitions
