@@ -1,6 +1,45 @@
 CHANGE LOG
 ==========
 
+3.4.1
+-----
+
+- Add sensible timeouts to external HTTP APIs.
+
+3.4.0
+-----
+- Add traefik labels to app definitions
+- Allow labels to contain '.' characters
+- Better improved docker file
+- Add clone option to docker controller
+- Switch from Logdriver to Mesos API for logs
+- Allow port-less containers
+- Added sensible backoff values for marathon
+- Show suspended apps as greyed out
+
+3.3.3
+-----
+- Add marathon-lb labels to app definitions
+
+3.3.2
+-----
+- ensure int values for health check timeouts
+
+3.3.1
+-----
+- allow health check timeouts to be configurable
+
+3.3.0
+-----
+- added description field
+- ensure org change doesn't result in 404 if org permssions are good
+- ensure all marathon calls are done via celery
+- re-introduce log driver
+- added app restart webhook
+- UI improvements + tweaks
+- increase graceperiod for when apps start with healthchecks
+- small docker image with python:2.7.11-alpine
+
 3.2.11
 ------
 - add hypothesis testing

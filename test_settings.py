@@ -1,4 +1,8 @@
-from mc2.settings import *
+from mc2.settings import *  # noqa
+
+# Tell psycopg2cffi to impersonate psycopg2
+from psycopg2cffi import compat
+compat.register()
 
 DATABASES = {
     'default': {
@@ -22,7 +26,7 @@ CELERY_ALWAYS_EAGER = True
 
 
 def scratchpath(*paths):
-    return abspath('.scratchpath', *paths)
+    return abspath('.scratchpath', *paths)  # noqa
 
 SCRATCHPATH = scratchpath()
 
@@ -55,7 +59,6 @@ RAVEN_DSN_CMS_PROD = 'raven-cms-prod'
 ELASTICSEARCH_HOST = 'http://localhost:9200'
 UNICORE_DISTRIBUTE_HOST = 'http://testserver:6543'
 MESOS_MARATHON_HOST = 'http://testserver:8080'
-LOGDRIVER_PATH = '/logdriver-testing/'
 MESOS_HTTP_PORT = 5555
 
 THUMBOR_SECURITY_KEY = 'some-key'

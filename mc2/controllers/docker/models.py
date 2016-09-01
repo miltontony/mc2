@@ -6,11 +6,22 @@ from django.conf import settings
 from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 
 
+def traefik_domains(domains):
+    """
+    Create the traefik.frontend.rule label from the string of domains we use
+    for templated Nginx/marathon-lb.
+    """
+    if not domains.strip():
+        return ''
+
+    return "Host: %s" % (", ".join(domains.split()),)
+
+
 class DockerController(Controller):
     docker_image = models.CharField(max_length=256)
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
-    port = models.PositiveIntegerField(default=0)
+    port = models.PositiveIntegerField(default=0, blank=True, null=True)
     domain_urls = models.TextField(max_length=8000, default="")
     volume_needed = models.BooleanField(default=False)
     volume_path = models.CharField(max_length=255, blank=True, null=True)
@@ -46,9 +57,13 @@ class DockerController(Controller):
             'generic_domain': self.get_generic_domain(),
             'custom': self.domain_urls
         }
+        domains = domains.strip()
 
         service_labels = {
-            "domain": domains.strip(),
+            "domain": domains,
+            "HAPROXY_GROUP": "external",
+            "HAPROXY_0_VHOST": domains,
+            "traefik.frontend.rule": traefik_domains(domains),
             "name": self.name,
         }
 
@@ -62,27 +77,32 @@ class DockerController(Controller):
             "container": {
                 "type": "DOCKER",
                 "docker": docker_dict
-            }
+            },
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
         })
 
-        if self.marathon_health_check_path:
+        if self.marathon_health_check_path and self.port:
             app_data.update({
                 "ports": [0],
                 "healthChecks": [{
-                    "gracePeriodSeconds": 3,
-                    "intervalSeconds": 10,
+                    "gracePeriodSeconds":
+                        int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
+                    "intervalSeconds":
+                        int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
                     "maxConsecutiveFailures": 3,
                     "path": self.marathon_health_check_path,
                     "portIndex": 0,
                     "protocol": "HTTP",
-                    "timeoutSeconds": 5
+                    "timeoutSeconds":
+                        int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
                 }]
             })
 
         return app_data
 
     @classmethod
-    def from_marathon_app_data(cls, owner, app_data, name=None):
+    def from_marathon_app_data(cls, owner, org, app_data, name=None):
         """
         Create a new model from the given Marathon app data.
 
@@ -141,7 +161,7 @@ class DockerController(Controller):
         if name is not None:
             args["name"] = name
 
-        self = cls.objects.create(owner=owner, **args)
+        self = cls.objects.create(owner=owner, organization=org, **args)
 
         for label in labels:
             MarathonLabel.objects.create(controller=self, **label)
@@ -150,6 +170,10 @@ class DockerController(Controller):
             EnvVariable.objects.create(controller=self, key=key, value=value)
 
         # TODO: Better errors:
+        # NOTE: Popping these backoffFactor and backoffSeconds because they're
+        #       deployment defaults at the moment, not app specific ones.
+        app_data.pop('backoffFactor', None)
+        app_data.pop('backoffSeconds', None)
         assert docker_dict == {}
         assert app_data == {}
 

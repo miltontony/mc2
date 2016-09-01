@@ -1,6 +1,7 @@
 #mc-overview{
     width: 110%;
     margin-left: -5%;
+    margin-top: -30px;
     /*border-bottom: 2px solid #3c8dbc;*/
     margin-bottom: 20px;
     display: table;
@@ -46,7 +47,6 @@
     /*border: 1px solid #AAA;*/
     box-shadow: 0 2px 3px 0 #AAA;
     padding: 0;
-    margin: 15px 8px;
     overflow: hidden;
     border-radius: 3px;
     height: 200px;
@@ -55,8 +55,8 @@
     align-items: center;
 }
 
+.card .box {box-shadow: none}
 .card.new-site{
-    display: block;
     justify-content: center;
     align-items: center;
     cursor: pointer;
@@ -94,8 +94,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100%;
-    height: 100%;
+    width: 92.2%;
+    height: 91%;
     background: #FFFFFF;
     z-index: 0;
     text-align: center;
@@ -195,4 +195,13 @@
 
 .icon-container-docker{
     width: 60%;
+}
+
+.col-description{
+  display: inline-block;
+  padding: 0 6px;
+}
+
+.col-description:last-child {
+  border-right: none;
 }

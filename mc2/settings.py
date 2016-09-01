@@ -4,6 +4,10 @@ from os.path import abspath, dirname, join
 from os import environ
 import dj_database_url
 
+# Tell psycopg2cffi to impersonate psycopg2
+from psycopg2cffi import compat
+compat.register()
+
 
 def bool_env(val):
     """Replaces string based environment values with Python booleans"""
@@ -20,14 +24,28 @@ MESOS_MARATHON_HOST = environ.get(
 MESOS_HTTP_PORT = environ.get('MESOS_HTTP_PORT', 5051)
 MESOS_DEFAULT_CPU_SHARE = environ.get('MESOS_DEFAULT_CPU_SHARE', 0.1)
 MESOS_DEFAULT_INSTANCES = environ.get('MESOS_DEFAULT_INSTANCES', 1)
+MESOS_DEFAULT_GRACE_PERIOD_SECONDS = environ.get(
+    'MESOS_DEFAULT_GRACE_PERIOD_SECONDS', 60)
+MESOS_DEFAULT_INTERVAL_SECONDS = environ.get(
+    'MESOS_DEFAULT_INTERVAL_SECONDS', 10)
+MESOS_DEFAULT_TIMEOUT_SECONDS = environ.get(
+    'MESOS_DEFAULT_TIMEOUT_SECONDS', 20)
+MESOS_DEFAULT_BACKOFF_SECONDS = int(environ.get(
+    'MESOS_DEFAULT_BACKOFF_SECONDS', 1))
+MESOS_DEFAULT_BACKOFF_FACTOR = float(environ.get(
+    'MESOS_DEFAULT_BACKOFF_FACTOR', 1.15))
 MARATHON_DEFAULT_VOLUME_PATH = environ.get(
     'MARATHON_DEFAULT_VOLUME_PATH', '/volume/')
+
+DEFAULT_REQUEST_TIMEOUT = int(environ.get(
+    'DEFAULT_REQUEST_TIMEOUT', 2))
 
 HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 
 # Configured at Nginx for internal redirect
-LOGDRIVER_PATH = environ.get('LOGDRIVER_PATH', '/logdriver/')
-LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 0)
+MESOS_FILE_API_PATH = environ.get(
+    'MESOS_FILE_API_PATH', '/mesos/%(worker_host)s/files/%(api_path)s')
+MESOS_LOG_PATH = environ.get('MESOS_LOG_PATH', '/tmp/mesos/slaves/')
 
 # Sentry configuration
 RAVEN_DSN = environ.get('RAVEN_DSN')
@@ -150,7 +168,8 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'social.apps.django_app.context_processors.backends',
     'social.apps.django_app.context_processors.login_redirect',
     'mc2.organizations.context_processors.org',
-    'mc2.context_processors.default_forms'
+    'mc2.context_processors.default_forms',
+    'mc2.context_processors.app_version',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -260,7 +279,7 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ALWAYS_EAGER = DEBUG
 
 # Tell Celery where to find the tasks
-CELERY_IMPORTS = ('mc2.tasks', )
+CELERY_IMPORTS = ('mc2.controllers.base.tasks', )
 CELERY_ACCEPT_CONTENT = ['json']
 
 # Defer email sending to Celery, except if we're in debug mode,
@@ -280,7 +299,6 @@ DEBUG_TOOLBAR_CONFIG = {
 }
 DEBUG_TOOLBAR_PATCH_SETTINGS = False
 
-SOCIAL_AUTH_SESSION_EXPIRATION = True
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = [
     'https://www.googleapis.com/auth/analytics.edit',
     'https://www.googleapis.com/auth/analytics.provision']
