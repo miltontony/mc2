@@ -3,7 +3,7 @@ South
 python-memcached
 raven==5.0.0
 nose
-django-nose
+django-nose==1.4.2
 django-celery
 psycopg2
 redis
