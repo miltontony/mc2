@@ -1,5 +1,14 @@
 CHANGE LOG
 ==========
+
+3.4.2
+-----
+- (bug) Ensure organization field is shown on docker controller edit view
+
+3.4.1
+-----
+- Add sensible timeouts to external HTTP APIs.
+
 3.4.0
 -----
 - Add traefik labels to app definitions

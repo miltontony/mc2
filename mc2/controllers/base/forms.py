@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
+from mc2.organizations.models import Organization
 
 
 class ControllerForm(forms.ModelForm):
@@ -33,12 +34,16 @@ class ControllerForm(forms.ModelForm):
     webhook_token = forms.UUIDField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
+    organization = forms.ModelChoiceField(
+        queryset=Organization.objects.all(),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
-            'marathon_cmd', 'webhook_token', 'description')
+            'marathon_cmd', 'webhook_token', 'description', 'organization')
 
 
 class CustomInlineFormset(forms.BaseInlineFormSet):
