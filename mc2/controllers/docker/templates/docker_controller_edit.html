@@ -150,6 +150,18 @@
           </div>
       </fieldset>
       {% endwith %}
+      
+      {% with form=form.controller_form %}
+      <fieldset class="input-xxlarge">
+        <legend>Organization</legend>
+        <label>{{form.organization.label}}</label>
+        <div class="row inline applabel">
+          <div class="col-xs-4">
+            {% include "form_field.html" with field=form.organization %}
+          </div>
+        </div>
+      </fieldset>
+      {% endwith %}
 
       {% with form=form.controller_form %}
       <fieldset class="input-xxlarge">
