@@ -38,12 +38,17 @@ class ControllerForm(forms.ModelForm):
         queryset=Organization.objects.all(),
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'}))
+    postgres_db_needed = forms.BooleanField(
+        required=False, label="Do you need a Postgres database?",
+        initial=False,
+        widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
 
     class Meta:
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
-            'marathon_cmd', 'webhook_token', 'description', 'organization')
+            'marathon_cmd', 'webhook_token', 'description', 'organization',
+            'postgres_db_needed')
 
 
 class CustomInlineFormset(forms.BaseInlineFormSet):

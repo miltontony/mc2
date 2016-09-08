@@ -33,6 +33,13 @@ class Controller(PolymorphicModel):
     )
     state = models.CharField(max_length=50, default='initial')
 
+    # create postgres databases through mission control
+    postgres_db_needed = models.BooleanField(default=False)
+    postgres_db_name = models.TextField(default='', blank=True, null=True)
+    postgres_db_host = models.TextField(default='', blank=True, null=True)
+    postgres_db_username = models.TextField(default='', blank=True, null=True)
+    postgres_db_password = models.TextField(default='', blank=True, null=True)
+
     # Ownership and auth fields
     owner = models.ForeignKey('auth.User')
     team_id = models.IntegerField(blank=True, null=True)

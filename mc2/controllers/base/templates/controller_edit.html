@@ -71,6 +71,9 @@
       <div class="row"><div class="col-xs-4">
       {% include "form_field.html" with field=form.description %}
       </div></div>
+
+      {% include "form_field.html" with field=form.postgres_db_needed %}
+
     {% endwith %}
 
       <fieldset class="input-xxlarge" id="env-variables">
