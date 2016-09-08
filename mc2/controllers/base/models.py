@@ -201,3 +201,9 @@ class MarathonLabel(models.Model):
     controller = models.ForeignKey(Controller, related_name='label_variables')
     name = models.TextField(blank=True, null=False)
     value = models.TextField(blank=True, null=True)
+
+
+class AdditionalLink(models.Model):
+    controller = models.ForeignKey(Controller, related_name='additional_link')
+    name = models.TextField(blank=True, null=False)
+    link = models.TextField(blank=True, null=True)
