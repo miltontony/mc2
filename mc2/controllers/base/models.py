@@ -102,6 +102,24 @@ class Controller(PolymorphicModel):
     def get_builder(self):
         return Builder(self)
 
+    def get_or_create_postgres_db(self):
+        resp = requests.post(
+            '%s/queues/postgres/wait/create_database' % settings.SEED_XYLEM_API_HOST)
+
+        if resp.status_code != 200:
+            raise exceptions.XylemApiException(
+                'Create Postgres DB app failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('Err')))
+
+        db_username = resp.json().get('username') or resp.json().get('user')
+        db_host = resp.json().get('host') or resp.json().get('hostname')
+
+        self.postgres_db_name = resp.json().get('name')
+        self.postgres_db_username = postgres_db_name
+        self.postgres_db_password = resp.json().get('name')
+        self.postgres_db_host = db_host
+        self.save()
+
     def get_marathon_app_data(self):
         """
         Override this method to specify the app definition sent to marathon
@@ -116,11 +134,29 @@ class Controller(PolymorphicModel):
         if self.marathon_cmd:
             data.update({"cmd": self.marathon_cmd})
 
+        envs = {}
         if self.env_variables.exists():
-            data.update({
-                'env': dict([
-                    (env.key, env.value)
-                    for env in self.env_variables.all()])})
+            envs = dict([
+                (env.key, env.value)
+                for env in self.env_variables.all()])
+
+        if self.postgres_db_needed:
+            self.get_or_create_postgres_db()
+            envs.update({
+                'DATABASE_URL': 'postgres://%(username)s:%(password)s' % {
+                    'username': self.postgres_db_username,
+                    'username': self.postgres_db_username,
+                    'username': self.postgres_db_username,
+                    'username': self.postgres_db_username,
+                }})
+        else:
+            self.postgres_db_username = None
+            self.postgres_db_username = None
+            self.postgres_db_username = None
+            self.postgres_db_username = None
+            self.save()
+
+        data.update({'env': envs})
         return data
 
     def create_marathon_app(self):

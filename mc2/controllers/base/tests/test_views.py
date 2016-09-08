@@ -35,6 +35,11 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'name': 'trevordb',
+            'user': 'trevor',
+            'password': '1234',
+            'host': 'localhost'})
 
         data = {
             'name': 'Another test app',
@@ -63,6 +68,11 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.organization.slug, 'foo-org')
         self.assertTrue(controller.slug)
         self.assertTrue(controller.postgres_db_needed)
+
+        self.assertEquals(controller.postgres_db_name, 'trevordb')
+        self.assertEquals(controller.postgres_db_name, 'trevordb')
+        self.assertEquals(controller.postgres_db_name, 'trevordb')
+        self.assertEquals(controller.postgres_db_name, 'trevordb')
 
     @responses.activate
     def test_postgres_db_needed_false(self):

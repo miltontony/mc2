@@ -46,6 +46,13 @@ class ControllerBaseTestCase(TransactionTestCase):
             content_type="application/json",
             status=status)
 
+    def mock_create_postgres_db(self, status=200, data={}):
+        responses.add(
+            responses.POST, '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
+            body=json.dumps(data),
+            content_type="application/json",
+            status=status)
+
     def mock_update_marathon_app(self, app_id, status=200):
         responses.add(
             responses.PUT, '%s/v2/apps/%s' % (

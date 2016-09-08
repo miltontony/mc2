@@ -42,6 +42,9 @@ DEFAULT_REQUEST_TIMEOUT = int(environ.get(
 
 HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 
+SEED_XYLEM_API_HOST = environ.get(
+    'SEED_XYLEM_API_HOST', 'http://localhost:7701')
+
 # Configured at Nginx for internal redirect
 MESOS_FILE_API_PATH = environ.get(
     'MESOS_FILE_API_PATH', '/mesos/%(worker_host)s/files/%(api_path)s')

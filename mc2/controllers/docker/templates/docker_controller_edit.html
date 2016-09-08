@@ -90,6 +90,8 @@
 
       {% include "form_field.html" with field=form.postgres_db_needed %}
 
+      <input class="form-control" id="id_webhook_token_ui" type="text" value="{% if object.postgres_db_needed %}postgres://{{object.posgres_db_name}}:{{posgres_db_password}}@host../{{object.webhook_token}}/{% endif %}" disabled>
+
       {% endwith %}
 
       <fieldset class="input-xxlarge" id="env-variables">
