@@ -13,6 +13,7 @@
         <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span>
       </div>
     </div>
+
     <div class="box-footer">
       <div class="row">
         <div class="border-right col-description">
@@ -22,6 +23,7 @@
           </div>
           <!-- /.description-block -->
         </div>
+        {% if user.is_superuser or is_admin %}
         <div class="border-right col-description">
           <div class="description-block">
             {% block edit_action %}
@@ -71,6 +73,7 @@
           <!-- /.description-block -->
         </div>
         <!-- /.col -->
+        {% endif %}
       </div>
       <!-- /.row -->
     </div>

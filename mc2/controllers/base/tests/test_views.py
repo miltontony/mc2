@@ -48,6 +48,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+
+
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -85,6 +91,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -125,6 +135,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -144,6 +158,54 @@ class ViewsTestCase(ControllerBaseTestCase):
             controller.label_variables.all()[0].name, 'A_TEST_KEY')
         self.assertEqual(
             controller.label_variables.all()[0].value, 'the value')
+        self.assertTrue(controller.slug)
+
+    @responses.activate
+    def test_create_new_controller_with_additional_links(self):
+        existing_controller = self.mk_controller()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'description': 'A really lovely little app',
+            'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-0-name': 'A_TEST_Name',
+            'link-0-link': 'testurl.com',
+            'link-TOTAL_FORMS': 1,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.exclude(
+            pk=existing_controller.pk).get()
+        self.assertEqual(controller.state, 'done')
+
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.description, 'A really lovely little app')
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(controller.additional_link.all().count(), 1)
+        self.assertEqual(
+            controller.additional_link.all()[0].name, 'A_TEST_Name')
+        self.assertEqual(
+            controller.additional_link.all()[0].link, 'testurl.com')
         self.assertTrue(controller.slug)
 
     @responses.activate
@@ -171,6 +233,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
             'webhook_token': webhook_token,
         }
 
@@ -205,6 +271,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -222,6 +292,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -278,6 +352,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -304,6 +382,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
                 'webhook_token': webhook_token,
             })
         controller = Controller.objects.get(pk=controller.id)
@@ -333,6 +415,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -356,6 +442,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
             })
         controller = Controller.objects.get(pk=controller.id)
         self.assertEqual(controller.marathon_cpus, 0.5)
@@ -382,7 +472,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.post(
             reverse('user_settings'), {'settings_level': 'expert'})
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'You do not have permission to create')
+        self.assertNotContains(resp, 'edit')
+        self.assertContains(resp, 'view')
 
     def test_normal_user_who_is_org_admin_can_create_sites(self):
         resp = self.client.get(reverse('home'))
@@ -784,6 +875,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-0-name': 'A_TEST_Name',
+            'link-0-link': 'testurl.com',
+            'link-TOTAL_FORMS': 1,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -804,6 +901,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(response, 'the label value')
         self.assertContains(response, 'A_TEST_LABEL2')
         self.assertContains(response, 'the label value2')
+        self.assertContains(response, 'A_TEST_Name')
+        self.assertContains(response, 'testurl.com')
 
     @responses.activate
     def test_cloning_a_controller_with_new_values(self):
@@ -831,6 +930,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -860,6 +963,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
 
             })
         self.assertEqual(response.status_code, 302)
