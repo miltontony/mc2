@@ -77,7 +77,6 @@ class ViewsTestCase(ControllerBaseTestCase):
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
-            'postgres_db_needed': False,
             'env-TOTAL_FORMS': 0,
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
