@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.5.0
+-----
+- Allow adding additional links to an app
+- Add view only for users
+
 3.4.2
 -----
 - (bug) Ensure organization field is shown on docker controller edit view

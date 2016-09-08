@@ -40,7 +40,8 @@ class ControllerForm(forms.ModelForm):
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'}))
     postgres_db_needed = forms.BooleanField(
-        required=False, label="Do you need a Postgres database?",
+        required=False,
+        label="Do you need a Postgres database? (Not yet functional)",
         initial=False,
         widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
 
