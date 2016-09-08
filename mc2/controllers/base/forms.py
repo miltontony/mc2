@@ -39,25 +39,16 @@ class ControllerForm(forms.ModelForm):
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'}))
     postgres_db_needed = forms.BooleanField(
-        required=False, label="Do you want to create postgres database?",
+        required=False, label="Do you need a Postgres database?",
         initial=False,
         widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
-    postgres_db_username = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
-    postgres_db_password = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
-    postgres_db_host = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
-    postgres_db_name = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
             'marathon_cmd', 'webhook_token', 'description', 'organization',
-            'postgres_db_needed', 'postgres_db_name', 'postgres_db_host',
-            'postgres_db_username', 'postgres_db_password')
+            'postgres_db_needed')
 
 
 class CustomInlineFormset(forms.BaseInlineFormSet):

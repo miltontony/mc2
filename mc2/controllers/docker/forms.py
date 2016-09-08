@@ -30,18 +30,6 @@ class DockerControllerForm(ControllerForm):
     webhook_token = forms.UUIDField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
-    postgres_db_needed = forms.BooleanField(
-        required=False, label="Do you want to create postgres database?",
-        initial=False,
-        widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
-    postgres_db_username = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
-    postgres_db_password = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
-    postgres_db_host = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
-    postgres_db_name = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control'}))
 
     class Meta:
         model = DockerController
@@ -50,8 +38,7 @@ class DockerControllerForm(ControllerForm):
             'marathon_cmd', 'docker_image', 'marathon_health_check_path',
             'port', 'domain_urls', 'volume_needed', 'volume_path',
             'webhook_token', 'description', 'organization',
-            'postgres_db_needed', 'postgres_db_name', 'postgres_db_host',
-            'postgres_db_username', 'postgres_db_password')
+            'postgres_db_needed')
 
 
 class DockerControllerFormHelper(ControllerFormHelper):
