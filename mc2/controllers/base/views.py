@@ -1,5 +1,6 @@
 import json
 import os.path
+import urllib
 from django.conf import settings
 from django.shortcuts import get_object_or_404, redirect
 from django.http import (
@@ -11,7 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView, FormMixin
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from mc2.organizations.utils import org_permission_required
@@ -40,7 +41,7 @@ def update_marathon_exists_json(request, controller_pk):
         content_type='application/json')
 
 
-class ControllerViewMixin(View):
+class ControllerViewMixin(FormMixin, View):
     pk_url_kwarg = 'controller_pk'
     permissions = []
     social_auth = None
@@ -73,6 +74,24 @@ class ControllerViewMixin(View):
             return Controller.objects.none()
         return Controller.objects.filter(organization=organization)
 
+    def get_form(self, *args, **kwargs):
+        """
+        Return a form with the organizations limited to the organizations
+        this user has access to. Returns a form with all availble
+        organizations for super users.
+
+        Since mixin is used in views that subclass CreateView or UpdateView
+        I am relying on those to provide the `get_form` as implemented
+        in the `FormMixin` both of those inherit
+        """
+        form = FormMixin.get_form(self, *args, **kwargs)
+        if self.request.user.is_superuser:
+            return form
+
+        form.controller_form.fields['organization'].queryset = (
+            self.request.user.organization_set.all())
+        return form
+
 
 class ControllerCreateView(ControllerViewMixin, CreateView):
     form_class = ControllerFormHelper
@@ -89,9 +108,56 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         form.controller_form.instance.save()
 
         form.env_formset.instance = form.controller_form.instance
+        form.link_formset.instance = form.controller_form.instance
         form.label_formset.instance = form.controller_form.instance
 
         response = super(ControllerCreateView, self).form_valid(form)
+        tasks.start_new_controller.delay(form.controller_form.instance.id)
+        return response
+
+
+class ControllerCloneView(ControllerViewMixin, CreateView):
+    form_class = ControllerFormHelper
+    template_name = 'controller_edit.html'
+    permissions = ['controllers.base.add_controller']
+
+    def get_initial(self):
+        initial = super(ControllerCloneView, self).get_initial()
+
+        controller = get_object_or_404(
+            Controller, pk=self.kwargs.get('controller_pk'))
+
+        initial.update({
+            'marathon_cpus': controller.marathon_cpus,
+            'marathon_mem': controller.marathon_mem,
+            'marathon_instances': controller.marathon_instances,
+            'marathon_cmd': controller.marathon_cmd,
+            'description': controller.description,
+            'envs': [
+                {'key': env.key, 'value': env.value}
+                for env in controller.env_variables.all()],
+            'labels': [
+                {'name': label.name, 'value': label.value}
+                for label in controller.label_variables.all()],
+            'links': [
+                {'name': label.name, 'link': label.link}
+                for label in controller.additional_link.all()]})
+        return initial
+
+    def get_success_url(self):
+        return reverse("home")
+
+    def form_valid(self, form):
+        form.controller_form.instance.organization = active_organization(
+            self.request)
+        form.controller_form.instance.owner = self.request.user
+        form.controller_form.instance.save()
+
+        form.env_formset.instance = form.controller_form.instance
+        form.link_formset.instance = form.controller_form.instance
+        form.label_formset.instance = form.controller_form.instance
+
+        response = super(ControllerCloneView, self).form_valid(form)
         tasks.start_new_controller.delay(form.controller_form.instance.id)
         return response
 
@@ -142,18 +208,20 @@ class AppLogView(ControllerViewMixin, TemplateView):
             'controller': controller,
             'tasks': tasks,
             'task_ids': [t['id'].split('.', 1)[1] for t in tasks],
-            'scroll_backlog': (
-                self.request.GET.get('n') or settings.LOGDRIVER_BACKLOG)
+            'paths': ['stdout', 'stderr'],
+            'offset': self.request.GET.get('offset'),
+            'length': self.request.GET.get('length'),
         })
         return context
 
 
-class AppEventSourceView(ControllerViewMixin, View):
+class MesosFileLogView(ControllerViewMixin, View):
     def get(self, request, controller_pk, task_id, path):
         controller = get_object_or_404(
             self.get_controllers_queryset(request),
             pk=controller_pk)
-        n = request.GET.get('n') or settings.LOGDRIVER_BACKLOG
+        length = request.GET.get('length', '')
+        offset = request.GET.get('offset', '')
         if path not in ['stdout', 'stderr']:
             return HttpResponseNotFound('File not found.')
 
@@ -161,11 +229,23 @@ class AppEventSourceView(ControllerViewMixin, View):
         #       so as to not need to expose both in the templates.
         task = controller.infra_manager.get_controller_task_log_info(
             '%s.%s' % (controller.app_id, task_id))
+        file_path = os.path.join(task['task_dir'], path)
+
+        internal_redirect_url = settings.MESOS_FILE_API_PATH % {
+            'worker_host': task['task_host'],
+            'api_path': ('download.json'
+                         if request.GET.get('download')
+                         else 'read.json'),
+        }
 
         response = HttpResponse()
-        response['X-Accel-Redirect'] = '%s?n=%s' % (os.path.join(
-            settings.LOGDRIVER_PATH, task['task_host'],
-            task['task_dir'], path), n)
+        response['X-Accel-Redirect'] = '%s?%s' % (
+            internal_redirect_url, urllib.urlencode((
+                ('path', os.path.join(settings.MESOS_LOG_PATH, file_path)),
+                ('length', length),
+                ('offset', offset),
+            )))
+
         response['X-Accel-Buffering'] = 'no'
         return response
 

@@ -3,7 +3,7 @@
 set -e
 
 echo "setting up the database"
-django-admin.py migrate
+django-admin.py migrate --noinput
 django-admin.py collectstatic --noinput
 
 echo "from django.contrib.auth.models import User
@@ -11,11 +11,5 @@ if not User.objects.filter(username='admin').count():
     User.objects.create_superuser('admin', 'admin@example.com', 'pass')
 " | django-admin.py shell
 
-echo "=> Starting nginx"
-nginx
-
 echo "=> Starting Supervisord"
-supervisord -c /etc/supervisord.conf
-
-echo "=> Tailing logs"
-tail -qF /var/log/supervisor/*.log
+exec supervisord -c /etc/supervisor/supervisord.conf

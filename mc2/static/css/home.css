@@ -57,7 +57,6 @@
 
 .card .box {box-shadow: none}
 .card.new-site{
-    display: block;
     justify-content: center;
     align-items: center;
     cursor: pointer;
@@ -196,4 +195,13 @@
 
 .icon-container-docker{
     width: 60%;
+}
+
+.col-description{
+  display: inline-block;
+  padding: 0 6px;
+}
+
+.col-description:last-child {
+  border-right: none;
 }

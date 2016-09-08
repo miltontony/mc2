@@ -30,14 +30,22 @@ MESOS_DEFAULT_INTERVAL_SECONDS = environ.get(
     'MESOS_DEFAULT_INTERVAL_SECONDS', 10)
 MESOS_DEFAULT_TIMEOUT_SECONDS = environ.get(
     'MESOS_DEFAULT_TIMEOUT_SECONDS', 20)
+MESOS_DEFAULT_BACKOFF_SECONDS = int(environ.get(
+    'MESOS_DEFAULT_BACKOFF_SECONDS', 1))
+MESOS_DEFAULT_BACKOFF_FACTOR = float(environ.get(
+    'MESOS_DEFAULT_BACKOFF_FACTOR', 1.15))
 MARATHON_DEFAULT_VOLUME_PATH = environ.get(
     'MARATHON_DEFAULT_VOLUME_PATH', '/volume/')
+
+DEFAULT_REQUEST_TIMEOUT = int(environ.get(
+    'DEFAULT_REQUEST_TIMEOUT', 2))
 
 HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 
 # Configured at Nginx for internal redirect
-LOGDRIVER_PATH = environ.get('LOGDRIVER_PATH', '/logdriver/')
-LOGDRIVER_BACKLOG = environ.get('LOGDRIVER_BACKLOG', 1)
+MESOS_FILE_API_PATH = environ.get(
+    'MESOS_FILE_API_PATH', '/mesos/%(worker_host)s/files/%(api_path)s')
+MESOS_LOG_PATH = environ.get('MESOS_LOG_PATH', '/tmp/mesos/slaves/')
 
 # Sentry configuration
 RAVEN_DSN = environ.get('RAVEN_DSN')

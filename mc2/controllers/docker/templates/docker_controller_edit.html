@@ -26,6 +26,11 @@
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           });
+          $(".inline.link").formset({
+              prefix: "link",
+              addCssClass: "add-row btn btn-primary",
+              deleteCssClass: "delete-row btn btn-danger btn-xs",
+          });
           $(".inline.applabel").formset({
               prefix: "label",
               addCssClass: "add-row btn btn-primary",
@@ -88,6 +93,8 @@
       {% include "form_field.html" with field=form.volume_path %}
       </div></div>
 
+      {% include "form_field.html" with field=form.postgres_db_needed %}
+
       {% endwith %}
 
       <fieldset class="input-xxlarge" id="env-variables">
@@ -124,6 +131,23 @@
           {% endfor %}
       </fieldset>
 
+      <fieldset class="input-xxlarge" id="additional-links">
+        <legend>Additional Links</legend>
+          {{ form.link_formset.management_form }}
+          {{ form.non_form_errors }}
+          {% for form in form.link_formset %}
+              {{ form.id }}
+              <div class="row inline link">
+                  <div class="col-xs-4">
+                  {% include "form_field.html" with field=form.name %}
+                  </div>
+                  <div class="col-xs-4">
+                  {% include "form_field.html" with field=form.link %}
+                  </div>
+              </div>
+          {% endfor %}
+      </fieldset>
+
 
       {% with form=form.controller_form %}
       <fieldset class="input-xxlarge">
@@ -148,6 +172,18 @@
           {% include "form_field.html" with field=form.marathon_health_check_path %}
           </div>
           </div>
+      </fieldset>
+      {% endwith %}
+
+
+      {% with form=form.controller_form %}
+      <fieldset class="input-xxlarge">
+        <legend>Organization</legend>
+        <div class="row inline">
+          <div class="col-xs-4">
+            {% include "form_field.html" with field=form.organization %}
+          </div>
+        </div>
       </fieldset>
       {% endwith %}
 

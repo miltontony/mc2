@@ -180,7 +180,7 @@
       <!-- search form (Optional) -->
       <form action="#" method="get" class="sidebar-form">
         <div class="input-group">
-          <input id="filter" tabindex="1" type="text" class="form-control" placeholder="Search...">
+          <input id="filter" tabindex="1" type="text" class="form-control" placeholder="Search..." autofocus="true">
               <span class="input-group-btn">
                 <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
                 </button>
@@ -191,12 +191,13 @@
       {% endblock search %}
       <!-- Sidebar Menu -->
       {% block left-sidebar %}
+      <!--
       <ul class="sidebar-menu">
         <li class="header">MENU</li>
-        <!-- Optionally, you can add icons to the links -->
         <li><a href="#"><i class="fa fa-users"></i> <span>Helpdesk</span></a></li>
         <li><a href="#"><i class="fa fa-question"></i> <span>FAQs</span></a></li>
       </ul>
+      -->
       {% endblock %}
       <!-- /.sidebar-menu -->
     </section>

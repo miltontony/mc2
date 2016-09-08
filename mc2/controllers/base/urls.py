@@ -23,12 +23,16 @@ urlpatterns = patterns(
         views.ControllerDeleteView.as_view(),
         name='delete'),
     url(
+        r'^(?P<controller_pk>\d+)/clone/$',
+        views.ControllerCloneView.as_view(),
+        name='clone'),
+    url(
         r'^logs/(?P<controller_pk>\d+)/$',
         views.AppLogView.as_view(),
         name='logs'),
     url(
         r'^logs/(?P<controller_pk>\d+)/(?P<task_id>[\w\.\-]+)/(?P<path>(stderr|stdout))/$',  # noqa
-        views.AppEventSourceView.as_view(), name='logs_event_source'),
+        views.MesosFileLogView.as_view(), name='mesos_file_log_view'),
     url(
         r'^exists/(?P<controller_pk>\d+)/$',
         views.update_marathon_exists_json,

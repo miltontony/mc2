@@ -1,6 +1,6 @@
 import json
-import os
 import uuid
+import urllib
 
 import pytest
 import responses
@@ -11,8 +11,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.base.tests.utils import setup_responses_for_logdriver
-from mc2.controllers.base.views import AppEventSourceView
+from mc2.controllers.base.tests.utils import setup_responses_for_log_tests
+from mc2.controllers.base.views import MesosFileLogView
 from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
@@ -39,6 +39,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         data = {
             'name': 'Another test app',
             'marathon_cmd': 'ping2',
+            'postgres_db_needed': True,
             'env-TOTAL_FORMS': 0,
             'env-INITIAL_FORMS': 0,
             'env-MIN_NUM_FORMS': 0,
@@ -47,6 +48,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+
+
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -61,6 +68,48 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.marathon_cmd, 'ping2')
         self.assertEqual(controller.organization.slug, 'foo-org')
         self.assertTrue(controller.slug)
+        self.assertTrue(controller.postgres_db_needed)
+
+    @responses.activate
+    def test_postgres_db_needed_false(self):
+        existing_controller = self.mk_controller()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.exclude(
+            pk=existing_controller.pk).get()
+        self.assertEqual(controller.state, 'done')
+
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertTrue(controller.slug)
+        self.assertFalse(controller.postgres_db_needed)
 
     @responses.activate
     def test_create_new_controller_with_label(self):
@@ -86,6 +135,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -105,6 +158,54 @@ class ViewsTestCase(ControllerBaseTestCase):
             controller.label_variables.all()[0].name, 'A_TEST_KEY')
         self.assertEqual(
             controller.label_variables.all()[0].value, 'the value')
+        self.assertTrue(controller.slug)
+
+    @responses.activate
+    def test_create_new_controller_with_additional_links(self):
+        existing_controller = self.mk_controller()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'description': 'A really lovely little app',
+            'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-0-name': 'A_TEST_Name',
+            'link-0-link': 'testurl.com',
+            'link-TOTAL_FORMS': 1,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.exclude(
+            pk=existing_controller.pk).get()
+        self.assertEqual(controller.state, 'done')
+
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.description, 'A really lovely little app')
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(controller.additional_link.all().count(), 1)
+        self.assertEqual(
+            controller.additional_link.all()[0].name, 'A_TEST_Name')
+        self.assertEqual(
+            controller.additional_link.all()[0].link, 'testurl.com')
         self.assertTrue(controller.slug)
 
     @responses.activate
@@ -132,6 +233,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
             'webhook_token': webhook_token,
         }
 
@@ -166,6 +271,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -183,6 +292,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -239,6 +352,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -265,6 +382,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
                 'webhook_token': webhook_token,
             })
         controller = Controller.objects.get(pk=controller.id)
@@ -294,6 +415,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -317,6 +442,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
             })
         controller = Controller.objects.get(pk=controller.id)
         self.assertEqual(controller.marathon_cpus, 0.5)
@@ -343,7 +472,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.post(
             reverse('user_settings'), {'settings_level': 'expert'})
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'You do not have permission to create')
+        self.assertNotContains(resp, 'edit')
+        self.assertContains(resp, 'view')
 
     def test_normal_user_who_is_org_admin_can_create_sites(self):
         resp = self.client.get(reverse('home'))
@@ -427,7 +557,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
+        setup_responses_for_log_tests(controller)
         response = self.client.get(reverse('base:logs', kwargs={
             'controller_pk': controller.pk,
         }))
@@ -437,58 +567,72 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(task_id, 'the-task-id')
 
     @responses.activate
-    def test_event_source_response_stdout(self):
+    def test_mesos_file_response_stdout(self):
         self.client.login(username='testuser2', password='test')
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
-        resp = self.client.get(reverse('base:logs_event_source', kwargs={
+        setup_responses_for_log_tests(controller)
+        resp = self.client.get(reverse('base:mesos_file_log_view', kwargs={
             'controller_pk': controller.pk,
             'task_id': 'the-task-id',
             'path': 'stdout',
         }))
         self.assertEqual(
             resp['X-Accel-Redirect'],
-            os.path.join(
-                settings.LOGDRIVER_PATH,
-                ('worker-machine-1/worker-machine-id'
-                 '/frameworks/the-framework-id/executors'
-                 '/%s.the-task-id/runs/latest/stdout?n=%s' %
-                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
+            '%s%s' % (
+                settings.MESOS_FILE_API_PATH % {
+                    'worker_host': 'worker-machine-1',
+                    'api_path': 'read.json',
+                },
+                '?%s' % (urllib.urlencode((
+                    ('path', ('/tmp/mesos/slaves/worker-machine-id'
+                              '/frameworks/the-framework-id/executors'
+                              '/%s.the-task-id/runs/latest/stdout') % (
+                                  controller.app_id,)),
+                    ('length', ''),
+                    ('offset', ''),
+                )),)))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
-    def test_event_source_response_stderr(self):
+    def test_mesos_file_response_stderr(self):
         self.client.login(username='testuser2', password='test')
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
-        resp = self.client.get(reverse('base:logs_event_source', kwargs={
+        setup_responses_for_log_tests(controller)
+        resp = self.client.get(reverse('base:mesos_file_log_view', kwargs={
             'controller_pk': controller.pk,
             'task_id': 'the-task-id',
             'path': 'stderr',
         }))
         self.assertEqual(
             resp['X-Accel-Redirect'],
-            os.path.join(
-                settings.LOGDRIVER_PATH,
-                ('worker-machine-1/worker-machine-id'
-                 '/frameworks/the-framework-id/executors'
-                 '/%s.the-task-id/runs/latest/stderr?n=%s' %
-                 (controller.app_id, settings.LOGDRIVER_BACKLOG))))
+            '%s%s' % (
+                settings.MESOS_FILE_API_PATH % {
+                    'worker_host': 'worker-machine-1',
+                    'api_path': 'read.json',
+                },
+                '?%s' % (urllib.urlencode((
+                    ('path', ('/tmp/mesos/slaves/worker-machine-id'
+                              '/frameworks/the-framework-id/executors'
+                              '/%s.the-task-id/runs/latest/stderr') % (
+                                  controller.app_id,)),
+                    ('length', ''),
+                    ('offset', ''),
+                )),)))
         self.assertEqual(resp['X-Accel-Buffering'], 'no')
 
     @responses.activate
-    def test_event_source_response_badpath(self):
+    def test_mesos_file_response_badpath(self):
         self.client.login(username='testuser2', password='test')
         controller = self.mk_controller(controller={
             'owner': User.objects.get(pk=2),
             'state': 'done'})
-        setup_responses_for_logdriver(controller)
+        setup_responses_for_log_tests(controller)
         # NOTE: bad path according to URL regex, hence the manual requesting
-        view = AppEventSourceView()
+        view = MesosFileLogView()
         request = RequestFactory().get('/')
         request.user = controller.owner
         request.session = {}
@@ -702,3 +846,148 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(resp.status_code, 500)
         self.assertEqual(
             json.loads(resp.content), {'error': 'Restart failed.'})
+
+    @responses.activate
+    def test_cloning_a_controller_has_all_the_values(self):
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'description': 'A really lovely little app',
+            'marathon_cmd': 'ping2',
+            'marathon_cpus': 0.5,
+            'marathon_mem': 100.0,
+            'marathon_instances': 2,
+            'env-0-key': 'A_TEST_ENV',
+            'env-0-value': 'the env value',
+            'env-TOTAL_FORMS': 1,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-0-name': 'A_TEST_LABEL',
+            'label-0-value': 'the label value',
+            'label-1-name': 'A_TEST_LABEL2',
+            'label-1-value': 'the label value2',
+            'label-TOTAL_FORMS': 2,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-0-name': 'A_TEST_Name',
+            'link-0-link': 'testurl.com',
+            'link-TOTAL_FORMS': 1,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.all().last()
+        response = self.client.get(
+            reverse('base:clone', args=[controller.id]))
+        self.assertNotContains(response, 'A new name')
+        self.assertContains(response, 'A really lovely little app')
+        self.assertContains(response, 'value="0.5"')
+        self.assertContains(response, 'value="100.0"')
+        self.assertContains(response, 'value="2"')
+        self.assertContains(response, 'ping2')
+        self.assertContains(response, 'A_TEST_ENV')
+        self.assertContains(response, 'the env value')
+        self.assertContains(response, 'A_TEST_LABEL')
+        self.assertContains(response, 'the label value')
+        self.assertContains(response, 'A_TEST_LABEL2')
+        self.assertContains(response, 'the label value2')
+        self.assertContains(response, 'A_TEST_Name')
+        self.assertContains(response, 'testurl.com')
+
+    @responses.activate
+    def test_cloning_a_controller_with_new_values(self):
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'description': 'A really lovely little app',
+            'marathon_cmd': 'ping2',
+            'marathon_cpus': 0.5,
+            'marathon_mem': 100.0,
+            'marathon_instances': 2,
+            'env-0-key': 'A_TEST_ENV',
+            'env-0-value': 'the env value',
+            'env-TOTAL_FORMS': 1,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-0-name': 'A_TEST_LABEL',
+            'label-0-value': 'the label value',
+            'label-TOTAL_FORMS': 1,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.all().last()
+        self.mock_update_marathon_app(controller.app_id)
+        response = self.client.post(
+            reverse('base:clone', args=[controller.id]), {
+                'name': 'A new name',
+                'description': 'A really lovely little app',
+                'marathon_cmd': 'ping2',
+                'marathon_cpus': 0.5,
+                'marathon_mem': 100.0,
+                'marathon_instances': 2,
+                'env-0-key': 'A_TEST_ENV',
+                'env-0-value': 'the env value',
+                'env-TOTAL_FORMS': 1,
+                'env-INITIAL_FORMS': 0,
+                'env-MIN_NUM_FORMS': 0,
+                'env-MAX_NUM_FORMS': 100,
+                'label-0-name': 'A_TEST_LABEL',
+                'label-0-value': 'the label value',
+                'label-1-name': 'A_TEST_LABEL2',
+                'label-1-value': 'the label value2',
+                'label-TOTAL_FORMS': 2,
+                'label-INITIAL_FORMS': 0,
+                'label-MIN_NUM_FORMS': 0,
+                'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
+
+            })
+        self.assertEqual(response.status_code, 302)
+        controller = Controller.objects.all().first()
+
+        self.assertEqual(controller.name, 'A new name')
+        self.assertEqual(controller.description, 'A really lovely little app')
+        self.assertEqual(controller.marathon_cpus, 0.5)
+        self.assertEqual(controller.marathon_mem, 100.0)
+        self.assertEqual(controller.marathon_instances, 2)
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.env_variables.count(), 1)
+        self.assertEqual(controller.env_variables.all()[0].key, 'A_TEST_ENV')
+        self.assertEqual(
+            controller.env_variables.all()[0].value, 'the env value')
+        self.assertEqual(controller.label_variables.count(), 2)
+        self.assertEqual(
+            controller.label_variables.all()[0].name, 'A_TEST_LABEL')
+        self.assertEqual(
+            controller.label_variables.all()[0].value, 'the label value')
+        self.assertEqual(
+            controller.label_variables.all()[1].name, 'A_TEST_LABEL2')
+        self.assertEqual(
+            controller.label_variables.all()[1].value, 'the label value2')

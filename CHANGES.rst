@@ -1,6 +1,34 @@
 CHANGE LOG
 ==========
 
+3.5.0
+-----
+- Allow adding additional links to an app
+- Add view only for users
+
+3.4.2
+-----
+- (bug) Ensure organization field is shown on docker controller edit view
+
+3.4.1
+-----
+- Add sensible timeouts to external HTTP APIs.
+
+3.4.0
+-----
+- Add traefik labels to app definitions
+- Allow labels to contain '.' characters
+- Better improved docker file
+- Add clone option to docker controller
+- Switch from Logdriver to Mesos API for logs
+- Allow port-less containers
+- Added sensible backoff values for marathon
+- Show suspended apps as greyed out
+
+3.3.3
+-----
+- Add marathon-lb labels to app definitions
+
 3.3.2
 -----
 - ensure int values for health check timeouts
