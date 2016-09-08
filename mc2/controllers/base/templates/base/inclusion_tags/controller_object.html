@@ -26,9 +26,14 @@
             <div class="application-card-title">View</div>
             <div class="center-text">
             <br/>
-                <a target="blank" href="http://{{controller.get_generic_domain}}">{{controller.get_generic_domain}}</a>
+                {% if not controller.domain_urls %}
+                  <a target="blank" href="http://{{controller.get_generic_domain}}">{{controller.get_generic_domain}}</a>
+                {% endif %}
                 {% for l in controller.domain_urls.split %}
-                <br><a target="blank" href="http://{{l}}">{{l}}</a>
+                  <br><a target="blank" href="http://{{l}}">{{l}}</a>
+                {% endfor %}
+                {% for l in controller.additional_link.all %}
+                  <br><a target="blank" href="{{l.link}}">{{l.name}}</a>
                 {% endfor %}
             </div>
         </div>
@@ -50,9 +55,17 @@
               </div>
             </div>
             <div class="box-footer">
-              <div class="row">
                 {% block controller_visit %}{% endblock %}
-                <div class="col-sm-3 border-right">
+                <div class="row">
+                <div class="col-description border-right">
+                  <div class="description-block app-view-action">
+                    <h5 class="description-header"><a class="text-green" href="#">View</a></h5>
+                    <span class="description-text"></span>
+                  </div>
+                  <!-- /.description-block -->
+                </div>
+                {% if user.is_superuser or is_admin %}
+                <div class="col-description border-right">
                   <div class="description-block">
                     {% block edit_action %}
                     <h5 class="description-header"><a href="{% url 'base:edit' controller.id %}">Edit</a></h5>
@@ -62,7 +75,7 @@
                   <!-- /.description-block -->
                 </div>
                 <!-- /.col -->
-                <div class="col-sm-3 border-right">
+                <div class="col-description border-right">
                   <div class="description-block">
                     {% block restart_action %}
                       <h5 class="description-header"><a href="{% url 'base:restart' controller.id %}">Restart</a></h5>
@@ -72,7 +85,7 @@
                   <!-- /.description-block -->
                 </div>
                 <!-- /.col -->
-                <div class="col-sm-3 border-right">
+                <div class="col-description border-right">
                   <div class="description-block">
                     {% block logs_action %}
                       <h5 class="description-header"><a href="{% url 'base:logs' controller.id %}">Logs</a></h5>
@@ -82,7 +95,7 @@
                   <!-- /.description-block -->
                 </div>
                 <!-- /.col -->
-                <div class="col-sm-3 border-right">
+                <div class="col-description border-right">
                   <div class="description-block delete app-delete-action">
                     {% block delete_action %}
                       <h5 class="description-header"><a class="text-red" href="{% url 'base:delete' controller.id %}">Delete</a></h5>
@@ -92,6 +105,7 @@
                   <!-- /.description-block -->
                 </div>
                 <!-- /.col -->
+                {% endif %}
               </div>
               <!-- /.row -->
             </div>
