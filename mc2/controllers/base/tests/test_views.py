@@ -56,7 +56,6 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         controller = Controller.objects.exclude(
             pk=existing_controller.pk).get()
-        print response
         self.assertEqual(controller.state, 'done')
 
         self.assertEqual(controller.name, 'Another test app')
