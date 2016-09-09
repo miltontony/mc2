@@ -72,7 +72,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEquals(controller.postgres_db_name, 'trevordb')
         self.assertEquals(controller.postgres_db_username, 'trevor')
         self.assertEquals(controller.postgres_db_password, '1234')
-        self.assertEquals(controller.postgres_db_host, 'trevorhost')
+        self.assertEquals(controller.postgres_db_host, 'localhost')
 
     @responses.activate
     def test_postgres_db_needed_false(self):
