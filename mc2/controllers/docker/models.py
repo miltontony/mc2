@@ -169,6 +169,9 @@ class DockerController(Controller):
         for key, value in app_data.pop("env", {}).items():
             EnvVariable.objects.create(controller=self, key=key, value=value)
 
+        for name, link in app_data.pop("link", {}).items():
+            EnvVariable.objects.create(controller=self, name=name, link=link)
+
         # TODO: Better errors:
         # NOTE: Popping these backoffFactor and backoffSeconds because they're
         #       deployment defaults at the moment, not app specific ones.
