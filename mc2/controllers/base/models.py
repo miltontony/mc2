@@ -104,7 +104,8 @@ class Controller(PolymorphicModel):
 
     def get_or_create_postgres_db(self):
         resp = requests.post(
-            '%s/queues/postgres/wait/create_database' % settings.SEED_XYLEM_API_HOST)
+            '%s/queues/postgres/wait/create_database'
+            % settings.SEED_XYLEM_API_HOST)
 
         if resp.status_code != 200:
             raise exceptions.XylemApiException(
@@ -115,8 +116,8 @@ class Controller(PolymorphicModel):
         db_host = resp.json().get('host') or resp.json().get('hostname')
 
         self.postgres_db_name = resp.json().get('name')
-        self.postgres_db_username = postgres_db_name
-        self.postgres_db_password = resp.json().get('name')
+        self.postgres_db_username = db_username
+        self.postgres_db_password = resp.json().get('password')
         self.postgres_db_host = db_host
         self.save()
 
@@ -143,17 +144,18 @@ class Controller(PolymorphicModel):
         if self.postgres_db_needed:
             self.get_or_create_postgres_db()
             envs.update({
-                'DATABASE_URL': 'postgres://%(username)s:%(password)s' % {
+                'DATABASE_URL': 'postgres://%(username)s:'
+                '%(password)s@%(host)s>/%(name)s' % {
                     'username': self.postgres_db_username,
-                    'username': self.postgres_db_username,
-                    'username': self.postgres_db_username,
-                    'username': self.postgres_db_username,
+                    'password': self.postgres_db_password,
+                    'host': self.postgres_db_host,
+                    'name': self.postgres_db_name,
                 }})
         else:
             self.postgres_db_username = None
-            self.postgres_db_username = None
-            self.postgres_db_username = None
-            self.postgres_db_username = None
+            self.postgres_db_password = None
+            self.postgres_db_host = None
+            self.postgres_db_name = None
             self.save()
 
         data.update({'env': envs})
