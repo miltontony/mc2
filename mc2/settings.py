@@ -323,4 +323,4 @@ SOCIAL_AUTH_PIPELINE = (
 
 HUBCLIENT_SETTINGS = None
 
-MAMA_CAS_ATTRIBUTE_CALLBACKS = ('mc2.permissions.custom_attributes',)
+MAMA_CAS_ATTRIBUTE_CALLBACKS = ('mc2.permissions.org_permissions',)
