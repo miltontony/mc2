@@ -9,7 +9,7 @@ from mc2.controllers.docker.models import DockerController
 def get_app_id_from_domain(domain):
     index = domain.find(settings.HUB_DOMAIN)
     if not index == -1:
-        return domain[len(settings.APP_ID_PREFIX):index - 1]
+        return domain[:index - 1]
     return None
 
 
