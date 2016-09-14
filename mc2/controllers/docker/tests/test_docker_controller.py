@@ -307,8 +307,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         )
 
         self.mock_create_postgres_db(200, {
-            'name': 'trevordb',
-            'user': 'trevor',
+            'name': 'joes_db',
+            'user': 'joe',
             'password': '1234',
             'host': 'localhost'})
 
