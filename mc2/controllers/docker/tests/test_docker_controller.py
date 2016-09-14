@@ -307,10 +307,11 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         )
 
         self.mock_create_postgres_db(200, {
-            'name': 'joes_db',
-            'user': 'joe',
-            'password': '1234',
-            'host': 'localhost'})
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         domain_label = "{}.{}".format(controller.app_id, settings.HUB_DOMAIN)
         self.assertEquals(controller.get_marathon_app_data(), {
@@ -322,14 +323,13 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {
-                "DATABASE_URL": "postgres://trevor:1234@localhost/trevordb"},
+                "DATABASE_URL": u"postgres://joe:1234@localhost/joes_db"},
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
-                "name": "Test App",
-                "TEST_LABELS_NAME": 'a test label value'
+                "name": "Test App"
             },
             "container": {
                 "type": "DOCKER",

@@ -232,10 +232,11 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
     """
     def setUp(self):
         self.mock_create_postgres_db(200, {
-            'name': 'trevordb',
-            'user': 'trevor',
-            'password': '1234',
-            'host': 'localhost'})
+            'result': {
+                'name': 'trevordb',
+                'user': 'trevor',
+                'password': '1234',
+                'host': 'localhost'}})
 
     @responses.activate
     @hsettings(perform_health_check=False)
