@@ -36,8 +36,8 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.mock_create_marathon_app()
         self.mock_create_postgres_db(200, {
-            'name': 'trevordb',
-            'user': 'trevor',
+            'name': 'joes_db',
+            'user': 'joe',
             'password': '1234',
             'host': 'localhost'})
 
@@ -75,10 +75,13 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertTrue(controller.slug)
         self.assertTrue(controller.postgres_db_needed)
 
-        self.assertEquals(controller.postgres_db_name, 'trevordb')
-        self.assertEquals(controller.postgres_db_username, 'trevor')
+        self.assertEquals(controller.postgres_db_name, 'joes_db')
+        self.assertEquals(controller.postgres_db_username, 'joe')
         self.assertEquals(controller.postgres_db_password, '1234')
         self.assertEquals(controller.postgres_db_host, 'localhost')
+
+        resp = self.client.get(reverse('base:edit', args=[controller.id]))
+        self.assertContains(resp, 'postgres://joe:1234@localhost/joes_db')
 
     @responses.activate
     def test_postgres_db_needed_false(self):

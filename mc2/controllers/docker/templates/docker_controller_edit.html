@@ -93,9 +93,15 @@
       {% include "form_field.html" with field=form.volume_path %}
       </div></div>
 
+      <div class="row"><div class="col-xs-8">
       {% include "form_field.html" with field=form.postgres_db_needed %}
 
-      <input class="form-control" id="id_webhook_token_ui" type="text" value="{% if object.postgres_db_needed %}postgres://{{object.posgres_db_name}}:{{posgres_db_password}}@{{object.postgres_db_host}}/postgres_db_name/{{object.webhook_token}}/{% endif %}" disabled>
+      {% if object.postgres_db_needed %}
+      <input class="form-control" type="text" value="postgres://{{object.postgres_db_username}}:{{object.postgres_db_password}}@{{object.postgres_db_host}}/{{object.postgres_db_name}}" disabled>
+      {% endif %}
+      </div></div>
+
+      {% endwith %}
 
       <fieldset class="input-xxlarge" id="env-variables">
         <legend>Environment Variables</legend>

@@ -297,6 +297,51 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         })
 
     @responses.activate
+    def test_get_marathon_app_data_with_postgres_db_needed(self):
+        controller = DockerController.objects.create(
+            name='Test App',
+            owner=self.user,
+            marathon_cmd='ping',
+            docker_image='docker/image',
+            postgres_db_needed=True,
+        )
+
+        self.mock_create_postgres_db(200, {
+            'name': 'trevordb',
+            'user': 'trevor',
+            'password': '1234',
+            'host': 'localhost'})
+
+        domain_label = "{}.{}".format(controller.app_id, settings.HUB_DOMAIN)
+        self.assertEquals(controller.get_marathon_app_data(), {
+            "id": controller.app_id,
+            "cpus": 0.1,
+            "mem": 128.0,
+            "instances": 1,
+            "cmd": "ping",
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
+            "env": {
+                "DATABASE_URL": "postgres://trevor:1234@localhost/trevordb"},
+            "labels": {
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain_label,
+                "traefik.frontend.rule": traefik_domains(domain_label),
+                "name": "Test App",
+                "TEST_LABELS_NAME": 'a test label value'
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "docker/image",
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                }
+            }
+        })
+
+    @responses.activate
     def test_to_dict(self):
         controller = DockerController.objects.create(
             name='Test App',

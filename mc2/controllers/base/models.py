@@ -158,6 +158,9 @@ class Controller(PolymorphicModel):
             self.postgres_db_name = None
             self.save()
 
+            # TODO: seed-xylem currently doesn't support deleting of databases
+            # Once support is added, we should delete this database here.
+
         if envs:
             data.update({'env': envs})
 
