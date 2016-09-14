@@ -48,7 +48,8 @@ class ControllerBaseTestCase(TransactionTestCase):
 
     def mock_create_postgres_db(self, status=200, data={}):
         responses.add(
-            responses.POST, '%s/v2/apps' % settings.MESOS_MARATHON_HOST,
+            responses.POST, '%s/queues/postgres/wait/create_database'
+            % settings.SEED_XYLEM_API_HOST,
             body=json.dumps(data),
             content_type="application/json",
             status=status)

@@ -145,7 +145,7 @@ class Controller(PolymorphicModel):
             self.get_or_create_postgres_db()
             envs.update({
                 'DATABASE_URL': 'postgres://%(username)s:'
-                '%(password)s@%(host)s>/%(name)s' % {
+                '%(password)s@%(host)s/%(name)s' % {
                     'username': self.postgres_db_username,
                     'password': self.postgres_db_password,
                     'host': self.postgres_db_host,
@@ -158,7 +158,9 @@ class Controller(PolymorphicModel):
             self.postgres_db_name = None
             self.save()
 
-        data.update({'env': envs})
+        if envs:
+            data.update({'env': envs})
+
         return data
 
     def create_marathon_app(self):

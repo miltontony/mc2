@@ -146,10 +146,18 @@ def check_and_remove_env(appdata, controller):
     Assert that the correct envvars are in appdata and remove them.
     """
     env_variables = controller.env_variables.all()
-    if env_variables:
-        # We may have duplicate keys in here, but hopefully the database always
-        # return the objects in the same order.
-        assert appdata.pop("env") == {ev.key: ev.value for ev in env_variables}
+    if env_variables or controller.postgres_db_needed:
+        envs = appdata.pop("env")
+
+        if controller.postgres_db_needed:
+            assert envs.pop(
+                "DATABASE_URL") == 'postgres://trevor:1234@localhost/trevordb'
+
+        if env_variables:
+            # We may have duplicate keys in here, but hopefully the database
+            # always return the objects in the same order.
+            assert envs == {ev.key: ev.value for ev in env_variables}
+
     assert "env" not in appdata
 
 
@@ -214,7 +222,7 @@ def test_traefik_domains_none():
 
 
 @pytest.mark.django_db
-class DockerControllerHypothesisTestCase(TestCase):
+class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
     """
     Hypothesis tests for the DockerController model.
 
@@ -222,7 +230,14 @@ class DockerControllerHypothesisTestCase(TestCase):
     generation is very slow and occasionally fails the slow data generation
     check.
     """
+    def setUp(self):
+        self.mock_create_postgres_db(200, {
+            'name': 'trevordb',
+            'user': 'trevor',
+            'password': '1234',
+            'host': 'localhost'})
 
+    @responses.activate
     @hsettings(perform_health_check=False)
     @given(_r=random_module(), controller=docker_controller())
     def test_get_marathon_app_data(self, _r, controller):
@@ -232,6 +247,7 @@ class DockerControllerHypothesisTestCase(TestCase):
         app_data = controller.get_marathon_app_data()
         check_and_clear_appdata(app_data, controller)
 
+    @responses.activate
     @hsettings(perform_health_check=False)
     @given(_r=random_module(), controller=docker_controller())
     def test_from_marathon_app_data(self, _r, controller):
@@ -244,6 +260,7 @@ class DockerControllerHypothesisTestCase(TestCase):
             controller.owner, controller.organization, app_data)
         assert app_data == new_controller.get_marathon_app_data()
 
+    @responses.activate
     @hsettings(perform_health_check=False, max_examples=50)
     @given(_r=random_module(), controller=docker_controller(), name=text())
     def test_from_marathon_app_data_with_name(self, _r, controller, name):
@@ -263,6 +280,7 @@ class DockerControllerHypothesisTestCase(TestCase):
         app_data_with_name["labels"]["name"] = name
         assert app_data_with_name == new_controller.get_marathon_app_data()
 
+    @responses.activate
     @hsettings(perform_health_check=False, max_examples=50)
     @given(_r=random_module(), controller=docker_controller(), name=text())
     def test_hidden_import_view(self, _r, controller, name):
