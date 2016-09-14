@@ -36,10 +36,11 @@ class ViewsTestCase(ControllerBaseTestCase):
 
         self.mock_create_marathon_app()
         self.mock_create_postgres_db(200, {
-            'name': 'joes_db',
-            'user': 'joe',
-            'password': '1234',
-            'host': 'localhost'})
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',

@@ -105,19 +105,24 @@ class Controller(PolymorphicModel):
     def get_or_create_postgres_db(self):
         resp = requests.post(
             '%s/queues/postgres/wait/create_database'
-            % settings.SEED_XYLEM_API_HOST)
+            % settings.SEED_XYLEM_API_HOST, json={
+                'name': self.app_id.replace('-', '_')})
 
         if resp.status_code != 200:
             raise exceptions.XylemApiException(
                 'Create Postgres DB app failed with response: %s - %s' %
-                (resp.status_code, resp.json().get('Err')))
+                (resp.status_code, resp.json().get('result', {}).get('Err')))
 
-        db_username = resp.json().get('username') or resp.json().get('user')
-        db_host = resp.json().get('host') or resp.json().get('hostname')
+        result = resp.json().get('result')
+        if not result:
+            raise exceptions.XylemApiException('Invalid response from api.')
 
-        self.postgres_db_name = resp.json().get('name')
+        db_username = result.get('username') or result.get('user')
+        db_host = result.get('host') or result.get('hostname')
+
+        self.postgres_db_name = result.get('name')
         self.postgres_db_username = db_username
-        self.postgres_db_password = resp.json().get('password')
+        self.postgres_db_password = result.get('password')
         self.postgres_db_host = db_host
         self.save()
 
