@@ -77,7 +77,13 @@
       {% include "form_field.html" with field=form.description %}
       </div></div>
 
+      <div class="row"><div class="col-xs-8">
       {% include "form_field.html" with field=form.postgres_db_needed %}
+
+      {% if object.postgres_db_needed %}
+      <input class="form-control" type="text" value="postgres://{{object.postgres_db_username}}:{{object.postgres_db_password}}@{{object.postgres_db_host}}/{{object.postgres_db_name}}" disabled>
+      {% endif %}
+      </div></div>
 
     {% endwith %}
 

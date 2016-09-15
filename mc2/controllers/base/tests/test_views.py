@@ -35,6 +35,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -70,6 +76,14 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertTrue(controller.slug)
         self.assertTrue(controller.postgres_db_needed)
 
+        self.assertEquals(controller.postgres_db_name, 'joes_db')
+        self.assertEquals(controller.postgres_db_username, 'joe')
+        self.assertEquals(controller.postgres_db_password, '1234')
+        self.assertEquals(controller.postgres_db_host, 'localhost')
+
+        resp = self.client.get(reverse('base:edit', args=[controller.id]))
+        self.assertContains(resp, 'postgres://joe:1234@localhost/joes_db')
+
     @responses.activate
     def test_postgres_db_needed_false(self):
         existing_controller = self.mk_controller()
@@ -79,6 +93,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -120,6 +140,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -169,6 +195,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -217,6 +249,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         webhook_token = str(uuid.uuid4())
 
@@ -339,6 +377,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -403,6 +447,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -678,6 +728,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'owner': User.objects.get(pk=2)})
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
         controller.get_builder().build()
 
         self.mock_exists_on_marathon(controller.app_id)
@@ -711,6 +767,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'owner': User.objects.get(pk=2)})
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
         controller.get_builder().build()
 
         self.mock_exists_on_marathon(controller.app_id, 404)
@@ -853,6 +915,12 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.get(
             reverse('organizations:select-active', args=('foo-org',)))
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -910,6 +978,12 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.get(
             reverse('organizations:select-active', args=('foo-org',)))
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',

@@ -1,6 +1,12 @@
 CHANGE LOG
 ==========
 
+3.6.0
+-----
+- Create postgres databases through mission control
+- Use org permissions to give sso access
+- Allow other non-pk domains to log in to MC2
+
 3.5.0
 -----
 - Allow adding additional links to an app
