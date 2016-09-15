@@ -102,6 +102,30 @@ class Controller(PolymorphicModel):
     def get_builder(self):
         return Builder(self)
 
+    def get_or_create_postgres_db(self):
+        resp = requests.post(
+            '%s/queues/postgres/wait/create_database'
+            % settings.SEED_XYLEM_API_HOST, json={
+                'name': self.app_id.replace('-', '_')})
+
+        if resp.status_code != 200:
+            raise exceptions.XylemApiException(
+                'Create Postgres DB app failed with response: %s - %s' %
+                (resp.status_code, resp.json().get('result', {}).get('Err')))
+
+        result = resp.json().get('result')
+        if not result:
+            raise exceptions.XylemApiException('Invalid response from api.')
+
+        db_username = result.get('username') or result.get('user')
+        db_host = result.get('host') or result.get('hostname')
+
+        self.postgres_db_name = result.get('name')
+        self.postgres_db_username = db_username
+        self.postgres_db_password = result.get('password')
+        self.postgres_db_host = db_host
+        self.save()
+
     def get_marathon_app_data(self):
         """
         Override this method to specify the app definition sent to marathon
@@ -116,11 +140,35 @@ class Controller(PolymorphicModel):
         if self.marathon_cmd:
             data.update({"cmd": self.marathon_cmd})
 
+        envs = {}
         if self.env_variables.exists():
-            data.update({
-                'env': dict([
-                    (env.key, env.value)
-                    for env in self.env_variables.all()])})
+            envs = dict([
+                (env.key, env.value)
+                for env in self.env_variables.all()])
+
+        if self.postgres_db_needed:
+            self.get_or_create_postgres_db()
+            envs.update({
+                'DATABASE_URL': 'postgres://%(username)s:'
+                '%(password)s@%(host)s/%(name)s' % {
+                    'username': self.postgres_db_username,
+                    'password': self.postgres_db_password,
+                    'host': self.postgres_db_host,
+                    'name': self.postgres_db_name,
+                }})
+        else:
+            self.postgres_db_username = None
+            self.postgres_db_password = None
+            self.postgres_db_host = None
+            self.postgres_db_name = None
+            self.save()
+
+            # TODO: seed-xylem currently doesn't support deleting of databases
+            # Once support is added, we should delete this database here.
+
+        if envs:
+            data.update({'env': envs})
+
         return data
 
     def create_marathon_app(self):
