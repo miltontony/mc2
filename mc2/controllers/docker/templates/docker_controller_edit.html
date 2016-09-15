@@ -110,6 +110,7 @@
           {% for form in form.env_formset %}
               {{ form.id }}
               <div class="row inline env">
+                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
                   <div class="col-xs-4">
                   {% include "form_field.html" with field=form.key %}
                   </div>
@@ -127,6 +128,7 @@
           {% for form in form.label_formset %}
               {{ form.id }}
               <div class="row inline applabel">
+                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
                   <div class="col-xs-4">
                   {% include "form_field.html" with field=form.name %}
                   </div>
@@ -144,6 +146,7 @@
           {% for form in form.link_formset %}
               {{ form.id }}
               <div class="row inline link">
+                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
                   <div class="col-xs-4">
                   {% include "form_field.html" with field=form.name %}
                   </div>
