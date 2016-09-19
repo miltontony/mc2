@@ -122,7 +122,7 @@ class CustomAttributesTest(TestCase):
 
         DockerController.objects.create(
             name='my test app', organization=org,
-            owner=self.user, domain_urls='test-app.molo.site')
+            owner=self.user, domain_urls='test-app.molo.site my.domain.com')
 
         # joe is a normal user in the org (is_admin = False)
         joe = User.objects.create_user('joe', 'joe@email.com', '1234')
