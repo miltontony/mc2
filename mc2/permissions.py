@@ -19,10 +19,10 @@ def org_permissions(user, service):
         app_id = get_app_id_from_domain(domain)
         if app_id:
             controller = DockerController.objects.filter(
-                Q(domain_urls=domain) | Q(slug=app_id)).first()
+                Q(domain_urls__contains=domain) | Q(slug=app_id)).first()
         else:
             controller = DockerController.objects.filter(
-                domain_urls=domain).first()
+                domain_urls__contains=domain).first()
 
         # super users have universal access
         if user.is_superuser:
