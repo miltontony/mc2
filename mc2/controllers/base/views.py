@@ -108,6 +108,7 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         form.controller_form.instance.save()
 
         form.env_formset.instance = form.controller_form.instance
+        form.link_formset.instance = form.controller_form.instance
         form.label_formset.instance = form.controller_form.instance
 
         response = super(ControllerCreateView, self).form_valid(form)
@@ -137,7 +138,10 @@ class ControllerCloneView(ControllerViewMixin, CreateView):
                 for env in controller.env_variables.all()],
             'labels': [
                 {'name': label.name, 'value': label.value}
-                for label in controller.label_variables.all()]})
+                for label in controller.label_variables.all()],
+            'links': [
+                {'name': label.name, 'link': label.link}
+                for label in controller.additional_link.all()]})
         return initial
 
     def get_success_url(self):
@@ -150,6 +154,7 @@ class ControllerCloneView(ControllerViewMixin, CreateView):
         form.controller_form.instance.save()
 
         form.env_formset.instance = form.controller_form.instance
+        form.link_formset.instance = form.controller_form.instance
         form.label_formset.instance = form.controller_form.instance
 
         response = super(ControllerCloneView, self).form_valid(form)

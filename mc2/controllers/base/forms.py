@@ -1,7 +1,8 @@
 from django import forms
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
+from mc2.controllers.base.models import (
+    Controller, EnvVariable, MarathonLabel, AdditionalLink)
 from mc2.organizations.models import Organization
 
 
@@ -38,12 +39,18 @@ class ControllerForm(forms.ModelForm):
         queryset=Organization.objects.all(),
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'}))
+    postgres_db_needed = forms.BooleanField(
+        required=False,
+        label="Do you need a Postgres database? (Not yet functional)",
+        initial=False,
+        widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
 
     class Meta:
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
-            'marathon_cmd', 'webhook_token', 'description', 'organization')
+            'marathon_cmd', 'webhook_token', 'description', 'organization',
+            'postgres_db_needed')
 
 
 class CustomInlineFormset(forms.BaseInlineFormSet):
@@ -136,6 +143,35 @@ MarathonLabelInlineFormSet = forms.inlineformset_factory(
 )
 
 
+class AdditionalLinkForm(forms.ModelForm):
+    name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+    link = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def has_changed(self):
+        """
+        Returns True if we have initial data.
+        """
+        has_changed = forms.ModelForm.has_changed(self)
+        return bool(self.initial or has_changed)
+
+    class Meta:
+        model = AdditionalLink
+        fields = ('name', 'link')
+
+
+AdditionalLinkInlineFormSet = forms.inlineformset_factory(
+    Controller,
+    AdditionalLink,
+    form=AdditionalLinkForm,
+    formset=CustomInlineFormset,
+    extra=1,
+    can_delete=True,
+    can_order=False
+)
+
+
 class ControllerFormHelper(object):
 
     def __init__(self, data=None, files=None, instance=None,
@@ -147,6 +183,7 @@ class ControllerFormHelper(object):
 
         initial_env = initial.get('envs', [])
         initial_label = initial.get('labels', [])
+        initial_link = initial.get('links', [])
 
         self.env_formset = EnvVariableInlineFormSet(
             data, files,
@@ -160,10 +197,17 @@ class ControllerFormHelper(object):
             prefix='label',
             initial=initial_label)
 
+        self.link_formset = AdditionalLinkInlineFormSet(
+            data, files,
+            instance=instance,
+            prefix='link',
+            initial=initial_link)
+
     def __iter__(self):
         yield self.controller_form
         yield self.env_formset
         yield self.label_formset
+        yield self.link_formset
 
     def is_valid(self):
         return all(form.is_valid() for form in self)

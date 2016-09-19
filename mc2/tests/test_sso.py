@@ -1,7 +1,10 @@
 from django.test import TestCase, Client
+from django.contrib.auth.models import User
+
 from mc2 import permissions
-from django.contrib.auth.models import User, Group
-from mc2.models import AuthorizedSite
+from mc2.organizations.models import Organization, OrganizationUserRelation
+from mc2.controllers.docker.models import DockerController
+
 import pytest
 
 
@@ -62,107 +65,150 @@ class LoginTest(TestCase):
 
 @pytest.mark.django_db
 class CustomAttributesTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'testuser', 'test@email.com', '1234')
+        self.client = Client()
 
     def test_group_access(self):
         user = User.objects.create(first_name='foo')
-        attr = permissions.custom_attributes(user, 'http://foobar.com/')
+        attr = permissions.org_permissions(user, 'http://foobar.com/')
         self.assertEqual(attr['has_perm'], False)
 
-    def test_correct_user(self):
-        user = User.objects.create(first_name='foo')
-        attr = permissions.custom_attributes(user, 'http://foobar.com/')
+    def test_user_details(self):
+        user = User.objects.create(first_name='foo', email='foo@email.com')
+        attr = permissions.org_permissions(user, 'http://foobar.com/')
         self.assertEqual(attr['givenName'], 'foo')
+        self.assertEqual(attr['email'], 'foo@email.com')
 
-    def test_correct_group(self):
-        user = User.objects.create(first_name=' ')
-        attr = permissions.custom_attributes(user, 'http://foobar.com/')
-        self.assertEqual(len(attr['groups']), 0)
+    def test_org_admin_must_have_superuser_access(self):
+        user = User.objects.create_user('joe', 'joe@email.com', '1234')
+        org = Organization.objects.create(name='Test', slug='test')
+        OrganizationUserRelation.objects.create(
+            user=user, organization=org, is_admin=True)
+        DockerController.objects.create(
+            name='my test app', organization=org,
+            owner=user, domain_urls='foobar.com')
+        self.client.login(username='joe', password='1234')
 
-        group = Group.objects.create(name='The Foo')
-        user.groups.add(group)
-        user.save()
-        site = AuthorizedSite.objects.create(site='http://foobar.com/*')
-        site.group.add(group)
-        site.save()
+        attr = permissions.org_permissions(user, 'http://foobar1.com/')
+        self.assertEqual(attr['has_perm'], False)
+        self.assertEqual(attr['is_admin'], False)
 
-        attr = permissions.custom_attributes(user, 'http://foobar.com/')
-        self.assertEqual(len(attr['groups']), 1)
-        self.assertEqual(attr['groups'], ['The Foo'])
-
-    def test_wildcard_url(self):
-        user = User.objects.create(first_name='foo')
-        group = Group.objects.create(name='Unicef')
-        user.groups.add(group)
-        user.save()
-
-        site = AuthorizedSite.objects.create(
-            site='http://*.fflangola.qa-hub.unicore.io/*')
-        site.group.add(group)
-        site.save()
-
-        attr = permissions.custom_attributes(
-            user, 'http://cms.tz.fflangola.qa-hub.unicore.io/login/')
+        attr = permissions.org_permissions(user, 'http://foobar.com/')
         self.assertEqual(attr['has_perm'], True)
-        self.assertEqual(attr['groups'], ['Unicef'])
+        self.assertEqual(attr['is_admin'], True)
 
-        attr = permissions.custom_attributes(
-            user, 'http://cms.za.fflangola.qa-hub.unicore.io/login/')
+    def test_super_user_must_have_super_user_access(self):
+        org = Organization.objects.create(name='Test', slug='test')
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org, is_admin=True)
+
+        joe = User.objects.create_superuser('joe', 'joe@email.com', '1234')
+        self.client.login(username='joe', password='1234')
+
+        attr = permissions.org_permissions(joe, 'http://foobar.com/')
         self.assertEqual(attr['has_perm'], True)
+        self.assertEqual(attr['is_admin'], True)
 
-        attr = permissions.custom_attributes(
-            user, 'http://cms.za.ffl.qa-hub.unicore.io/login/')
-        self.assertEqual(attr['has_perm'], False)
-
-        attr = permissions.custom_attributes(
-            user, 'http://cms.za.gem.qa-hub.unicore.io/login/')
-        self.assertEqual(attr['has_perm'], False)
-
-    def test_exact_match_site(self):
-        user = User.objects.create(first_name='foo')
-        group = Group.objects.create(name='MAMA')
-        user.groups.add(group)
-        user.save()
-
-        site = AuthorizedSite.objects.create(
-            site='http://cms.za.mama.qa-hub.unicore.io/*')
-        site.group.add(group)
-        site.save()
-
-        attr = permissions.custom_attributes(
-            user, 'http://cms.za.mama.qa-hub.unicore.io/login/')
+        attr = permissions.org_permissions(joe, 'http://test-app.molo.site/')
         self.assertEqual(attr['has_perm'], True)
-        self.assertEqual(attr['groups'], ['MAMA'])
+        self.assertEqual(attr['is_admin'], True)
 
-        attr = permissions.custom_attributes(
-            user, 'htto://cms.za.mama.qa-hub.unicore.io/login/')  # deliberate
+    def test_user_in_org_must_have_access(self):
+        org = Organization.objects.create(name='Test', slug='test')
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org, is_admin=True)
+
+        DockerController.objects.create(
+            name='my test app', organization=org,
+            owner=self.user, domain_urls='test-app.molo.site my.domain.com')
+
+        # joe is a normal user in the org (is_admin = False)
+        joe = User.objects.create_user('joe', 'joe@email.com', '1234')
+        OrganizationUserRelation.objects.create(
+            user=joe, organization=org)
+        # create the controller as testuser
+        self.client.login(username='testuser', password='1234')
+
+        attr = permissions.org_permissions(joe, 'http://foobar.com/')
         self.assertEqual(attr['has_perm'], False)
+        self.assertEqual(attr['is_admin'], False)
 
-        attr = permissions.custom_attributes(
-            user, 'ssh://cms.za.mama.qa-hub.unicore.io/login/')
-        self.assertEqual(attr['has_perm'], False)
-
-    def test_multiple_groups(self):
-        group_mama = Group.objects.create(name='MAMA')
-        group_gem = Group.objects.create(name='GEM')
-        group_prk = Group.objects.create(name='Praekelt')
-
-        user_mama = User.objects.create(username='mamauser')
-        user_mama.groups.add(group_mama)
-        user_mama.save()
-
-        user_gem = User.objects.create(username='gemuser')
-        user_gem.groups.add(group_gem)
-        user_gem.save()
-
-        site = AuthorizedSite.objects.create(
-            site='http://cms.za.mama.qa-hub.unicore.io/*')
-        site.group.add(*[group_prk, group_mama])
-        site.save()
-
-        attr = permissions.custom_attributes(
-            user_mama, 'http://cms.za.mama.qa-hub.unicore.io/login/')
+        attr = permissions.org_permissions(joe, 'http://test-app.molo.site/')
         self.assertEqual(attr['has_perm'], True)
+        self.assertEqual(attr['is_admin'], False)
 
-        attr = permissions.custom_attributes(
-            user_gem, 'http://cms.za.mama.qa-hub.unicore.io/login/')
+    def test_user_in_other_org_must_not_have_cross_access(self):
+        org = Organization.objects.create(name='Test', slug='test')
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org, is_admin=True)
+
+        # joe is a normal user in the org (is_admin = False)
+        joe = User.objects.create_user('joe', 'joe@email.com', '1234')
+        OrganizationUserRelation.objects.create(
+            user=joe, organization=org)
+
+        DockerController.objects.create(
+            name='my test app', organization=org,
+            owner=self.user, domain_urls='foobar.com')
+
+        # sam is a normal user in other org
+        sam = User.objects.create_user('sam', 'sam@email.com', '1234')
+        other_org = Organization.objects.create(name='Other', slug='other')
+        OrganizationUserRelation.objects.create(
+            user=sam, organization=other_org)
+
+        DockerController.objects.create(
+            name='my test app', organization=other_org,
+            owner=self.user, domain_urls='test-app.molo.site')
+
+        attr = permissions.org_permissions(joe, 'http://foobar.com/')
+        self.assertEqual(attr['has_perm'], True)
+        self.assertEqual(attr['is_admin'], False)
+
+        attr = permissions.org_permissions(sam, 'http://foobar.com/')
         self.assertEqual(attr['has_perm'], False)
+        self.assertEqual(attr['is_admin'], False)
+
+        attr = permissions.org_permissions(joe, 'http://test-app.molo.site/')
+        self.assertEqual(attr['has_perm'], False)
+        self.assertEqual(attr['is_admin'], False)
+
+        attr = permissions.org_permissions(sam, 'http://test-app.molo.site/')
+        self.assertEqual(attr['has_perm'], True)
+        self.assertEqual(attr['is_admin'], False)
+
+        # tom is an admin user in other org
+        tom = User.objects.create_user('tom', 'tom@email.com', '1234')
+        OrganizationUserRelation.objects.create(
+            user=tom, organization=other_org, is_admin=True)
+
+        attr = permissions.org_permissions(tom, 'http://foobar.com/')
+        self.assertEqual(attr['has_perm'], False)
+        self.assertEqual(attr['is_admin'], False)
+
+        attr = permissions.org_permissions(tom, 'http://test-app.molo.site/')
+        self.assertEqual(attr['has_perm'], True)
+        self.assertEqual(attr['is_admin'], True)
+
+        attr = permissions.org_permissions(sam, 'http://test-app.molo.site/')
+        self.assertEqual(attr['has_perm'], True)
+        self.assertEqual(attr['is_admin'], False)
+
+    def test_access_using_generic_domain(self):
+        user = User.objects.create_user('joe', 'joe@email.com', '1234')
+        org = Organization.objects.create(name='Test', slug='test')
+        OrganizationUserRelation.objects.create(
+            user=user, organization=org, is_admin=True)
+
+        self.client.login(username='joe', password='1234')
+
+        controller = DockerController.objects.create(
+            name='my test app', organization=org,
+            owner=self.user, slug='test-app')
+
+        attr = permissions.org_permissions(
+            user, 'http://%s.seed.p16n.org/admin/' % controller.app_id)
+        self.assertEqual(attr['has_perm'], True)
+        self.assertEqual(attr['is_admin'], True)

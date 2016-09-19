@@ -37,7 +37,8 @@ class DockerControllerForm(ControllerForm):
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
             'marathon_cmd', 'docker_image', 'marathon_health_check_path',
             'port', 'domain_urls', 'volume_needed', 'volume_path',
-            'webhook_token', 'description', 'organization')
+            'webhook_token', 'description', 'organization',
+            'postgres_db_needed')
 
 
 class DockerControllerFormHelper(ControllerFormHelper):

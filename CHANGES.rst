@@ -1,6 +1,22 @@
 CHANGE LOG
 ==========
 
+3.6.1
+-----
+- Fix single-signon bug for Molo
+- (bug) All multi-field forms can now be deleted (e.g env variables)
+
+3.6.0
+-----
+- Create postgres databases through mission control
+- Use org permissions to give sso access
+- Allow other non-pk domains to log in to MC2
+
+3.5.0
+-----
+- Allow adding additional links to an app
+- Add view only for users
+
 3.4.2
 -----
 - (bug) Ensure organization field is shown on docker controller edit view

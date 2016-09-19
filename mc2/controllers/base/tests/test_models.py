@@ -53,6 +53,26 @@ class ModelsTestCase(ControllerBaseTestCase):
         })
 
     @responses.activate
+    def test_get_marathon_app_data_fails_for_xylem_api_error(self):
+        controller = self.mk_controller(controller={
+            'postgres_db_needed': True})
+        self.mock_update_marathon_app(controller.app_id)
+        self.mock_create_postgres_db(500)
+
+        with self.assertRaises(exceptions.XylemApiException):
+            controller.update_marathon_app()
+
+    @responses.activate
+    def test_get_marathon_app_data_fails_for_xylem_api_bad_result(self):
+        controller = self.mk_controller(controller={
+            'postgres_db_needed': True})
+        self.mock_update_marathon_app(controller.app_id)
+        self.mock_create_postgres_db(200, {})
+
+        with self.assertRaises(exceptions.XylemApiException):
+            controller.update_marathon_app()
+
+    @responses.activate
     def test_update_marathon_marathon_exception(self):
         controller = self.mk_controller()
         self.mock_update_marathon_app(controller.app_id, 404)
