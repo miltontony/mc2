@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.6.1
+-----
+- Fix single-signon bug for Molo
+- (bug) All multi-field forms can now be deleted (e.g env variables)
+
 3.6.0
 -----
 - Create postgres databases through mission control
