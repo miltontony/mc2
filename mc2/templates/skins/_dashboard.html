@@ -54,7 +54,7 @@
 
             <div class="info-box-content">
               <span class="info-box-text">Total Memory Used</span>
-              <span class="info-box-number">{{total_memory|floatformat}} GB</span>
+              <span class="info-box-number">{{total_memory|floatformat:2}} GB</span>
             </div>
             <!-- /.info-box-content -->
           </div>
@@ -103,7 +103,7 @@
                   <tr>
                     <td><a href="{% url 'organizations:select-active' org.slug %}?next={{ request.path|urlencode }}">{% blocktrans with org_name=org.name %}{{ org_name }}{% endblocktrans %}</a></td>
                     <td>{{org.controller_set.all.count}}</td>
-                    <td>{{org.total_mem|default:0|floatformat}} GB</td>
+                    <td>{{org.total_mem|default:0|floatformat:2}} GB</td>
                     <td>{{org.total_cpus|default:0}}</td>
                   </tr>
                   {% endfor %}
