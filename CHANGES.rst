@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.7.0
+-----
+- Added dashboard to show summary stats
+
 3.6.1
 -----
 - Fix single-signon bug for Molo
