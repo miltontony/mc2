@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
+from mc2.organizations.models import Organization
 
 
 # Unknowm controller for testing the template tag default
@@ -39,6 +40,42 @@ class ViewsTestCase(ControllerBaseTestCase):
             '<a href="/base/%s/">' %
             controller.id)
         controller.delete()
+
+    @responses.activate
+    def test_dashboard(self):
+        org = Organization.objects.get(slug='foo-org')
+        self.mk_controller(controller={
+            'marathon_mem': 256.0,
+            'marathon_instances': 2,
+            'organization': org})
+        self.mk_controller(controller={
+            'marathon_mem': 512.0,
+            'organization': org})
+        self.mk_controller(controller={
+            'marathon_mem': 1024.0,
+            'organization': org})
+        self.mk_controller(controller={
+            'marathon_mem': 384.0,
+            'organization': org})
+
+        self.client.login(username='testuser2', password='test')
+        resp = self.client.get(reverse('dashboard'))
+
+        self.assertContains(resp, '>2.38 GB</span>')
+        self.assertContains(resp, '<td>4</td>')
+        self.assertContains(resp, '<td>2.38 GB</td>')
+        self.assertContains(resp, '<td>0.5</td>')
+
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        resp = self.client.get(reverse('dashboard'))
+
+        self.assertContains(resp, '>2.38 GB</span>')
+        self.assertContains(resp, '<td>512 MB</td>')
+        self.assertContains(resp, '<td>1024 MB</td>')
+        self.assertContains(resp, '<td>384 MB</td>')
+        self.assertNotContains(resp, '<td>256 MB</td>')
 
     @responses.activate
     def test_homepage_with_docker_controller(self):

@@ -4,6 +4,7 @@ from django.views.generic import ListView, UpdateView
 from django.contrib.auth import login
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
+from django.db.models import F, Sum, FloatField
 
 from mama_cas.views import LoginView
 from mama_cas.utils import redirect
@@ -12,6 +13,7 @@ from mama_cas.models import ServiceTicket
 
 from mc2.controllers.base.views import ControllerViewMixin
 from mc2.models import UserSettings
+from mc2.organizations.models import Organization
 from mc2.forms import UserSettingsForm
 from mc2.organizations.utils import active_organization
 
@@ -31,6 +33,37 @@ class HomepageView(ControllerViewMixin, ListView):
 
     def get_queryset(self):
         return self.get_controllers_queryset(self.request).order_by('name')
+
+
+class DashboardView(HomepageView):
+    template_name = 'mc2/dashboard.html'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(DashboardView, self).get_context_data(*args, **kwargs)
+        results = self.get_queryset().annotate(
+            total_mem=F('marathon_mem') * F('marathon_instances'),
+            total_cpus=F('marathon_cpus') * F('marathon_instances'),
+        ).aggregate(
+            Sum(F('total_mem'), output_field=FloatField()),
+            Sum(F('total_cpus'), output_field=FloatField())
+        )
+
+        context.update({
+            'total_memory': (results.get('total_mem__sum') or 0) / 1024.0,
+            'total_containers': self.get_queryset().count(),
+            'total_suspended_containers':
+                self.get_queryset().filter(marathon_instances=0).count(),
+            'total_cpus': results.get('total_cpus__sum') or 0,
+            'orgs': Organization.objects.for_user(self.request.user).annotate(
+                total_mem=Sum(
+                    (F('controller__marathon_mem') *
+                     F('controller__marathon_instances')) / 1024.0),
+                total_cpus=Sum(
+                    F('controller__marathon_cpus') *
+                    F('controller__marathon_instances')),
+            )
+        })
+        return context
 
 
 class UserSettingsView(UpdateView):
