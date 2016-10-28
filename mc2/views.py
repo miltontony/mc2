@@ -57,10 +57,12 @@ class DashboardView(HomepageView):
             'orgs': Organization.objects.for_user(self.request.user).annotate(
                 total_mem=Sum(
                     (F('controller__marathon_mem') *
-                     F('controller__marathon_instances')) / 1024.0),
+                     F('controller__marathon_instances')) / 1024.0,
+                    output_field=FloatField()),
                 total_cpus=Sum(
                     F('controller__marathon_cpus') *
-                    F('controller__marathon_instances')),
+                    F('controller__marathon_instances'),
+                    output_field=FloatField()),
             )
         })
         return context
