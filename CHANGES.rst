@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.7.1
+-----
+- (bug) Font css not loading properly after compress
+- (bug) ensure output_field is specified for Sum
+
 3.7.0
 -----
 - Added dashboard to show summary stats
