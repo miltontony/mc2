@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.7.2
+-----
+- revert Font fix: need to find a better solution
+
 3.7.1
 -----
 - (bug) Font css not loading properly after compress
