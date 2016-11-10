@@ -30,6 +30,19 @@ class TestOrganizationManager(OrganizationTestCase):
         self.assertEqual(
             Organization.objects.for_admin_user(self.user1).count(), 0)
 
+    def test_for_app_admin_user(self):
+        self.organization2.organizationuserrelation_set.filter(
+            user=self.user1).update(is_app_admin=True)
+        self.organization1.organizationuserrelation_set.filter(
+            user=self.user1).update(is_app_admin=False)
+
+        self.assertEqual(
+            OrganizationUserRelation.objects.get(
+                is_app_admin=True).organization, self.organization2)
+        self.assertEqual(
+            OrganizationUserRelation.objects.get(
+                is_app_admin=True).user, self.user1)
+
     def test_for_admin_user_inactive(self):
         self.user1.is_active = False
         self.assertEqual(
