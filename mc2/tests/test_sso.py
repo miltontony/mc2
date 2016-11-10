@@ -139,6 +139,30 @@ class CustomAttributesTest(TestCase):
         self.assertEqual(attr['has_perm'], True)
         self.assertEqual(attr['is_admin'], False)
 
+    def test_app_admin_user_in_org_must_have_admin_access_for_the_app(self):
+        org = Organization.objects.create(name='Test', slug='test')
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org, is_admin=True)
+
+        DockerController.objects.create(
+            name='my test app', organization=org,
+            owner=self.user, domain_urls='test-app.molo.site my.domain.com')
+
+        # joe is a normal user in the org (is_admin = False)
+        joe = User.objects.create_user('joe', 'joe@email.com', '1234')
+        OrganizationUserRelation.objects.create(
+            user=joe, organization=org, is_app_admin=True)
+        # create the controller as testuser
+        self.client.login(username='testuser', password='1234')
+
+        attr = permissions.org_permissions(joe, 'http://foobar.com/')
+        self.assertEqual(attr['has_perm'], False)
+        self.assertEqual(attr['is_admin'], False)
+
+        attr = permissions.org_permissions(joe, 'http://test-app.molo.site/')
+        self.assertEqual(attr['has_perm'], True)
+        self.assertEqual(attr['is_admin'], True)
+
     def test_user_in_other_org_must_not_have_cross_access(self):
         org = Organization.objects.create(name='Test', slug='test')
         OrganizationUserRelation.objects.create(
