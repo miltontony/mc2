@@ -36,7 +36,8 @@ def org_permissions(user, service):
 
         if controller:
             # org admins have super user access
-            if controller.organization.has_admin(user):
+            if controller.organization.has_admin(user) or \
+                    controller.organization.has_app_admin(user):
                 return {
                     'givenName': user.first_name,
                     'email': user.email,
