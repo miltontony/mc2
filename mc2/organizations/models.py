@@ -71,8 +71,8 @@ class OrganizationUserRelation(models.Model):
                     ' organization and its users.'))
     is_app_admin = models.BooleanField(
         default=False,
-        help_text=_('This allows the user to be their'
-                    ' apps administrator and manage their apps users.'))
+        help_text=_('This allows the user to be the'
+                    ' organization app administrator and manage its users.'))
     groups = models.ManyToManyField('auth.Group', blank=True)
     user_permissions = models.ManyToManyField('auth.Permission', blank=True)
     # TODO: add auth token
