@@ -148,7 +148,7 @@ class CustomAttributesTest(TestCase):
             name='my test app', organization=org,
             owner=self.user, domain_urls='test-app.molo.site my.domain.com')
 
-        # joe is a normal user in the org (is_admin = False)
+        # joe is an app admin user in the org (is_app_admin = True)
         joe = User.objects.create_user('joe', 'joe@email.com', '1234')
         OrganizationUserRelation.objects.create(
             user=joe, organization=org, is_app_admin=True)
