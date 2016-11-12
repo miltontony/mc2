@@ -26,9 +26,15 @@ class HomepageView(ControllerViewMixin, ListView):
     def get_context_data(self, *args, **kwargs):
         context = super(HomepageView, self).get_context_data(*args, **kwargs)
         active_org = active_organization(self.request)
+        results = self.get_queryset().annotate(
+            total_mem=F('marathon_mem') * F('marathon_instances'),
+        ).aggregate(Sum(F('total_mem'), output_field=FloatField()))
         if active_org:
-            context.update(
-                {'is_admin': active_org.has_admin(self.request.user)})
+            context.update({
+                'is_admin': active_org.has_admin(self.request.user),
+                'total_memory': (results.get('total_mem__sum') or 0) / 1024.0,
+                'memory_usage_limit': active_org.memory_usage_limit / 1024.0
+            })
         return context
 
     def get_queryset(self):

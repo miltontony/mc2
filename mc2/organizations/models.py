@@ -38,6 +38,8 @@ class Organization(models.Model):
     users = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         through='OrganizationUserRelation')
+    memory_usage_limit = models.FloatField(
+        default=settings.DEFAULT_MEMORY_USAGE_LIMIT)
 
     def __unicode__(self):
         return self.name

@@ -11,7 +11,7 @@ class OrganizationUserRelationInline(admin.StackedInline):
 
 
 class OrganizationAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user_count')
+    list_display = ('name', 'user_count', 'memory_usage_limit')
     inlines = (OrganizationUserRelationInline, )
     prepopulated_fields = {'slug': ('name',)}
 

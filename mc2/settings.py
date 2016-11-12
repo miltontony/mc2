@@ -37,6 +37,9 @@ MESOS_DEFAULT_BACKOFF_FACTOR = float(environ.get(
 MARATHON_DEFAULT_VOLUME_PATH = environ.get(
     'MARATHON_DEFAULT_VOLUME_PATH', '/volume/')
 
+DEFAULT_MEMORY_USAGE_LIMIT = environ.get(
+    'MESOS_DEFAULT_CPU_SHARE', 1024.0 * 20)  # Default limit per org is 20GB
+
 DEFAULT_REQUEST_TIMEOUT = int(environ.get(
     'DEFAULT_REQUEST_TIMEOUT', 2))
 

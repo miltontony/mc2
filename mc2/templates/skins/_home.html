@@ -25,8 +25,11 @@
 
 <div id="mc-overview">
     <div class="mc-overview-item apps">
-        <span><i class="fa fa-play"></i></span>
-        Running Applications &ndash; <span id="results_count">{{controller_list.count}}</span>/Unlimited
+    {% if active_organization %}
+        <span><i class="fa fa-dashboard"></i></span>
+        Resource Limit:
+        <span class="text-orange">{{total_memory|floatformat:2}} GB </span>/ {{memory_usage_limit|floatformat:2}} GB
+    {% endif %}
     </div>
 </div>
 <div id="projects_progress">
