@@ -100,6 +100,8 @@ class ModelsTestCase(UnicoremcTestCase):
                 "domain": 'gem-za-%s.qa-hub.unicore.io' % p.id,
                 "country": "South Africa",
                 "project_type": "unicore-cms",
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": 'gem-za-%s.qa-hub.unicore.io' % p.id,
             },
             "container": {
                 "type": "DOCKER",
@@ -156,6 +158,8 @@ class ModelsTestCase(UnicoremcTestCase):
                 "domain": u"ffl-tz-%s.qa-hub.unicore.io" % p.id,
                 "country": u"Tanzania, United Republic of",
                 "project_type": "springboard",
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": u"ffl-tz-%s.qa-hub.unicore.io" % p.id,
             },
             "container": {
                 "type": "DOCKER",

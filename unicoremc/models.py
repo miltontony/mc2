@@ -594,7 +594,9 @@ class Project(models.Model):
             "labels": {
                 "domain": domain.strip(),
                 "country": self.get_country_display(),
-                "project_type": self.application_type.project_type
+                "project_type": self.application_type.project_type,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": domain.strip(),
             },
             "container": {
                 "type": "DOCKER",
