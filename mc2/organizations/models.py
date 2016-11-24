@@ -46,6 +46,13 @@ class Organization(models.Model):
         return self.__class__.objects.for_admin_user(
             user).filter(pk=self.pk).exists()
 
+    def has_app_admin(self, user):
+        try:
+            relation = self.organizationuserrelation_set.get(user=user)
+            return relation.is_app_admin
+        except self.users.through.DoesNotExist:
+            return False
+
     def has_perms(self, user, perm_list, obj=None):
         try:
             relation = self.organizationuserrelation_set.get(user=user)
@@ -62,6 +69,10 @@ class OrganizationUserRelation(models.Model):
         default=False,
         help_text=_('This allows the user to manage the'
                     ' organization and its users.'))
+    is_app_admin = models.BooleanField(
+        default=False,
+        help_text=_('This allows the user to be the'
+                    ' organization app administrator and manage its users.'))
     groups = models.ManyToManyField('auth.Group', blank=True)
     user_permissions = models.ManyToManyField('auth.Permission', blank=True)
     # TODO: add auth token
@@ -72,7 +83,8 @@ class OrganizationUserRelation(models.Model):
     def __unicode__(self):
         return u'%s%s' % (
             self.user.get_short_name() or self.user.email,
-            ' (admin)' if self.is_admin else '')
+            ' (admin)' if self.is_admin else
+            ' (app admin)' if self.is_app_admin else '')
 
     def permissions(self):
         permissions = Permission.objects.filter(
