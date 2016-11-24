@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.7.3
+-----
+- add app_admin for SSO
+- fix logging for apps with multiple instance
+
 3.7.2
 -----
 - revert Font fix: need to find a better solution
