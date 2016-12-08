@@ -13,6 +13,7 @@ def bool_env(val):
     """Replaces string based environment values with Python booleans"""
     return True if environ.get(val, False) == 'True' else False
 
+
 # Environment Variables
 SECRET_KEY = environ.get('SECRET_KEY', 'please-change-me')
 PROJECT_ROOT = environ.get(
