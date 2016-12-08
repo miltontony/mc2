@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController, traefik_domains
+from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
 @pytest.mark.django_db
@@ -21,6 +22,11 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             marathon_cmd='ping',
             docker_image='docker/image',
         )
+        org = Organization.objects.create(name="Test Org", slug="test-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+        controller.organization = org
+        controller.save()
 
         custom_urls = "testing.com url.com"
         controller.domain_urls += custom_urls
@@ -40,6 +46,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
+                "org": "test-org",
             },
             "container": {
                 "type": "DOCKER",
@@ -69,7 +76,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
-                "name": "Test App"
+                "name": "Test App",
+                "org": "test-org",
             },
             "container": {
                 "type": "DOCKER",
@@ -101,6 +109,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
+                "org": "test-org",
             },
             "container": {
                 "type": "DOCKER",
@@ -143,6 +152,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
+                "org": "test-org",
             },
             "container": {
                 "type": "DOCKER",
@@ -191,6 +201,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
+                "org": "test-org",
             },
             "container": {
                 "type": "DOCKER",
@@ -247,6 +258,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
+                "org": "",
             },
             "container": {
                 "type": "DOCKER",
@@ -284,7 +296,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
-                "TEST_LABELS_NAME": 'a test label value'
+                "TEST_LABELS_NAME": 'a test label value',
+                "org": "",
             },
             "container": {
                 "type": "DOCKER",
@@ -329,7 +342,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_GROUP": "external",
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
-                "name": "Test App"
+                "name": "Test App",
+                "org": "",
             },
             "container": {
                 "type": "DOCKER",
@@ -384,6 +398,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "HAPROXY_0_VHOST": domain_label,
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
+                "org": "",
             },
             "container": {
                 "type": "DOCKER",
@@ -428,6 +443,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "HAPROXY_0_VHOST": domain_label,
                     "traefik.frontend.rule": traefik_domains(domain_label),
                     "name": "Test App",
+                    "org": "",
                 },
                 "container": {
                     "type": "DOCKER",

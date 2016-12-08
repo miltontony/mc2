@@ -59,13 +59,13 @@ class DockerController(Controller):
         }
         domains = domains.strip()
 
-        service_labels = {
+        service_labels = self.get_default_app_labels()
+        service_labels.update({
             "domain": domains,
             "HAPROXY_GROUP": "external",
             "HAPROXY_0_VHOST": domains,
             "traefik.frontend.rule": traefik_domains(domains),
-            "name": self.name,
-        }
+        })
 
         # Update custom labels
         if self.label_variables.exists():
