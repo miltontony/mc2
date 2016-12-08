@@ -126,6 +126,12 @@ class Controller(PolymorphicModel):
         self.postgres_db_host = db_host
         self.save()
 
+    def get_default_app_labels(self):
+        return {
+            "name": self.name,
+            "org": self.organization.slug if self.organization else '',
+        }
+
     def get_marathon_app_data(self):
         """
         Override this method to specify the app definition sent to marathon
@@ -168,6 +174,15 @@ class Controller(PolymorphicModel):
 
         if envs:
             data.update({'env': envs})
+
+        service_labels = self.get_default_app_labels()
+
+        # Update custom labels
+        if self.label_variables.exists():
+            for label in self.label_variables.all():
+                service_labels[label.name] = label.value
+
+        data.update({'labels': service_labels})
 
         return data
 

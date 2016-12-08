@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base import exceptions
+from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
 # test models for polymorphic
@@ -33,10 +34,17 @@ class ModelsTestCase(ControllerBaseTestCase):
             "mem": 128.0,
             "instances": 1,
             "cmd": "ping",
+            "labels": {"name": "Test App", "org": ""},
         })
 
     def test_get_marathon_app_data_with_env(self):
         controller = self.mk_controller()
+        org = Organization.objects.create(name="Test Org", slug="test-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+        controller.organization = org
+        controller.save()
+
         self.mk_env_variable(controller)
         self.mk_env_variable(
             controller, key='ANOTHER_KEY', value='another value')
@@ -49,7 +57,8 @@ class ModelsTestCase(ControllerBaseTestCase):
             "env": {
                 "TEST_KEY": "a test value",
                 "ANOTHER_KEY": "another value",
-            }
+            },
+            "labels": {"name": "Test App", "org": "test-org"},
         })
 
     @responses.activate

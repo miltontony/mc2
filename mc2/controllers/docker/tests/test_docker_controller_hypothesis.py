@@ -167,6 +167,8 @@ def check_and_remove_labels(appdata, controller):
     """
     labels = appdata.pop("labels")
     assert labels.pop("name") == controller.name
+    assert labels.pop("org") == controller.organization.slug \
+        if controller.organization else ''
     domains = [u".".join([controller.app_id, settings.HUB_DOMAIN])]
     domains.extend(controller.domain_urls.split())
     assert sorted(labels.pop("domain").split()) == sorted(domains)
