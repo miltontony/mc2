@@ -129,7 +129,7 @@ class Controller(PolymorphicModel):
     def get_default_app_labels(self):
         return {
             "name": self.name,
-            "org": self.organization.slug if self.organization else ''
+            "org": self.organization.slug if self.organization else '',
         }
 
     def get_marathon_app_data(self):
