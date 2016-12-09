@@ -173,12 +173,17 @@ def check_and_remove_labels(appdata, controller):
     domains.extend(controller.domain_urls.split())
     assert sorted(labels.pop("domain").split()) == sorted(domains)
     assert sorted(labels.pop("HAPROXY_0_VHOST").split()) == sorted(domains)
-    assert labels.pop("HAPROXY_GROUP") == "external"
 
-    traefik_domains = labels.pop("traefik.frontend.rule")
-    traefik_domains = traefik_domains.split(":", 2)[-1].split(",")
-    traefik_domains = [d.strip() for d in traefik_domains]
-    assert sorted(traefik_domains) == sorted(domains)
+    haproxy_group = labels.pop("HAPROXY_GROUP")
+
+    if controller.external_visibility:
+        traefik_domains = labels.pop("traefik.frontend.rule")
+        traefik_domains = traefik_domains.split(":", 2)[-1].split(",")
+        traefik_domains = [d.strip() for d in traefik_domains]
+        assert sorted(traefik_domains) == sorted(domains)
+        assert haproxy_group == "external"
+    else:
+        assert haproxy_group == "internal"
 
     # We may have duplicate keys in here, but hopefully the database always
     # return the objects in the same order.
