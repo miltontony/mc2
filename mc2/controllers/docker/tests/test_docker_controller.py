@@ -2,6 +2,8 @@ import pytest
 import responses
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController, traefik_domains
 from mc2.organizations.models import Organization, OrganizationUserRelation
@@ -466,3 +468,50 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "timeoutSeconds": 200
                 }]
             })
+
+    @responses.activate
+    def test_create_new_controller_with_no_port(self):
+        org = Organization.objects.create(name="Foo Org", slug="foo-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'docker_image': 'test/image',
+            'postgres_db_needed': True,
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+
+
+        }
+
+        response = self.client.post(reverse('controllers.docker:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = DockerController.objects.all().last()
+        self.assertEqual(controller.state, 'done')
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertIsNone(controller.port)

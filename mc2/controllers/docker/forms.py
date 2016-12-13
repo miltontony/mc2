@@ -42,6 +42,9 @@ class DockerControllerForm(ControllerForm):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
 
+    def clean_port(self):
+        return self.cleaned_data['port'] or None
+
     class Meta:
         model = DockerController
         fields = (
