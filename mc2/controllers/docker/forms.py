@@ -15,7 +15,8 @@ class DockerControllerForm(ControllerForm):
             'placeholder': '(optional)'}),
         required=False)
     port = forms.CharField(
-        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+        required=False)
     domain_urls = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -30,6 +31,9 @@ class DockerControllerForm(ControllerForm):
     webhook_token = forms.UUIDField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
+
+    def clean_port(self):
+        return self.cleaned_data['port'] or None
 
     class Meta:
         model = DockerController
