@@ -62,13 +62,13 @@ class DockerController(Controller):
 
         service_labels = self.get_default_app_labels()
         service_labels.update({
-            "domain": domains,
             "HAPROXY_GROUP": "internal",
             "HAPROXY_0_VHOST": domains,
         })
 
         if self.external_visibility:
             service_labels.update({
+                "domain": domains,
                 "HAPROXY_GROUP": "external",
                 "traefik.frontend.rule": traefik_domains(domains),
             })
