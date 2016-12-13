@@ -26,7 +26,7 @@ class DockerControllerForm(ControllerForm):
         required=False)
     external_visibility = forms.BooleanField(
         required=False,
-        initial=True,
+        initial=False,
         label="Should the URL be exposed to the outside world?",
         help_text=(
             "Disabling this field will remove this app from our load balancer "
