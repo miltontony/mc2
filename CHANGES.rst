@@ -1,6 +1,13 @@
 CHANGE LOG
 ==========
 
+3.8.0
+-----
+- change labels when external visibility disabled
+- allow port to be optional (UI fix)
+- add organization name to marathon labels
+- (bug) fix issue with app labels not allowing multiples
+
 3.7.3
 -----
 - add app_admin for SSO
