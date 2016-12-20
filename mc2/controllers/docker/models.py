@@ -23,6 +23,7 @@ class DockerController(Controller):
         max_length=255, blank=True, null=True)
     port = models.PositiveIntegerField(default=0, blank=True, null=True)
     domain_urls = models.TextField(max_length=8000, default="")
+    external_visibility = models.BooleanField(default=True)
     volume_needed = models.BooleanField(default=False)
     volume_path = models.CharField(max_length=255, blank=True, null=True)
 
@@ -59,13 +60,18 @@ class DockerController(Controller):
         }
         domains = domains.strip()
 
-        service_labels = {
-            "domain": domains,
-            "HAPROXY_GROUP": "external",
+        service_labels = self.get_default_app_labels()
+        service_labels.update({
+            "HAPROXY_GROUP": "internal",
             "HAPROXY_0_VHOST": domains,
-            "traefik.frontend.rule": traefik_domains(domains),
-            "name": self.name,
-        }
+        })
+
+        if self.external_visibility:
+            service_labels.update({
+                "domain": domains,
+                "HAPROXY_GROUP": "external",
+                "traefik.frontend.rule": traefik_domains(domains),
+            })
 
         # Update custom labels
         if self.label_variables.exists():
@@ -147,6 +153,9 @@ class DockerController(Controller):
             elif k == "domain":
                 args["domain_urls"] = u" ".join(
                     [d for d in v.split(u" ") if d != gen_domain])
+            elif k == 'HAPROXY_GROUP' and v == 'internal':
+                args["external_visibility"] = False
+                labels.append({"name": k, "value": v})
             else:
                 labels.append({"name": k, "value": v})
 

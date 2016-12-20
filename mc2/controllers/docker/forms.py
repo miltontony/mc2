@@ -15,12 +15,23 @@ class DockerControllerForm(ControllerForm):
             'placeholder': '(optional)'}),
         required=False)
     port = forms.CharField(
-        widget=forms.NumberInput(attrs={'class': 'form-control'}))
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': '(optional)'}),
+        required=False)
     domain_urls = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': '(optional)'}),
         required=False)
+    external_visibility = forms.BooleanField(
+        required=False,
+        initial=False,
+        label="Should the URL be exposed to the outside world?",
+        help_text=(
+            "Disabling this field will remove this app from our load balancer "
+            "and make it only accessible from inside the cluster."),
+        widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
     volume_needed = forms.BooleanField(
         required=False, label="Do you want storage?", initial=False,
         widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
@@ -31,6 +42,9 @@ class DockerControllerForm(ControllerForm):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control'}))
 
+    def clean_port(self):
+        return self.cleaned_data['port'] or None
+
     class Meta:
         model = DockerController
         fields = (
@@ -38,7 +52,7 @@ class DockerControllerForm(ControllerForm):
             'marathon_cmd', 'docker_image', 'marathon_health_check_path',
             'port', 'domain_urls', 'volume_needed', 'volume_path',
             'webhook_token', 'description', 'organization',
-            'postgres_db_needed')
+            'postgres_db_needed', 'external_visibility')
 
 
 class DockerControllerFormHelper(ControllerFormHelper):

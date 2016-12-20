@@ -26,13 +26,13 @@
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           });
-          $(".inline.link").formset({
-              prefix: "link",
+          $(".inline.applabel").formset({
+              prefix: "label",
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           });
-          $(".inline.applabel").formset({
-              prefix: "label",
+          $(".inline.link").formset({
+              prefix: "link",
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           });
@@ -77,16 +77,8 @@
       {% include "form_field.html" with field=form.description %}
       </div></div>
       <div class="row"><div class="col-xs-4">
-      {% include "form_field.html" with field=form.domain_urls %}
-      </div></div>
-      <div class="row"><div class="col-xs-4">
       {% include "form_field.html" with field=form.docker_image %}
       </div></div>
-      <div class="row">
-      <div class="col-xs-3">
-      {% include "form_field.html" with field=form.port %}
-      </div>
-      </div>
 
       {% include "form_field.html" with field=form.volume_needed %}
       <div class="row"><div class="col-xs-4">
@@ -100,6 +92,19 @@
       <input class="form-control" type="text" value="postgres://{{object.postgres_db_username}}:{{object.postgres_db_password}}@{{object.postgres_db_host}}/{{object.postgres_db_name}}" disabled>
       {% endif %}
       </div></div>
+
+      <fieldset class="input-xxlarge">
+        <legend>Discoverability</legend>
+        <div class="row"><div class="col-xs-6">
+        {% include "form_field.html" with field=form.domain_urls %}
+        </div></div>
+        <div class="row"><div class="col-xs-3">
+        {% include "form_field.html" with field=form.port %}
+        </div></div>
+        <div class="row"><div class="col-xs-6">
+        {% include "form_field.html" with field=form.external_visibility %}
+        </div></div>
+      </fieldset>
 
       {% endwith %}
 
