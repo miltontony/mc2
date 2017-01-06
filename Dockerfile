@@ -30,5 +30,8 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/mc2.nginx.conf /etc/nginx/conf.d/
 COPY docker/mc2.supervisor.conf /etc/supervisor/conf.d/
 
+RUN django-admin.py collectstatic --noinput\
+    && manage.py compress
+
 EXPOSE 80
 CMD ["/deploy/docker-entrypoint.sh"]
