@@ -61,6 +61,9 @@ class Organization(models.Model):
             # user permissions supersede user-organization permissions
             return user.has_perms(perm_list, obj=obj)
 
+    class Meta:
+        ordering = ('name', )
+
 
 class OrganizationUserRelation(models.Model):
     organization = models.ForeignKey(Organization)
