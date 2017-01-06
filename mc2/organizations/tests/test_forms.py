@@ -47,11 +47,13 @@ class TestForms(OrganizationTestCase):
             OrganizationFormHelper(instance=self.organization))
         data['new_users-0-email'] = 'new_user@gmail.com'
         data['new_users-0-is_admin'] = True
+        data['new_users-0-is_app_admin'] = True
         form = OrganizationFormHelper(data, instance=self.organization)
         self.assertTrue(form.is_valid())
         _, _, [saved_user_relation] = form.save()
         self.assertEqual(new_user, saved_user_relation.user)
         self.assertTrue(saved_user_relation.is_admin)
+        self.assertTrue(saved_user_relation.is_app_admin)
 
         # email does not exist
         data['new_users-0-email'] = 'doesnotexist@gmail.com'
@@ -73,8 +75,10 @@ class TestForms(OrganizationTestCase):
         data = self.org_form_data(
             OrganizationFormHelper(instance=self.organization))
         data['users-0-is_admin'] = False
+        data['users-0-is_app_admin'] = False
         form = OrganizationFormHelper(data, instance=self.organization)
         self.assertTrue(form.is_valid())
         _, [updated_user_relation], _ = form.save()
         self.assertEqual(self.user, updated_user_relation.user)
         self.assertFalse(updated_user_relation.is_admin)
+        self.assertFalse(updated_user_relation.is_app_admin)
