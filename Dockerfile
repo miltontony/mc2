@@ -11,7 +11,6 @@ COPY manage.py \
     requirements-dev.txt \
     setup.py \
     README.rst \
-    VERSION \
     docker/docker-entrypoint.sh \
         /deploy/
 
