@@ -1,11 +1,13 @@
 import logging
 
 from django.views.generic import ListView, UpdateView
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.db.models import F, Sum, FloatField
 from django.views.generic.edit import FormView
+from django.http import HttpResponseRedirect
 
 
 from mama_cas.views import LoginView
@@ -47,6 +49,26 @@ class CreateAccountView(FormView):
 
     form_class = forms.CreateAccountForm
     template_name = "account/create_account.html"
+
+    def form_valid(self, form):
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
+        confirm_password = form.cleaned_data["confirm_password"]
+        first_name = form.cleaned_data["first_name"]
+        last_name = form.cleaned_data["last_name"]
+        user = User.objects.create_user(username=username, password=password)
+
+        user.confirm_password = confirm_password
+        user.first_name = first_name
+        user.last_name = last_name
+        if form.cleaned_data["email"]:
+            user.email = form.cleaned_data["email"]
+            user.save()
+        user.save()
+
+        authed_user = authenticate(username=username, password=password)
+        login(self.request, authed_user)
+        return HttpResponseRedirect(form.cleaned_data.get("next", "/"))
 
 
 class DashboardView(HomepageView):

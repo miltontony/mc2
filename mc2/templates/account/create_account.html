@@ -1,0 +1,33 @@
+{% extends "skins/base.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="{% url 'admin:index' %}">Home</a>
+&rsaquo; Create Account
+</div>
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+{% block body %}
+<body class="hold-transition login-page">
+<div class="login-box">
+  <div class="login-logo">
+    <a href="#"><b>Create</b> Account</a>
+  </div>
+  <!-- /.login-logo -->
+  <div class="login-box-body">
+
+<form method="post">{% csrf_token %}
+<p><label for="id_username">Username:</label> {{ form.username }}{{ form.username.errors }}</p>
+<p><label for="id_password">Password:</label> {{ form.password }}{{ form.password.errors }}</p>
+<p><label for="id_confirm_password">Password Confirmation:</label> {{ form.confirm_password }}{{ form.confirm_password.errors }}</p>
+<p><label for="id_first_name">First Name:</label> {{ form.first_name }}{{ form.first_name.errors }}</p>
+<p><label for="id_last_name">Last Name:</label> {{ form.last_name }}{{ form.last_name.errors }}</p>
+<p><label for="id_email">Email address:</label> {{ form.email }}{{ form.email.errors }}<button class="btn btn-lg btn-primary btn-block" type="submit">Create Account</button></p>
+</form>
+</div>
+</div>
+</body>
+{% endblock %}
