@@ -11,3 +11,10 @@ class UserSettingsForm(forms.ModelForm):
     class Meta:
         model = UserSettings
         fields = ('settings_level', )
+
+
+class CreateAccountForm(forms.Form):
+    """
+    Form for creating a new user account.
+
+    """

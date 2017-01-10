@@ -5,6 +5,8 @@ from django.contrib.auth import login
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.db.models import F, Sum, FloatField
+from django.views.generic.edit import FormView
+
 
 from mama_cas.views import LoginView
 from mama_cas.utils import redirect
@@ -16,6 +18,8 @@ from mc2.models import UserSettings
 from mc2.organizations.models import Organization
 from mc2.forms import UserSettingsForm
 from mc2.organizations.utils import active_organization
+
+from mc2 import forms
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +37,16 @@ class HomepageView(ControllerViewMixin, ListView):
 
     def get_queryset(self):
         return self.get_controllers_queryset(self.request).order_by('name')
+
+
+class CreateAccountView(FormView):
+    """
+    Allow a new user to create an account.
+
+    """
+
+    form_class = forms.CreateAccountForm
+    template_name = "account/create_account.html"
 
 
 class DashboardView(HomepageView):
