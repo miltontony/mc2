@@ -1,6 +1,7 @@
 import pytest
 import responses
 from django.test.client import Client
+from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from mc2.controllers.base.models import Controller
@@ -116,3 +117,15 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(
             resp,
             '<a class="text-red" href="/base/delete/%s/">' % controller.id)
+
+
+class CreateAccountViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'testuser', 'test@email.com', '1234')
+        self.client = Client()
+
+    def test_login(self):
+        response = self.client.get(reverse('login'))
+        self.assertContains(response, 'Forgotten your password')
+        self.assertContains(response, 'Create account')
