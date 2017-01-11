@@ -132,7 +132,7 @@ class CreateAccountViewTest(TestCase):
         self.assertContains(response, 'Create account')
 
     def test_create_account_view(self):
-        response = self.client.post(reverse('create_accountt'),
+        response = self.client.post(reverse('create_account'),
                                     data={'username': 'tester',
                                           'password': 'foo',
                                           'confirm_password': 'foo',
