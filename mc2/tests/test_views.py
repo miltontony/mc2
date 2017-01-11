@@ -144,3 +144,15 @@ class CreateAccountViewTest(TestCase):
                                     ["This email address is already in use."
                                      " Please supply a different email"
                                      " address."])
+
+    def test_create_account_form_unique_username(self):
+        self.user = User.objects.create_user(
+            'foo', 'foo@email.com', '1234')
+        form = forms.CreateAccountForm(data={
+            'username': 'foo',
+            'email': 'foo@email.com',
+            'password': 'foo',
+            'confirm_password': 'foo'})
+        self.failIf(form.is_valid())
+        self.assertEqual(form.errors['username'],
+                                    ["Username already exists."])
