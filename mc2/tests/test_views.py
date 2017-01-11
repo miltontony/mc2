@@ -131,6 +131,18 @@ class CreateAccountViewTest(TestCase):
         self.assertContains(response, 'Forgotten your password')
         self.assertContains(response, 'Create account')
 
+    def test_create_account_view(self):
+        response = self.client.post(reverse('create_accountt'),
+                                    data={'username': 'tester',
+                                          'password': 'foo',
+                                          'confirm_password': 'foo',
+                                          'first_name': 'foo',
+                                          'last_name': 'foo',
+                                          'email': 'foo@example.com'})
+        self.assertEqual(response.status_code, 200)
+        self.failUnless(response.context['form'])
+        self.failUnless(response.context['form'].errors)
+
     def test_create_new_account_form_unique_email(self):
         self.user = User.objects.create_user(
             'foo', 'foo@email.com', '1234')
