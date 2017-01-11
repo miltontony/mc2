@@ -80,6 +80,6 @@ class CreateAccountForm(forms.Form):
         if user_model.objects.filter(
            email__iexact=self.cleaned_data['email']).exists():
             raise forms.ValidationError('This email address is already in use.'
-                                        'Please supply a different'
-                                        'email address.')
+                                        ' Please supply a different'
+                                        ' email address.')
         return self.cleaned_data['email']

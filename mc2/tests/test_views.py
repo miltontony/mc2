@@ -8,6 +8,7 @@ from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
 from mc2.organizations.models import Organization
+from mc2 import forms
 
 
 # Unknowm controller for testing the template tag default
@@ -129,3 +130,17 @@ class CreateAccountViewTest(TestCase):
         response = self.client.get(reverse('login'))
         self.assertContains(response, 'Forgotten your password')
         self.assertContains(response, 'Create account')
+
+    def test_create_new_account_form_unique_email(self):
+        self.user = User.objects.create_user(
+            'foo', 'foo@email.com', '1234')
+        form = forms.CreateAccountForm(data={
+            'username': 'foo',
+            'email': 'foo@email.com',
+            'password': 'foo',
+            'confirm_password': 'foo'})
+        self.failIf(form.is_valid())
+        self.assertEqual(form.errors['email'],
+                                    ["This email address is already in use."
+                                     " Please supply a different email"
+                                     " address."])
