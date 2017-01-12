@@ -210,3 +210,15 @@ class CreateAccountViewTest(TestCase):
                                'email': 'test@email.com'})
         self.assertEqual(User.objects.get().email,
                          'test@email.com')
+
+    def test_passwords_not_matching(self):
+        self.user = User.objects.create_user(
+            'foo', 'foo@email.com', '1234')
+        form = forms.CreateAccountForm(data={
+            'username': 'foo',
+            'email': 'foo@email.com',
+            'password': 'foo',
+            'confirm_password': '1234'})
+        self.failIf(form.is_valid())
+        self.assertEqual(form.errors['confirm_password'],
+                                    ["Passwords do not match."])

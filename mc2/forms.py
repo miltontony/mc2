@@ -63,7 +63,7 @@ class CreateAccountForm(forms.Form):
             return self.cleaned_data['username']
         raise forms.ValidationError(_('Username already exists.'))
 
-    def clean(self):
+    def clean_confirm_password(self):
         password = self.cleaned_data.get('password', None)
         confirm_password = self.cleaned_data.get('confirm_password', None)
         if (password and confirm_password and
