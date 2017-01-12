@@ -169,3 +169,13 @@ class CreateAccountViewTest(TestCase):
         self.failIf(form.is_valid())
         self.assertEqual(form.errors['username'],
                                     ["Username already exists."])
+
+    def test_username_field_is_required(self):
+        response = self.client.post(reverse('create_account'),
+                                    data={'password': 'foo',
+                                          'confirm_password': 'foo',
+                                          'first_name': 'foo',
+                                          'last_name': 'foo',
+                                          'email': 'foo@example.com'})
+        self.assertFormError(response, 'form', 'username',
+                             ['This field is required.'])
