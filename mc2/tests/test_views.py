@@ -139,9 +139,10 @@ class CreateAccountViewTest(TestCase):
                                           'first_name': 'foo',
                                           'last_name': 'foo',
                                           'email': 'foo@example.com'})
-        self.assertEqual(response.status_code, 200)
-        self.failUnless(response.context['form'])
-        self.failUnless(response.context['form'].errors)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'],
+                         'http://testserver%s' % reverse('home'))
+        self.assertEqual(User.objects.count(), 2)
 
     def test_create_new_account_form_unique_email(self):
         self.user = User.objects.create_user(
