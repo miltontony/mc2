@@ -199,3 +199,14 @@ class CreateAccountViewTest(TestCase):
                                           'email': 'foo@'})
         self.assertFormError(
             response, 'form', 'email', ['Enter a valid email address.'])
+
+    def test_valid_email(self):
+        self.client.post(reverse('user_settings'),
+                         data={'username': 'tester',
+                               'password': 'foo',
+                               'confirm_password': 'foo',
+                               'first_name': 'foo',
+                               'last_name': 'foo',
+                               'email': 'test@email.com'})
+        self.assertEqual(User.objects.get().email,
+                         'test@email.com')
