@@ -22,8 +22,8 @@
 	            <div class="col-sm-12">
 					<form class="form-login" method="post">{% csrf_token %}
 						<p><label for="id_username">Username:</label> <br><input class="form-control" placeholder="Username"{{ form.username }}{{ form.username.errors }}</p>
-						<p><label for="id_password">Password:</label> <br><input class="form-control" placeholder="Password"{{ form.password }}{{ form.password.errors }}</p>
-						<p><label for="id_confirm_password">Password Confirmation:</label> <br><input class="form-control" placeholder="Confirm Password"{{ form.confirm_password }}{{ form.confirm_password.errors }}</p>
+						<p><label for="id_password">Password:</label> <br><input class="form-control" placeholder="Password"{{ form.password1 }}{{ form.password1.errors }}</p>
+						<p><label for="id_confirm_password">Password Confirmation:</label> <br><input class="form-control" placeholder="Confirm Password"{{ form.password2 }}{{ form.password2.errors }}</p>
 						<p><label for="id_first_name">First Name:</label> <br><input class="form-control" placeholder="First Name"{{ form.first_name }}{{ form.first_name.errors }}</p>
 						<p><label for="id_last_name">Last Name:</label> <br><input class="form-control" placeholder="Last Name"{{ form.last_name }}{{ form.last_name.errors }}</p>
 						<p><label for="id_email">Email address:</label> <br><input class="form-control" placeholder="Email Address"{{ form.email }}{{ form.email.errors }}</p>

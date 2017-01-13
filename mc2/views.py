@@ -52,13 +52,13 @@ class CreateAccountView(FormView):
 
     def form_valid(self, form):
         username = form.cleaned_data["username"]
-        password = form.cleaned_data["password"]
-        confirm_password = form.cleaned_data["confirm_password"]
+        password1 = form.cleaned_data["password1"]
+        password2 = form.cleaned_data["password2"]
         first_name = form.cleaned_data["first_name"]
         last_name = form.cleaned_data["last_name"]
-        user = User.objects.create_user(username=username, password=password)
+        user = User.objects.create_user(username=username, password=password1)
 
-        user.confirm_password = confirm_password
+        user.password2 = password2
         user.first_name = first_name
         user.last_name = last_name
         if form.cleaned_data["email"]:
@@ -66,7 +66,7 @@ class CreateAccountView(FormView):
             user.save()
         user.save()
 
-        authed_user = authenticate(username=username, password=password)
+        authed_user = authenticate(username=username, password=password1)
         login(self.request, authed_user)
         return HttpResponseRedirect(form.cleaned_data.get("next", "/"))
 

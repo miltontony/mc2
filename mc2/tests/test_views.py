@@ -134,8 +134,8 @@ class CreateAccountViewTest(TestCase):
     def test_create_account_view(self):
         response = self.client.post(reverse('create_account'),
                                     data={'username': 'tester',
-                                          'password': 'foo',
-                                          'confirm_password': 'foo',
+                                          'password1': 'foo',
+                                          'password2': 'foo',
                                           'first_name': 'foo',
                                           'last_name': 'foo',
                                           'email': 'foo@example.com'})
@@ -150,8 +150,8 @@ class CreateAccountViewTest(TestCase):
         form = forms.CreateAccountForm(data={
             'username': 'foo',
             'email': 'foo@email.com',
-            'password': 'foo',
-            'confirm_password': 'foo'})
+            'password1': 'foo',
+            'password2': 'foo'})
         self.failIf(form.is_valid())
         self.assertEqual(form.errors['email'],
                                     ["This email address is already in use."
@@ -164,16 +164,17 @@ class CreateAccountViewTest(TestCase):
         form = forms.CreateAccountForm(data={
             'username': 'foo',
             'email': 'foo@email.com',
-            'password': 'foo',
-            'confirm_password': 'foo'})
+            'password1': 'foo',
+            'password2': 'foo'})
         self.failIf(form.is_valid())
         self.assertEqual(form.errors['username'],
-                                    ["Username already exists."])
+                                    ["A user with that username "
+                                     "already exists."])
 
     def test_username_field_is_required(self):
         response = self.client.post(reverse('create_account'),
-                                    data={'password': 'foo',
-                                          'confirm_password': 'foo',
+                                    data={'password1': 'foo',
+                                          'password2': 'foo',
                                           'first_name': 'foo',
                                           'last_name': 'foo',
                                           'email': 'foo@example.com'})
@@ -186,14 +187,14 @@ class CreateAccountViewTest(TestCase):
                                           'first_name': 'foo',
                                           'last_name': 'foo',
                                           'email': 'foo@example.com'})
-        self.assertFormError(response, 'form', 'password',
+        self.assertFormError(response, 'form', 'password1',
                              ['This field is required.'])
 
     def test_email_field_is_required(self):
         response = self.client.post(reverse('create_account'),
                                     data={'username': 'tester',
-                                          'password': 'foo',
-                                          'confirm_password': 'foo',
+                                          'password1': 'foo',
+                                          'password2': 'foo',
                                           'first_name': 'foo',
                                           'last_name': 'foo'})
         self.assertFormError(response, 'form', 'email',
@@ -202,8 +203,8 @@ class CreateAccountViewTest(TestCase):
     def test_invalid_email(self):
         response = self.client.post(reverse('create_account'),
                                     data={'username': 'tester',
-                                          'password': 'foo',
-                                          'confirm_password': 'foo',
+                                          'password1': 'foo',
+                                          'password2': 'foo',
                                           'first_name': 'foo',
                                           'last_name': 'foo',
                                           'email': 'foo@'})
@@ -213,8 +214,8 @@ class CreateAccountViewTest(TestCase):
     def test_valid_email(self):
         self.client.post(reverse('user_settings'),
                          data={'username': 'tester',
-                               'password': 'foo',
-                               'confirm_password': 'foo',
+                               'password1': 'foo',
+                               'password2': 'foo',
                                'first_name': 'foo',
                                'last_name': 'foo',
                                'email': 'test@email.com'})
@@ -227,8 +228,8 @@ class CreateAccountViewTest(TestCase):
         form = forms.CreateAccountForm(data={
             'username': 'foo',
             'email': 'foo@email.com',
-            'password': 'foo',
-            'confirm_password': '1234'})
+            'password1': 'foo',
+            'password2': '1234'})
         self.failIf(form.is_valid())
-        self.assertEqual(form.errors['confirm_password'],
-                                    ["Passwords do not match."])
+        self.assertEqual(form.errors['password2'],
+                                    ["The two password fields didn't match."])
