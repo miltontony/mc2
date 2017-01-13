@@ -1,10 +1,14 @@
 import logging
 
 from django.views.generic import ListView, UpdateView
-from django.contrib.auth import login
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.db.models import F, Sum, FloatField
+from django.views.generic.edit import FormView
+from django.http import HttpResponseRedirect
+
 
 from mama_cas.views import LoginView
 from mama_cas.utils import redirect
@@ -16,6 +20,8 @@ from mc2.models import UserSettings
 from mc2.organizations.models import Organization
 from mc2.forms import UserSettingsForm
 from mc2.organizations.utils import active_organization
+
+from mc2 import forms
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +39,36 @@ class HomepageView(ControllerViewMixin, ListView):
 
     def get_queryset(self):
         return self.get_controllers_queryset(self.request).order_by('name')
+
+
+class CreateAccountView(FormView):
+    """
+    Allow a new user to create an account.
+
+    """
+
+    form_class = forms.CreateAccountForm
+    template_name = "account/create_account.html"
+
+    def form_valid(self, form):
+        username = form.cleaned_data["username"]
+        password1 = form.cleaned_data["password1"]
+        password2 = form.cleaned_data["password2"]
+        first_name = form.cleaned_data["first_name"]
+        last_name = form.cleaned_data["last_name"]
+        user = User.objects.create_user(username=username, password=password1)
+
+        user.password2 = password2
+        user.first_name = first_name
+        user.last_name = last_name
+        if form.cleaned_data["email"]:
+            user.email = form.cleaned_data["email"]
+            user.save()
+        user.save()
+
+        authed_user = authenticate(username=username, password=password1)
+        login(self.request, authed_user)
+        return HttpResponseRedirect(form.cleaned_data.get("next", "/"))
 
 
 class DashboardView(HomepageView):

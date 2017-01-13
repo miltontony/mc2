@@ -1,0 +1,37 @@
+{% extends "skins/base.html" %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+	<a href="{% url 'admin:index' %}">Home</a>
+	&rsaquo; Create Account
+</div>
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}<h1>{{ title }}</h1>{% endblock %}
+{% block body %}
+<body class="hold-transition login-page">
+	<div class="login-box">
+	  <div class="login-logo">
+	    <a href="#"><b>Create</b> Account</a>
+	  </div>
+	  <!-- /.login-logo -->
+	  <div class="login-box-body">
+			<div class="row">
+	            <div class="col-sm-12">
+					<form class="form-login" method="post">{% csrf_token %}
+						<p><label for="id_username">Username:</label> <br><input class="form-control" placeholder="Username"{{ form.username }}{{ form.username.errors }}</p>
+						<p><label for="id_password">Password:</label> <br><input class="form-control" placeholder="Password"{{ form.password1 }}{{ form.password1.errors }}</p>
+						<p><label for="id_confirm_password">Password Confirmation:</label> <br><input class="form-control" placeholder="Confirm Password"{{ form.password2 }}{{ form.password2.errors }}</p>
+						<p><label for="id_first_name">First Name:</label> <br><input class="form-control" placeholder="First Name"{{ form.first_name }}{{ form.first_name.errors }}</p>
+						<p><label for="id_last_name">Last Name:</label> <br><input class="form-control" placeholder="Last Name"{{ form.last_name }}{{ form.last_name.errors }}</p>
+						<p><label for="id_email">Email address:</label> <br><input class="form-control" placeholder="Email Address"{{ form.email }}{{ form.email.errors }}</p>
+						<button class="btn btn-lg btn-primary btn-block" type="submit">Create Account</button></p>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+{% endblock %}
