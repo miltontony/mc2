@@ -53,7 +53,7 @@ class CreateAccountForm(forms.Form):
 
     first_name = forms.CharField(required=False)
     last_name = forms.CharField(required=False)
-    email = forms.EmailField(required=False)
+    email = forms.EmailField(required=True)
 
     def clean_username(self):
         try:

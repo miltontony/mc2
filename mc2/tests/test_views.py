@@ -189,6 +189,16 @@ class CreateAccountViewTest(TestCase):
         self.assertFormError(response, 'form', 'password',
                              ['This field is required.'])
 
+    def test_email_field_is_required(self):
+        response = self.client.post(reverse('create_account'),
+                                    data={'username': 'tester',
+                                          'password': 'foo',
+                                          'confirm_password': 'foo',
+                                          'first_name': 'foo',
+                                          'last_name': 'foo'})
+        self.assertFormError(response, 'form', 'email',
+                             ['This field is required.'])
+
     def test_invalid_email(self):
         response = self.client.post(reverse('create_account'),
                                     data={'username': 'tester',
