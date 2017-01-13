@@ -132,13 +132,12 @@ class CreateAccountViewTest(TestCase):
         self.assertContains(response, 'Create account')
 
     def test_create_account_view(self):
-        response = self.client.post(reverse('create_account'),
-                                    data={'username': 'tester',
-                                          'password1': 'foo',
-                                          'password2': 'foo',
-                                          'first_name': 'foo',
-                                          'last_name': 'foo',
-                                          'email': 'foo@example.com'})
+        response = self.client.post(
+            reverse('create_account'),
+            data={'username': 'tester', 'password1': 'foo',
+                  'password2': 'foo', 'first_name': 'foo',
+                  'last_name': 'foo', 'email': 'foo@example.com'})
+
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'],
                          'http://testserver%s' % reverse('home'))
@@ -172,53 +171,63 @@ class CreateAccountViewTest(TestCase):
                                      "already exists."])
 
     def test_username_field_is_required(self):
-        response = self.client.post(reverse('create_account'),
-                                    data={'password1': 'foo',
-                                          'password2': 'foo',
-                                          'first_name': 'foo',
-                                          'last_name': 'foo',
-                                          'email': 'foo@example.com'})
+        response = self.client.post(
+            reverse('create_account'),
+            data={'password1': 'foo',
+                  'password2': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo',
+                  'email': 'foo@example.com'})
+
         self.assertFormError(response, 'form', 'username',
                              ['This field is required.'])
 
     def test_password_field_is_required(self):
-        response = self.client.post(reverse('create_account'),
-                                    data={'username': 'foo',
-                                          'first_name': 'foo',
-                                          'last_name': 'foo',
-                                          'email': 'foo@example.com'})
+        response = self.client.post(
+            reverse('create_account'),
+            data={'username': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo',
+                  'email': 'foo@example.com'})
+
         self.assertFormError(response, 'form', 'password1',
                              ['This field is required.'])
 
     def test_email_field_is_required(self):
-        response = self.client.post(reverse('create_account'),
-                                    data={'username': 'tester',
-                                          'password1': 'foo',
-                                          'password2': 'foo',
-                                          'first_name': 'foo',
-                                          'last_name': 'foo'})
+        response = self.client.post(
+            reverse('create_account'),
+            data={'username': 'tester',
+                  'password1': 'foo',
+                  'password2': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo'})
+
         self.assertFormError(response, 'form', 'email',
                              ['This field is required.'])
 
     def test_invalid_email(self):
-        response = self.client.post(reverse('create_account'),
-                                    data={'username': 'tester',
-                                          'password1': 'foo',
-                                          'password2': 'foo',
-                                          'first_name': 'foo',
-                                          'last_name': 'foo',
-                                          'email': 'foo@'})
+        response = self.client.post(
+            reverse('create_account'),
+            data={'username': 'tester',
+                  'password1': 'foo',
+                  'password2': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo',
+                  'email': 'foo@'})
+
         self.assertFormError(
             response, 'form', 'email', ['Enter a valid email address.'])
 
     def test_valid_email(self):
-        self.client.post(reverse('user_settings'),
-                         data={'username': 'tester',
-                               'password1': 'foo',
-                               'password2': 'foo',
-                               'first_name': 'foo',
-                               'last_name': 'foo',
-                               'email': 'test@email.com'})
+        self.client.post(
+            reverse('user_settings'),
+            data={'username': 'tester',
+                  'password1': 'foo',
+                  'password2': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo',
+                  'email': 'test@email.com'})
+
         self.assertEqual(User.objects.get().email,
                          'test@email.com')
 
