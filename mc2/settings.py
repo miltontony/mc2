@@ -214,7 +214,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'redis_cache',
     'raven.contrib.django.raven_compat',
     'debug_toolbar',
 
@@ -260,16 +259,6 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-    }
-}
-
-CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'localhost:6379',
-        'OPTIONS': {
-            'DB': 2,
-        }
     }
 }
 
@@ -329,3 +318,5 @@ SOCIAL_AUTH_PIPELINE = (
 HUBCLIENT_SETTINGS = None
 
 MAMA_CAS_ATTRIBUTE_CALLBACKS = ('mc2.permissions.org_permissions',)
+
+COMPRESS_OFFLINE = True

@@ -4,7 +4,6 @@ set -e
 
 echo "setting up the database"
 django-admin.py migrate --noinput
-django-admin.py collectstatic --noinput
 
 echo "from django.contrib.auth.models import User
 if not User.objects.filter(username='admin').count():
