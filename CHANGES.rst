@@ -3,6 +3,7 @@ CHANGE LOG
 
 3.9.0
 -----
+- Allow users to register on MC
 
 3.8.1
 -----
