@@ -1,6 +1,9 @@
 CHANGE LOG
 ==========
 
+3.9.0
+-----
+
 3.8.1
 -----
 - move version number to __init__.py
