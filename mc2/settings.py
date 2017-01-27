@@ -46,6 +46,15 @@ HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 SEED_XYLEM_API_HOST = environ.get(
     'SEED_XYLEM_API_HOST', 'http://localhost:7701')
 
+RABBITMQ_API_HOST = environ.get(
+    'RABBITMQ_API_HOST', 'localhost:15672')
+RABBITMQ_APP_HOST = environ.get(
+    'RABBITMQ_APP_HOST', 'localhost:15672')
+RABBITMQ_API_USERNAME = environ.get(
+    'RABBITMQ_API_USERNAME', 'guest')
+RABBITMQ_API_PASSWORD = environ.get(
+    'RABBITMQ_API_PASSWORD', 'guest')
+
 # Configured at Nginx for internal redirect
 MESOS_FILE_API_PATH = environ.get(
     'MESOS_FILE_API_PATH', '/mesos/%(worker_host)s/files/%(api_path)s')

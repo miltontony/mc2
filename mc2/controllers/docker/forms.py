@@ -52,7 +52,8 @@ class DockerControllerForm(ControllerForm):
             'marathon_cmd', 'docker_image', 'marathon_health_check_path',
             'port', 'domain_urls', 'volume_needed', 'volume_path',
             'webhook_token', 'description', 'organization',
-            'postgres_db_needed', 'external_visibility')
+            'postgres_db_needed', 'external_visibility',
+            'rabbitmq_vhost_needed', 'rabbitmq_vhost_name')
 
 
 class DockerControllerFormHelper(ControllerFormHelper):

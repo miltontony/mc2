@@ -44,13 +44,22 @@ class ControllerForm(forms.ModelForm):
         label="Do you need a Postgres database? (Not yet functional)",
         initial=False,
         widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
+    rabbitmq_vhost_needed = forms.BooleanField(
+        required=False,
+        label="Do you need a RabbitMQ Vhost?",
+        initial=False,
+        widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]))
+    rabbitmq_vhost_name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control'}),
+        required=False)
 
     class Meta:
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
             'marathon_cmd', 'webhook_token', 'description', 'organization',
-            'postgres_db_needed')
+            'postgres_db_needed', 'rabbitmq_vhost_needed',
+            'rabbitmq_vhost_name')
 
 
 class CustomInlineFormset(forms.BaseInlineFormSet):

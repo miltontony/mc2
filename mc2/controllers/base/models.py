@@ -8,7 +8,8 @@ from polymorphic.models import PolymorphicModel
 
 from mc2.controllers.base import exceptions, namers
 from mc2.controllers.base.builders import Builder
-from mc2.controllers.base.managers import ControllerInfrastructureManager
+from mc2.controllers.base.managers import (
+    ControllerInfrastructureManager, ControllerRabbitMQManager)
 
 
 class Controller(PolymorphicModel):
@@ -39,6 +40,15 @@ class Controller(PolymorphicModel):
     postgres_db_host = models.TextField(default='', blank=True, null=True)
     postgres_db_username = models.TextField(default='', blank=True, null=True)
     postgres_db_password = models.TextField(default='', blank=True, null=True)
+
+    # create postgres databases through mission control
+    rabbitmq_vhost_needed = models.BooleanField(default=False)
+    rabbitmq_vhost_name = models.TextField(default='', blank=True, null=True)
+    rabbitmq_vhost_host = models.TextField(default='', blank=True, null=True)
+    rabbitmq_vhost_username = models.TextField(
+        default='', blank=True, null=True)
+    rabbitmq_vhost_password = models.TextField(
+        default='', blank=True, null=True)
 
     # Ownership and auth fields
     owner = models.ForeignKey('auth.User')
@@ -73,6 +83,7 @@ class Controller(PolymorphicModel):
         super(Controller, self).__init__(*args, **kwargs)
 
         self.infra_manager = ControllerInfrastructureManager(self)
+        self.rabbitmq_manager = ControllerRabbitMQManager(self)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -168,6 +179,19 @@ class Controller(PolymorphicModel):
             self.postgres_db_host = None
             self.postgres_db_name = None
             self.save()
+
+        if self.rabbitmq_vhost_needed:
+            self.rabbitmq_manager.create_rabbitmq_vhost()
+            env.update({
+                'BROKER_URL':
+                    'amqp://%(username)s:%(password)s@%(host)s//%(name)s' %
+                    {
+                        'username': self.rabbitmq_vhost_username,
+                        'password': self.rabbitmq_vhost_password,
+                        'host': self.rabbitmq_vhost_host,
+                        'name': self.rabbitmq_vhost_name,
+                    }
+            })
 
             # TODO: seed-xylem currently doesn't support deleting of databases
             # Once support is added, we should delete this database here.
