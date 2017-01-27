@@ -23,7 +23,6 @@ class ControllerRabbitMQManager(object):
             settings.RABBITMQ_API_HOST,
             settings.RABBITMQ_API_USERNAME,
             settings.RABBITMQ_API_PASSWORD)
-        print self.client
 
     def _create_password(self):
         # Guranteed random dice rolls
