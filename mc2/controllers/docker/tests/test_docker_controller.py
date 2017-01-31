@@ -56,8 +56,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "image": "docker/image",
                     "forcePullImage": True,
                     "network": "BRIDGE",
-                }
-            }
+                    "parameters": [{"key": "memory-swappiness", "value": "0"}],
+                },
+            },
         })
 
         controller.port = 1234
@@ -88,7 +89,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "forcePullImage": True,
                     "network": "BRIDGE",
                     "portMappings": [{"containerPort": 1234, "hostPort": 0}],
-                }
+                    "parameters": [{"key": "memory-swappiness", "value": "0"}],
+                },
             },
         })
 
@@ -120,6 +122,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "forcePullImage": True,
                     "network": "BRIDGE",
                     "portMappings": [{"containerPort": 1234, "hostPort": 0}],
+                    "parameters": [{"key": "memory-swappiness", "value": "0"}],
                 }
             },
             "ports": [0],
@@ -164,6 +167,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "network": "BRIDGE",
                     "portMappings": [{"containerPort": 1234, "hostPort": 0}],
                     "parameters": [
+                        {"key": "memory-swappiness", "value": "0"},
                         {"key": "volume-driver", "value": "xylem"},
                         {
                             "key": "volume",
@@ -213,6 +217,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "network": "BRIDGE",
                     "portMappings": [{"containerPort": 1234, "hostPort": 0}],
                     "parameters": [
+                        {"key": "memory-swappiness", "value": "0"},
                         {"key": "volume-driver", "value": "xylem"},
                         {
                             "key": "volume",
@@ -268,8 +273,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "image": "docker/image",
                     "forcePullImage": True,
                     "network": "BRIDGE",
-                }
-            }
+                    "parameters": [{"key": "memory-swappiness", "value": "0"}],
+                },
+            },
         })
 
     def test_get_marathon_app_data_with_app_labels(self):
@@ -307,8 +313,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "image": "docker/image",
                     "forcePullImage": True,
                     "network": "BRIDGE",
-                }
-            }
+                    "parameters": [{"key": "memory-swappiness", "value": "0"}],
+                },
+            },
         })
 
     @responses.activate
@@ -353,8 +360,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "image": "docker/image",
                     "forcePullImage": True,
                     "network": "BRIDGE",
-                }
-            }
+                    "parameters": [{"key": "memory-swappiness", "value": "0"}],
+                },
+            },
         })
 
     @responses.activate
@@ -408,8 +416,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "image": "docker/image",
                     "forcePullImage": True,
                     "network": "BRIDGE",
-                }
-            }
+                    "parameters": [{"key": "memory-swappiness", "value": "0"}],
+                },
+            },
         })
 
     @responses.activate
@@ -455,7 +464,9 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                         "network": "BRIDGE",
                         "portMappings": [
                             {"containerPort": 1234, "hostPort": 0}],
-                    }
+                        "parameters": [
+                            {"key": "memory-swappiness", "value": "0"}],
+                    },
                 },
                 "ports": [0],
                 "healthChecks": [{

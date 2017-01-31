@@ -40,7 +40,7 @@ class DockerController(Controller):
                 "portMappings": [{"containerPort": self.port, "hostPort": 0}]
             })
 
-        parameters_dict = []
+        parameters_dict = [{"key": "memory-swappiness", "value": "0"}]
         if self.volume_needed:
             parameters_dict.append({"key": "volume-driver", "value": "xylem"})
             parameters_dict.append({
