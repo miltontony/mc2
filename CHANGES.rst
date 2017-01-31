@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.10.0
+------
+- Add memory-swappiness=0 docker parameter to all app definitions.
+
 3.9.0
 -----
 - Allow users to register on MC
