@@ -19,6 +19,8 @@ urlpatterns = patterns(
         name='dashboard'
     ),
     url(r'^login/?$', views.MC2LoginView.as_view(), name='login'),
+    url(r'^create_account/?$', views.CreateAccountView.as_view(),
+        name='create_account'),
     url(r'', include('mama_cas.urls')),
     url(
         r'^logout/$',

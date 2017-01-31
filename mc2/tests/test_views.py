@@ -1,12 +1,14 @@
 import pytest
 import responses
 from django.test.client import Client
+from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
 from mc2.organizations.models import Organization
+from mc2 import forms
 
 
 # Unknowm controller for testing the template tag default
@@ -116,3 +118,127 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(
             resp,
             '<a class="text-red" href="/base/delete/%s/">' % controller.id)
+
+
+class CreateAccountViewTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'testuser', 'test@email.com', '1234')
+        self.client = Client()
+
+    def test_login(self):
+        response = self.client.get(reverse('login'))
+        self.assertContains(response, 'Forgotten your password')
+        self.assertContains(response, 'Create account')
+
+    def test_create_account_view(self):
+        response = self.client.post(
+            reverse('create_account'),
+            data={'username': 'tester', 'password1': 'foo',
+                  'password2': 'foo', 'first_name': 'foo',
+                  'last_name': 'foo', 'email': 'foo@example.com'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response['Location'],
+                         'http://testserver%s' % reverse('home'))
+        self.assertEqual(User.objects.count(), 2)
+
+    def test_create_new_account_form_unique_email(self):
+        self.user = User.objects.create_user(
+            'foo', 'foo@email.com', '1234')
+        form = forms.CreateAccountForm(data={
+            'username': 'foo',
+            'email': 'foo@email.com',
+            'password1': 'foo',
+            'password2': 'foo'})
+        self.failIf(form.is_valid())
+        self.assertEqual(form.errors['email'],
+                                    ["This email address is already in use."
+                                     " Please supply a different email"
+                                     " address."])
+
+    def test_create_account_form_unique_username(self):
+        self.user = User.objects.create_user(
+            'foo', 'foo@email.com', '1234')
+        form = forms.CreateAccountForm(data={
+            'username': 'foo',
+            'email': 'foo@email.com',
+            'password1': 'foo',
+            'password2': 'foo'})
+        self.failIf(form.is_valid())
+        self.assertEqual(form.errors['username'],
+                                    ["A user with that username "
+                                     "already exists."])
+
+    def test_username_field_is_required(self):
+        response = self.client.post(
+            reverse('create_account'),
+            data={'password1': 'foo',
+                  'password2': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo',
+                  'email': 'foo@example.com'})
+
+        self.assertFormError(response, 'form', 'username',
+                             ['This field is required.'])
+
+    def test_password_field_is_required(self):
+        response = self.client.post(
+            reverse('create_account'),
+            data={'username': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo',
+                  'email': 'foo@example.com'})
+
+        self.assertFormError(response, 'form', 'password1',
+                             ['This field is required.'])
+
+    def test_email_field_is_required(self):
+        response = self.client.post(
+            reverse('create_account'),
+            data={'username': 'tester',
+                  'password1': 'foo',
+                  'password2': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo'})
+
+        self.assertFormError(response, 'form', 'email',
+                             ['This field is required.'])
+
+    def test_invalid_email(self):
+        response = self.client.post(
+            reverse('create_account'),
+            data={'username': 'tester',
+                  'password1': 'foo',
+                  'password2': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo',
+                  'email': 'foo@'})
+
+        self.assertFormError(
+            response, 'form', 'email', ['Enter a valid email address.'])
+
+    def test_valid_email(self):
+        self.client.post(
+            reverse('user_settings'),
+            data={'username': 'tester',
+                  'password1': 'foo',
+                  'password2': 'foo',
+                  'first_name': 'foo',
+                  'last_name': 'foo',
+                  'email': 'test@email.com'})
+
+        self.assertEqual(User.objects.get().email,
+                         'test@email.com')
+
+    def test_passwords_not_matching(self):
+        self.user = User.objects.create_user(
+            'foo', 'foo@email.com', '1234')
+        form = forms.CreateAccountForm(data={
+            'username': 'foo',
+            'email': 'foo@email.com',
+            'password1': 'foo',
+            'password2': '1234'})
+        self.failIf(form.is_valid())
+        self.assertEqual(form.errors['password2'],
+                                    ["The two password fields didn't match."])

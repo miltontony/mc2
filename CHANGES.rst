@@ -1,6 +1,21 @@
 CHANGE LOG
 ==========
 
+3.10.0
+------
+- Add memory-swappiness=0 docker parameter to all app definitions.
+
+3.9.0
+-----
+- Allow users to register on MC
+
+3.8.1
+-----
+- move version number to __init__.py
+- show is_app_admin in the UI
+- show org list dropdown in alphabetical order
+- ensure full list of orgs is shown by default
+
 3.8.0
 -----
 - change labels when external visibility disabled

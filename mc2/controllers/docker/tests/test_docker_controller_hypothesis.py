@@ -92,6 +92,30 @@ def check_and_clear_appdata(appdata, controller):
     assert appdata == {}
 
 
+def check_and_remove_docker_param(parameters, key, value):
+    """
+    Assert that a particular docker param is correct and remove it.
+    """
+    paraml = [p for p in parameters if p["key"] == key]
+    assert paraml == [{"key": key, "value": value}]
+    parameters.remove(paraml[0])
+
+
+def check_and_remove_docker_params(docker, controller):
+    """
+    Assert that the docker params data is correct and remove it.
+    """
+    parameters = docker.pop("parameters")
+    check_and_remove_docker_param(parameters, "memory-swappiness", "0")
+    if controller.volume_needed:
+        check_and_remove_docker_param(parameters, "volume-driver", "xylem")
+        volume = u"%s_media:%s" % (
+            controller.app_id,
+            controller.volume_path or settings.MARATHON_DEFAULT_VOLUME_PATH)
+        check_and_remove_docker_param(parameters, "volume", volume)
+    assert parameters == []
+
+
 def check_and_remove_docker(appdata, controller):
     """
     Assert that the docker container data is correct and remove it.
@@ -105,14 +129,7 @@ def check_and_remove_docker(appdata, controller):
     if controller.port:
         assert docker.pop("portMappings") == [
             {"containerPort": controller.port, "hostPort": 0}]
-    if controller.volume_needed:
-        volume = u"%s_media:%s" % (
-            controller.app_id,
-            controller.volume_path or settings.MARATHON_DEFAULT_VOLUME_PATH)
-        assert sorted(docker.pop("parameters")) == sorted([
-            {"key": "volume-driver", "value": "xylem"},
-            {"key": "volume", "value": volume},
-        ])
+    check_and_remove_docker_params(docker, controller)
     assert docker == {}
     assert container == {}
 
