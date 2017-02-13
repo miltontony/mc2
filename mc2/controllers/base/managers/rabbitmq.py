@@ -3,11 +3,10 @@ import hashlib
 import random
 import time
 import uuid
+import requests
+import json
 
 from django.conf import settings
-
-from pyrabbit.api import Client
-from pyrabbit.http import HTTPError
 
 
 class ControllerRabbitMQManager(object):
@@ -19,19 +18,61 @@ class ControllerRabbitMQManager(object):
         :param controller Controller: A Controller model instance
         """
         self.ctrl = controller
-        self.client = Client(
-            settings.RABBITMQ_API_HOST,
-            settings.RABBITMQ_API_USERNAME,
-            settings.RABBITMQ_API_PASSWORD)
+        self.auth = requests.auth.HTTPBasicAuth(
+            settings.RABBITMQ_API_USERNAME, settings.RABBITMQ_API_PASSWORD)
+
+    def _do_call(self, method, url, data=None, headers=None, timeout=5):
+        req_headers = {'Content-Type': 'application/json'}
+
+        if headers:
+            req_headers.update(headers)
+
+        response = requests.request(
+            method, url, data=data, headers=req_headers,
+            auth=self.auth,
+            timeout=timeout)
+        response.raise_for_status()
+        return response
 
     def _create_password(self):
         # Guranteed random dice rolls
         return base64.b64encode(
             hashlib.sha1(uuid.uuid1().hex).hexdigest())[:24]
 
-    def _create_username(self):
-        return base64.b64encode(str(
+    def _create_username(self, vhost_name):
+        random_name = base64.b64encode(str(
             time.time() + random.random() * time.time())).strip('=').lower()
+        return '%s_%s' % (vhost_name, random_name)
+
+    def _get_vhost(self, vhost_name):
+        response = self._do_call('GET', '%s/vhosts/%s' % (
+            settings.RABBITMQ_API_HOST,
+            vhost_name))
+        return response.json().get('name')
+
+    def _create_vhost(self, vhost_name):
+        response = self._do_call('PUT', '%s/vhosts/%s' % (
+            settings.RABBITMQ_API_HOST, vhost_name))
+        return response
+
+    def _get_user(self, username):
+        response = self._do_call('GET', '%s/users/%s' % (
+            settings.RABBITMQ_API_HOST,
+            username))
+        return response.json().get('name')
+
+    def _create_user(self, username, password, tags="management"):
+        response = self._do_call('PUT', '%s/users/%s' % (
+            settings.RABBITMQ_API_HOST, username),
+            data=json.dumps({'password': password, 'tags': tags}))
+        return response
+
+    def _set_vhost_permissions(
+            self, vhost_name, username, cfg=".*", wr=".*", rd=".*"):
+        response = self._do_call('PUT', '%s/permissions/%s/%s' % (
+            settings.RABBITMQ_API_HOST, vhost_name, username),
+            data=json.dumps({"configure": cfg, "write": wr, "read": rd}))
+        return response
 
     def create_rabbitmq_vhost(self):
         """
@@ -42,17 +83,22 @@ class ControllerRabbitMQManager(object):
         :returns: bool
         """
         try:
-            self.client.get_vhost(self.ctrl.rabbitmq_vhost_name)
+            self._get_vhost(self.ctrl.rabbitmq_vhost_name)
             return False  # already exists
-        except HTTPError:
+        except requests.exceptions.HTTPError:
             pass
 
-        self.client.create_vhost(self.ctrl.rabbitmq_vhost_name)
+        self._create_vhost(self.ctrl.rabbitmq_vhost_name)
+
         # create user/pass
-        username = self._create_username()
+        username = self._create_username(self.ctrl.rabbitmq_vhost_name)
         password = self._create_password()
 
-        self.client.create_user(username, password)
+        try:
+            self._get_user(username)
+            return False  # already exists
+        except requests.exceptions.HTTPError:
+            self._create_user(username, password)
 
         # save newly created username/pass
         self.ctrl.rabbitmq_vhost_username = username
@@ -60,6 +106,5 @@ class ControllerRabbitMQManager(object):
         self.ctrl.rabbitmq_vhost_host = settings.RABBITMQ_APP_HOST
         self.ctrl.save()
 
-        self.client.set_vhost_permissions(
-            self.ctrl.rabbitmq_vhost_name, username, '.*', '.*', '.*')
+        self._set_vhost_permissions(self.ctrl.rabbitmq_vhost_name, username)
         return True

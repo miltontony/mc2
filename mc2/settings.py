@@ -47,9 +47,9 @@ SEED_XYLEM_API_HOST = environ.get(
     'SEED_XYLEM_API_HOST', 'http://localhost:7701')
 
 RABBITMQ_API_HOST = environ.get(
-    'RABBITMQ_API_HOST', 'localhost:15672')
+    'RABBITMQ_API_HOST', 'http://localhost:15672/api')
 RABBITMQ_APP_HOST = environ.get(
-    'RABBITMQ_APP_HOST', 'localhost:15672')
+    'RABBITMQ_APP_HOST', 'http://localhost:15672')
 RABBITMQ_API_USERNAME = environ.get(
     'RABBITMQ_API_USERNAME', 'guest')
 RABBITMQ_API_PASSWORD = environ.get(

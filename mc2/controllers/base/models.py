@@ -180,9 +180,9 @@ class Controller(PolymorphicModel):
             self.postgres_db_name = None
             self.save()
 
-        if self.rabbitmq_vhost_needed:
+        if self.rabbitmq_vhost_needed and self.rabbitmq_vhost_name:
             self.rabbitmq_manager.create_rabbitmq_vhost()
-            env.update({
+            envs.update({
                 'BROKER_URL':
                     'amqp://%(username)s:%(password)s@%(host)s//%(name)s' %
                     {
