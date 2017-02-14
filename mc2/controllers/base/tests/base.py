@@ -85,3 +85,43 @@ class ControllerBaseTestCase(TransactionTestCase):
             body=json.dumps({}),
             content_type="application/json",
             status=status)
+
+    def mock_get_vhost(self, vhost_name, status=200):
+        responses.add(
+            responses.GET, '%s/vhosts/%s' % (
+                settings.RABBITMQ_API_HOST, vhost_name),
+            body=json.dumps({'name': vhost_name}),
+            content_type="application/json",
+            status=status)
+
+    def mock_put_vhost(self, vhost_name, status=204):
+        responses.add(
+            responses.PUT, '%s/vhosts/%s' % (
+                settings.RABBITMQ_API_HOST, vhost_name),
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
+    def mock_get_user(self, name, status=200):
+        responses.add(
+            responses.GET, '%s/users/%s' % (
+                settings.RABBITMQ_API_HOST, name),
+            body=json.dumps({'name': name}),
+            content_type="application/json",
+            status=status)
+
+    def mock_put_user(self, name, status=200):
+        responses.add(
+            responses.PUT, '%s/users/%s' % (
+                settings.RABBITMQ_API_HOST, name),
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)
+
+    def mock_put_vhost_permissions(self, vhost, username, status=200):
+        responses.add(
+            responses.PUT, '%s/permissions/%s/%s' % (
+                settings.RABBITMQ_API_HOST, vhost, username),
+            body=json.dumps({}),
+            content_type="application/json",
+            status=status)

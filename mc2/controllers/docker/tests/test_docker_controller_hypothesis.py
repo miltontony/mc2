@@ -1,8 +1,8 @@
 import json
 import string
-
 import pytest
 import responses
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -56,6 +56,10 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # Prevent Hypothesis from generating domains with invalid characters
     domain_urls = text(string.ascii_letters + string.digits + '-.')
     kw.setdefault("domain_urls", domain_urls)
+
+    # Prevent Hypothesis from generating vhosts with invalid characters
+    rabbitmq_vhost_name = text(string.ascii_letters + string.digits + '-.')
+    kw.setdefault("rabbitmq_vhost_name", rabbitmq_vhost_name)
 
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
@@ -146,13 +150,21 @@ def check_and_remove_env(appdata, controller):
     Assert that the correct envvars are in appdata and remove them.
     """
     env_variables = controller.env_variables.all()
-    if env_variables or controller.postgres_db_needed:
+    if env_variables or controller.postgres_db_needed or \
+            (controller.rabbitmq_vhost_needed and
+             controller.rabbitmq_vhost_name):
         envs = appdata.pop("env")
 
         if controller.postgres_db_needed:
             assert envs.pop(
                 "DATABASE_URL") == 'postgres://trevor:1234@localhost/trevordb'
 
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            assert envs.pop("BROKER_URL") == 'amqp://%s:%s@%s//%s' % (
+                controller.rabbitmq_vhost_username,
+                controller.rabbitmq_vhost_password,
+                controller.rabbitmq_vhost_host,
+                controller.rabbitmq_vhost_name)
         if env_variables:
             # We may have duplicate keys in here, but hopefully the database
             # always return the objects in the same order.
@@ -252,6 +264,18 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
         """
         Suitable app_data is built for any combination of model parameters.
         """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            vhost_name = controller.rabbitmq_vhost_name
+            self.mock_get_vhost(vhost_name)
+            self.mock_put_vhost(vhost_name)
+            self.mock_get_vhost(controller.rabbitmq_vhost_name)
+            self.mock_put_vhost(controller.rabbitmq_vhost_host)
+            self.mock_get_user(controller.rabbitmq_vhost_username)
+            self.mock_put_user(controller.rabbitmq_vhost_username)
+            self.mock_put_vhost_permissions(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+
         app_data = controller.get_marathon_app_data()
         check_and_clear_appdata(app_data, controller)
 
@@ -263,6 +287,18 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
         A model imported from app_data generates the same app_data as the model
         it was imported from.
         """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            vhost_name = controller.rabbitmq_vhost_name
+            self.mock_get_vhost(vhost_name)
+            self.mock_put_vhost(vhost_name)
+            self.mock_get_vhost(controller.rabbitmq_vhost_name)
+            self.mock_put_vhost(controller.rabbitmq_vhost_host)
+            self.mock_get_user(controller.rabbitmq_vhost_username)
+            self.mock_put_user(controller.rabbitmq_vhost_username)
+            self.mock_put_vhost_permissions(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
             controller.owner, controller.organization, app_data)
@@ -279,6 +315,18 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
         We limit the number of examples we generate because we don't need
         hundreds of examples to verify that this behaviour is correct.
         """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            vhost_name = controller.rabbitmq_vhost_name
+            self.mock_get_vhost(vhost_name)
+            self.mock_put_vhost(vhost_name)
+            self.mock_get_vhost(controller.rabbitmq_vhost_name)
+            self.mock_put_vhost(controller.rabbitmq_vhost_host)
+            self.mock_get_user(controller.rabbitmq_vhost_username)
+            self.mock_put_user(controller.rabbitmq_vhost_username)
+            self.mock_put_vhost_permissions(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
             controller.owner, controller.organization, app_data, name=name)
@@ -299,6 +347,18 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
         We limit the number of examples we generate because we don't need
         hundreds of examples to verify that this behaviour is correct.
         """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            vhost_name = controller.rabbitmq_vhost_name
+            self.mock_get_vhost(vhost_name)
+            self.mock_put_vhost(vhost_name)
+            self.mock_get_vhost(controller.rabbitmq_vhost_name)
+            self.mock_put_vhost(controller.rabbitmq_vhost_host)
+            self.mock_get_user(controller.rabbitmq_vhost_username)
+            self.mock_put_user(controller.rabbitmq_vhost_username)
+            self.mock_put_vhost_permissions(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+
         app_data = controller.get_marathon_app_data()
         user = controller.owner
         user.set_password("password")  # So we can log in.
