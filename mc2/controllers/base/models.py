@@ -1,4 +1,5 @@
 import requests
+import urllib
 
 from django.db import models
 from django.conf import settings
@@ -189,7 +190,7 @@ class Controller(PolymorphicModel):
                         'username': self.rabbitmq_vhost_username,
                         'password': self.rabbitmq_vhost_password,
                         'host': self.rabbitmq_vhost_host,
-                        'name': self.rabbitmq_vhost_name,
+                        'name': urllib.quote(self.rabbitmq_vhost_name),
                     }
             })
 
