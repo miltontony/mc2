@@ -1,10 +1,11 @@
 import base64
 import hashlib
-import random
-import time
-import uuid
-import requests
 import json
+import random
+import requests
+import time
+import urllib
+import uuid
 
 from django.conf import settings
 
@@ -82,16 +83,18 @@ class ControllerRabbitMQManager(object):
 
         :returns: bool
         """
+        vhost_name = urllib.quote(self.ctrl.rabbitmq_vhost_name)
+
         try:
-            self._get_vhost(self.ctrl.rabbitmq_vhost_name)
+            self._get_vhost(vhost_name)
             return False  # already exists
         except requests.exceptions.HTTPError:
             pass
 
-        self._create_vhost(self.ctrl.rabbitmq_vhost_name)
+        self._create_vhost(vhost_name)
 
         # create user/pass
-        username = self._create_username(self.ctrl.rabbitmq_vhost_name)
+        username = self._create_username(vhost_name)
         password = self._create_password()
 
         try:
@@ -106,5 +109,5 @@ class ControllerRabbitMQManager(object):
         self.ctrl.rabbitmq_vhost_host = settings.RABBITMQ_APP_HOST
         self.ctrl.save()
 
-        self._set_vhost_permissions(self.ctrl.rabbitmq_vhost_name, username)
+        self._set_vhost_permissions(vhost_name, username)
         return True
