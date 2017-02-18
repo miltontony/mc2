@@ -237,6 +237,96 @@ class ViewsTestCase(ControllerBaseTestCase):
             controller.rabbitmq_vhost_password)
 
     @responses.activate
+    def test_rabbitmq_vhost_already_created(self):
+        controller = self.mk_controller()
+        controller.rabbitmq_vhost_needed = True
+        controller.rabbitmq_vhost_username = 'vhost_test_user'
+        controller.rabbitmq_vhost_password = 'vhost_test_password'
+        controller.rabbitmq_vhost_name = 'vhost_test'
+        controller.rabbitmq_vhost_host = 'http://localhost:15672'
+        controller.save()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_get_vhost('vhost_test')
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'rabbitmq_vhost_needed': True,
+            'rabbitmq_vhost_name': 'vhost_test',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(
+            reverse('base:edit', args=[controller.id]), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller.refresh_from_db()
+        self.assertEqual(
+            controller.rabbitmq_vhost_password, 'vhost_test_password')
+
+    @responses.activate
+    def test_rabbitmq_vhost_user_already_created(self):
+        controller = self.mk_controller()
+        controller.rabbitmq_vhost_needed = True
+        controller.rabbitmq_vhost_username = 'vhost_test_user'
+        controller.rabbitmq_vhost_password = 'vhost_test_password'
+        controller.rabbitmq_vhost_name = 'vhost_test'
+        controller.rabbitmq_vhost_host = 'http://localhost:15672'
+        controller.save()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_get_vhost('vhost_test', status=404)
+        self.mock_put_vhost('vhost_test')
+        self.mock_get_user('vhost_test_user', status=200)
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'rabbitmq_vhost_needed': True,
+            'rabbitmq_vhost_name': 'vhost_test',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(
+            reverse('base:edit', args=[controller.id]), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller.refresh_from_db()
+        self.assertEqual(
+            controller.rabbitmq_vhost_password, 'vhost_test_password')
+
+    @responses.activate
     def test_rabbitmq_vhost_required(self):
         self.client.login(username='testuser2', password='test')
         self.client.get(

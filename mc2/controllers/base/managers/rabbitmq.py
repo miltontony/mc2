@@ -94,7 +94,8 @@ class ControllerRabbitMQManager(object):
         self._create_vhost(vhost_name)
 
         # create user/pass
-        username = self._create_username(vhost_name)
+        username = self.ctrl.rabbitmq_vhost_username or \
+            self._create_username(vhost_name)
         password = self._create_password()
 
         try:
