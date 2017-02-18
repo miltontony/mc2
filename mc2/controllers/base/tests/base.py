@@ -125,3 +125,10 @@ class ControllerBaseTestCase(TransactionTestCase):
             body=json.dumps({}),
             content_type="application/json",
             status=status)
+
+    def mock_successful_new_vhost(self, vhost_name, vhost_user):
+        self.mock_get_vhost(vhost_name, status=404)
+        self.mock_put_vhost(vhost_name)
+        self.mock_get_user(vhost_user, status=404)
+        self.mock_put_user(vhost_user)
+        self.mock_put_vhost_permissions(vhost_name, vhost_user)
