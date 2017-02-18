@@ -61,6 +61,14 @@ class ControllerForm(forms.ModelForm):
             'postgres_db_needed', 'rabbitmq_vhost_needed',
             'rabbitmq_vhost_name')
 
+    def clean_rabbitmq_vhost_name(self):
+        rabbitmq_vhost_needed = self.cleaned_data.get('rabbitmq_vhost_needed')
+        rabbitmq_vhost_name = self.cleaned_data.get('rabbitmq_vhost_name')
+        if rabbitmq_vhost_needed:
+            if not rabbitmq_vhost_name:
+                raise forms.ValidationError("vhost name is required.")
+        return rabbitmq_vhost_name
+
 
 class CustomInlineFormset(forms.BaseInlineFormSet):
     """
