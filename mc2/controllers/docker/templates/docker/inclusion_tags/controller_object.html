@@ -10,7 +10,7 @@
       <div class="widget-user-desc">{{controller.description}}</div>
       <div class="widget-user-desc">
         {{controller.app_id }}
-        <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span>
+        <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.get_status}}</span>
       </div>
     </div>
 

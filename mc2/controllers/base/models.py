@@ -278,6 +278,22 @@ class Controller(PolymorphicModel):
         """
         pass
 
+    def get_status(self):
+        """
+        Hits Marathon API and gets the status of the App
+        """
+        resp = requests.get(
+            '%(host)s/v2/apps/%(id)s' % {
+                'host': settings.MESOS_MARATHON_HOST,
+                'id': self.app_id
+            },
+            json={})
+
+        if resp.status_code != 200:
+            return ['error']
+
+        return [task.get('state') for task in resp.json().get('app').get('tasks')]
+
 
 class EnvVariable(models.Model):
     controller = models.ForeignKey(Controller, related_name='env_variables')
