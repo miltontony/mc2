@@ -12,7 +12,7 @@ cache:
     - $HOME/.hypothesis
 env:
   global:
-    - HYPOTHESIS_DATABASE_FILE=$HOME/.hypothesis/examples.db
+    - HYPOTHESIS_DATABASE_FILE=$HOME/.hypothesis/examples.db COVERAGE=true
 services:
   - elasticsearch
 

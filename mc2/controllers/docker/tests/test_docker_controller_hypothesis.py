@@ -1,8 +1,9 @@
 import json
-import string
-
+import mock
 import pytest
 import responses
+import string
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
@@ -15,6 +16,7 @@ from hypothesis.strategies import text, random_module, lists, just
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController, traefik_domains
+from mc2.controllers.base.managers.rabbitmq import ControllerRabbitMQManager
 from mc2.organizations.models import Organization
 
 
@@ -56,6 +58,14 @@ def docker_controller(with_envvars=True, with_labels=True, **kw):
     # Prevent Hypothesis from generating domains with invalid characters
     domain_urls = text(string.ascii_letters + string.digits + '-.')
     kw.setdefault("domain_urls", domain_urls)
+
+    # Prevent Hypothesis from generating vhosts with invalid characters
+    rabbitmq_vhost_name = text(string.ascii_letters + string.digits + '-.')
+    kw.setdefault("rabbitmq_vhost_name", rabbitmq_vhost_name)
+
+    # Prevent Hypothesis from generating usernames with invalid characters
+    rabbitmq_vhost_username = text(string.ascii_letters + string.digits + '-.')
+    kw.setdefault("rabbitmq_vhost_username", rabbitmq_vhost_username)
 
     # The model generator sees `controller_ptr` (from the PolymorphicModel
     # magic) as a mandatory field and objects if we don't provide a value for
@@ -163,13 +173,21 @@ def check_and_remove_env(appdata, controller):
     Assert that the correct envvars are in appdata and remove them.
     """
     env_variables = controller.env_variables.all()
-    if env_variables or controller.postgres_db_needed:
+    if env_variables or controller.postgres_db_needed or \
+            (controller.rabbitmq_vhost_needed and
+             controller.rabbitmq_vhost_name):
         envs = appdata.pop("env")
 
         if controller.postgres_db_needed:
             assert envs.pop(
                 "DATABASE_URL") == 'postgres://trevor:1234@localhost/trevordb'
 
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            assert envs.pop("BROKER_URL") == 'amqp://%s:%s@%s//%s' % (
+                controller.rabbitmq_vhost_username,
+                controller.rabbitmq_vhost_password,
+                controller.rabbitmq_vhost_host,
+                controller.rabbitmq_vhost_name)
         if env_variables:
             # We may have duplicate keys in here, but hopefully the database
             # always return the objects in the same order.
@@ -263,32 +281,47 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
                 'host': 'localhost'}})
 
     @responses.activate
+    @mock.patch.object(ControllerRabbitMQManager, '_create_username')
     @hsettings(perform_health_check=False)
     @given(_r=random_module(), controller=docker_controller())
-    def test_get_marathon_app_data(self, _r, controller):
+    def test_get_marathon_app_data(self, _r, controller, mock_create_u):
         """
         Suitable app_data is built for any combination of model parameters.
         """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            self.mock_successful_new_vhost(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+            mock_create_u.return_value = controller.rabbitmq_vhost_username
+
         app_data = controller.get_marathon_app_data()
         check_and_clear_appdata(app_data, controller)
 
     @responses.activate
+    @mock.patch.object(ControllerRabbitMQManager, '_create_username')
     @hsettings(perform_health_check=False)
     @given(_r=random_module(), controller=docker_controller())
-    def test_from_marathon_app_data(self, _r, controller):
+    def test_from_marathon_app_data(self, _r, controller, u):
         """
         A model imported from app_data generates the same app_data as the model
         it was imported from.
         """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            self.mock_successful_new_vhost(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+            u.return_value = controller.rabbitmq_vhost_username
+
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
             controller.owner, controller.organization, app_data)
         assert app_data == new_controller.get_marathon_app_data()
 
     @responses.activate
+    @mock.patch.object(ControllerRabbitMQManager, '_create_username')
     @hsettings(perform_health_check=False, max_examples=50)
     @given(_r=random_module(), controller=docker_controller(), name=text())
-    def test_from_marathon_app_data_with_name(self, _r, controller, name):
+    def test_from_marathon_app_data_with_name(self, _r, controller, name, u):
         """
         A model imported from app_data generates the same app_data as the model
         it was imported from, but with the name field overridden.
@@ -296,6 +329,12 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
         We limit the number of examples we generate because we don't need
         hundreds of examples to verify that this behaviour is correct.
         """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            self.mock_successful_new_vhost(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+            u.return_value = controller.rabbitmq_vhost_username
+
         app_data = controller.get_marathon_app_data()
         new_controller = DockerController.from_marathon_app_data(
             controller.owner, controller.organization, app_data, name=name)
@@ -306,9 +345,10 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
         assert app_data_with_name == new_controller.get_marathon_app_data()
 
     @responses.activate
+    @mock.patch.object(ControllerRabbitMQManager, '_create_username')
     @hsettings(perform_health_check=False, max_examples=50)
     @given(_r=random_module(), controller=docker_controller(), name=text())
-    def test_hidden_import_view(self, _r, controller, name):
+    def test_hidden_import_view(self, _r, controller, name, mock_create_u):
         """
         A model imported through the hidden view generates the same app_data
         as the model it was imported from, but with the name field overridden.
@@ -316,6 +356,12 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
         We limit the number of examples we generate because we don't need
         hundreds of examples to verify that this behaviour is correct.
         """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            self.mock_successful_new_vhost(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+            mock_create_u.return_value = controller.rabbitmq_vhost_username
+
         app_data = controller.get_marathon_app_data()
         user = controller.owner
         user.set_password("password")  # So we can log in.
