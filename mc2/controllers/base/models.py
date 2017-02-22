@@ -306,14 +306,12 @@ class Controller(PolymorphicModel):
         if resp.status_code != 200:
             return ['error']
 
-        h = resp.json().get('app').get('healthChecks')
-
         status = {'instances': resp.json().get('app').get('instances'),
                   'staged': resp.json().get('app').get('tasksStaged'),
                   'running': resp.json().get('app').get('tasksRunning'),
                   'health_defined': False if len(resp.json().get('app').get('healthChecks')) == 0 else True,
                   'healthy': resp.json().get('app').get('tasksHealthy'),
-                  'unhealthy': resp.json().get('app').get('tasksUnhealthy')
+                  'unhealthy': resp.json().get('app').get('tasksUnhealthy'),
                   }
 
         return status
