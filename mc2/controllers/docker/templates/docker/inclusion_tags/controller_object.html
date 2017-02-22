@@ -9,8 +9,19 @@
       <h3 class="widget-user-username">{{controller.name}}</h3>
       <div class="widget-user-desc">{{controller.description}}</div>
       <div class="widget-user-desc">
-        {{controller.app_id }}
-        <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.get_status}}</span>
+        {{controller.app_id }}<br/>
+          {% with controller.get_status as status %}
+            {% if status.instances == 0 %}
+                There are no instances of this app!<br/>
+            {% else %}
+                Running instances: {{ status.running }} of {{ status.instances }}<br/>
+                {% if status.health_defined %}
+                    <span class="label bg-green">{{ status.healthy }} healthy</span> | <span class="label bg-red">{{ status.unhealthy }} unhealthy</span><br/>
+                {% else %}
+                    <span class="label bg-orange">Health check not defined!</span><br/>
+                {% endif %}
+            {% endif %}
+          {% endwith %}
       </div>
     </div>
 
