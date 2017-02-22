@@ -289,29 +289,50 @@ class Controller(PolymorphicModel):
                     'health_defined'  : <boolean>,
                     'healthy'         : <int>,
                     'unhealthy'       : <int>,
+                    'deploying'       : <boolean>,
                 }
 
         """
-        url = '%(host)s/v2/apps/%(id)s' % {
-            'host': settings.MESOS_MARATHON_HOST,
-            'id': self.app_id
-        }
-        resp = requests.get(
+        resp1 = requests.get(
             '%(host)s/v2/apps/%(id)s' % {
                 'host': settings.MESOS_MARATHON_HOST,
                 'id': self.app_id
             },
             json={})
 
-        if resp.status_code != 200:
-            return ['error']
+        resp2 = requests.get(
+            '%(host)s/v2/deployments' % {
+                'host': settings.MESOS_MARATHON_HOST,
+            },
+            json={}
+        )
 
-        status = {'instances': resp.json().get('app').get('instances'),
-                  'staged': resp.json().get('app').get('tasksStaged'),
-                  'running': resp.json().get('app').get('tasksRunning'),
-                  'health_defined': False if len(resp.json().get('app').get('healthChecks')) == 0 else True,
-                  'healthy': resp.json().get('app').get('tasksHealthy'),
-                  'unhealthy': resp.json().get('app').get('tasksUnhealthy'),
+        if resp1.status_code != 200:
+            raise exceptions.MarathonApiException(
+                'Marathon app deletion failed with response: %s - %s' %
+                (resp1.status_code, resp1.json().get('message')))
+
+        if resp2.status_code != 200:
+            raise exceptions.MarathonApiException(
+                'Marathon app deletion failed with response: %s - %s' %
+                (resp2.status_code, resp2.json().get('message')))
+
+        # Check if there are deployments of this app.
+        deploying = False
+        for dep in resp2.json():
+            for app in dep['affectedApps']:
+                app2 = app[1:]
+                if app[1:] == self.app_id:
+                    deploying = True
+                    break
+
+        status = {'instances': resp1.json().get('app').get('instances'),
+                  'staged': resp1.json().get('app').get('tasksStaged'),
+                  'running': resp1.json().get('app').get('tasksRunning'),
+                  'health_defined': False if len(resp1.json().get('app').get('healthChecks')) == 0 else True,
+                  'healthy': resp1.json().get('app').get('tasksHealthy'),
+                  'unhealthy': resp1.json().get('app').get('tasksUnhealthy'),
+                  'deploying': deploying,
                   }
 
         return status

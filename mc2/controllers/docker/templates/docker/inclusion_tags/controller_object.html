@@ -9,12 +9,22 @@
       <h3 class="widget-user-username">{{controller.name}}</h3>
       <div class="widget-user-desc">{{controller.description}}</div>
       <div class="widget-user-desc">
-        {{controller.app_id }}<br/>
           {% with controller.get_status as status %}
+          <strong>{{controller.app_id }} </strong>
+              {% if status.deploying %}
+                  {% verbatim %}
+                    (App is being deployed)
+                  {% endverbatim %}
+              {% endif %}
+          <br/>
             {% if status.instances == 0 %}
                 There are no instances of this app!<br/>
             {% else %}
-                Running instances: {{ status.running }} of {{ status.instances }}<br/>
+                Running instances: {{ status.running }} of {{ status.instances }}
+                {% if status.staged != 0 %}
+                    ({{ status.staged }} staged)
+                {% endif %}
+                <br/>
                 {% if status.health_defined %}
                     <span class="label bg-green">{{ status.healthy }} healthy</span> | <span class="label bg-red">{{ status.unhealthy }} unhealthy</span><br/>
                 {% else %}
