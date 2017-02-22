@@ -281,7 +281,21 @@ class Controller(PolymorphicModel):
     def get_status(self):
         """
         Hits Marathon API and gets the status of the App
+        :return: A dict with the status of the app
+                status = {
+                    'instances'       : <int>,
+                    'staged'          : <int>,
+                    'running'         : <int>
+                    'health_defined'  : <boolean>,
+                    'healthy'         : <int>,
+                    'unhealthy'       : <int>,
+                }
+
         """
+        url = '%(host)s/v2/apps/%(id)s' % {
+            'host': settings.MESOS_MARATHON_HOST,
+            'id': self.app_id
+        }
         resp = requests.get(
             '%(host)s/v2/apps/%(id)s' % {
                 'host': settings.MESOS_MARATHON_HOST,
@@ -292,7 +306,17 @@ class Controller(PolymorphicModel):
         if resp.status_code != 200:
             return ['error']
 
-        return [task.get('state') for task in resp.json().get('app').get('tasks')]
+        h = resp.json().get('app').get('healthChecks')
+
+        status = {'instances': resp.json().get('app').get('instances'),
+                  'staged': resp.json().get('app').get('tasksStaged'),
+                  'running': resp.json().get('app').get('tasksRunning'),
+                  'health_defined': False if len(resp.json().get('app').get('healthChecks')) == 0 else True,
+                  'healthy': resp.json().get('app').get('tasksHealthy'),
+                  'unhealthy': resp.json().get('app').get('tasksUnhealthy')
+                  }
+
+        return status
 
 
 class EnvVariable(models.Model):
