@@ -321,15 +321,18 @@ class Controller(PolymorphicModel):
         deploying = False
         for dep in resp2.json():
             for app in dep['affectedApps']:
-                app2 = app[1:]
                 if app[1:] == self.app_id:
                     deploying = True
                     break
 
+        health_defined = False
+        if len(resp1.json().get('app').get('healthChecks')) > 0:
+            health_defined = True
+
         status = {'instances': resp1.json().get('app').get('instances'),
                   'staged': resp1.json().get('app').get('tasksStaged'),
                   'running': resp1.json().get('app').get('tasksRunning'),
-                  'health_defined': False if len(resp1.json().get('app').get('healthChecks')) == 0 else True,
+                  'health_defined': health_defined,
                   'healthy': resp1.json().get('app').get('tasksHealthy'),
                   'unhealthy': resp1.json().get('app').get('tasksUnhealthy'),
                   'deploying': deploying,
