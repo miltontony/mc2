@@ -98,7 +98,7 @@
       {% include "form_field.html" with field=form.rabbitmq_vhost_name %}
 
       {% if object.rabbitmq_vhost_needed %}
-      <input class="form-control" type="text" value="amqp://{{object.rabbitmq_vhost_username}}:{{object.rabbitmq_vhost_password}}@{{object.rabbitmq_vhost_host}}//{{object.rabbitmq_vhost_name|urlencode}}" disabled>
+      <input class="form-control" type="text" value="amqp://{{object.rabbitmq_vhost_username}}:{{object.rabbitmq_vhost_password}}@{{object.rabbitmq_vhost_host}}/{{object.rabbitmq_vhost_name|urlencode}}" disabled>
       {% endif %}
       </div></div>
 
