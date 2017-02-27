@@ -283,14 +283,17 @@ class Controller(PolymorphicModel):
         Hits Marathon API and gets the status of the App
         :return: A dict with the status of the app
                 status = {
-                    'instances'       : <int>,      Total number of instances of the app
-                    'staged'          : <int>,      Number of tasks in the staged mode
-                    'running'         : <int>       Number of running instances/tasks
-                    'health_defined'  : <boolean>,  False if Marathon health check path not defined
-                    'healthy'         : <int>,      Number of healthy tasks
-                    'unhealthy'       : <int>,      Number of unhealthy tasks
-                    'deploying'       : <boolean>   True if app is in deployment stage
-                    'error'           : <boolean>   False if successful
+                    'instances'       : <int>,
+                    'staged'          : <int>,
+                    'running'         : <int>,
+                    'health_defined'  : <boolean>,
+                                        False if health check path undefined
+                    'healthy'         : <int>,
+                    'unhealthy'       : <int>,
+                    'deploying'       : <boolean>
+                                        True if app is in deployment stage
+                    'error'           : <boolean>
+                                        False if successful
                 }
 
                 OR... If an error occurs, it returns
@@ -317,14 +320,22 @@ class Controller(PolymorphicModel):
                 json={}
             )
         except Exception as e:
-            # This catch clause is for tests (requests fail and throw exceptions during tests)
+            # Requests fail and throw exceptions during tests
             return {'error': True, 'message': e.message, }
 
         if resp1.status_code != 200:
-            return {'error': True, 'message': 'API call to Marathon failed with %s' % resp1.status_code, }
+            return {
+                'error': True,
+                'message': 'API call to Marathon failed with %s'
+                           % resp1.status_code,
+            }
 
         if resp2.status_code != 200:
-            return {'error': True, 'message': 'API call to Marathon failed with %s' % resp2.status_code, }
+            return {
+                'error': True,
+                'message': 'API call to Marathon failed with %s'
+                           % resp2.status_code,
+            }
 
         # Check if there are any deployments of this app.
         deploying = False
