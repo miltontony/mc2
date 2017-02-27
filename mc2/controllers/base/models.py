@@ -185,7 +185,7 @@ class Controller(PolymorphicModel):
             self.rabbitmq_manager.create_rabbitmq_vhost()
             envs.update({
                 'BROKER_URL':
-                    'amqp://%(username)s:%(password)s@%(host)s//%(name)s' %
+                    'amqp://%(username)s:%(password)s@%(host)s/%(name)s' %
                     {
                         'username': self.rabbitmq_vhost_username,
                         'password': self.rabbitmq_vhost_password,

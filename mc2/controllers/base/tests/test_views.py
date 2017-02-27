@@ -233,7 +233,7 @@ class ViewsTestCase(ControllerBaseTestCase):
         resp = self.client.get(reverse('base:edit', args=[controller.id]))
         self.assertContains(
             resp,
-            'amqp://vhost_test_user:%s@http://localhost:15672//vhost_test' %
+            'amqp://vhost_test_user:%s@http://localhost:15672/vhost_test' %
             controller.rabbitmq_vhost_password)
 
     @responses.activate

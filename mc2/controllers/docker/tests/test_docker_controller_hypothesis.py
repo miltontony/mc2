@@ -183,7 +183,7 @@ def check_and_remove_env(appdata, controller):
                 "DATABASE_URL") == 'postgres://trevor:1234@localhost/trevordb'
 
         if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
-            assert envs.pop("BROKER_URL") == 'amqp://%s:%s@%s//%s' % (
+            assert envs.pop("BROKER_URL") == 'amqp://%s:%s@%s/%s' % (
                 controller.rabbitmq_vhost_username,
                 controller.rabbitmq_vhost_password,
                 controller.rabbitmq_vhost_host,

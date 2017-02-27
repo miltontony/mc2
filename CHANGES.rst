@@ -1,6 +1,10 @@
 CHANGE LOG
 ==========
 
+3.11.0
+------
+- allow user to request rabbitmq vhost
+
 3.10.0
 ------
 - Add memory-swappiness=0 docker parameter to all app definitions.
