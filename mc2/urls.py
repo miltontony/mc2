@@ -42,4 +42,8 @@ urlpatterns = patterns(
     url(
         r'^social/',
         include('social.apps.django_app.urls', namespace='social')),
+
+    # REST URL to get health status of apps
+
+    url(r'^v2/apps/health/$', views.AppsHealth.as_view(), name='apps_health')
 )
