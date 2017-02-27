@@ -283,41 +283,50 @@ class Controller(PolymorphicModel):
         Hits Marathon API and gets the status of the App
         :return: A dict with the status of the app
                 status = {
-                    'instances'       : <int>,
-                    'staged'          : <int>,
-                    'running'         : <int>
-                    'health_defined'  : <boolean>,
-                    'healthy'         : <int>,
-                    'unhealthy'       : <int>,
-                    'deploying'       : <boolean>,
+                    'instances'       : <int>,      Total number of instances of the app
+                    'staged'          : <int>,      Number of tasks in the staged mode
+                    'running'         : <int>       Number of running instances/tasks
+                    'health_defined'  : <boolean>,  False if Marathon health check path not defined
+                    'healthy'         : <int>,      Number of healthy tasks
+                    'unhealthy'       : <int>,      Number of unhealthy tasks
+                    'deploying'       : <boolean>   True if app is in deployment stage
+                    'error'           : <boolean>   False if successful
                 }
 
-        """
-        resp1 = requests.get(
-            '%(host)s/v2/apps/%(id)s' % {
-                'host': settings.MESOS_MARATHON_HOST,
-                'id': self.app_id
-            },
-            json={})
+                OR... If an error occurs, it returns
 
-        resp2 = requests.get(
-            '%(host)s/v2/deployments' % {
-                'host': settings.MESOS_MARATHON_HOST,
-            },
-            json={}
-        )
+                status = {
+                    'error'           : <boolean>   True if error occurs
+                    'message'         : <string>    Error message>
+                }
+        """
+        try:
+            # Get details for this app
+            resp1 = requests.get(
+                '%(host)s/v2/apps/%(id)s' % {
+                    'host': settings.MESOS_MARATHON_HOST,
+                    'id': self.app_id
+                },
+                json={})
+
+            # Get deployment details to check if app is being deployed
+            resp2 = requests.get(
+                '%(host)s/v2/deployments' % {
+                    'host': settings.MESOS_MARATHON_HOST,
+                },
+                json={}
+            )
+        except Exception as e:
+            # This catch clause is for tests (requests fail and throw exceptions during tests)
+            return {'error': True, 'message': e.message, }
 
         if resp1.status_code != 200:
-            raise exceptions.MarathonApiException(
-                'Marathon app deletion failed with response: %s - %s' %
-                (resp1.status_code, resp1.json().get('message')))
+            return {'error': True, 'message': 'API call to Marathon failed with %s' % resp1.status_code, }
 
         if resp2.status_code != 200:
-            raise exceptions.MarathonApiException(
-                'Marathon app deletion failed with response: %s - %s' %
-                (resp2.status_code, resp2.json().get('message')))
+            return {'error': True, 'message': 'API call to Marathon failed with %s' % resp2.status_code, }
 
-        # Check if there are deployments of this app.
+        # Check if there are any deployments of this app.
         deploying = False
         for dep in resp2.json():
             for app in dep['affectedApps']:
@@ -325,6 +334,7 @@ class Controller(PolymorphicModel):
                     deploying = True
                     break
 
+        # Check if the Marathon health check path is defined
         health_defined = False
         if len(resp1.json().get('app').get('healthChecks')) > 0:
             health_defined = True
@@ -336,6 +346,7 @@ class Controller(PolymorphicModel):
                   'healthy': resp1.json().get('app').get('tasksHealthy'),
                   'unhealthy': resp1.json().get('app').get('tasksUnhealthy'),
                   'deploying': deploying,
+                  'error': False,
                   }
 
         return status
