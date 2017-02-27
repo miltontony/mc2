@@ -9,14 +9,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.db.models import F, Sum, FloatField
 from django.views.generic.edit import FormView
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 
 from mama_cas.views import LoginView
 from mama_cas.utils import redirect
 from mama_cas.utils import to_bool
 from mama_cas.models import ServiceTicket
 
-from mc2.controllers.base import exceptions
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.views import ControllerViewMixin
 from mc2.models import UserSettings
