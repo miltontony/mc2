@@ -16,6 +16,7 @@ from mama_cas.utils import redirect
 from mama_cas.utils import to_bool
 from mama_cas.models import ServiceTicket
 
+from mc2.controllers.base import exceptions
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.views import ControllerViewMixin
 from mc2.models import UserSettings
@@ -206,6 +207,15 @@ class AppsHealth(View):
                 },
                 json={}
             )
+            if resp_all_apps.status_code != 200:
+                raise exceptions.MarathonApiException(
+                    'Marathon app deletion failed with response: %s - %s' %
+                    (resp_all_apps.status_code, resp_all_apps.json().get('message')))
+
+            if resp_deployments.status_code != 200:
+                raise exceptions.MarathonApiException(
+                    'Marathon app deletion failed with response: %s - %s' %
+                    (resp_deployments.status_code, resp_deployments.json().get('message')))
 
             # Get health statuses of all apps on MC2
             for app in resp_all_apps.json().get('apps'):
