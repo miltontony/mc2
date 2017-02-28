@@ -8,7 +8,7 @@
     <div class="widget-user-header {% if controller.marathon_instances %}bg-navy{% else %}bg-gray{% endif %}">
       <h3 class="widget-user-username">{{controller.name}}</h3>
       <div class="widget-user-desc">{{controller.description}}</div>
-      <div class="widget-user-desc">
+      <div class="widget-user-desc" id="status-{{ controller.app_id }}">
           {# Didsplay the health of the app #}
           <strong>{{ controller.app_id }} </strong>
           {% with controller.get_status as status %}
@@ -44,7 +44,7 @@
       </div>
     </div>
 
-    <div class="box-footer">
+      <div class="box-footer">
       <div class="row">
         <div class="border-right col-description">
           <div class="description-block app-view-action">
