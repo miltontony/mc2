@@ -1,6 +1,6 @@
 // Get the health data from server every 5 seconds
 $(document).ready(function () {
-    setInterval(refreshHealth, 5000);
+    interval_timer = setInterval(refreshHealth, 10000);
 });
 
 /**
@@ -42,8 +42,8 @@ function buildHTML(status) {
             div_tag += '<br/>';
 
             if (status.health_defined) {
-                div_tag += '<span class="label bg-green">' + status.healthy + ' healthy</span> | ' +
-                    '<span class="label bg-red">' + status.unhealthy + ' unhealthy</span><br/>';
+                if (status.healthy != 0) { div_tag += ' <span class="label bg-green">' + status.healthy + ' healthy</span>';}
+                if (status.unhealthy != 0){ div_tag +=' <span class="label bg-red">' + status.unhealthy + ' unhealthy</span><br/>';}
             } else {
                 div_tag += '<span class="label bg-orange">Health check not defined!</span><br/>'
             }
@@ -69,13 +69,16 @@ function processData(data, textStatus, xhr) {
         }
     }
     else {
-        console.log('Request to get data failed: ' + status);
-        // TODO show message alert and stop requesting health data
+        console.log('Request to get data failed: Error-' + xhr.status);
+        clearInterval(interval_timer);
+        console.log('Could not retrieve health data from server.')
     }
 }
 
 function getHealthError(data) {
-    // TODO show message alert and stop requesting health data
+    // stop the health requests and tell the user
+    clearInterval(interval_timer);
+    console.log('Could not retrieve health data from server.')
 }
 
 /**
@@ -86,6 +89,7 @@ function refreshHealth() {
         type: 'GET',
         url: 'v2/apps/health/',
         success: processData,
-        error: getHealthError
+        error: getHealthError,
+        timeout: 20000
     });
 }

@@ -71,15 +71,18 @@
                                 <br/>
                                 {% if status.health_defined %}
                                     {# If health is defined for the app, show the total number of healthy and unhealthy apps #}
-                                    <span class="label bg-green">{{ status.healthy }} healthy</span> |
-                                    <span class="label bg-red">{{ status.unhealthy }} unhealthy</span><br/>
+                                    {% if status.healthy != 0 %}
+                                        <span class="label bg-green">{{ status.healthy }} healthy</span>
+                                    {% endif %}
+                                    {% if status.unhealthy != 0 %}
+                                        &nbsp;<span class="label bg-red">{{ status.unhealthy }} unhealthy</span><br/>
+                                    {% endif %}
                                 {% else %}
                                     <span class="label bg-orange">Health check not defined!</span><br/>
                                 {% endif %}
                             {% endif %}
                         {% else %}
                             <br/><span class="label bg-orange">Unable to retrieve health data</span>
-                            <br/>{{ status.message }}
                         {% endif %}
                     {% endwith %}
                 </div>
