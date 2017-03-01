@@ -1,6 +1,6 @@
 // Get the health data from server every 5 seconds
 $(document).ready(function () {
-    interval_timer = setInterval(refreshHealth, 10000);
+    interval_timer = setInterval(refreshHealth, 20000);
 });
 
 /**
