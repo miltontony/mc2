@@ -344,7 +344,7 @@ class Controller(PolymorphicModel):
             )
             if resp_all_apps.status_code != 200:
                 raise exceptions.MarathonApiException(
-                    'Marathon app deletion failed with response: %s - %s' %
+                    'Marathon API call failed with response: %s - %s' %
                     (
                         resp_all_apps.status_code,
                         resp_all_apps.json().get('message')
@@ -353,7 +353,7 @@ class Controller(PolymorphicModel):
 
             if resp_deployments.status_code != 200:
                 raise exceptions.MarathonApiException(
-                    'Marathon app deletion failed with response: %s - %s' %
+                    'Marathon API call failed with response: %s - %s' %
                     (
                         resp_deployments.status_code,
                         resp_deployments.json().get('message')
