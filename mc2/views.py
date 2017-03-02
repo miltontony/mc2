@@ -186,5 +186,4 @@ class AppsHealth(View):
         Get the health details of all the apps
         :return: a json response with the health details of the all the apps
         """
-        Controller.refresh_health()
-        return JsonResponse(Controller.get_apps_health())
+        return JsonResponse(Controller.refresh_health())

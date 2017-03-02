@@ -15,7 +15,7 @@ from mc2.controllers.base.managers import (
 
 
 class Controller(PolymorphicModel):
-    # Health status information. This is
+    # Health status information.
     health_status = models.TextField(
         blank=False,
         null=False,
@@ -295,26 +295,6 @@ class Controller(PolymorphicModel):
         """
         Hits Marathon API and gets the status of the App
         :return: A dict with the status of the app
-                status = {
-                    'instances'       : <int>,
-                    'staged'          : <int>,
-                    'running'         : <int>,
-                    'health_defined'  : <boolean>,
-                                        False if health check path undefined
-                    'healthy'         : <int>,
-                    'unhealthy'       : <int>,
-                    'deploying'       : <boolean>
-                                        True if app is in deployment stage
-                    'error'           : <boolean>
-                                        False if successful
-                }
-
-                OR... If an error occurs, it returns
-
-                status = {
-                    'error'           : <boolean>   True if error occurs
-                    'message'         : <string>    Error message>
-                }
         """
         return json.loads(self.health_status)
 
@@ -322,7 +302,7 @@ class Controller(PolymorphicModel):
     def get_apps_health():
         """
         Get the health details of all the apps
-        :return: a json with the health details of the all the apps
+        :return: a dict with the health details of the all the apps
         """
 
         # Get list of all app_ids from the database
@@ -407,6 +387,10 @@ class Controller(PolymorphicModel):
 
     @staticmethod
     def refresh_health():
+        """
+        Update the health status fields for all controllers.
+        :return: a dict (json format) with health statuses off all the apps.
+        """
         health_statuses = Controller.get_apps_health()
         if not health_statuses['error']:
             for health in health_statuses['apps_health']:
@@ -416,8 +400,9 @@ class Controller(PolymorphicModel):
                     c[0].save()
         else:
             # Health info not available.
-            # Error info inside health_statuses['message']
+            # Error message inside health_statuses['message']
             pass
+        return health_statuses
 
 
 class EnvVariable(models.Model):
