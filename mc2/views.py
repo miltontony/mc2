@@ -1,7 +1,5 @@
-import requests
 import logging
 
-from django.conf import settings
 from django.views.generic import ListView, UpdateView, View
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
@@ -41,10 +39,7 @@ class HomepageView(ControllerViewMixin, ListView):
         return context
 
     def get_queryset(self):
-        controllers =\
-            self.get_controllers_queryset(self.request).order_by('name')
-        # TODO add health information to the controllers
-        return controllers
+        return self.get_controllers_queryset(self.request).order_by('name')
 
 
 class CreateAccountView(FormView):
@@ -185,97 +180,11 @@ class MC2LoginView(LoginView):
         return redirect('home')
 
 
-def get_apps_health():
-    """
-    Get the health details of all the apps
-    :return: a json with the health details of the all the apps
-    """
-
-    # Get list of all app_ids from the database
-    controllers = Controller.objects.values_list('slug', flat=True)
-    data = []
-    try:
-        # Get details of all the apps running on Marathon
-        resp_all_apps = requests.get(
-            '%(host)s/v2/apps/' % {
-                'host': settings.MESOS_MARATHON_HOST,
-            },
-            json={})
-        # Get details about all deployments on Marathon
-        resp_deployments = requests.get(
-            '%(host)s/v2/deployments' % {
-                'host': settings.MESOS_MARATHON_HOST,
-            },
-            json={}
-        )
-        if resp_all_apps.status_code != 200:
-            raise exceptions.MarathonApiException(
-                'Marathon app deletion failed with response: %s - %s' %
-                (
-                    resp_all_apps.status_code,
-                    resp_all_apps.json().get('message')
-                )
-            )
-
-        if resp_deployments.status_code != 200:
-            raise exceptions.MarathonApiException(
-                'Marathon app deletion failed with response: %s - %s' %
-                (
-                    resp_deployments.status_code,
-                    resp_deployments.json().get('message')
-                )
-            )
-
-        # Get health statuses of all apps on MC2
-        for app in resp_all_apps.json().get('apps'):
-            # For each app on Marathon, check if it exists on MC2
-            if app['id'][1:] in controllers:
-
-                # Check if the app is being deployed
-                deploying = False
-                for dep in resp_deployments.json():
-                    for dep_app in dep['affectedApps']:
-                        if dep_app == app['id']:
-                            deploying = True
-                            break
-
-                # Check if the Marathon health check path is defined
-                health_defined = False
-                if len(app.get('healthChecks')) > 0:
-                    health_defined = True
-
-                status = {
-                    'app_id': app['id'][1:],
-                    'instances': app.get('instances'),
-                    'staged': app.get('tasksStaged'),
-                    'running': app.get('tasksRunning'),
-                    'health_defined': health_defined,
-                    'healthy': app.get('tasksHealthy'),
-                    'unhealthy': app.get('tasksUnhealthy'),
-                    'deploying': deploying,
-                    'error': False,
-                }
-                data.append(status)
-
-        return {
-            'error': False,
-            'message': 'No Error',
-            'apps_health': data,
-        }
-
-    except Exception as e:
-        # Return an error message if an exception occurs
-        return {
-            'error': True,
-            'message': e.message,
-            'apps_health': [],
-        }
-
-
 class AppsHealth(View):
-    def get(self):
+    def get(self, request):
         """
         Get the health details of all the apps
         :return: a json response with the health details of the all the apps
         """
-        return JsonResponse(get_apps_health())
+        Controller.refresh_health()
+        return JsonResponse(Controller.get_apps_health())
