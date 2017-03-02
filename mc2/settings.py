@@ -5,6 +5,7 @@ from os import environ
 import dj_database_url
 
 # Tell psycopg2cffi to impersonate psycopg2
+from celery.schedules import crontab
 from psycopg2cffi import compat
 compat.register()
 
@@ -293,6 +294,13 @@ if DEBUG:
 
 CELERY_EMAIL_TASK_CONFIG = {
     'serializer': 'json'
+}
+
+CELERYBEAT_SCHEDULE = {
+    'mc2_refresh_health_statuses': {
+        'task': 'mc2.controllers.base.tasks.mc2_refresh_health_statuses',
+        'schedule': crontab(minute='*'),
+    },
 }
 
 # Django debug toolbar
