@@ -1,3 +1,4 @@
+import json
 import requests
 import urllib
 
@@ -14,9 +15,17 @@ from mc2.controllers.base.managers import (
 
 
 class Controller(PolymorphicModel):
-    # Health status information.
-    # TODO Add as a field to the DB
-    health_status = None
+    # Health status information. This is
+    health_status = models.TextField(
+        blank=False,
+        null=False,
+        default=json.dumps(
+            {
+                'error': True,
+                'message': 'No health status available',
+            }
+        )
+    )
 
     # state
     marathon_cpus = models.FloatField(
@@ -307,8 +316,7 @@ class Controller(PolymorphicModel):
                     'message'         : <string>    Error message>
                 }
         """
-
-        return self.health_status
+        return json.loads(self.health_status)
 
 
 class EnvVariable(models.Model):
