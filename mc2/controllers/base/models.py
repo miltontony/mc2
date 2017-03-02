@@ -36,8 +36,8 @@ class Controller(PolymorphicModel):
     #                 'message'         : <Error message>
     #             }
     health_status = models.TextField(
-        blank=False,
-        null=False,
+        blank=True,
+        null=True,
         default=json.dumps(
             {
                 'error': True,
@@ -315,7 +315,16 @@ class Controller(PolymorphicModel):
         Hits Marathon API and gets the status of the App
         :return: A dict with the status of the app
         """
-        return json.loads(self.health_status)
+        data = {
+            'error': True,
+            'message': 'No health status available',
+        }
+        try:
+            data = json.loads(self.health_status)
+        except Exception as e:
+            data['message'] = e.message
+            return data
+        return data
 
     @staticmethod
     def get_apps_health():
