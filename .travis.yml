@@ -24,7 +24,6 @@ before_install:
        source setup-pypy-travis.sh
        python --version 2>&1 | fgrep "PyPy $PYPY_VERSION"
      fi
-
 install:
   # Upgrade pip to get wheel caching
   - pip install --upgrade pip>=8.1.0
