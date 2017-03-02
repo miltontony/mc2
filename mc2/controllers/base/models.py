@@ -16,6 +16,25 @@ from mc2.controllers.base.managers import (
 
 class Controller(PolymorphicModel):
     # Health status information.
+    # health_status = {
+    #                 'instances'       : <int>,
+    #                 'staged'          : <int>,
+    #                 'running'         : <int>,
+    #                 'health_defined'  : <boolean>,
+    #                                     False if health check path undefined
+    #                 'healthy'         : <int>,
+    #                 'unhealthy'       : <int>,
+    #                 'deploying'       : <boolean>
+    #                                     True if app is being deployed
+    #                 'error'           : True
+    #             }
+    #
+    #             OR... If there was an error retrieving health from Marathon
+    #
+    #             status = {
+    #                 'error'           : True
+    #                 'message'         : <Error message>
+    #             }
     health_status = models.TextField(
         blank=False,
         null=False,
