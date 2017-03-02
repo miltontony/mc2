@@ -415,7 +415,8 @@ class Controller(PolymorphicModel):
                     c[0].health_status = json.dumps(health)
                     c[0].save()
         else:
-            # Health info not available
+            # Health info not available.
+            # Error info inside health_statuses['message']
             pass
 
 
