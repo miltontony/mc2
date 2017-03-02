@@ -68,6 +68,7 @@ class ControllerViewMixin(FormMixin, View):
 
     def get_controllers_queryset(self, request):
         organization = active_organization(request)
+        Controller.refresh_health()
         if organization is None:
             if request.user.is_superuser:
                 return Controller.objects.all()
