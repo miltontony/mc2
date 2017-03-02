@@ -14,6 +14,10 @@ from mc2.controllers.base.managers import (
 
 
 class Controller(PolymorphicModel):
+    # Health status information.
+    # TODO Add as a field to the DB
+    health_status = None
+
     # state
     marathon_cpus = models.FloatField(
         default=settings.MESOS_DEFAULT_CPU_SHARE)
@@ -303,64 +307,8 @@ class Controller(PolymorphicModel):
                     'message'         : <string>    Error message>
                 }
         """
-        try:
-            # Get details for this app
-            resp1 = requests.get(
-                '%(host)s/v2/apps/%(id)s' % {
-                    'host': settings.MESOS_MARATHON_HOST,
-                    'id': self.app_id
-                },
-                json={})
 
-            # Get deployment details to check if app is being deployed
-            resp2 = requests.get(
-                '%(host)s/v2/deployments' % {
-                    'host': settings.MESOS_MARATHON_HOST,
-                },
-                json={}
-            )
-        except Exception as e:
-            # Requests fail and throw exceptions during tests
-            return {'error': True, 'message': e.message, }
-
-        if resp1.status_code != 200:
-            return {
-                'error': True,
-                'message': 'API call to Marathon failed with %s'
-                           % resp1.status_code,
-            }
-
-        if resp2.status_code != 200:
-            return {
-                'error': True,
-                'message': 'API call to Marathon failed with %s'
-                           % resp2.status_code,
-            }
-
-        # Check if there are any deployments of this app.
-        deploying = False
-        for dep in resp2.json():
-            for app in dep['affectedApps']:
-                if app[1:] == self.app_id:
-                    deploying = True
-                    break
-
-        # Check if the Marathon health check path is defined
-        health_defined = False
-        if len(resp1.json().get('app').get('healthChecks')) > 0:
-            health_defined = True
-
-        status = {'instances': resp1.json().get('app').get('instances'),
-                  'staged': resp1.json().get('app').get('tasksStaged'),
-                  'running': resp1.json().get('app').get('tasksRunning'),
-                  'health_defined': health_defined,
-                  'healthy': resp1.json().get('app').get('tasksHealthy'),
-                  'unhealthy': resp1.json().get('app').get('tasksUnhealthy'),
-                  'deploying': deploying,
-                  'error': False,
-                  }
-
-        return status
+        return self.health_status
 
 
 class EnvVariable(models.Model):
