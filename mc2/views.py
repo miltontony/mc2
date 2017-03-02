@@ -41,7 +41,10 @@ class HomepageView(ControllerViewMixin, ListView):
         return context
 
     def get_queryset(self):
-        return self.get_controllers_queryset(self.request).order_by('name')
+        controllers =\
+            self.get_controllers_queryset(self.request).order_by('name')
+        # TODO add health information to the controllers
+        return controllers
 
 
 class CreateAccountView(FormView):
@@ -208,12 +211,20 @@ def get_apps_health():
         if resp_all_apps.status_code != 200:
             raise exceptions.MarathonApiException(
                 'Marathon app deletion failed with response: %s - %s' %
-                (resp_all_apps.status_code, resp_all_apps.json().get('message')))
+                (
+                    resp_all_apps.status_code,
+                    resp_all_apps.json().get('message')
+                )
+            )
 
         if resp_deployments.status_code != 200:
             raise exceptions.MarathonApiException(
                 'Marathon app deletion failed with response: %s - %s' %
-                (resp_deployments.status_code, resp_deployments.json().get('message')))
+                (
+                    resp_deployments.status_code,
+                    resp_deployments.json().get('message')
+                )
+            )
 
         # Get health statuses of all apps on MC2
         for app in resp_all_apps.json().get('apps'):
