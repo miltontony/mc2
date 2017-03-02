@@ -322,7 +322,7 @@ class Controller(PolymorphicModel):
         try:
             data = json.loads(self.health_status)
         except Exception as e:
-            data['message'] = e.message
+            data['message'] = str(e.message)
             return data
         return data
 
@@ -342,13 +342,16 @@ class Controller(PolymorphicModel):
                 '%(host)s/v2/apps/' % {
                     'host': settings.MESOS_MARATHON_HOST,
                 },
-                json={})
+                json={},
+                timeout=5,
+            )
             # Get details about all deployments on Marathon
             resp_deployments = requests.get(
                 '%(host)s/v2/deployments' % {
                     'host': settings.MESOS_MARATHON_HOST,
                 },
-                json={}
+                json={},
+                timeout=5,
             )
             if resp_all_apps.status_code != 200:
                 raise exceptions.MarathonApiException(
@@ -409,7 +412,7 @@ class Controller(PolymorphicModel):
             # Return an error message if an exception occurs
             return {
                 'error': True,
-                'message': e.message,
+                'message': str(e.message),
                 'apps_health': [],
             }
 
