@@ -5,7 +5,8 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.docker.models import DockerController, traefik_domains
+from mc2.controllers.docker.models import (
+    DockerController, marathon_lb_domains, traefik_domains)
 from mc2.organizations.models import Organization, OrganizationUserRelation
 
 
@@ -45,7 +46,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "org": "test-org",
@@ -77,7 +78,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "org": "test-org",
@@ -110,7 +111,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "org": "test-org",
@@ -154,7 +155,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "org": "test-org",
@@ -204,7 +205,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "org": "test-org",
@@ -262,7 +263,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "org": "",
@@ -301,7 +302,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "TEST_LABELS_NAME": 'a test label value',
@@ -349,7 +350,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "org": "",
@@ -405,7 +406,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "labels": {
                 "domain": domain_label,
                 "HAPROXY_GROUP": "external",
-                "HAPROXY_0_VHOST": domain_label,
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                 "traefik.frontend.rule": traefik_domains(domain_label),
                 "name": "Test App",
                 "org": "",
@@ -451,7 +452,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "labels": {
                     "domain": domain_label,
                     "HAPROXY_GROUP": "external",
-                    "HAPROXY_0_VHOST": domain_label,
+                    "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
                     "traefik.frontend.rule": traefik_domains(domain_label),
                     "name": "Test App",
                     "org": "",
