@@ -15,7 +15,8 @@ from hypothesis.strategies import text, random_module, lists, just
 
 from mc2.controllers.base.models import EnvVariable, MarathonLabel
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
-from mc2.controllers.docker.models import DockerController, traefik_domains
+from mc2.controllers.docker.models import (
+    DockerController, marathon_lb_domains, traefik_domains)
 from mc2.controllers.base.managers.rabbitmq import ControllerRabbitMQManager
 from mc2.organizations.models import Organization
 
@@ -206,7 +207,7 @@ def check_and_remove_labels(appdata, controller):
         if controller.organization else ''
     domains = [u".".join([controller.app_id, settings.HUB_DOMAIN])]
     domains.extend(controller.domain_urls.split())
-    assert sorted(labels.pop("HAPROXY_0_VHOST").split()) == sorted(domains)
+    assert sorted(labels.pop("HAPROXY_0_VHOST").split(",")) == sorted(domains)
 
     haproxy_group = labels.pop("HAPROXY_GROUP")
 
@@ -233,6 +234,24 @@ def check_and_remove_optional(appdata, field, value):
     if value:
         assert appdata.pop(field) == value
     assert field not in appdata
+
+
+def test_marathon_lb_domains_single():
+    """
+    When a domains string with a single domain is passed to
+    marathon_lb_domains, it returns the domain unchanged.
+    """
+    domains = 'abc.com'
+    assert marathon_lb_domains(domains) == 'abc.com'
+
+
+def test_marathon_lb_domains_multiple():
+    """
+    When a domains string with multiple domains is passed to
+    marathon_lb_domains, it returns a comma-separated list of domains.
+    """
+    domains = 'abc.com def.co.za   ghi.co.ng'
+    assert marathon_lb_domains(domains) == 'abc.com,def.co.za,ghi.co.ng'
 
 
 def test_traefik_domains_single():

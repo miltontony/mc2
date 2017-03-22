@@ -6,6 +6,14 @@ from django.conf import settings
 from mc2.controllers.base.models import Controller, EnvVariable, MarathonLabel
 
 
+def marathon_lb_domains(domains):
+    """
+    marathon-lb takes comma-separated domain names for its HAPROXY_{n}_VHOST
+    labels. Convert our space-separated domains to that form.
+    """
+    return ",".join(domains.split())
+
+
 def traefik_domains(domains):
     """
     Create the traefik.frontend.rule label from the string of domains we use
@@ -63,7 +71,7 @@ class DockerController(Controller):
         service_labels = self.get_default_app_labels()
         service_labels.update({
             "HAPROXY_GROUP": "internal",
-            "HAPROXY_0_VHOST": domains,
+            "HAPROXY_0_VHOST": marathon_lb_domains(domains),
         })
 
         if self.external_visibility:
