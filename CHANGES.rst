@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.11.1
+------
+
+- Fix HAPROXY_0_VHOST value, should be comma separated rather than space.
+
 3.11.0
 ------
 - allow user to request rabbitmq vhost
