@@ -10,6 +10,16 @@
 {% block page_header_title %}
 {% endblock %}
 
+{% block left-sidebar %}
+
+<ul class="sidebar-menu">
+<li class="header">MENU</li>
+<li class="active"><a href="{% url 'home' %}"><i class="fa fa-home"></i> <span>Home</span></a></li>
+<li><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+</ul>
+
+{% endblock %}
+
 <!-- CONTENT -->
 {% block content %}
 
@@ -18,17 +28,13 @@
         <span><i class="fa fa-play"></i></span>
         Running Applications &ndash; <span id="results_count">{{controller_list.count}}</span>/Unlimited
     </div>
-    <div class="mc-overview-item hosting">
-        <span><i class="fa fa-dollar"></i></span>
-        Hosting Costs &ndash; ${{controller_list.count|multiply:25}}
-    </div>
 </div>
 <div id="projects_progress">
     <div class="row">
+    {% if user.is_superuser or is_admin %}
     <div class="col-md-4">
         <div class="nav-tabs-custom main card new-site bg-green">
             <div class="card-content new-site bg-green">
-                {% if is_admin %}
                 <div id="overlay-content" class="card-content-overlay bg-green">
                     <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
                     <div>
@@ -38,14 +44,6 @@
                         <a href="{% url 'controllers.docker:add' %}" class="btn btn-default">Docker</a>
                     </div>
                 </div>
-                {% else %}
-                <div id="overlay-content" class="card-content-overlay bg-red">
-                    <a href="#" class="btn btn-xs btn-default btn-flat card-close"><i class="fa fa-close"></i></a>
-                    <div class="center-text">
-                        <span><i class="fa fa-times-circle fa-5x"></i></span><h3>You do not have permission to create a new website</h3>
-                    </div>
-                </div>
-                {% endif %}
                 <div id="overlay-title" class="card-content-overlay bg-green">
                     <div class="center-text">
                         <h1>Create an app</h1>
@@ -55,13 +53,13 @@
                 </div>
             </div>
         </div>
-        </div>
-
-        <div id="result_list">
-        {% for controller in controller_list %}
-        {% render_controller controller %}
-        {% endfor %}
-        </div>
+    </div>
+    {% endif %}
+    <div id="result_list">
+      {% for controller in controller_list %}
+      {% render_controller controller %}
+      {% endfor %}
+    </div>
     </div>
       <!-- /.info-box-content -->
     </div>

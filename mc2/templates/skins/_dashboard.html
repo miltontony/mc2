@@ -1,0 +1,165 @@
+{% extends "skins/base.html" %}
+
+<!-- LOADING -->
+{% load i18n controller_base_tags static mc2_tags %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href= "{% static "css/home.css" %}"/>
+{% endblock %}
+
+{% block page_header_title %}
+<h1>{{active_organization|default:"All"}}</h1>
+{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+    <li class="active">Dashboard</li>
+</ol>
+{% endblock %}
+
+{% block search %}{% endblock %}
+{% block left-sidebar %}
+
+      <ul class="sidebar-menu">
+        <li class="header">MENU</li>
+        <li><a href="{% url 'home' %}"><i class="fa fa-home"></i> <span>Home</span></a></li>
+        <li class="active"><a href="{% url 'dashboard' %}"><i class="fa fa-dashboard"></i> <span>Dashboard</span></a></li>
+      </ul>
+
+      {% endblock %}
+
+<!-- CONTENT -->
+{% block content %}
+<div>
+    <div class="row">
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <span class="info-box-icon bg-aqua"><i class="ion ion-android-boat"></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">Total Containers</span>
+              <span class="info-box-number">{{total_containers}}
+              {% if total_suspended_containers %}<small>({{total_suspended_containers}} suspended)</small>{% endif %}
+              </span>
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+          <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <span class="info-box-icon bg-red"><i class="ion ion-pie-graph"></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">Total Memory Used</span>
+              <span class="info-box-number">{{total_memory|floatformat:2}} GB</span>
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+          <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+
+        <!-- fix for small devices only -->
+        <div class="clearfix visible-sm-block"></div>
+
+        <div class="col-md-3 col-sm-6 col-xs-12">
+          <div class="info-box">
+            <span class="info-box-icon bg-green"><i class="ion ion-speedometer"></i></span>
+
+            <div class="info-box-content">
+              <span class="info-box-text">CPU Usage</span>
+              <span class="info-box-number">{{total_cpus}}</span>
+            </div>
+            <!-- /.info-box-content -->
+          </div>
+          <!-- /.info-box -->
+        </div>
+        <!-- /.col -->
+      </div>
+      <!-- /.info-box-content -->
+
+      {% if not active_organization and user.is_superuser %}
+      <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">List of organizations</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered" id="datatable">
+                  <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Total Containers</th>
+                    <th>Memory Usage</th>
+                    <th>CPU Usage</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for org in orgs %}
+                  <tr>
+                    <td><a href="{% url 'organizations:select-active' org.slug %}?next={{ request.path|urlencode }}">{% blocktrans with org_name=org.name %}{{ org_name }}{% endblocktrans %}</a></td>
+                    <td>{{org.controller_set.all.count}}</td>
+                    <td>{{org.total_mem|default:0|floatformat:2}} GB</td>
+                    <td>{{org.total_cpus|default:0}}</td>
+                  </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.table-responsive -->
+            </div>
+            <!-- /.box-body -->
+          </div>
+          {% elif active_organization %}
+      <div class="box box-info">
+            <div class="box-header with-border">
+              <h3 class="box-title">List of containers</h3>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered" id="datatable">
+                  <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Instances</th>
+                    <th>Memory Usage</th>
+                    <th>CPU Usage</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for app in object_list %}
+                  <tr>
+                    <td><a href="{% url 'home' %}#{{app.app_id}}">{{app.name}} ({{app.app_id}})</a></td>
+                    <td>{{app.marathon_instances}}</td>
+                    {% widthratio app.marathon_mem 1 app.marathon_instances as total_mem %}
+                    <td>{{total_mem|floatformat}} MB</td>
+                    <td>{{app.marathon_cpus}}</td>
+                  </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.table-responsive -->
+            </div>
+            <!-- /.box-body -->
+          </div>
+          {% endif %}
+    </div>
+    <!-- /.info-box -->
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+
+jQuery(document).ready(function($) {
+    $('#datatable').DataTable();
+});
+</script>
+{% endblock %}

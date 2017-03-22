@@ -11,6 +11,7 @@
 }
 
 #env-variables .delete-row{margin-top: 30px;}
+#additional-links .delete-row{margin-top: 30px;}
 #label-variables .delete-row{margin-top: 30px;}
 
 .form-group li, .alert li {list-style: none; margin-left: 0}
@@ -29,3 +30,5 @@
 }
 
 .mc2-version{padding: 15px; line-height: 50px}
+
+.org-menu {max-height: none !important;}
