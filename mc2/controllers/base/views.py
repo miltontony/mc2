@@ -21,6 +21,7 @@ from mc2.organizations.models import Organization
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.forms import (
     ControllerFormHelper)
+from mc2.controllers.base.managers.infrastructure import InfrastructureError
 from mc2.controllers.base import exceptions, tasks
 
 
@@ -227,8 +228,12 @@ class MesosFileLogView(ControllerViewMixin, View):
 
         # NOTE: I'm piecing together the app_id and task_id here
         #       so as to not need to expose both in the templates.
-        task = controller.infra_manager.get_controller_task_log_info(
-            '%s.%s' % (controller.app_id, task_id))
+        try:
+            task = controller.infra_manager.get_controller_task_log_info(
+                '%s.%s' % (controller.app_id, task_id))
+        except InfrastructureError:
+            return HttpResponseNotFound('Task not found')
+
         file_path = os.path.join(task['task_dir'], path)
 
         internal_redirect_url = settings.MESOS_FILE_API_PATH % {
