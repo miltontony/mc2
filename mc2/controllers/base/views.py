@@ -232,7 +232,7 @@ class MesosFileLogView(ControllerViewMixin, View):
             task = controller.infra_manager.get_controller_task_log_info(
                 '%s.%s' % (controller.app_id, task_id))
         except InfrastructureError:
-            return HttpResponseNotFound()
+            return HttpResponseNotFound('Task not found')
 
         file_path = os.path.join(task['task_dir'], path)
 
