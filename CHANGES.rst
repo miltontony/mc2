@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.11.2
+------
+
+- Handle task restarts gracefully, do not bubble up InfrastructureException to Sentry (#141)
+
 3.11.1
 ------
 
