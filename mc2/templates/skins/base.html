@@ -80,7 +80,7 @@
                     {% endif %}
                 {% endfor %}
 
-                {% if is_active_organization_admin %}
+                {% if is_active_organization_admin or is_active_organization_app_admin %}
                     <li><a href="{% url 'organizations:edit' active_organization.slug %}"><i class="fa fa-cog"></i> {% blocktrans with org_name=active_organization.name %}Manage {{ org_name }}{% endblocktrans %}</a></li>
                 {% endif %}
               </ul>

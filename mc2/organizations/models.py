@@ -29,6 +29,17 @@ class OrganizationManager(models.Manager):
             organizationuserrelation__user=user,
             organizationuserrelation__is_admin=True)
 
+    def for_app_admin_user(self, user):
+        qs = self.get_queryset()
+        if not user.is_active:
+            return qs.none()
+        if user.is_superuser:
+            return qs
+        return qs.filter(
+            Q(organizationuserrelation__is_admin=True) |
+            Q(organizationuserrelation__is_app_admin=True),
+            organizationuserrelation__user=user)
+
 
 class Organization(models.Model):
     objects = OrganizationManager()
@@ -47,11 +58,8 @@ class Organization(models.Model):
             user).filter(pk=self.pk).exists()
 
     def has_app_admin(self, user):
-        try:
-            relation = self.organizationuserrelation_set.get(user=user)
-            return relation.is_app_admin
-        except self.users.through.DoesNotExist:
-            return False
+        return self.__class__.objects.for_app_admin_user(
+            user).filter(pk=self.pk).exists()
 
     def has_perms(self, user, perm_list, obj=None):
         try:

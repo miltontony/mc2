@@ -15,5 +15,7 @@ def org(request):
         'organizations': Organization.objects.for_user(request.user),
         'active_organization': active_org,
         'is_active_organization_admin': (
-            active_org and active_org.has_admin(request.user))
+            active_org and active_org.has_admin(request.user)),
+        'is_active_organization_app_admin': (
+            active_org and active_org.has_app_admin(request.user))
     }

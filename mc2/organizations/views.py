@@ -56,3 +56,14 @@ class EditOrganizationView(OrganizationAdminMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('organizations:edit', args=(self.object[0].slug,))
+
+    def get_queryset(self):
+        return Organization.objects.for_app_admin_user(self.request.user)
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(
+            EditOrganizationView, self).get_context_data(*args, **kwargs)
+        context.update({
+            'is_org_admin': self.object.has_admin(self.request.user),
+        })
+        return context
