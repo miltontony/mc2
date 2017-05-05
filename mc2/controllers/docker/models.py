@@ -140,7 +140,7 @@ class DockerController(Controller):
 
         if 'args' in app_data:
             args.update({
-                "marathon_cmd": " ".join([
+                "marathon_args": " ".join([
                     pipes.quote(s) for s in app_data.pop("args")]),
             })
         else:
