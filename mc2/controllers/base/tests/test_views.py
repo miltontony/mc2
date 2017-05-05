@@ -1,6 +1,7 @@
 import json
 import uuid
 import urllib
+import mock
 
 import pytest
 import responses
@@ -9,6 +10,7 @@ from django.test import RequestFactory
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from mc2.controllers.base.managers.rabbitmq import ControllerRabbitMQManager
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.base.tests.utils import setup_responses_for_log_tests
@@ -27,7 +29,71 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.user = User.objects.get(username='testuser')
 
     @responses.activate
-    def test_create_new_controller(self):
+    @mock.patch.object(ControllerRabbitMQManager, '_create_username')
+    def test_create_new_controller(self, mock_create_u):
+        mock_create_u.return_value = 'vhost_test_user'
+
+        existing_controller = self.mk_controller()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+        self.mock_successful_new_vhost('vhost_test', 'vhost_test_user')
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'postgres_db_needed': True,
+            'rabbitmq_vhost_needed': True,
+            'rabbitmq_vhost_name': 'vhost_test',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+
+
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.exclude(
+            pk=existing_controller.pk).get()
+        self.assertEqual(controller.state, 'done')
+
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertTrue(controller.slug)
+        self.assertTrue(controller.postgres_db_needed)
+
+        self.assertEquals(controller.postgres_db_name, 'joes_db')
+        self.assertEquals(controller.postgres_db_username, 'joe')
+        self.assertEquals(controller.postgres_db_password, '1234')
+        self.assertEquals(controller.postgres_db_host, 'localhost')
+
+        resp = self.client.get(reverse('base:edit', args=[controller.id]))
+        self.assertContains(resp, 'postgres://joe:1234@localhost/joes_db')
+
+    @responses.activate
+    def test_postgres_db_needed_false(self):
         existing_controller = self.mk_controller()
 
         self.client.login(username='testuser2', password='test')
@@ -47,6 +113,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -61,6 +131,234 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.marathon_cmd, 'ping2')
         self.assertEqual(controller.organization.slug, 'foo-org')
         self.assertTrue(controller.slug)
+        self.assertFalse(controller.postgres_db_needed)
+
+    @responses.activate
+    def test_rabbitmq_vhost_needed_false(self):
+        existing_controller = self.mk_controller()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.exclude(
+            pk=existing_controller.pk).get()
+        self.assertEqual(controller.state, 'done')
+
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertTrue(controller.slug)
+        self.assertFalse(controller.rabbitmq_vhost_needed)
+
+    @responses.activate
+    @mock.patch.object(ControllerRabbitMQManager, '_create_username')
+    def test_create_new_controller_with_rabbitmq_vhost(self, mock_create_u):
+        mock_create_u.return_value = 'vhost_test_user'
+
+        existing_controller = self.mk_controller()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_successful_new_vhost('vhost_test', 'vhost_test_user')
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'rabbitmq_vhost_needed': True,
+            'rabbitmq_vhost_name': 'vhost_test',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+
+
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.exclude(
+            pk=existing_controller.pk).get()
+        self.assertEqual(controller.state, 'done')
+
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertTrue(controller.slug)
+        self.assertTrue(controller.rabbitmq_vhost_needed)
+
+        self.assertEquals(controller.rabbitmq_vhost_name, 'vhost_test')
+        self.assertEquals(
+            controller.rabbitmq_vhost_username, 'vhost_test_user')
+        self.assertTrue(controller.rabbitmq_vhost_password)
+        self.assertEquals(
+            controller.rabbitmq_vhost_host, 'http://localhost:15672')
+
+        resp = self.client.get(reverse('base:edit', args=[controller.id]))
+        self.assertContains(
+            resp,
+            'amqp://vhost_test_user:%s@http://localhost:15672/vhost_test' %
+            controller.rabbitmq_vhost_password)
+
+    @responses.activate
+    def test_rabbitmq_vhost_already_created(self):
+        controller = self.mk_controller()
+        controller.rabbitmq_vhost_needed = True
+        controller.rabbitmq_vhost_username = 'vhost_test_user'
+        controller.rabbitmq_vhost_password = 'vhost_test_password'
+        controller.rabbitmq_vhost_name = 'vhost_test'
+        controller.rabbitmq_vhost_host = 'http://localhost:15672'
+        controller.save()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_get_vhost('vhost_test')
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'rabbitmq_vhost_needed': True,
+            'rabbitmq_vhost_name': 'vhost_test',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(
+            reverse('base:edit', args=[controller.id]), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller.refresh_from_db()
+        self.assertEqual(
+            controller.rabbitmq_vhost_password, 'vhost_test_password')
+
+    @responses.activate
+    def test_rabbitmq_vhost_user_already_created(self):
+        controller = self.mk_controller()
+        controller.rabbitmq_vhost_needed = True
+        controller.rabbitmq_vhost_username = 'vhost_test_user'
+        controller.rabbitmq_vhost_password = 'vhost_test_password'
+        controller.rabbitmq_vhost_name = 'vhost_test'
+        controller.rabbitmq_vhost_host = 'http://localhost:15672'
+        controller.save()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_get_vhost('vhost_test', status=404)
+        self.mock_put_vhost('vhost_test')
+        self.mock_get_user('vhost_test_user', status=200)
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'rabbitmq_vhost_needed': True,
+            'rabbitmq_vhost_name': 'vhost_test',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(
+            reverse('base:edit', args=[controller.id]), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller.refresh_from_db()
+        self.assertEqual(
+            controller.rabbitmq_vhost_password, 'vhost_test_password')
+
+    @responses.activate
+    def test_rabbitmq_vhost_required(self):
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_successful_new_vhost('vhost_test', 'vhost_test_user')
+
+        data = {
+            'name': 'Another test app',
+            'marathon_cmd': 'ping2',
+            'rabbitmq_vhost_needed': True,
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+
+
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'vhost name is required')
 
     @responses.activate
     def test_create_new_controller_with_label(self):
@@ -71,6 +369,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -86,6 +390,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -108,6 +416,60 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertTrue(controller.slug)
 
     @responses.activate
+    def test_create_new_controller_with_additional_links(self):
+        existing_controller = self.mk_controller()
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'description': 'A really lovely little app',
+            'marathon_cmd': 'ping2',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-0-name': 'A_TEST_Name',
+            'link-0-link': 'testurl.com',
+            'link-TOTAL_FORMS': 1,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = Controller.objects.exclude(
+            pk=existing_controller.pk).get()
+        self.assertEqual(controller.state, 'done')
+
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.description, 'A really lovely little app')
+        self.assertEqual(controller.marathon_cmd, 'ping2')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(controller.additional_link.all().count(), 1)
+        self.assertEqual(
+            controller.additional_link.all()[0].name, 'A_TEST_Name')
+        self.assertEqual(
+            controller.additional_link.all()[0].link, 'testurl.com')
+        self.assertTrue(controller.slug)
+
+    @responses.activate
     def test_create_new_controller_with_env(self):
         existing_controller = self.mk_controller()
 
@@ -116,6 +478,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         webhook_token = str(uuid.uuid4())
 
@@ -132,6 +500,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
             'webhook_token': webhook_token,
         }
 
@@ -166,6 +538,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -183,6 +559,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
         response = self.client.post(reverse('base:add'), data)
 
@@ -226,6 +606,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -239,6 +625,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -265,6 +655,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
                 'webhook_token': webhook_token,
             })
         controller = Controller.objects.get(pk=controller.id)
@@ -282,6 +676,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             reverse('organizations:select-active', args=('foo-org',)))
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -294,6 +694,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -317,6 +721,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
             })
         controller = Controller.objects.get(pk=controller.id)
         self.assertEqual(controller.marathon_cpus, 0.5)
@@ -343,7 +751,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.post(
             reverse('user_settings'), {'settings_level': 'expert'})
         resp = self.client.get(reverse('home'))
-        self.assertContains(resp, 'You do not have permission to create')
+        self.assertNotContains(resp, 'edit')
+        self.assertContains(resp, 'view')
 
     def test_normal_user_who_is_org_admin_can_create_sites(self):
         resp = self.client.get(reverse('home'))
@@ -453,7 +862,7 @@ class ViewsTestCase(ControllerBaseTestCase):
             '%s%s' % (
                 settings.MESOS_FILE_API_PATH % {
                     'worker_host': 'worker-machine-1',
-                    'api_path': 'read',
+                    'api_path': 'read.json',
                 },
                 '?%s' % (urllib.urlencode((
                     ('path', ('/tmp/mesos/slaves/worker-machine-id'
@@ -482,7 +891,7 @@ class ViewsTestCase(ControllerBaseTestCase):
             '%s%s' % (
                 settings.MESOS_FILE_API_PATH % {
                     'worker_host': 'worker-machine-1',
-                    'api_path': 'read',
+                    'api_path': 'read.json',
                 },
                 '?%s' % (urllib.urlencode((
                     ('path', ('/tmp/mesos/slaves/worker-machine-id'
@@ -548,6 +957,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'owner': User.objects.get(pk=2)})
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
         controller.get_builder().build()
 
         self.mock_exists_on_marathon(controller.app_id)
@@ -581,6 +996,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'owner': User.objects.get(pk=2)})
 
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
         controller.get_builder().build()
 
         self.mock_exists_on_marathon(controller.app_id, 404)
@@ -723,6 +1144,12 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.get(
             reverse('organizations:select-active', args=('foo-org',)))
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -745,6 +1172,12 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-0-name': 'A_TEST_Name',
+            'link-0-link': 'testurl.com',
+            'link-TOTAL_FORMS': 1,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -765,6 +1198,8 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertContains(response, 'the label value')
         self.assertContains(response, 'A_TEST_LABEL2')
         self.assertContains(response, 'the label value2')
+        self.assertContains(response, 'A_TEST_Name')
+        self.assertContains(response, 'testurl.com')
 
     @responses.activate
     def test_cloning_a_controller_with_new_values(self):
@@ -772,6 +1207,12 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.client.get(
             reverse('organizations:select-active', args=('foo-org',)))
         self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
 
         data = {
             'name': 'Another test app',
@@ -792,6 +1233,10 @@ class ViewsTestCase(ControllerBaseTestCase):
             'label-INITIAL_FORMS': 0,
             'label-MIN_NUM_FORMS': 0,
             'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
         }
 
         response = self.client.post(reverse('base:add'), data)
@@ -821,6 +1266,10 @@ class ViewsTestCase(ControllerBaseTestCase):
                 'label-INITIAL_FORMS': 0,
                 'label-MIN_NUM_FORMS': 0,
                 'label-MAX_NUM_FORMS': 100,
+                'link-TOTAL_FORMS': 0,
+                'link-INITIAL_FORMS': 0,
+                'link-MIN_NUM_FORMS': 0,
+                'link-MAX_NUM_FORMS': 100,
 
             })
         self.assertEqual(response.status_code, 302)

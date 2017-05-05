@@ -2,10 +2,9 @@
     color: #999;
     background: black;
     font-family: monospace;
-    padding: 20px 0;
+    white-space: pre;
     height: 600px;
     width: 100%;
-    overflow-y: scroll;
 }
 
 

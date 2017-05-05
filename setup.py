@@ -1,4 +1,5 @@
 import os
+import re
 
 from setuptools import setup, find_packages
 
@@ -12,8 +13,16 @@ with open(os.path.join(here, 'requirements.txt')) as f:
 with open(os.path.join(here, 'requirements-dev.txt')) as f:
     requires_dev = filter(None, f.readlines())
 
-with open(os.path.join(here, 'VERSION')) as f:
-    version = f.read().strip()
+
+def get_version(package):
+    """
+    Return package version as listed in `__version__` in `init.py`.
+    """
+    init_py = open(os.path.join(package, '__init__.py')).read()
+    return re.search("__version__ = ['\"]([^'\"]+)['\"]", init_py).group(1)
+
+
+version = get_version('mc2')
 
 setup(
     name='mission-control2',

@@ -12,7 +12,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View
 from django.views.generic import TemplateView
-from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.edit import UpdateView, CreateView, FormMixin
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from mc2.organizations.utils import org_permission_required
@@ -21,6 +21,7 @@ from mc2.organizations.models import Organization
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.forms import (
     ControllerFormHelper)
+from mc2.controllers.base.managers.infrastructure import InfrastructureError
 from mc2.controllers.base import exceptions, tasks
 
 
@@ -41,7 +42,7 @@ def update_marathon_exists_json(request, controller_pk):
         content_type='application/json')
 
 
-class ControllerViewMixin(View):
+class ControllerViewMixin(FormMixin, View):
     pk_url_kwarg = 'controller_pk'
     permissions = []
     social_auth = None
@@ -74,6 +75,24 @@ class ControllerViewMixin(View):
             return Controller.objects.none()
         return Controller.objects.filter(organization=organization)
 
+    def get_form(self, *args, **kwargs):
+        """
+        Return a form with the organizations limited to the organizations
+        this user has access to. Returns a form with all availble
+        organizations for super users.
+
+        Since mixin is used in views that subclass CreateView or UpdateView
+        I am relying on those to provide the `get_form` as implemented
+        in the `FormMixin` both of those inherit
+        """
+        form = FormMixin.get_form(self, *args, **kwargs)
+        if self.request.user.is_superuser:
+            return form
+
+        form.controller_form.fields['organization'].queryset = (
+            self.request.user.organization_set.all())
+        return form
+
 
 class ControllerCreateView(ControllerViewMixin, CreateView):
     form_class = ControllerFormHelper
@@ -90,6 +109,7 @@ class ControllerCreateView(ControllerViewMixin, CreateView):
         form.controller_form.instance.save()
 
         form.env_formset.instance = form.controller_form.instance
+        form.link_formset.instance = form.controller_form.instance
         form.label_formset.instance = form.controller_form.instance
 
         response = super(ControllerCreateView, self).form_valid(form)
@@ -119,7 +139,10 @@ class ControllerCloneView(ControllerViewMixin, CreateView):
                 for env in controller.env_variables.all()],
             'labels': [
                 {'name': label.name, 'value': label.value}
-                for label in controller.label_variables.all()]})
+                for label in controller.label_variables.all()],
+            'links': [
+                {'name': label.name, 'link': label.link}
+                for label in controller.additional_link.all()]})
         return initial
 
     def get_success_url(self):
@@ -132,6 +155,7 @@ class ControllerCloneView(ControllerViewMixin, CreateView):
         form.controller_form.instance.save()
 
         form.env_formset.instance = form.controller_form.instance
+        form.link_formset.instance = form.controller_form.instance
         form.label_formset.instance = form.controller_form.instance
 
         response = super(ControllerCloneView, self).form_valid(form)
@@ -185,6 +209,7 @@ class AppLogView(ControllerViewMixin, TemplateView):
             'controller': controller,
             'tasks': tasks,
             'task_ids': [t['id'].split('.', 1)[1] for t in tasks],
+            'paths': ['stdout', 'stderr'],
             'offset': self.request.GET.get('offset'),
             'length': self.request.GET.get('length'),
         })
@@ -203,15 +228,19 @@ class MesosFileLogView(ControllerViewMixin, View):
 
         # NOTE: I'm piecing together the app_id and task_id here
         #       so as to not need to expose both in the templates.
-        task = controller.infra_manager.get_controller_task_log_info(
-            '%s.%s' % (controller.app_id, task_id))
+        try:
+            task = controller.infra_manager.get_controller_task_log_info(
+                '%s.%s' % (controller.app_id, task_id))
+        except InfrastructureError:
+            return HttpResponseNotFound('Task not found')
+
         file_path = os.path.join(task['task_dir'], path)
 
         internal_redirect_url = settings.MESOS_FILE_API_PATH % {
             'worker_host': task['task_host'],
-            'api_path': ('download'
+            'api_path': ('download.json'
                          if request.GET.get('download')
-                         else 'read'),
+                         else 'read.json'),
         }
 
         response = HttpResponse()

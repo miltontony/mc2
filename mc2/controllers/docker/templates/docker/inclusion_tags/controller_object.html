@@ -5,7 +5,7 @@
   <!-- Widget: user widget style 1 -->
   <div class="box box-widget widget-user">
     <!-- Add the bg color to the header using any of the bg-* classes -->
-    <div class="widget-user-header bg-navy">
+    <div class="widget-user-header {% if controller.marathon_instances %}bg-navy{% else %}bg-gray{% endif %}">
       <h3 class="widget-user-username">{{controller.name}}</h3>
       <div class="widget-user-desc">{{controller.description}}</div>
       <div class="widget-user-desc">
@@ -13,6 +13,7 @@
         <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span>
       </div>
     </div>
+
     <div class="box-footer">
       <div class="row">
         <div class="border-right col-description">
@@ -22,6 +23,7 @@
           </div>
           <!-- /.description-block -->
         </div>
+        {% if user.is_superuser or is_admin %}
         <div class="border-right col-description">
           <div class="description-block">
             {% block edit_action %}
@@ -71,6 +73,7 @@
           <!-- /.description-block -->
         </div>
         <!-- /.col -->
+        {% endif %}
       </div>
       <!-- /.row -->
     </div>

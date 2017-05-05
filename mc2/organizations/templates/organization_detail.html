@@ -10,7 +10,7 @@
 
 {% block content %}
 <div class="row">
-<div class="col-md-6">
+<div class="col-md-8">
   <!-- general form elements -->
   <form role="form" method="post">
   <div class="box box-primary">
@@ -29,6 +29,7 @@
             <th>Username</th>
             <th>Email</th>
             <th>Is admin?</th>
+            <th>Is app admin?</th>
             <th>Remove?</th>
           </tr>
         {% for user_form in form.users_formset %}
@@ -39,6 +40,7 @@
               <td>{{ user.full_name|default:user.username }}</td>
               <td>{{ user.email }}</td>
               <td>{{ user_form.is_admin }}</td>
+              <td>{{ user_form.is_app_admin }}</td>
               <td>{{ user_form.DELETE }}</td>
             </tr>
             {% endwith %}

@@ -1,6 +1,95 @@
 CHANGE LOG
 ==========
 
+3.11.2
+------
+
+- Handle task restarts gracefully, do not bubble up InfrastructureException to Sentry (#141)
+
+3.11.1
+------
+
+- Fix HAPROXY_0_VHOST value, should be comma separated rather than space.
+
+3.11.0
+------
+- allow user to request rabbitmq vhost
+
+3.10.0
+------
+- Add memory-swappiness=0 docker parameter to all app definitions.
+
+3.9.0
+-----
+- Allow users to register on MC
+
+3.8.1
+-----
+- move version number to __init__.py
+- show is_app_admin in the UI
+- show org list dropdown in alphabetical order
+- ensure full list of orgs is shown by default
+
+3.8.0
+-----
+- change labels when external visibility disabled
+- allow port to be optional (UI fix)
+- add organization name to marathon labels
+- (bug) fix issue with app labels not allowing multiples
+
+3.7.3
+-----
+- add app_admin for SSO
+- fix logging for apps with multiple instance
+
+3.7.2
+-----
+- revert Font fix: need to find a better solution
+
+3.7.1
+-----
+- (bug) Font css not loading properly after compress
+- (bug) ensure output_field is specified for Sum
+
+3.7.0
+-----
+- Added dashboard to show summary stats
+
+3.6.1
+-----
+- Fix single-signon bug for Molo
+- (bug) All multi-field forms can now be deleted (e.g env variables)
+
+3.6.0
+-----
+- Create postgres databases through mission control
+- Use org permissions to give sso access
+- Allow other non-pk domains to log in to MC2
+
+3.5.0
+-----
+- Allow adding additional links to an app
+- Add view only for users
+
+3.4.2
+-----
+- (bug) Ensure organization field is shown on docker controller edit view
+
+3.4.1
+-----
+- Add sensible timeouts to external HTTP APIs.
+
+3.4.0
+-----
+- Add traefik labels to app definitions
+- Allow labels to contain '.' characters
+- Better improved docker file
+- Add clone option to docker controller
+- Switch from Logdriver to Mesos API for logs
+- Allow port-less containers
+- Added sensible backoff values for marathon
+- Show suspended apps as greyed out
+
 3.3.3
 -----
 - Add marathon-lb labels to app definitions

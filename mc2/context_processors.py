@@ -1,4 +1,4 @@
-import pkg_resources
+import mc2
 from mc2.forms import UserSettingsForm
 
 
@@ -14,6 +14,5 @@ def default_forms(request):
 
 def app_version(request):
     return {
-        'mc2_version': pkg_resources.get_distribution(
-            'mission-control2').version
+        'mc2_version': mc2.__version__
     }
