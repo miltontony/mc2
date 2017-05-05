@@ -524,53 +524,6 @@ class ViewsTestCase(ControllerBaseTestCase):
         self.assertEqual(str(controller.webhook_token), webhook_token)
         self.assertTrue(controller.slug)
 
-    @responses.activate
-    def test_create_new_controller_error(self):
-        self.client.login(username='testuser2', password='test')
-
-        data = {
-            'name': 'Another test app',
-            'env-TOTAL_FORMS': 1,
-            'env-INITIAL_FORMS': 0,
-            'env-MIN_NUM_FORMS': 0,
-            'env-MAX_NUM_FORMS': 100,
-            'label-TOTAL_FORMS': 1,
-            'label-INITIAL_FORMS': 0,
-            'label-MIN_NUM_FORMS': 0,
-            'label-MAX_NUM_FORMS': 100,
-            'link-TOTAL_FORMS': 0,
-            'link-INITIAL_FORMS': 0,
-            'link-MIN_NUM_FORMS': 0,
-            'link-MAX_NUM_FORMS': 100,
-        }
-        response = self.client.post(reverse('base:add'), data)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'This field is required')
-        self.assertEqual(Controller.objects.count(), 0)
-
-        data = {
-            'marathon_cmd': 'ping2',
-            'env-TOTAL_FORMS': 0,
-            'env-INITIAL_FORMS': 0,
-            'env-MIN_NUM_FORMS': 0,
-            'env-MAX_NUM_FORMS': 100,
-            'label-TOTAL_FORMS': 1,
-            'label-INITIAL_FORMS': 0,
-            'label-MIN_NUM_FORMS': 0,
-            'label-MAX_NUM_FORMS': 100,
-            'link-TOTAL_FORMS': 0,
-            'link-INITIAL_FORMS': 0,
-            'link-MIN_NUM_FORMS': 0,
-            'link-MAX_NUM_FORMS': 100,
-        }
-        response = self.client.post(reverse('base:add'), data)
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response, 'This field is required')
-        self.assertEqual(Controller.objects.count(), 0)
-
     def test_normal_user_with_no_org_sees_nothing(self):
         controller = self.mk_controller()
 
