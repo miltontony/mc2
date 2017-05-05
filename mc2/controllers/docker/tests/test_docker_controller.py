@@ -40,7 +40,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -72,7 +72,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -105,7 +105,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -149,7 +149,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -199,7 +199,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -256,7 +256,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {"TEST_KEY": "a test value"},
@@ -295,7 +295,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {"TEST_KEY": "a test value"},
@@ -342,7 +342,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "env": {
@@ -383,6 +383,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             'state': 'initial',
             'state_display': 'Initial',
             'marathon_cmd': 'ping',
+            'marathon_args': '',
             'port': 1234,
             'marathon_health_check_path': '/health/path/',
         })
@@ -401,6 +402,43 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
+            "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+            "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
+            "labels": {
+                "domain": domain_label,
+                "HAPROXY_GROUP": "external",
+                "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
+                "traefik.frontend.rule": traefik_domains(domain_label),
+                "name": "Test App",
+                "org": "",
+            },
+            "container": {
+                "type": "DOCKER",
+                "docker": {
+                    "image": "docker/image",
+                    "forcePullImage": True,
+                    "network": "BRIDGE",
+                    "parameters": [{"key": "memory-swappiness", "value": "0"}],
+                },
+            },
+        })
+
+    @responses.activate
+    def test_marathon_with_args(self):
+        controller = DockerController.objects.create(
+            name='Test App',
+            owner=self.user,
+            docker_image='docker/image',
+            marathon_args='celery worker'
+        )
+
+        domain_label = "{}.{}".format(controller.app_id, settings.HUB_DOMAIN)
+        self.assertEquals(controller.get_marathon_app_data(), {
+            "id": controller.app_id,
+            "cpus": 0.1,
+            "mem": 128.0,
+            "instances": 1,
+            "args": ["celery", "worker"],
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
             "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
             "labels": {
@@ -446,7 +484,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                 "cpus": 0.1,
                 "mem": 128.0,
                 "instances": 1,
-                "args": ["ping"],
+                "cmd": "ping",
                 "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
                 "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
                 "labels": {

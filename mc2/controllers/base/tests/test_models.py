@@ -26,8 +26,20 @@ class ModelsTestCase(ControllerBaseTestCase):
         self.user = User.objects.get(username='testuser')
         self.maxDiff = None
 
-    def test_get_marathon_app_data(self):
+    def test_get_marathon_app_data_cmd(self):
         controller = self.mk_controller()
+
+        self.assertEquals(controller.get_marathon_app_data(), {
+            "id": controller.app_id,
+            "cpus": 0.1,
+            "mem": 128.0,
+            "instances": 1,
+            "cmd": "ping",
+            "labels": {"name": "Test App", "org": ""},
+        })
+
+    def test_get_marathon_app_data_args(self):
+        controller = self.mk_controller({"marathon_args": "ping"})
         self.assertEquals(controller.get_marathon_app_data(), {
             "id": controller.app_id,
             "cpus": 0.1,
@@ -53,7 +65,7 @@ class ModelsTestCase(ControllerBaseTestCase):
             "cpus": 0.1,
             "mem": 128.0,
             "instances": 1,
-            "args": ["ping"],
+            "cmd": "ping",
             "env": {
                 "TEST_KEY": "a test value",
                 "ANOTHER_KEY": "another value",
@@ -131,6 +143,7 @@ class ModelsTestCase(ControllerBaseTestCase):
             'state': 'initial',
             'state_display': 'Initial',
             'marathon_cmd': 'ping',
+            'marathon_args': '',
         })
 
     def test_leaf_class_helper(self):
