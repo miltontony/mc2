@@ -158,7 +158,7 @@ class Controller(PolymorphicModel):
             "instances": self.marathon_instances,
         }
 
-        if self.marathon_args and self.marathon_args.strip():
+        if self.marathon_args:
             data.update({"args": shlex.split(self.marathon_args)})
         elif self.marathon_cmd:
             data.update({"cmd": self.marathon_cmd})
