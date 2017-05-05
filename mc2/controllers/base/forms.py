@@ -15,7 +15,11 @@ class ControllerForm(forms.ModelForm):
             'placeholder': '(optional)'}),
         required=False)
     marathon_cmd = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control'}))
+        widget=forms.Textarea(attrs={'class': 'form-control'}),
+        required=False)
+    marathon_args = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control'}),
+        required=False)
     marathon_cpus = forms.FloatField(
         required=False,
         widget=forms.TextInput(attrs={
@@ -57,8 +61,8 @@ class ControllerForm(forms.ModelForm):
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
-            'marathon_cmd', 'webhook_token', 'description', 'organization',
-            'postgres_db_needed', 'rabbitmq_vhost_needed',
+            'marathon_cmd', 'marathon_args', 'webhook_token', 'description',
+            'organization', 'postgres_db_needed', 'rabbitmq_vhost_needed',
             'rabbitmq_vhost_name')
 
     def clean_rabbitmq_vhost_name(self):
