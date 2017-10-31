@@ -4,6 +4,7 @@ from django.test.client import Client
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.db.models import ProtectedError
 from mc2.controllers.base.models import Controller
 from mc2.controllers.base.tests.base import ControllerBaseTestCase
 from mc2.controllers.docker.models import DockerController
@@ -42,6 +43,13 @@ class ViewsTestCase(ControllerBaseTestCase):
             '<a href="/base/%s/">' %
             controller.id)
         controller.delete()
+
+    @responses.activate
+    def test_removing_the_controller_owner_wont_delete_the_controller(self):
+        self.mk_controller()
+        self.assertTrue(Controller.objects.all().exists())
+        with self.assertRaises(ProtectedError):
+            User.objects.first().delete()
 
     @responses.activate
     def test_dashboard(self):
