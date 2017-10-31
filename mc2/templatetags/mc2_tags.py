@@ -19,6 +19,6 @@ def display_name(context):
 def multiply(value, factor):
     try:
         return value * factor
-    except:
-        pass
+    except: # noqa
+        pass # noqa
     return 0
