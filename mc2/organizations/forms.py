@@ -26,13 +26,13 @@ class NewUserForm(forms.ModelForm):
 
     class Meta:
         model = Organization.users.through
-        fields = ('email', 'is_admin')
+        fields = ('email', 'is_admin', 'is_app_admin')
 
 
 ExistingUserInlineFormSet = inlineformset_factory(
     Organization,
     Organization.users.through,
-    fields=('is_admin',),
+    fields=('is_admin', 'is_app_admin'),
     extra=0)
 NewUserInlineFormSet = inlineformset_factory(
     Organization,

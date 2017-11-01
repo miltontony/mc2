@@ -28,6 +28,7 @@ CELERY_ALWAYS_EAGER = True
 def scratchpath(*paths):
     return abspath('.scratchpath', *paths)  # noqa
 
+
 SCRATCHPATH = scratchpath()
 
 UNICORE_CMS_INSTALL_DIR = scratchpath('test_config_dir', 'unicore-cms-django')

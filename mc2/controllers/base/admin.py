@@ -10,4 +10,5 @@ class ControllerAdmin(admin.ModelAdmin):
     list_editable = ('organization',)
     readonly_fields = ('state', 'owner')
 
+
 admin.site.register(Controller, ControllerAdmin)

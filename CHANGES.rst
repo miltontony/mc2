@@ -1,6 +1,70 @@
 CHANGE LOG
 ==========
 
+3.11.3
+------
+
+- Add on_delete models protect to controller's owner and organization
+
+3.11.2
+------
+
+- Handle task restarts gracefully, do not bubble up InfrastructureException to Sentry (#141)
+
+3.11.1
+------
+
+- Fix HAPROXY_0_VHOST value, should be comma separated rather than space.
+
+3.11.0
+------
+- allow user to request rabbitmq vhost
+
+3.10.0
+------
+- Add memory-swappiness=0 docker parameter to all app definitions.
+
+3.9.0
+-----
+- Allow users to register on MC
+
+3.8.1
+-----
+- move version number to __init__.py
+- show is_app_admin in the UI
+- show org list dropdown in alphabetical order
+- ensure full list of orgs is shown by default
+
+3.8.0
+-----
+- change labels when external visibility disabled
+- allow port to be optional (UI fix)
+- add organization name to marathon labels
+- (bug) fix issue with app labels not allowing multiples
+
+3.7.3
+-----
+- add app_admin for SSO
+- fix logging for apps with multiple instance
+
+3.7.2
+-----
+- revert Font fix: need to find a better solution
+
+3.7.1
+-----
+- (bug) Font css not loading properly after compress
+- (bug) ensure output_field is specified for Sum
+
+3.7.0
+-----
+- Added dashboard to show summary stats
+
+3.6.1
+-----
+- Fix single-signon bug for Molo
+- (bug) All multi-field forms can now be deleted (e.g env variables)
+
 3.6.0
 -----
 - Create postgres databases through mission control

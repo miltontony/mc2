@@ -1,4 +1,5 @@
 import requests
+import urllib
 
 from django.db import models
 from django.conf import settings
@@ -8,7 +9,8 @@ from polymorphic.models import PolymorphicModel
 
 from mc2.controllers.base import exceptions, namers
 from mc2.controllers.base.builders import Builder
-from mc2.controllers.base.managers import ControllerInfrastructureManager
+from mc2.controllers.base.managers import (
+    ControllerInfrastructureManager, ControllerRabbitMQManager)
 
 
 class Controller(PolymorphicModel):
@@ -40,11 +42,21 @@ class Controller(PolymorphicModel):
     postgres_db_username = models.TextField(default='', blank=True, null=True)
     postgres_db_password = models.TextField(default='', blank=True, null=True)
 
+    # create postgres databases through mission control
+    rabbitmq_vhost_needed = models.BooleanField(default=False)
+    rabbitmq_vhost_name = models.TextField(default='', blank=True, null=True)
+    rabbitmq_vhost_host = models.TextField(default='', blank=True, null=True)
+    rabbitmq_vhost_username = models.TextField(
+        default='', blank=True, null=True)
+    rabbitmq_vhost_password = models.TextField(
+        default='', blank=True, null=True)
+
     # Ownership and auth fields
-    owner = models.ForeignKey('auth.User')
+    owner = models.ForeignKey('auth.User', on_delete=models.PROTECT)
     team_id = models.IntegerField(blank=True, null=True)
     organization = models.ForeignKey(
-        'organizations.Organization', blank=True, null=True)
+        'organizations.Organization', blank=True, null=True,
+        on_delete=models.PROTECT)
 
     created_at = models.DateTimeField(
         _('Created Date & Time'),
@@ -73,6 +85,7 @@ class Controller(PolymorphicModel):
         super(Controller, self).__init__(*args, **kwargs)
 
         self.infra_manager = ControllerInfrastructureManager(self)
+        self.rabbitmq_manager = ControllerRabbitMQManager(self)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -126,6 +139,12 @@ class Controller(PolymorphicModel):
         self.postgres_db_host = db_host
         self.save()
 
+    def get_default_app_labels(self):
+        return {
+            "name": self.name,
+            "org": self.organization.slug if self.organization else '',
+        }
+
     def get_marathon_app_data(self):
         """
         Override this method to specify the app definition sent to marathon
@@ -163,11 +182,33 @@ class Controller(PolymorphicModel):
             self.postgres_db_name = None
             self.save()
 
+        if self.rabbitmq_vhost_needed and self.rabbitmq_vhost_name:
+            self.rabbitmq_manager.create_rabbitmq_vhost()
+            envs.update({
+                'BROKER_URL':
+                    'amqp://%(username)s:%(password)s@%(host)s/%(name)s' %
+                    {
+                        'username': self.rabbitmq_vhost_username,
+                        'password': self.rabbitmq_vhost_password,
+                        'host': self.rabbitmq_vhost_host,
+                        'name': urllib.quote(self.rabbitmq_vhost_name),
+                    }
+            })
+
             # TODO: seed-xylem currently doesn't support deleting of databases
             # Once support is added, we should delete this database here.
 
         if envs:
             data.update({'env': envs})
+
+        service_labels = self.get_default_app_labels()
+
+        # Update custom labels
+        if self.label_variables.exists():
+            for label in self.label_variables.all():
+                service_labels[label.name] = label.value
+
+        data.update({'labels': service_labels})
 
         return data
 

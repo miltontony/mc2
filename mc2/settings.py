@@ -13,6 +13,7 @@ def bool_env(val):
     """Replaces string based environment values with Python booleans"""
     return True if environ.get(val, False) == 'True' else False
 
+
 # Environment Variables
 SECRET_KEY = environ.get('SECRET_KEY', 'please-change-me')
 PROJECT_ROOT = environ.get(
@@ -45,6 +46,15 @@ HUB_DOMAIN = environ.get('HUB_DOMAIN', 'seed.p16n.org')
 SEED_XYLEM_API_HOST = environ.get(
     'SEED_XYLEM_API_HOST', 'http://localhost:7701')
 
+RABBITMQ_API_HOST = environ.get(
+    'RABBITMQ_API_HOST', 'http://localhost:15672/api')
+RABBITMQ_APP_HOST = environ.get(
+    'RABBITMQ_APP_HOST', 'http://localhost:15672')
+RABBITMQ_API_USERNAME = environ.get(
+    'RABBITMQ_API_USERNAME', 'guest')
+RABBITMQ_API_PASSWORD = environ.get(
+    'RABBITMQ_API_PASSWORD', 'guest')
+
 # Configured at Nginx for internal redirect
 MESOS_FILE_API_PATH = environ.get(
     'MESOS_FILE_API_PATH', '/mesos/%(worker_host)s/files/%(api_path)s')
@@ -71,6 +81,7 @@ EMAIL_HOST = environ.get('EMAIL_HOST', 'localhost')
 EMAIL_PORT = environ.get('EMAIL_PORT', 25)
 EMAIL_HOST_USER = environ.get('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = environ.get('DEFAULT_FROM_EMAIL', 'support@praekelt.org')
 
 DEBUG = bool_env('DEBUG')
 TEMPLATE_DEBUG = DEBUG
@@ -212,7 +223,6 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'redis_cache',
     'raven.contrib.django.raven_compat',
     'debug_toolbar',
 
@@ -258,16 +268,6 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
-    }
-}
-
-CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'localhost:6379',
-        'OPTIONS': {
-            'DB': 2,
-        }
     }
 }
 
@@ -327,3 +327,5 @@ SOCIAL_AUTH_PIPELINE = (
 HUBCLIENT_SETTINGS = None
 
 MAMA_CAS_ATTRIBUTE_CALLBACKS = ('mc2.permissions.org_permissions',)
+
+COMPRESS_OFFLINE = True

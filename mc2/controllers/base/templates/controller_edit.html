@@ -19,13 +19,13 @@
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           });
-          $(".inline.link").formset({
-              prefix: "link",
+          $(".inline.applabel").formset({
+              prefix: "label",
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           });
-          $(".inline.applabel").formset({
-              prefix: "label",
+          $(".inline.link").formset({
+              prefix: "link",
               addCssClass: "add-row btn btn-primary",
               deleteCssClass: "delete-row btn btn-danger btn-xs",
           });
@@ -82,6 +82,15 @@
 
       {% if object.postgres_db_needed %}
       <input class="form-control" type="text" value="postgres://{{object.postgres_db_username}}:{{object.postgres_db_password}}@{{object.postgres_db_host}}/{{object.postgres_db_name}}" disabled>
+      {% endif %}
+      </div></div>
+
+      <div class="row"><div class="col-xs-8">
+      {% include "form_field.html" with field=form.rabbitmq_vhost_needed %}
+      {% include "form_field.html" with field=form.rabbitmq_vhost_name %}
+
+      {% if object.rabbitmq_vhost_needed %}
+      <input class="form-control" type="text" value="amqp://{{object.rabbitmq_vhost_username}}:{{object.rabbitmq_vhost_password}}@{{object.rabbitmq_vhost_host}}/{{object.rabbitmq_vhost_name|urlencode}}" disabled>
       {% endif %}
       </div></div>
 
