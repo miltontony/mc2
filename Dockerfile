@@ -2,7 +2,7 @@ FROM praekeltfoundation/supervisor:alpine
 
 # Install runtime dependencies for MC2 as well as Nginx and Redis
 RUN apk --no-cache add libffi libpq \
-    nginx redis; \
+    nginx redis && \
     rm /etc/nginx/conf.d/default.conf
 
 # Copy in bits of MC2 source we need
