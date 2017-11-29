@@ -587,3 +587,142 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.name, 'Another test app')
         self.assertEqual(controller.organization.slug, 'foo-org')
         self.assertIsNone(controller.port)
+
+    @responses.activate
+    def test_create_new_controller_with_health_path(self):
+        org = Organization.objects.create(name="Foo Org", slug="foo-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'docker_image': 'test/image',
+            'postgres_db_needed': True,
+            'port': 8000,
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+            'marathon_health_check_path': '/health/path/',
+        }
+
+        response = self.client.post(reverse('controllers.docker:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = DockerController.objects.all().last()
+        self.assertEqual(controller.state, 'done')
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(
+            controller.marathon_health_check_path,
+            '/health/path/')
+
+    @responses.activate
+    def test_create_new_controller_with_health_cmd(self):
+        org = Organization.objects.create(name="Foo Org", slug="foo-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'docker_image': 'test/image',
+            'postgres_db_needed': True,
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+            'marathon_health_check_cmd': 'cmd ping',
+        }
+
+        response = self.client.post(reverse('controllers.docker:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = DockerController.objects.all().last()
+        self.assertEqual(controller.state, 'done')
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(
+            controller.marathon_health_check_cmd,
+            'cmd ping')
+
+    @responses.activate
+    def test_create_new_controller_with_health_invalid(self):
+        org = Organization.objects.create(name="Foo Org", slug="foo-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'docker_image': 'test/image',
+            'postgres_db_needed': True,
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+            'marathon_health_check_path': '/health/path/',
+            'marathon_health_check_cmd': 'cmd ping',
+        }
+
+        response = self.client.post(reverse('controllers.docker:add'), data)
+        self.assertContains(
+            response, 'You can only specify 1 health check at a time.')
