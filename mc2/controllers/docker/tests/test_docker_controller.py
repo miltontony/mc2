@@ -374,7 +374,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             marathon_cmd='ping',
             docker_image='docker/image',
             port=1234,
-            marathon_health_check_path='/health/path/'
+            marathon_health_check_path='/health/path/',
+            marathon_health_check_cmd='cmd ping',
         )
         self.assertEquals(controller.to_dict(), {
             'id': controller.id,
@@ -385,6 +386,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             'marathon_cmd': 'ping',
             'port': 1234,
             'marathon_health_check_path': '/health/path/',
+            'marathon_health_check_cmd': 'cmd ping',
         })
 
     @responses.activate
@@ -477,6 +479,64 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                     "path": '/health/path/',
                     "portIndex": 0,
                     "protocol": "HTTP",
+                    "timeoutSeconds": 200
+                }]
+            })
+
+    @responses.activate
+    def test_get_marathon_app_data_using_health_cmd(self):
+        controller = DockerController.objects.create(
+            name='Test App',
+            owner=self.user,
+            marathon_cmd='ping',
+            docker_image='docker/image',
+            marathon_health_check_cmd='cmd ping',
+            port=1234,
+        )
+
+        custom_urls = "testing.com url.com"
+        controller.domain_urls += custom_urls
+        with self.settings(
+            MESOS_DEFAULT_GRACE_PERIOD_SECONDS='600',
+            MESOS_DEFAULT_INTERVAL_SECONDS='100',
+                MESOS_DEFAULT_TIMEOUT_SECONDS='200'):
+            domain_label = "{}.{} {}".format(
+                controller.app_id, settings.HUB_DOMAIN, custom_urls)
+            self.assertEquals(controller.get_marathon_app_data(), {
+                "id": controller.app_id,
+                "cpus": 0.1,
+                "mem": 128.0,
+                "instances": 1,
+                "cmd": "ping",
+                "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+                "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
+                "labels": {
+                    "domain": domain_label,
+                    "HAPROXY_GROUP": "external",
+                    "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
+                    "traefik.frontend.rule": traefik_domains(domain_label),
+                    "name": "Test App",
+                    "org": "",
+                },
+                "container": {
+                    "type": "DOCKER",
+                    "docker": {
+                        "image": "docker/image",
+                        "forcePullImage": True,
+                        "network": "BRIDGE",
+                        "portMappings": [
+                            {"containerPort": 1234, "hostPort": 0}],
+                        "parameters": [
+                            {"key": "memory-swappiness", "value": "0"}],
+                    },
+                },
+                "ports": [0],
+                "healthChecks": [{
+                    "gracePeriodSeconds": 600,
+                    "intervalSeconds": 100,
+                    "maxConsecutiveFailures": 3,
+                    "command": {'value': 'cmd ping'},
+                    "protocol": "COMMAND",
                     "timeoutSeconds": 200
                 }]
             })

@@ -114,8 +114,7 @@ class DockerController(Controller):
                         int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
                 }]
             })
-
-        if self.marathon_health_check_cmd:
+        elif self.marathon_health_check_cmd:
             app_data.update({
                 "ports": [0],
                 "healthChecks": [{
@@ -227,7 +226,8 @@ class DockerController(Controller):
         data = super(DockerController, self).to_dict()
         data.update({
             'port': self.port,
-            'marathon_health_check_path': self.marathon_health_check_path
+            'marathon_health_check_path': self.marathon_health_check_path,
+            'marathon_health_check_cmd': self.marathon_health_check_cmd
         })
         return data
 
