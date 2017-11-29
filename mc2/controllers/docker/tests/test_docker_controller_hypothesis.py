@@ -171,8 +171,6 @@ def check_and_remove_health(appdata, controller):
             "timeoutSeconds": 20,
         }]
 
-    if "ports" in appdata:
-        print appdata
     assert "ports" not in appdata
     assert "healthChecks" not in appdata
 
