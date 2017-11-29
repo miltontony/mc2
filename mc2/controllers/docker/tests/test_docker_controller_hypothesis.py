@@ -160,6 +160,20 @@ def check_and_remove_health(appdata, controller):
             "protocol": "HTTP",
             "timeoutSeconds": 20,
         }]
+
+    if controller.marathon_health_check_cmd:
+        assert appdata.pop("ports") == [0]
+        assert appdata.pop("healthChecks") == [{
+            "gracePeriodSeconds": 60,
+            "intervalSeconds": 10,
+            "maxConsecutiveFailures": 3,
+            "command": {"value": controller.marathon_health_check_cmd},
+            "protocol": "COMMAND",
+            "timeoutSeconds": 20,
+        }]
+
+    if "ports" in appdata:
+        print appdata
     assert "ports" not in appdata
     assert "healthChecks" not in appdata
 

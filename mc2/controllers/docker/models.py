@@ -29,6 +29,8 @@ class DockerController(Controller):
     docker_image = models.CharField(max_length=256)
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
+    marathon_health_check_cmd = models.CharField(
+        max_length=255, blank=True, null=True)
     port = models.PositiveIntegerField(default=0, blank=True, null=True)
     domain_urls = models.TextField(max_length=8000, default="")
     external_visibility = models.BooleanField(default=True)
@@ -113,6 +115,24 @@ class DockerController(Controller):
                 }]
             })
 
+        if self.marathon_health_check_cmd:
+            app_data.update({
+                "ports": [0],
+                "healthChecks": [{
+                    "protocol": "COMMAND",
+                    "command": {
+                        "value": self.marathon_health_check_cmd,
+                    },
+                    "gracePeriodSeconds":
+                        int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
+                    "intervalSeconds":
+                        int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
+                    "timeoutSeconds":
+                        int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
+                    "maxConsecutiveFailures": 3
+                }]
+            })
+
         return app_data
 
     @classmethod
@@ -173,7 +193,11 @@ class DockerController(Controller):
             assert app_data.pop("ports", [0]) == [0]
             hc = app_data.pop("healthChecks")
             assert len(hc) == 1
-            args["marathon_health_check_path"] = hc[0]["path"]
+            if hc[0]["protocol"] == "HTTP":
+                args["marathon_health_check_path"] = hc[0]["path"]
+
+            if hc[0]["protocol"] == "COMMAND":
+                args["marathon_health_check_cmd"] = hc[0]["command"]["value"]
 
         if name is not None:
             args["name"] = name

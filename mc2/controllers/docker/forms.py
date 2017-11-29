@@ -14,6 +14,11 @@ class DockerControllerForm(ControllerForm):
             'class': 'form-control',
             'placeholder': '(optional)'}),
         required=False)
+    marathon_health_check_cmd = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '(optional)'}),
+        required=False)
     port = forms.CharField(
         widget=forms.NumberInput(attrs={
             'class': 'form-control',
@@ -45,6 +50,18 @@ class DockerControllerForm(ControllerForm):
     def clean_port(self):
         return self.cleaned_data['port'] or None
 
+    def clean(self):
+        cleaned_data = super(DockerControllerForm, self).clean()
+        marathon_health_check_cmd = cleaned_data.get(
+            "marathon_health_check_cmd")
+        marathon_health_check_path = cleaned_data.get(
+            "marathon_health_check_path")
+
+        if marathon_health_check_path and marathon_health_check_cmd:
+            raise forms.ValidationError(
+                "You can only specify 1 health check at a time."
+            )
+
     class Meta:
         model = DockerController
         fields = (
@@ -53,7 +70,8 @@ class DockerControllerForm(ControllerForm):
             'port', 'domain_urls', 'volume_needed', 'volume_path',
             'webhook_token', 'description', 'organization',
             'postgres_db_needed', 'external_visibility',
-            'rabbitmq_vhost_needed', 'rabbitmq_vhost_name')
+            'rabbitmq_vhost_needed', 'rabbitmq_vhost_name',
+            'marathon_health_check_cmd',)
 
 
 class DockerControllerFormHelper(ControllerFormHelper):
