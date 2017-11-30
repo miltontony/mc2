@@ -374,7 +374,8 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             marathon_cmd='ping',
             docker_image='docker/image',
             port=1234,
-            marathon_health_check_path='/health/path/'
+            marathon_health_check_path='/health/path/',
+            marathon_health_check_cmd='cmd ping',
         )
         self.assertEquals(controller.to_dict(), {
             'id': controller.id,
@@ -385,6 +386,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             'marathon_cmd': 'ping',
             'port': 1234,
             'marathon_health_check_path': '/health/path/',
+            'marathon_health_check_cmd': 'cmd ping',
         })
 
     @responses.activate
@@ -482,6 +484,63 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             })
 
     @responses.activate
+    def test_get_marathon_app_data_using_health_cmd(self):
+        controller = DockerController.objects.create(
+            name='Test App',
+            owner=self.user,
+            marathon_cmd='ping',
+            docker_image='docker/image',
+            marathon_health_check_cmd='cmd ping',
+            port=1234,
+        )
+
+        custom_urls = "testing.com url.com"
+        controller.domain_urls += custom_urls
+        with self.settings(
+            MESOS_DEFAULT_GRACE_PERIOD_SECONDS='600',
+            MESOS_DEFAULT_INTERVAL_SECONDS='100',
+                MESOS_DEFAULT_TIMEOUT_SECONDS='200'):
+            domain_label = "{}.{} {}".format(
+                controller.app_id, settings.HUB_DOMAIN, custom_urls)
+            self.assertEquals(controller.get_marathon_app_data(), {
+                "id": controller.app_id,
+                "cpus": 0.1,
+                "mem": 128.0,
+                "instances": 1,
+                "cmd": "ping",
+                "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
+                "backoffSeconds": settings.MESOS_DEFAULT_BACKOFF_SECONDS,
+                "labels": {
+                    "domain": domain_label,
+                    "HAPROXY_GROUP": "external",
+                    "HAPROXY_0_VHOST": marathon_lb_domains(domain_label),
+                    "traefik.frontend.rule": traefik_domains(domain_label),
+                    "name": "Test App",
+                    "org": "",
+                },
+                "container": {
+                    "type": "DOCKER",
+                    "docker": {
+                        "image": "docker/image",
+                        "forcePullImage": True,
+                        "network": "BRIDGE",
+                        "portMappings": [
+                            {"containerPort": 1234, "hostPort": 0}],
+                        "parameters": [
+                            {"key": "memory-swappiness", "value": "0"}],
+                    },
+                },
+                "healthChecks": [{
+                    "gracePeriodSeconds": 600,
+                    "intervalSeconds": 100,
+                    "maxConsecutiveFailures": 3,
+                    "command": {'value': 'cmd ping'},
+                    "protocol": "COMMAND",
+                    "timeoutSeconds": 200
+                }]
+            })
+
+    @responses.activate
     def test_create_new_controller_with_no_port(self):
         org = Organization.objects.create(name="Foo Org", slug="foo-org")
         OrganizationUserRelation.objects.create(
@@ -527,3 +586,152 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         self.assertEqual(controller.name, 'Another test app')
         self.assertEqual(controller.organization.slug, 'foo-org')
         self.assertIsNone(controller.port)
+
+    @responses.activate
+    def test_create_new_controller_with_health_path(self):
+        org = Organization.objects.create(name="Foo Org", slug="foo-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'docker_image': 'test/image',
+            'postgres_db_needed': True,
+            'port': 8000,
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+            'marathon_health_check_path': '/health/path/',
+        }
+
+        response = self.client.post(reverse('controllers.docker:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = DockerController.objects.all().last()
+        self.assertEqual(controller.state, 'done')
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(
+            controller.marathon_health_check_path,
+            '/health/path/')
+
+    @responses.activate
+    def test_create_new_controller_with_health_cmd(self):
+        org = Organization.objects.create(name="Foo Org", slug="foo-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'docker_image': 'test/image',
+            'postgres_db_needed': True,
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+            'marathon_health_check_cmd': 'cmd ping',
+        }
+
+        response = self.client.post(reverse('controllers.docker:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = DockerController.objects.all().last()
+        self.assertEqual(controller.state, 'done')
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(
+            controller.marathon_health_check_cmd,
+            'cmd ping')
+
+    @responses.activate
+    def test_create_new_controller_with_health_multiple_checks(self):
+        org = Organization.objects.create(name="Foo Org", slug="foo-org")
+        OrganizationUserRelation.objects.create(
+            user=self.user, organization=org)
+
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'docker_image': 'test/image',
+            'postgres_db_needed': True,
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-TOTAL_FORMS': 0,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+            'marathon_health_check_path': '/health/path/',
+            'marathon_health_check_cmd': 'cmd ping',
+        }
+
+        response = self.client.post(reverse('controllers.docker:add'), data)
+        self.assertEqual(response.status_code, 302)
+
+        controller = DockerController.objects.all().last()
+        self.assertEqual(controller.state, 'done')
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(
+            controller.marathon_health_check_path,
+            '/health/path/')
+        self.assertEqual(
+            controller.marathon_health_check_cmd,
+            'cmd ping')
