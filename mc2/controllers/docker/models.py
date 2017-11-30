@@ -49,6 +49,7 @@ class DockerController(Controller):
             docker_dict.update({
                 "portMappings": [{"containerPort": self.port, "hostPort": 0}]
             })
+            app_data.update({"ports": [0]})
 
         parameters_dict = [{"key": "memory-swappiness", "value": "0"}]
         if self.volume_needed:
@@ -98,39 +99,36 @@ class DockerController(Controller):
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
         })
 
-        if self.marathon_health_check_path and self.port:
-            app_data.update({
-                "ports": [0],
-                "healthChecks": [{
-                    "gracePeriodSeconds":
-                        int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
-                    "intervalSeconds":
-                        int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
-                    "maxConsecutiveFailures": 3,
-                    "path": self.marathon_health_check_path,
-                    "portIndex": 0,
-                    "protocol": "HTTP",
-                    "timeoutSeconds":
-                        int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
-                }]
+        health_checks = []
+        if self.marathon_health_check_path:
+            health_checks.append({
+                "gracePeriodSeconds":
+                    int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
+                "intervalSeconds":
+                    int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
+                "maxConsecutiveFailures": 3,
+                "path": self.marathon_health_check_path,
+                "portIndex": 0,
+                "protocol": "HTTP",
+                "timeoutSeconds":
+                    int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
             })
-        elif self.marathon_health_check_cmd:
-            app_data.update({
-                "ports": [0],
-                "healthChecks": [{
-                    "protocol": "COMMAND",
-                    "command": {
-                        "value": self.marathon_health_check_cmd,
-                    },
-                    "gracePeriodSeconds":
-                        int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
-                    "intervalSeconds":
-                        int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
-                    "timeoutSeconds":
-                        int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
-                    "maxConsecutiveFailures": 3
-                }]
+        if self.marathon_health_check_cmd:
+            health_checks.append({
+                "protocol": "COMMAND",
+                "command": {
+                    "value": self.marathon_health_check_cmd,
+                },
+                "gracePeriodSeconds":
+                    int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
+                "intervalSeconds":
+                    int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
+                "timeoutSeconds":
+                    int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
+                "maxConsecutiveFailures": 3
             })
+        if health_checks:
+            app_data.update({"healthChecks": health_checks})
 
         return app_data
 
@@ -165,6 +163,7 @@ class DockerController(Controller):
             # TODO: Better error:
             assert len(docker_dict["portMappings"]) == 1
             args["port"] = docker_dict.pop("portMappings")[0]["containerPort"]
+            assert app_data.pop("ports", [0]) == [0]
 
         for param in docker_dict.pop("parameters", []):
             if param["key"] == "volume":
@@ -189,14 +188,16 @@ class DockerController(Controller):
         if "healthChecks" in app_data:
             # TODO: Validate the rest of the health check data.
             # TODO: Better errors:
-            assert app_data.pop("ports", [0]) == [0]
             hc = app_data.pop("healthChecks")
-            assert len(hc) == 1
-            if hc[0]["protocol"] == "HTTP":
+            if len(hc) == 2:
                 args["marathon_health_check_path"] = hc[0]["path"]
-
-            if hc[0]["protocol"] == "COMMAND":
-                args["marathon_health_check_cmd"] = hc[0]["command"]["value"]
+                args["marathon_health_check_cmd"] = hc[1]["command"]["value"]
+            else:
+                if hc[0]["protocol"] == "HTTP":
+                    args["marathon_health_check_path"] = hc[0].get("path")
+                else:
+                    args["marathon_health_check_cmd"] = hc[0].get(
+                        "command").get("value")
 
         if name is not None:
             args["name"] = name
