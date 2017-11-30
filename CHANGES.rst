@@ -1,6 +1,11 @@
 CHANGE LOG
 ==========
 
+3.12.0
+------
+
+- Allow specify of COMMAND health check
+
 3.11.4
 ------
 
