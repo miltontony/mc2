@@ -49,7 +49,6 @@ class DockerController(Controller):
             docker_dict.update({
                 "portMappings": [{"containerPort": self.port, "hostPort": 0}]
             })
-            app_data.update({"ports": [0]})
 
         parameters_dict = [{"key": "memory-swappiness", "value": "0"}]
         if self.volume_needed:
@@ -101,6 +100,7 @@ class DockerController(Controller):
 
         health_checks = []
         if self.marathon_health_check_path:
+            app_data.update({"ports": [0]})
             health_checks.append({
                 "gracePeriodSeconds":
                     int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
@@ -163,7 +163,6 @@ class DockerController(Controller):
             # TODO: Better error:
             assert len(docker_dict["portMappings"]) == 1
             args["port"] = docker_dict.pop("portMappings")[0]["containerPort"]
-            assert app_data.pop("ports", [0]) == [0]
 
         for param in docker_dict.pop("parameters", []):
             if param["key"] == "volume":
@@ -192,9 +191,11 @@ class DockerController(Controller):
             if len(hc) == 2:
                 args["marathon_health_check_path"] = hc[0]["path"]
                 args["marathon_health_check_cmd"] = hc[1]["command"]["value"]
+                assert app_data.pop("ports", [0]) == [0]
             else:
                 if hc[0]["protocol"] == "HTTP":
                     args["marathon_health_check_path"] = hc[0].get("path")
+                    assert app_data.pop("ports", [0]) == [0]
                 else:
                     args["marathon_health_check_cmd"] = hc[0].get(
                         "command").get("value")

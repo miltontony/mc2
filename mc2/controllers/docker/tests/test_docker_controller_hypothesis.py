@@ -140,11 +140,9 @@ def check_and_remove_docker(appdata, controller):
     if controller.port:
         assert docker.pop("portMappings") == [
             {"containerPort": controller.port, "hostPort": 0}]
-        assert appdata.pop("ports") == [0]
     check_and_remove_docker_params(docker, controller)
     assert docker == {}
     assert container == {}
-    assert "ports" not in appdata
 
 
 def check_and_remove_health(appdata, controller):
@@ -169,6 +167,7 @@ def check_and_remove_health(appdata, controller):
             "protocol": "COMMAND",
             "timeoutSeconds": 20,
         }]
+        assert appdata.pop("ports") == [0]
     elif controller.marathon_health_check_path:
         assert appdata.pop("healthChecks") == [{
             "gracePeriodSeconds": 60,
@@ -179,6 +178,7 @@ def check_and_remove_health(appdata, controller):
             "protocol": "HTTP",
             "timeoutSeconds": 20,
         }]
+        assert appdata.pop("ports") == [0]
     elif controller.marathon_health_check_cmd:
         assert appdata.pop("healthChecks") == [{
             "gracePeriodSeconds": 60,
@@ -189,6 +189,7 @@ def check_and_remove_health(appdata, controller):
             "timeoutSeconds": 20,
         }]
 
+    assert "ports" not in appdata
     assert "healthChecks" not in appdata
 
 

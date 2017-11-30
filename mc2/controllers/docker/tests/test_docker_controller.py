@@ -530,7 +530,6 @@ class DockerControllerTestCase(ControllerBaseTestCase):
                             {"key": "memory-swappiness", "value": "0"}],
                     },
                 },
-                "ports": [0],
                 "healthChecks": [{
                     "gracePeriodSeconds": 600,
                     "intervalSeconds": 100,
