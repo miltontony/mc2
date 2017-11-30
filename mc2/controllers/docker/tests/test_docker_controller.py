@@ -686,7 +686,7 @@ class DockerControllerTestCase(ControllerBaseTestCase):
             'cmd ping')
 
     @responses.activate
-    def test_create_new_controller_with_health_invalid(self):
+    def test_create_new_controller_with_health_multiple_checks(self):
         org = Organization.objects.create(name="Foo Org", slug="foo-org")
         OrganizationUserRelation.objects.create(
             user=self.user, organization=org)
@@ -724,5 +724,15 @@ class DockerControllerTestCase(ControllerBaseTestCase):
         }
 
         response = self.client.post(reverse('controllers.docker:add'), data)
-        self.assertContains(
-            response, 'You can only specify 1 health check at a time.')
+        self.assertEqual(response.status_code, 302)
+
+        controller = DockerController.objects.all().last()
+        self.assertEqual(controller.state, 'done')
+        self.assertEqual(controller.name, 'Another test app')
+        self.assertEqual(controller.organization.slug, 'foo-org')
+        self.assertEqual(
+            controller.marathon_health_check_path,
+            '/health/path/')
+        self.assertEqual(
+            controller.marathon_health_check_cmd,
+            'cmd ping')

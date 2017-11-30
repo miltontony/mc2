@@ -50,18 +50,6 @@ class DockerControllerForm(ControllerForm):
     def clean_port(self):
         return self.cleaned_data['port'] or None
 
-    def clean(self):
-        cleaned_data = super(DockerControllerForm, self).clean()
-        marathon_health_check_cmd = cleaned_data.get(
-            "marathon_health_check_cmd")
-        marathon_health_check_path = cleaned_data.get(
-            "marathon_health_check_path")
-
-        if marathon_health_check_path and marathon_health_check_cmd:
-            raise forms.ValidationError(
-                "You can only specify 1 health check at a time."
-            )
-
     class Meta:
         model = DockerController
         fields = (
