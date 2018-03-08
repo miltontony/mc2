@@ -1247,3 +1247,42 @@ class ViewsTestCase(ControllerBaseTestCase):
             controller.label_variables.all()[1].name, 'A_TEST_LABEL2')
         self.assertEqual(
             controller.label_variables.all()[1].value, 'the label value2')
+
+    @responses.activate
+    def test_controller_only_has_1_command(self):
+        self.client.login(username='testuser2', password='test')
+        self.client.get(
+            reverse('organizations:select-active', args=('foo-org',)))
+
+        self.mock_create_marathon_app()
+        self.mock_create_postgres_db(200, {
+            'result': {
+                'name': 'joes_db',
+                'user': 'joe',
+                'password': '1234',
+                'host': 'localhost'}})
+
+        data = {
+            'name': 'Another test app',
+            'description': 'A really lovely little app',
+            'marathon_cmd': 'ping2-cmd',
+            'marathon_args': 'ping2-arg',
+            'env-TOTAL_FORMS': 0,
+            'env-INITIAL_FORMS': 0,
+            'env-MIN_NUM_FORMS': 0,
+            'env-MAX_NUM_FORMS': 100,
+            'label-0-name': 'A_TEST_KEY',
+            'label-0-value': 'the value',
+            'label-TOTAL_FORMS': 1,
+            'label-INITIAL_FORMS': 0,
+            'label-MIN_NUM_FORMS': 0,
+            'label-MAX_NUM_FORMS': 100,
+            'link-TOTAL_FORMS': 0,
+            'link-INITIAL_FORMS': 0,
+            'link-MIN_NUM_FORMS': 0,
+            'link-MAX_NUM_FORMS': 100,
+        }
+
+        response = self.client.post(reverse('base:add'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "You can only specify 1 command.")
