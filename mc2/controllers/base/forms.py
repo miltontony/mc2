@@ -78,7 +78,7 @@ class ControllerForm(forms.ModelForm):
         if data.get('marathon_args') and data.get('marathon_cmd'):
             error_msg = (
                 "You can only specify 1 command. "
-                "Please use either 'args' or 'cmd'")
+                "Please specify either 'args' or 'cmd', not both.")
             raise forms.ValidationError({
                 'marathon_args': error_msg,
                 'marathon_cmd': error_msg})
