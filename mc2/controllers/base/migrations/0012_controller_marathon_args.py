@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('base', '0010_add_rabbitmq_fields'),
+        ('base', '0011_add_on_delete_to_controller_foreignkey'),
     ]
 
     operations = [
