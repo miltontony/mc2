@@ -73,6 +73,16 @@ class ControllerForm(forms.ModelForm):
                 raise forms.ValidationError("vhost name is required.")
         return rabbitmq_vhost_name
 
+    def clean(self):
+        data = super(ControllerForm, self).clean()
+        if data.get('marathon_args') and data.get('marathon_cmd'):
+            error_msg = (
+                "You can only specify 1 command. "
+                "Please use either 'args' or 'cmd'")
+            raise forms.ValidationError({
+                'marathon_args': error_msg,
+                'marathon_cmd': error_msg})
+
 
 class CustomInlineFormset(forms.BaseInlineFormSet):
     """

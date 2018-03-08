@@ -152,13 +152,14 @@
       {% with form=form.controller_form %}
       <fieldset class="input-xxlarge">
           <legend>Marathon</legend>
-          <div class="row">
-          <div class="col-xs-6">
-          {% include "form_field.html" with field=form.marathon_cmd %}
-          </div></div>
+          <p class="help-block">Please specify either "args" OR "cmd"</p>
           <div class="row">
           <div class="col-xs-6">
           {% include "form_field.html" with field=form.marathon_args %}
+          </div></div>
+          <div class="row">
+          <div class="col-xs-6">
+          {% include "form_field.html" with field=form.marathon_cmd %}
           </div></div>
           <div class="row">
           <div class="col-md-2">
