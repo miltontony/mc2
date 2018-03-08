@@ -15,7 +15,11 @@ class ControllerForm(forms.ModelForm):
             'placeholder': '(optional)'}),
         required=False)
     marathon_cmd = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control'}))
+        widget=forms.Textarea(attrs={'class': 'form-control'}),
+        required=False)
+    marathon_args = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control'}),
+        required=False)
     marathon_cpus = forms.FloatField(
         required=False,
         widget=forms.TextInput(attrs={
@@ -57,8 +61,8 @@ class ControllerForm(forms.ModelForm):
         model = Controller
         fields = (
             'name', 'marathon_cpus', 'marathon_mem', 'marathon_instances',
-            'marathon_cmd', 'webhook_token', 'description', 'organization',
-            'postgres_db_needed', 'rabbitmq_vhost_needed',
+            'marathon_cmd', 'marathon_args', 'webhook_token', 'description',
+            'organization', 'postgres_db_needed', 'rabbitmq_vhost_needed',
             'rabbitmq_vhost_name')
 
     def clean_rabbitmq_vhost_name(self):
@@ -68,6 +72,16 @@ class ControllerForm(forms.ModelForm):
             if not rabbitmq_vhost_name:
                 raise forms.ValidationError("vhost name is required.")
         return rabbitmq_vhost_name
+
+    def clean(self):
+        data = super(ControllerForm, self).clean()
+        if data.get('marathon_args') and data.get('marathon_cmd'):
+            error_msg = (
+                "You can only specify 1 command. "
+                "Please specify either 'args' or 'cmd', not both.")
+            raise forms.ValidationError({
+                'marathon_args': error_msg,
+                'marathon_cmd': error_msg})
 
 
 class CustomInlineFormset(forms.BaseInlineFormSet):
