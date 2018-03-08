@@ -30,6 +30,8 @@ class DockerController(Controller):
     docker_image = models.CharField(max_length=256)
     marathon_health_check_path = models.CharField(
         max_length=255, blank=True, null=True)
+    marathon_health_check_cmd = models.CharField(
+        max_length=255, blank=True, null=True)
     port = models.PositiveIntegerField(default=0, blank=True, null=True)
     domain_urls = models.TextField(max_length=8000, default="")
     external_visibility = models.BooleanField(default=True)
@@ -97,22 +99,37 @@ class DockerController(Controller):
             "backoffFactor": settings.MESOS_DEFAULT_BACKOFF_FACTOR,
         })
 
-        if self.marathon_health_check_path and self.port:
-            app_data.update({
-                "ports": [0],
-                "healthChecks": [{
-                    "gracePeriodSeconds":
-                        int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
-                    "intervalSeconds":
-                        int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
-                    "maxConsecutiveFailures": 3,
-                    "path": self.marathon_health_check_path,
-                    "portIndex": 0,
-                    "protocol": "HTTP",
-                    "timeoutSeconds":
-                        int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
-                }]
+        health_checks = []
+        if self.marathon_health_check_path:
+            app_data.update({"ports": [0]})
+            health_checks.append({
+                "gracePeriodSeconds":
+                    int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
+                "intervalSeconds":
+                    int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
+                "maxConsecutiveFailures": 3,
+                "path": self.marathon_health_check_path,
+                "portIndex": 0,
+                "protocol": "HTTP",
+                "timeoutSeconds":
+                    int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
             })
+        if self.marathon_health_check_cmd:
+            health_checks.append({
+                "protocol": "COMMAND",
+                "command": {
+                    "value": self.marathon_health_check_cmd,
+                },
+                "gracePeriodSeconds":
+                    int(settings.MESOS_DEFAULT_GRACE_PERIOD_SECONDS),
+                "intervalSeconds":
+                    int(settings.MESOS_DEFAULT_INTERVAL_SECONDS),
+                "timeoutSeconds":
+                    int(settings.MESOS_DEFAULT_TIMEOUT_SECONDS),
+                "maxConsecutiveFailures": 3
+            })
+        if health_checks:
+            app_data.update({"healthChecks": health_checks})
 
         return app_data
 
@@ -181,10 +198,18 @@ class DockerController(Controller):
         if "healthChecks" in app_data:
             # TODO: Validate the rest of the health check data.
             # TODO: Better errors:
-            assert app_data.pop("ports", [0]) == [0]
             hc = app_data.pop("healthChecks")
-            assert len(hc) == 1
-            args["marathon_health_check_path"] = hc[0]["path"]
+            if len(hc) == 2:
+                args["marathon_health_check_path"] = hc[0]["path"]
+                args["marathon_health_check_cmd"] = hc[1]["command"]["value"]
+                assert app_data.pop("ports", [0]) == [0]
+            else:
+                if hc[0]["protocol"] == "HTTP":
+                    args["marathon_health_check_path"] = hc[0].get("path")
+                    assert app_data.pop("ports", [0]) == [0]
+                else:
+                    args["marathon_health_check_cmd"] = hc[0].get(
+                        "command").get("value")
 
         if name is not None:
             args["name"] = name
@@ -214,7 +239,8 @@ class DockerController(Controller):
         data = super(DockerController, self).to_dict()
         data.update({
             'port': self.port,
-            'marathon_health_check_path': self.marathon_health_check_path
+            'marathon_health_check_path': self.marathon_health_check_path,
+            'marathon_health_check_cmd': self.marathon_health_check_cmd
         })
         return data
 

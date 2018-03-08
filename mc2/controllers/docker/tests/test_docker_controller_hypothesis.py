@@ -154,8 +154,26 @@ def check_and_remove_health(appdata, controller):
     """
     Assert that the health check data is correct and remove it.
     """
-    if controller.marathon_health_check_path and controller.port:
+    if controller.marathon_health_check_path and \
+            controller.marathon_health_check_cmd:
+        assert appdata.pop("healthChecks") == [{
+            "gracePeriodSeconds": 60,
+            "intervalSeconds": 10,
+            "maxConsecutiveFailures": 3,
+            "path": controller.marathon_health_check_path,
+            "portIndex": 0,
+            "protocol": "HTTP",
+            "timeoutSeconds": 20,
+        }, {
+            "gracePeriodSeconds": 60,
+            "intervalSeconds": 10,
+            "maxConsecutiveFailures": 3,
+            "command": {"value": controller.marathon_health_check_cmd},
+            "protocol": "COMMAND",
+            "timeoutSeconds": 20,
+        }]
         assert appdata.pop("ports") == [0]
+    elif controller.marathon_health_check_path:
         assert appdata.pop("healthChecks") == [{
             "gracePeriodSeconds": 60,
             "intervalSeconds": 10,
@@ -165,6 +183,17 @@ def check_and_remove_health(appdata, controller):
             "protocol": "HTTP",
             "timeoutSeconds": 20,
         }]
+        assert appdata.pop("ports") == [0]
+    elif controller.marathon_health_check_cmd:
+        assert appdata.pop("healthChecks") == [{
+            "gracePeriodSeconds": 60,
+            "intervalSeconds": 10,
+            "maxConsecutiveFailures": 3,
+            "command": {"value": controller.marathon_health_check_cmd},
+            "protocol": "COMMAND",
+            "timeoutSeconds": 20,
+        }]
+
     assert "ports" not in appdata
     assert "healthChecks" not in appdata
 

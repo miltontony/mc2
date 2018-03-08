@@ -54,10 +54,11 @@ class Controller(PolymorphicModel):
         default='', blank=True, null=True)
 
     # Ownership and auth fields
-    owner = models.ForeignKey('auth.User')
+    owner = models.ForeignKey('auth.User', on_delete=models.PROTECT)
     team_id = models.IntegerField(blank=True, null=True)
     organization = models.ForeignKey(
-        'organizations.Organization', blank=True, null=True)
+        'organizations.Organization', blank=True, null=True,
+        on_delete=models.PROTECT)
 
     created_at = models.DateTimeField(
         _('Created Date & Time'),

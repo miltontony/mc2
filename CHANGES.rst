@@ -1,6 +1,21 @@
 CHANGE LOG
 ==========
 
+3.12.0
+------
+
+- Allow specify of COMMAND health check
+
+3.11.4
+------
+
+- Remove default nginx conf: new version of nginx ships with a default conf
+
+3.11.3
+------
+
+- Add on_delete models protect to controller's owner and organization
+
 3.11.2
 ------
 
