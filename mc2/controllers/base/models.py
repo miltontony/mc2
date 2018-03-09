@@ -1,5 +1,6 @@
 import requests
 import urllib
+import shlex
 
 from django.db import models
 from django.conf import settings
@@ -22,6 +23,7 @@ class Controller(PolymorphicModel):
     marathon_instances = models.IntegerField(
         default=settings.MESOS_DEFAULT_INSTANCES)
     marathon_cmd = models.TextField(default='', blank=True, null=True)
+    marathon_args = models.TextField(default='', blank=True, null=True)
 
     name = models.TextField(
         help_text='A descriptive name to uniquely identify a controller')
@@ -103,6 +105,7 @@ class Controller(PolymorphicModel):
             'state': self.state,
             'state_display': self.get_state_display(),
             'marathon_cmd': self.marathon_cmd,
+            'marathon_args': self.marathon_args,
         }
 
     @property
@@ -156,7 +159,9 @@ class Controller(PolymorphicModel):
             "instances": self.marathon_instances,
         }
 
-        if self.marathon_cmd:
+        if self.marathon_args:
+            data.update({"args": shlex.split(self.marathon_args)})
+        elif self.marathon_cmd:
             data.update({"cmd": self.marathon_cmd})
 
         envs = {}

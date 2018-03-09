@@ -94,7 +94,12 @@ def check_and_clear_appdata(appdata, controller):
     assert appdata.pop("cpus") == controller.marathon_cpus
     assert appdata.pop("mem") == controller.marathon_mem
     assert appdata.pop("instances") == controller.marathon_instances
-    check_and_remove_optional(appdata, "cmd", controller.marathon_cmd)
+
+    if controller.marathon_args:
+        check_and_remove_optional(appdata, "args", [controller.marathon_args])
+    elif controller.marathon_cmd:
+        check_and_remove_optional(appdata, "cmd", controller.marathon_cmd)
+
     check_and_remove_docker(appdata, controller)
     check_and_remove_health(appdata, controller)
     check_and_remove_env(appdata, controller)
@@ -331,8 +336,9 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
     @responses.activate
     @mock.patch.object(ControllerRabbitMQManager, '_create_username')
     @hsettings(perform_health_check=False)
-    @given(_r=random_module(), controller=docker_controller())
-    def test_get_marathon_app_data(self, _r, controller, mock_create_u):
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_args=text([""])))
+    def test_get_marathon_app_data_cmd(self, _r, controller, mock_create_u):
         """
         Suitable app_data is built for any combination of model parameters.
         """
@@ -348,8 +354,48 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
     @responses.activate
     @mock.patch.object(ControllerRabbitMQManager, '_create_username')
     @hsettings(perform_health_check=False)
-    @given(_r=random_module(), controller=docker_controller())
-    def test_from_marathon_app_data(self, _r, controller, u):
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_args=text(["ping"])))
+    def test_get_marathon_app_data_args(self, _r, controller, mock_create_u):
+        """
+        Suitable app_data is built for any combination of model parameters.
+        """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            self.mock_successful_new_vhost(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+            mock_create_u.return_value = controller.rabbitmq_vhost_username
+
+        app_data = controller.get_marathon_app_data()
+        check_and_clear_appdata(app_data, controller)
+
+    @responses.activate
+    @mock.patch.object(ControllerRabbitMQManager, '_create_username')
+    @hsettings(perform_health_check=False)
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_args=text([""])))
+    def test_from_marathon_app_data_cmd(self, _r, controller, u):
+        """
+        A model imported from app_data generates the same app_data as the model
+        it was imported from.
+        """
+        if controller.rabbitmq_vhost_needed and controller.rabbitmq_vhost_name:
+            self.mock_successful_new_vhost(
+                controller.rabbitmq_vhost_name,
+                controller.rabbitmq_vhost_username)
+            u.return_value = controller.rabbitmq_vhost_username
+
+        app_data = controller.get_marathon_app_data()
+        new_controller = DockerController.from_marathon_app_data(
+            controller.owner, controller.organization, app_data)
+        assert app_data == new_controller.get_marathon_app_data()
+
+    @responses.activate
+    @mock.patch.object(ControllerRabbitMQManager, '_create_username')
+    @hsettings(perform_health_check=False)
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_args=text(["ping"])))
+    def test_from_marathon_app_data_args(self, _r, controller, u):
         """
         A model imported from app_data generates the same app_data as the model
         it was imported from.
@@ -368,7 +414,9 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
     @responses.activate
     @mock.patch.object(ControllerRabbitMQManager, '_create_username')
     @hsettings(perform_health_check=False, max_examples=50)
-    @given(_r=random_module(), controller=docker_controller(), name=text())
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_args=text(["ping"])),
+           name=text())
     def test_from_marathon_app_data_with_name(self, _r, controller, name, u):
         """
         A model imported from app_data generates the same app_data as the model
@@ -395,7 +443,9 @@ class DockerControllerHypothesisTestCase(TestCase, ControllerBaseTestCase):
     @responses.activate
     @mock.patch.object(ControllerRabbitMQManager, '_create_username')
     @hsettings(perform_health_check=False, max_examples=50)
-    @given(_r=random_module(), controller=docker_controller(), name=text())
+    @given(_r=random_module(),
+           controller=docker_controller(marathon_args=text(["ping"])),
+           name=text())
     def test_hidden_import_view(self, _r, controller, name, mock_create_u):
         """
         A model imported through the hidden view generates the same app_data

@@ -1,10 +1,15 @@
 CHANGE LOG
 ==========
 
+3.13.0
+------
+
+- Allow specifying of ARGS in addition to CMD
+
 3.12.0
 ------
 
-- Allow specify of COMMAND health check
+- Allow specifying of COMMAND health check
 
 3.11.4
 ------

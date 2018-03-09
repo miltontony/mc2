@@ -1,4 +1,5 @@
 import json
+import pipes
 
 from django.db import models
 from django.conf import settings
@@ -151,9 +152,19 @@ class DockerController(Controller):
             "marathon_cpus": app_data.pop("cpus"),
             "marathon_mem": app_data.pop("mem"),
             "marathon_instances": app_data.pop("instances", 1),
-            "marathon_cmd": app_data.pop("cmd", ""),
             "docker_image": docker_dict.pop("image"),
         }
+
+        if 'args' in app_data:
+            args.update({
+                "marathon_args": " ".join([
+                    pipes.quote(s) for s in app_data.pop("args")]),
+            })
+        else:
+            args.update({
+                "marathon_cmd": app_data.pop('cmd', '')
+            })
+
         # TODO: Better error:
         assert docker_dict.pop("network") == "BRIDGE"
         assert docker_dict.pop("forcePullImage", True) is True
