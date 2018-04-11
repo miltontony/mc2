@@ -232,10 +232,10 @@ class Controller(PolymorphicModel):
         post_data = self.get_marathon_app_data()
         app_id = post_data.pop('id')
         resp = requests.put(
-            '%(host)s/v2/apps/%(id)s' % {
+            '{host}/v2/apps/{id}/?force=true'.format({
                 'host': settings.MESOS_MARATHON_HOST,
                 'id': app_id
-            },
+            }),
             json=post_data)
 
         if resp.status_code not in [200, 201]:
@@ -245,10 +245,10 @@ class Controller(PolymorphicModel):
 
     def marathon_restart_app(self):
         resp = requests.post(
-            '%(host)s/v2/apps/%(id)s/restart' % {
+            '{host}/v2/apps/{id}/restart/?force=true'.format({
                 'host': settings.MESOS_MARATHON_HOST,
                 'id': self.app_id
-            },
+            }),
             json={})
 
         if resp.status_code != 200:
@@ -258,10 +258,10 @@ class Controller(PolymorphicModel):
 
     def marathon_destroy_app(self):
         resp = requests.delete(
-            '%(host)s/v2/apps/%(id)s' % {
+            '{host}/v2/apps/{id}/?force=true'.format({
                 'host': settings.MESOS_MARATHON_HOST,
                 'id': self.app_id
-            },
+            }),
             json={})
 
         if resp.status_code != 200:
