@@ -1,3 +1,4 @@
+import json
 import requests
 import urllib
 import shlex
@@ -15,6 +16,37 @@ from mc2.controllers.base.managers import (
 
 
 class Controller(PolymorphicModel):
+    # Health status information.
+    # health_status = {
+    #                 'instances'       : <int>,
+    #                 'staged'          : <int>,
+    #                 'running'         : <int>,
+    #                 'health_defined'  : <boolean>,
+    #                                     False if health check path undefined
+    #                 'healthy'         : <int>,
+    #                 'unhealthy'       : <int>,
+    #                 'deploying'       : <boolean>
+    #                                     True if app is being deployed
+    #                 'error'           : True
+    #             }
+    #
+    #             OR... If there was an error retrieving health from Marathon
+    #
+    #             status = {
+    #                 'error'           : True
+    #                 'message'         : <Error message>
+    #             }
+    health_status = models.TextField(
+        blank=True,
+        null=True,
+        default=json.dumps(
+            {
+                'error': True,
+                'message': 'No health status available',
+            }
+        )
+    )
+
     # state
     marathon_cpus = models.FloatField(
         default=settings.MESOS_DEFAULT_CPU_SHARE)
@@ -283,6 +315,131 @@ class Controller(PolymorphicModel):
         TODO: destoy running marathon instance
         """
         pass
+
+    def get_status(self):
+        """
+        Hits Marathon API and gets the status of the App
+        :return: A dict with the status of the app
+        """
+        data = {
+            'error': True,
+            'message': 'No health status available',
+        }
+        try:
+            data = json.loads(self.health_status)
+        except Exception as e:
+            data['message'] = str(e.message)
+            return data
+        return data
+
+    @staticmethod
+    def get_apps_health():
+        """
+        Get the health details of all the apps
+        :return: a dict with the health details of the all the apps
+        """
+
+        # Get list of all app_ids from the database
+        controllers = Controller.objects.values_list('slug', flat=True)
+        data = []
+        try:
+            # Get details of all the apps running on Marathon
+            resp_all_apps = requests.get(
+                '%(host)s/v2/apps/' % {
+                    'host': settings.MESOS_MARATHON_HOST,
+                },
+                json={},
+                timeout=5,
+            )
+            # Get details about all deployments on Marathon
+            resp_deployments = requests.get(
+                '%(host)s/v2/deployments' % {
+                    'host': settings.MESOS_MARATHON_HOST,
+                },
+                json={},
+                timeout=5,
+            )
+            if resp_all_apps.status_code != 200:
+                raise exceptions.MarathonApiException(
+                    'Marathon API call failed with response: %s - %s' %
+                    (
+                        resp_all_apps.status_code,
+                        resp_all_apps.json().get('message')
+                    )
+                )
+
+            if resp_deployments.status_code != 200:
+                raise exceptions.MarathonApiException(
+                    'Marathon API call failed with response: %s - %s' %
+                    (
+                        resp_deployments.status_code,
+                        resp_deployments.json().get('message')
+                    )
+                )
+
+            # Get health statuses of all apps on MC2
+            for app in resp_all_apps.json().get('apps'):
+                # For each app on Marathon, check if it exists on MC2
+                if app['id'][1:] in controllers:
+
+                    # Check if the app is being deployed
+                    deploying = False
+                    for dep in resp_deployments.json():
+                        for dep_app in dep['affectedApps']:
+                            if dep_app == app['id']:
+                                deploying = True
+                                break
+
+                    # Check if the Marathon health check path is defined
+                    health_defined = False
+                    if len(app.get('healthChecks')) > 0:
+                        health_defined = True
+
+                    status = {
+                        'app_id': app['id'][1:],
+                        'instances': app.get('instances'),
+                        'staged': app.get('tasksStaged'),
+                        'running': app.get('tasksRunning'),
+                        'health_defined': health_defined,
+                        'healthy': app.get('tasksHealthy'),
+                        'unhealthy': app.get('tasksUnhealthy'),
+                        'deploying': deploying,
+                        'error': False,
+                    }
+                    data.append(status)
+
+            return {
+                'error': False,
+                'message': 'No Error',
+                'apps_health': data,
+            }
+
+        except Exception as e:
+            # Return an error message if an exception occurs
+            return {
+                'error': True,
+                'message': str(e.message),
+                'apps_health': [],
+            }
+
+    @staticmethod
+    def refresh_health():
+        """
+        Update the health status fields for all controllers.
+        :return: a dict (json format) with health statuses off all the apps.
+        """
+        health_statuses = Controller.get_apps_health()
+        if not health_statuses['error']:
+            for health in health_statuses['apps_health']:
+                c = Controller.objects.filter(slug=health['app_id'])
+                if c:
+                    c[0].health_status = json.dumps(health)
+                    c[0].save()
+        else:
+            # Health info not available.
+            # Error message inside health_statuses['message']
+            pass
+        return health_statuses
 
 
 class EnvVariable(models.Model):

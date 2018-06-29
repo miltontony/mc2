@@ -8,13 +8,46 @@
     <div class="widget-user-header {% if controller.marathon_instances %}bg-navy{% else %}bg-gray{% endif %}">
       <h3 class="widget-user-username">{{controller.name}}</h3>
       <div class="widget-user-desc">{{controller.description}}</div>
-      <div class="widget-user-desc">
-        {{controller.app_id }}
-        <span class="label bg-{% if controller.state == 'done' %}green{% else %}orange{% endif %}">{{controller.state}}</span>
+      <div class="widget-user-desc" id="status-{{ controller.app_id }}">
+          {# Didsplay the health of the app #}
+          <strong>{{ controller.app_id }} </strong>
+          {% with controller.get_status as status %}
+              {% if not status.error %}
+                  {% if status.deploying %}
+                      {% verbatim %}
+                      (App is being deployed)
+                      {% endverbatim %}
+                  {% endif %}
+                  <br/>
+                  {% if status.instances == 0 %}
+                      There are no instances of this app!<br/>
+                  {% else %}
+                      {# Display the number of instances of the app including the ones being staged (if available) #}
+                      Running instances: {{ status.running }} of {{ status.instances }}
+                      {% if status.staged != 0 %}
+                          ({{ status.staged }} staged)
+                      {% endif %}
+                      <br/>
+                      {% if status.health_defined %}
+                          {# If health is defined for the app, show the total number of healthy and unhealthy apps #}
+                          {% if status.healthy != 0 %}
+                              <span class="label bg-green">{{ status.healthy }} healthy</span>
+                          {% endif %}
+                          {% if status.unhealthy != 0 %}
+                              &nbsp;<span class="label bg-red">{{ status.unhealthy }} unhealthy</span><br/>
+                          {% endif %}
+                      {% else %}
+                          <span class="label bg-orange">Health check not defined!</span><br/>
+                      {% endif %}
+                  {% endif %}
+              {% else %}
+                  <br/><span class="label bg-orange">Unable to retrieve health data</span>
+              {% endif %}
+          {% endwith %}
       </div>
     </div>
 
-    <div class="box-footer">
+      <div class="box-footer">
       <div class="row">
         <div class="border-right col-description">
           <div class="description-block app-view-action">

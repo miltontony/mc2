@@ -1,20 +1,20 @@
 import logging
 
-from django.views.generic import ListView, UpdateView
+from django.views.generic import ListView, UpdateView, View
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from django.contrib import messages
 from django.db.models import F, Sum, FloatField
 from django.views.generic.edit import FormView
-from django.http import HttpResponseRedirect
-
+from django.http import HttpResponseRedirect, JsonResponse
 
 from mama_cas.views import LoginView
 from mama_cas.utils import redirect
 from mama_cas.utils import to_bool
 from mama_cas.models import ServiceTicket
 
+from mc2.controllers.base.models import Controller
 from mc2.controllers.base.views import ControllerViewMixin
 from mc2.models import UserSettings
 from mc2.organizations.models import Organization
@@ -120,7 +120,6 @@ class UserSettingsView(UpdateView):
 
 
 class MC2LoginView(LoginView):
-
     def get(self, request, *args, **kwargs):
         self.request.session['service'] = self.request.GET.get('service')
 
@@ -137,7 +136,6 @@ class MC2LoginView(LoginView):
                 st = ServiceTicket.objects.create_ticket(service=service,
                                                          user=request.user)
                 if self.warn_user():
-
                     return redirect('cas_warn', params={'service': service,
                                                         'ticket': st.ticket})
                 return redirect(service, params={'ticket': st.ticket})
@@ -179,3 +177,12 @@ class MC2LoginView(LoginView):
                                                      primary=True)
             return redirect(service, params={'ticket': st.ticket})
         return redirect('home')
+
+
+class AppsHealth(View):
+    def get(self, request):
+        """
+        Get the health details of all the apps
+        :return: a json response with the health details of the all the apps
+        """
+        return JsonResponse(Controller.refresh_health())

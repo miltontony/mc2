@@ -32,3 +32,11 @@ def marathon_destroy_app(project_id):
     controller = Controller.objects.get(pk=project_id)
     controller.marathon_destroy_app()
     controller.delete()
+
+
+@the_celery_app.task(ignore_result=True)
+def mc2_refresh_health_statuses():
+    from mc2.controllers.base.models import Controller
+
+    Controller.refresh_health()
+    print 'celery_task_run'

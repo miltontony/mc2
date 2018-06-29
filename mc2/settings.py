@@ -5,6 +5,7 @@ from os import environ
 import dj_database_url
 
 # Tell psycopg2cffi to impersonate psycopg2
+from celery.schedules import crontab
 from psycopg2cffi import compat
 compat.register()
 
@@ -21,8 +22,8 @@ PROJECT_ROOT = environ.get(
 MESOS_DEFAULT_MEMORY_ALLOCATION = environ.get(
     'MESOS_DEFAULT_MEMORY_ALLOCATION', 128.0)
 MESOS_MARATHON_HOST = environ.get(
-    'MESOS_MARATHON_HOST', 'http://localhost:8080')
-MESOS_HTTP_PORT = environ.get('MESOS_HTTP_PORT', 5051)
+    'MESOS_MARATHON_HOST', 'http://10.0.91.11:8080')
+MESOS_HTTP_PORT = environ.get('MESOS_HTTP_PORT', 5050)
 MESOS_DEFAULT_CPU_SHARE = environ.get('MESOS_DEFAULT_CPU_SHARE', 0.1)
 MESOS_DEFAULT_INSTANCES = environ.get('MESOS_DEFAULT_INSTANCES', 1)
 MESOS_DEFAULT_GRACE_PERIOD_SECONDS = environ.get(
@@ -293,6 +294,13 @@ if DEBUG:
 
 CELERY_EMAIL_TASK_CONFIG = {
     'serializer': 'json'
+}
+
+CELERYBEAT_SCHEDULE = {
+    'mc2_refresh_health_statuses': {
+        'task': 'mc2.controllers.base.tasks.mc2_refresh_health_statuses',
+        'schedule': crontab(minute='*'),
+    },
 }
 
 # Django debug toolbar
