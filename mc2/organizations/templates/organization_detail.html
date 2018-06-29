@@ -28,7 +28,9 @@
             <th style="width: 10px">#</th>
             <th>Username</th>
             <th>Email</th>
+            {% if is_org_admin %}
             <th>Is admin?</th>
+            {% endif %}
             <th>Is app admin?</th>
             <th>Remove?</th>
           </tr>
@@ -39,9 +41,20 @@
               <td>{{forloop.counter}}.</td>
               <td>{{ user.full_name|default:user.username }}</td>
               <td>{{ user.email }}</td>
+              {% if is_org_admin %}
               <td>{{ user_form.is_admin }}</td>
-              <td>{{ user_form.is_app_admin }}</td>
-              <td>{{ user_form.DELETE }}</td>
+              {% endif %}
+
+              {% if is_org_admin %}
+                <td>{{ user_form.is_app_admin }}</td>
+                <td>{{ user_form.DELETE }}</td>
+              {% elif user_form.is_admin.value %}
+                <td><input disabled="disabled" checked="checked" type="checkbox"></td>
+                <td><input disabled="disabled" type="checkbox"></td>
+              {% else %}
+                <td>{{ user_form.is_app_admin }}</td>
+                <td>{{ user_form.DELETE }}</td>
+              {% endif %}
             </tr>
             {% endwith %}
         {% endfor %}
@@ -62,7 +75,29 @@
       {% csrf_token %}
       {{ form.new_users_formset.management_form }}
       {% for new_user_form in form.new_users_formset %}
-          {% include "form.html" with form=new_user_form %}
+          {% for field in new_user_form.hidden_fields %}{{ field }}{% endfor %}
+
+          <div class="form-group{% if field.errors|length > 0 %} error{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ new_user_form.email.label }}</label>
+            {{ new_user_form.email }}
+            {% if new_user_form.email.help_text %}<p class="help-block">{{ new_user_form.email.help_text }}</p>{% endif %}
+            {% include "form_errors.html" with errors=new_user_form.email.errors %}
+          </div>
+          {% if is_org_admin %}
+          <div class="form-group{% if field.errors|length > 0 %} error{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ new_user_form.is_admin.label }}</label>
+            {{ new_user_form.is_admin }}
+            {% if new_user_form.is_admin.help_text %}<p class="help-block">{{ new_user_form.is_admin.help_text }}</p>{% endif %}
+            {% include "form_errors.html" with errors=new_user_form.is_admin.errors %}
+          </div>
+          {% endif %}
+          <div class="form-group{% if field.errors|length > 0 %} error{% endif %}">
+            <label for="{{ field.id_for_label }}">{{ new_user_form.is_app_admin.label }}</label>
+            {{ new_user_form.is_app_admin }}
+            {% if new_user_form.is_app_admin.help_text %}<p class="help-block">{{ new_user_form.is_app_admin.help_text }}</p>{% endif %}
+            {% include "form_errors.html" with errors=new_user_form.is_app_admin.errors %}
+          </div>
+
       {% endfor %}
 
       <p>
