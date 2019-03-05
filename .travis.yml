@@ -1,10 +1,10 @@
 language: python
 python:
   - "2.7"
-matrix:
-  include:
-    - python: "pypy"
-      env: PYPY_VERSION="5.3" NO_COVERAGE=1 PYTHON_BUILD_CACHE_PATH="$HOME/pyenv-cache"
+# matrix:
+#   include:
+#     - python: "pypy"
+#       env: PYPY_VERSION="5.3" NO_COVERAGE=1 PYTHON_BUILD_CACHE_PATH="$HOME/pyenv-cache"
 cache:
   - pip
   - directories:
