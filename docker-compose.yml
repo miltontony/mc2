@@ -1,0 +1,36 @@
+version: '2'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: development.dockerfile
+    ports:
+      - "8000:8000"
+    links:
+      - postgres
+      - redis
+    environment:
+      MC2_SECRET_KEY: 'this-is-an-insecure-key-you-should-not-use-in-production'
+      MC2_POSTGRES_HOST: postgres
+      MC2_DB_NAME: mc2
+      MC2_DB_USER: mc2
+      MC2_DB_PASSWORD: secret
+      MC2_REDIS_HOST: redis
+      MC2_MARATHON_HOST: 'localhost'
+  worker:
+    build:
+      context: .
+      dockerfile: development.dockerfile
+    command: celery worker -A mc2 -l INFO
+    links:
+      - redis
+    environment:
+      MC2_SECRET_KEY: 'this-is-an-insecure-key-you-should-not-use-in-production'
+      MC2_REDIS_HOST: redis
+  postgres:
+    image: postgres
+    environment:
+      POSTGRES_USER: mc2
+      POSTGRES_PASSWORD: secret
+  redis:
+    image: redis
